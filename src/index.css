@@ -3,8 +3,9 @@
 @layer base {
   body {
     font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: #FAF7F2;
-    color: #26211E;
+    background-color: #0A0E17;
+    color: #F1F5F9;
+    overflow-x: hidden;
   }
 }
 
@@ -20,41 +21,33 @@
   font-family: 'Be Vietnam Pro', sans-serif;
 }
 
-/* Custom scrollbars */
+/* Custom sleek gold scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #F4EFE6;
+  background: #0B111E;
 }
 ::-webkit-scrollbar-thumb {
   background: #D4AF37;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #8B1E1E;
+  background: #F59E0B;
 }
 
-/* Silk glow and traditional paper background textures */
-.bg-parchment {
-  background-color: #FBF8F3;
-  background-image: radial-gradient(#D4AF37 0.5px, transparent 0.5px), radial-gradient(#D4AF37 0.5px, #FBF8F3 0.5px);
-  background-size: 20px 20px;
-  background-position: 0 0, 10px 10px;
-  background-opacity: 0.05;
-}
-
+/* Silk glow and traditional patterns */
 .glass-imperial {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(14, 21, 38, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(212, 175, 55, 0.25);
 }
 
 .glass-dark-imperial {
-  background: rgba(26, 18, 16, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(212, 175, 55, 0.35);
+  background: rgba(10, 14, 23, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(245, 158, 11, 0.2);
 }

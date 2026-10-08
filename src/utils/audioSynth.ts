@@ -62,7 +62,7 @@ class TraditionalSoundEngine {
     }
   }
 
-  private startAmbiance() {
+  public startAmbiance() {
     this.isPlaying = true;
     const playNext = () => {
       if (!this.isPlaying) return;
@@ -74,7 +74,7 @@ class TraditionalSoundEngine {
     playNext();
   }
 
-  private stopAmbiance() {
+  public stopAmbiance() {
     this.isPlaying = false;
     if (this.timer) {
       clearTimeout(this.timer);

@@ -14,17 +14,19 @@ import {
   Sparkles,
   MapPin,
   Camera,
-  Heart,
   Check,
-  Smartphone,
-  Maximize2,
-  Minimize2,
-  BookOpen,
-  Layers,
   Crown,
   Quote,
+  Layers,
+  Calendar,
 } from 'lucide-react';
 import { soundEngine } from '../utils/audioSynth';
+import { getLookbookStory } from '../services/aiClient';
+import {
+  AuraLogo,
+  DongSonDrumMandala,
+  CoPhongCloud,
+} from './VietnameseDecorativeElements';
 
 interface LookbookScreenProps {
   top: WardrobeItem;
@@ -71,7 +73,6 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
   onOpenSavedDrawer,
 }) => {
   const [selectedBackdrop, setSelectedBackdrop] = useState<BackdropOption>(BACKDROPS[0]);
-  const [isPhoneFrame, setIsPhoneFrame] = useState<boolean>(true);
   const [isSaved, setIsSaved] = useState<boolean>(false);
   const [showShareModal, setShowShareModal] = useState<boolean>(false);
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
@@ -99,37 +100,32 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
     let isMounted = true;
     const fetchStory = async () => {
       try {
-        const res = await fetch('/api/ai/lookbook-story', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            top,
-            bottom,
-            accessory,
-            backdropTitle: selectedBackdrop.name,
-          }),
+        const generated = await getLookbookStory({
+          top,
+          bottom,
+          accessory,
+          backdropName: selectedBackdrop.name,
         });
-        const data = await res.json();
-        if (isMounted && data.success && data.data) {
-          setLookbookStory(data.data);
+        if (isMounted) {
+          setLookbookStory(generated);
         }
       } catch {
-        // Keep current fallback
+        // Fallback already provided in state
       }
     };
     fetchStory();
     return () => {
       isMounted = false;
     };
-  }, [selectedBackdrop, top, bottom, accessory]);
+  }, [selectedBackdrop, top, bottom, accessory, color, fabric]);
 
   // Handle Save
   const handleSave = () => {
-    soundEngine.playPluck(587.33);
-    const newItem: SavedLookbookItem = {
+    soundEngine.playPluck(659.25);
+    const item: SavedLookbookItem = {
       id: `lb-${Date.now()}`,
       date: new Date().toLocaleDateString('vi-VN'),
-      title: lookbookStory.editionTitle || 'Bộ đồ đi dạo phố',
+      title: `${top.name} tại ${selectedBackdrop.city}`,
       topName: top.name,
       bottomName: bottom.name,
       accessoryName: accessory.name,
@@ -137,14 +133,14 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
       score: harmonyData?.score || 95,
       aiStory: lookbookStory.editorialStory,
     };
-    onSaveLookbook(newItem);
+    onSaveLookbook(item);
     setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 3000);
+    setTimeout(() => setIsSaved(false), 2500);
   };
 
-  // Handle Download (Canvas Export / Snapshot simulation)
-  const handleDownload = () => {
-    soundEngine.playPluck(698.46);
+  // High-Resolution Image Export (Canvas)
+  const handleDownload = async () => {
+    soundEngine.playPluck(783.99);
     setIsDownloading(true);
 
     try {
@@ -152,81 +148,83 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
       canvas.width = 1080;
       canvas.height = 1920;
       const ctx = canvas.getContext('2d');
+
       if (ctx) {
-        // Create an elegant poster background
-        const grad = ctx.createLinearGradient(0, 0, 0, 1920);
-        grad.addColorStop(0, '#1E1412');
-        grad.addColorStop(0.5, '#421E1E');
-        grad.addColorStop(1, '#0F0C0B');
-        ctx.fillStyle = grad;
+        // Background color
+        ctx.fillStyle = '#0A0E17';
         ctx.fillRect(0, 0, 1080, 1920);
 
         // Header Title
-        ctx.fillStyle = '#D4AF37';
-        ctx.font = 'bold 36px "Playfair Display", serif';
-        ctx.fillText('LOOKBOOK VIỆT PHỤC DI SẢN 2026', 100, 140);
+        ctx.fillStyle = '#F59E0B';
+        ctx.font = 'bold 36px "Cinzel", serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('AURA - VIỆT PHỤC REMIX', 540, 120);
 
-        ctx.fillStyle = '#FDFBF7';
-        ctx.font = 'bold 72px "Playfair Display", serif';
-        ctx.fillText(lookbookStory.editionTitle || 'Bộ Đồ Đi Dạo Phố', 100, 240);
+        ctx.fillStyle = '#CBD5E1';
+        ctx.font = '24px "Be Vietnam Pro", sans-serif';
+        ctx.fillText('DI SẢN TRANG PHỤC VIỆT • BỘ SƯU TẬP 2026', 540, 170);
 
-        ctx.fillStyle = '#E5C7B4';
-        ctx.font = '32px "Be Vietnam Pro", sans-serif';
-        ctx.fillText(`Địa điểm: ${selectedBackdrop.name} • Điểm hài hòa: ${harmonyData?.score || 95}/100`, 100, 310);
-
-        // Outline Box for description
-        ctx.strokeStyle = '#D4AF37';
+        // Center photo card container
+        ctx.fillStyle = '#0E1526';
+        ctx.fillRect(90, 240, 900, 1000);
+        ctx.strokeStyle = '#F59E0B';
         ctx.lineWidth = 3;
-        ctx.strokeRect(100, 420, 880, 1200);
+        ctx.strokeRect(90, 240, 900, 1000);
 
-        // Garment Info
-        ctx.fillStyle = '#D4AF37';
-        ctx.font = 'bold 40px "Playfair Display", serif';
-        ctx.fillText(`Trang phục: ${top.name}`, 150, 520);
+        // Photo Information
+        ctx.fillStyle = '#FDE68A';
+        ctx.font = 'bold 42px "Playfair Display", serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(`${top.name}`, 140, 360);
 
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = '32px "Be Vietnam Pro", sans-serif';
-        ctx.fillText(`Quần/Váy: ${bottom.name}`, 150, 580);
-        ctx.fillText(`Phụ kiện: ${accessory.name}`, 150, 640);
-        ctx.fillText(`Chất liệu: ${fabric.name} • Tông màu: ${color.name}`, 150, 700);
+        ctx.fillStyle = '#F1F5F9';
+        ctx.font = '28px "Be Vietnam Pro", sans-serif';
+        ctx.fillText(`Phối cùng: ${bottom.name}`, 140, 420);
+        ctx.fillText(`Phụ kiện: ${accessory.name}`, 140, 470);
+        ctx.fillText(`Chất liệu: ${fabric.name} • Tông màu: ${color.name}`, 140, 520);
+        ctx.fillText(`Bối cảnh: ${selectedBackdrop.name} (${selectedBackdrop.city})`, 140, 570);
 
-        // Story snippet
-        ctx.fillStyle = '#F4EFE6';
-        ctx.font = 'italic 30px "Be Vietnam Pro", sans-serif';
+        // Harmony Badge
+        ctx.fillStyle = '#10B981';
+        ctx.font = 'bold 32px "Be Vietnam Pro", sans-serif';
+        ctx.fillText(`Đánh giá hòa hợp: ${harmonyData?.score || 95} Điểm`, 140, 650);
+
+        // Story text
+        ctx.fillStyle = '#E2E8F0';
+        ctx.font = 'italic 26px "Be Vietnam Pro", sans-serif';
         const words = lookbookStory.editorialStory.split(' ');
         let line = '';
-        let y = 820;
+        let y = 730;
         for (const n of words) {
           const testLine = line + n + ' ';
-          if (ctx.measureText(testLine).width > 780) {
-            ctx.fillText(line, 150, y);
+          if (ctx.measureText(testLine).width > 800) {
+            ctx.fillText(line, 140, y);
             line = n + ' ';
-            y += 45;
+            y += 40;
           } else {
             line = testLine;
           }
         }
-        ctx.fillText(line, 150, y);
+        ctx.fillText(line, 140, y);
 
-        // Poetry couple
-        ctx.fillStyle = '#FDE68A';
-        ctx.font = 'bold 34px "Playfair Display", serif';
-        ctx.fillText(`“ ${lookbookStory.poetryCouple} ”`, 150, y + 100);
+        // Poetry couplet
+        ctx.fillStyle = '#FBBF24';
+        ctx.font = 'bold 32px "Playfair Display", serif';
+        ctx.fillText(`“ ${lookbookStory.poetryCouple} ”`, 140, y + 90);
 
-        // Footer watermarks
-        ctx.fillStyle = '#A38B7D';
-        ctx.font = '24px "Be Vietnam Pro", sans-serif';
-        ctx.fillText('Được tạo bởi Sáng Tạo Cùng Việt Phục AI Studio', 100, 1820);
+        // Footer note
+        ctx.fillStyle = '#64748B';
+        ctx.font = '22px "Be Vietnam Pro", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Được tạo bởi Aura - Việt Phục Remix AI Studio', 540, 1840);
 
-        // Trigger download
+        // Download link
         const dataUrl = canvas.toDataURL('image/png');
         const link = document.createElement('a');
-        link.download = `VietPhuc_Lookbook_${Date.now()}.png`;
+        link.download = `Aura_VietPhuc_${Date.now()}.png`;
         link.href = dataUrl;
         link.click();
       }
-    } catch (err) {
-      console.error(err);
     } finally {
       setIsDownloading(false);
     }
@@ -245,117 +243,112 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-stone-100 flex flex-col justify-between select-none relative overflow-x-hidden">
+    <div className="min-h-screen w-full bg-[#0A0E17] text-slate-100 flex flex-col relative overflow-x-hidden font-sans-vi">
       {/* Background Ambience */}
       <div
-        className="absolute inset-0 opacity-20 pointer-events-none bg-cover bg-center blur-2xl scale-110"
+        className="fixed inset-0 opacity-15 pointer-events-none bg-cover bg-center blur-2xl scale-110"
         style={{ backgroundImage: `url(${selectedBackdrop.imageUrl})` }}
       />
 
-      {/* Top Header Bar */}
-      <header className="relative z-30 w-full px-6 py-4 flex items-center justify-between border-b border-white/10 backdrop-blur-md bg-black/40">
-        <div className="flex items-center gap-3">
+      {/* Decorative Traditional Elements */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute -bottom-36 -right-36 opacity-20">
+          <DongSonDrumMandala className="w-[500px] h-[500px]" opacity={0.25} />
+        </div>
+        <div className="absolute top-12 right-10 opacity-25">
+          <CoPhongCloud className="w-52 h-28" flipX />
+        </div>
+      </div>
+
+      {/* Breadcrumb & Navigation Sub-Bar */}
+      <div className="relative z-20 w-full border-b border-slate-800/80 bg-[#0C1220]/60 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <button
             onClick={onBackToFitting}
-            className="p-2 rounded-xl text-stone-400 hover:text-white hover:bg-white/10 transition-all flex items-center gap-1.5 text-xs font-semibold"
+            className="p-1.5 sm:px-3 sm:py-1.5 rounded-xl text-slate-300 hover:text-amber-300 hover:bg-slate-800/80 transition-all flex items-center gap-1.5 text-xs font-semibold"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Phòng Thử Đồ</span>
+            <ArrowLeft className="w-4 h-4 text-amber-400" />
+            <span>Quay lại Phòng Thử Đồ</span>
           </button>
-          <div className="h-4 w-px bg-white/20" />
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onOpenSavedDrawer}
+              className="px-3 py-1.5 rounded-xl text-xs font-medium bg-[#141E34] hover:bg-amber-500/20 text-slate-200 border border-slate-700/60 hover:border-amber-400/50 transition-all flex items-center gap-1.5"
+            >
+              <Bookmark className="w-3.5 h-3.5 text-amber-400" />
+              <span>Đã lưu ({savedItems.length})</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* MAIN RESPONSIVE CONTENT AREA */}
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-start p-4 sm:p-6 md:p-8 max-w-7xl mx-auto w-full">
+        {/* Scenery Selector Chips */}
+        <div className="w-full mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left">
           <div>
-            <h2 className="font-serif-vi text-base font-bold text-white flex items-center gap-2">
-              <span>Lookbook Cá Nhân</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#D4AF37] text-black">
-                GIAO DIỆN MOBILE
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-amber-400" />
+              <span className="text-[11px] font-bold tracking-widest text-amber-400 uppercase">
+                BỘ SƯU TẬP NGOẠI CẢNH
               </span>
-            </h2>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold font-serif-vi text-amber-200 mt-1">
+              Lookbook Di Sản Cá Nhân
+            </h1>
+          </div>
+
+          {/* Backdrop Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full custom-scrollbar">
+            <span className="text-slate-400 text-xs whitespace-nowrap flex items-center gap-1 mr-1 shrink-0">
+              <MapPin className="w-3.5 h-3.5 text-amber-400" /> Chọn bối cảnh:
+            </span>
+            {BACKDROPS.map((bd) => (
+              <button
+                key={bd.id}
+                onClick={() => {
+                  setSelectedBackdrop(bd);
+                  soundEngine.playPluck(440);
+                }}
+                className={`px-3 py-1 rounded-xl whitespace-nowrap text-xs font-medium transition-all shrink-0 ${
+                  selectedBackdrop.id === bd.id
+                    ? 'bg-amber-500/20 text-amber-300 border border-amber-400/60 shadow-md'
+                    : 'bg-[#121A2C] text-slate-300 hover:text-white border border-slate-700/60'
+                }`}
+              >
+                {bd.name}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* View Mode Controls */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onOpenSavedDrawer}
-            className="px-3 py-1.5 rounded-full text-xs font-medium bg-white/10 hover:bg-white/20 text-stone-200 transition-all flex items-center gap-1.5 border border-white/10"
-            title="Mở thư viện Lookbook đã lưu"
-          >
-            <Bookmark className="w-3.5 h-3.5 text-[#D4AF37]" />
-            <span>Đã lưu ({savedItems.length})</span>
-          </button>
-
-          <button
-            onClick={() => setIsPhoneFrame(!isPhoneFrame)}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/10 hover:bg-white/20 text-stone-200 transition-all border border-white/10"
-            title="Đổi khung hình điện thoại hoặc toàn màn hình"
-          >
-            {isPhoneFrame ? <Maximize2 className="w-3.5 h-3.5" /> : <Smartphone className="w-3.5 h-3.5" />}
-            <span>{isPhoneFrame ? 'Toàn màn hình' : 'Khung điện thoại'}</span>
-          </button>
-        </div>
-      </header>
-
-      {/* MAIN CONTENT AREA */}
-      <main className="relative z-20 flex-1 flex flex-col items-center justify-center p-4 sm:p-6 overflow-y-auto">
-        {/* Backdrop Scenery Selector Pill */}
-        <div className="w-full max-w-[420px] mb-4 flex items-center gap-1.5 overflow-x-auto pb-2 text-xs">
-          <span className="text-stone-400 text-[11px] whitespace-nowrap flex items-center gap-1 mr-1">
-            <MapPin className="w-3 h-3 text-[#D4AF37]" /> Bối cảnh:
-          </span>
-          {BACKDROPS.map((bd) => (
-            <button
-              key={bd.id}
-              onClick={() => {
-                setSelectedBackdrop(bd);
-                soundEngine.playPluck(440);
-              }}
-              className={`px-3 py-1 rounded-full whitespace-nowrap text-[11px] font-medium transition-all ${
-                selectedBackdrop.id === bd.id
-                  ? 'bg-[#8B1E1E] text-white border border-[#D4AF37]/50 shadow-md'
-                  : 'bg-white/10 text-stone-300 hover:bg-white/20 border border-white/5'
-              }`}
-            >
-              {bd.name}
-            </button>
-          ))}
-        </div>
-
-        {/* ================= GIAO DIỆN ĐIỆN THOẠI DI ĐỘNG (MOBILE FRAME) ================= */}
+        {/* WORKSPACE: Fully Responsive 2-Column on Desktop, 1-Column on Mobile */}
         <div
           ref={cardRef}
-          className={`w-full transition-all duration-500 overflow-hidden relative shadow-[0_25px_70px_rgba(0,0,0,0.85)] ${
-            isPhoneFrame
-              ? 'max-w-[390px] rounded-[52px] border-[10px] border-stone-800 bg-white text-stone-900 ring-1 ring-white/20'
-              : 'max-w-2xl rounded-3xl bg-white text-stone-900 border border-stone-200'
-          }`}
+          className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 bg-[#0E1526]/85 backdrop-blur-xl border border-amber-500/20 rounded-3xl p-4 sm:p-6 shadow-[0_16px_56px_rgba(0,0,0,0.7)]"
         >
-          {/* Phone Top Speaker & Notch (Chỉ hiện khi ở chế độ điện thoại) */}
-          {isPhoneFrame && (
-            <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-28 h-4 bg-stone-900 rounded-full z-40 flex items-center justify-center">
-              <div className="w-3 h-3 rounded-full bg-stone-800 mr-2" />
-              <div className="w-10 h-1 bg-stone-800 rounded-full" />
+          {/* ==========================================================
+              LEFT COLUMN: Editorial Scenery Photo
+              (Desktop: 6 or 7 cols | Mobile: 100% full width)
+             ========================================================== */}
+          <div className="lg:col-span-6 xl:col-span-6 rounded-2xl overflow-hidden border border-amber-500/30 bg-[#090D18] relative min-h-[460px] sm:min-h-[520px] flex flex-col justify-between shadow-2xl group">
+            {/* Real World Backdrop Photo */}
+            <div className="absolute inset-0">
+              <img
+                src={selectedBackdrop.imageUrl}
+                alt={selectedBackdrop.name}
+                className="w-full h-full object-cover object-center filter brightness-[0.85] contrast-[1.05] transition-transform duration-700 group-hover:scale-102"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E18] via-black/25 to-black/40 pointer-events-none" />
             </div>
-          )}
-
-          {/* 1. KHU VỰC ẢNH KẾT XUẤT VÀO BỐI CẢNH THỰC TẾ (FASHION MAGAZINE PHOTO) */}
-          <div className="relative h-[440px] sm:h-[480px] w-full overflow-hidden bg-stone-900 select-none">
-            {/* Real World Backdrop Photo (Đường phố / Cố Đô) */}
-            <img
-              src={selectedBackdrop.imageUrl}
-              alt={selectedBackdrop.name}
-              className="w-full h-full object-cover object-center filter brightness-[0.88] contrast-[1.05] transition-transform duration-700 hover:scale-105"
-            />
-
-            {/* Subtle Gradient Overlays for High Fashion Contrast */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/35 pointer-events-none" />
 
             {/* Model Avatar Silhouette composite positioned inside the scene */}
-            <div className="absolute inset-x-0 bottom-4 top-12 flex items-center justify-center pointer-events-none">
-              <div className="w-56 h-[380px] relative drop-shadow-[0_20px_35px_rgba(0,0,0,0.9)] opacity-95 transform translate-y-3">
-                {/* SVG Visual Model preview inside the scenery */}
+            <div className="absolute inset-x-0 bottom-6 top-16 flex items-center justify-center pointer-events-none">
+              <div className="w-56 sm:w-64 h-[380px] sm:h-[420px] relative drop-shadow-[0_20px_40px_rgba(0,0,0,0.95)] opacity-95">
                 <svg viewBox="0 0 400 680" className="w-full h-full drop-shadow-2xl">
                   {/* Silhouette shadow blend */}
-                  <ellipse cx="200" cy="620" rx="90" ry="14" fill="#000000" opacity="0.6" />
+                  <ellipse cx="200" cy="620" rx="95" ry="14" fill="#000000" opacity="0.65" />
 
                   {/* Head & Hair */}
                   <ellipse cx="200" cy="80" rx="36" ry="40" fill="#1C1817" />
@@ -407,115 +400,119 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
             </div>
 
             {/* Top Magazine Badges on the Photo */}
-            <div className="absolute top-8 left-6 right-6 flex items-center justify-between text-white z-20">
-              <span className="text-[10px] font-cinzel font-bold tracking-[0.3em] uppercase drop-shadow-md text-[#D4AF37]">
-                VIET HERITAGE 2026
-              </span>
-              <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-black/60 backdrop-blur-md border border-white/20 flex items-center gap-1 shadow-md">
-                <Crown className="w-3 h-3 text-[#D4AF37]" />
+            <div className="relative p-5 flex items-center justify-between text-white z-20">
+              <div className="flex items-center gap-2">
+                <AuraLogo className="w-6 h-6" />
+                <span className="text-xs font-serif-vi font-bold tracking-[0.25em] uppercase drop-shadow-md text-amber-300">
+                  AURA LOOKBOOK
+                </span>
+              </div>
+              <span className="px-3 py-1 rounded-xl text-xs font-bold bg-[#090D18]/80 backdrop-blur-md border border-amber-500/40 text-amber-300 flex items-center gap-1.5 shadow-md">
+                <Crown className="w-3.5 h-3.5 text-amber-400" />
                 {harmonyData?.score || 95} ĐIỂM HÀI HÒA
               </span>
             </div>
 
-            {/* Card Tiêu Đề trên ảnh (Card giao diện ghi "Bộ đồ đi dạo phố") */}
-            <div className="absolute bottom-6 left-6 right-6 text-white z-20">
-              <span className="px-3.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#8B1E1E] text-white shadow-md inline-block mb-2">
+            {/* Bottom Photo Title & Location */}
+            <div className="relative p-5 text-white z-20 text-left">
+              <span className="px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40 inline-block mb-2">
                 {lookbookStory.editionTitle}
               </span>
-              <h3 className="font-serif-vi text-2xl sm:text-3xl font-bold leading-tight drop-shadow-md">
+              <h3 className="font-serif-vi text-2xl sm:text-3xl font-bold leading-tight text-amber-100 drop-shadow-md">
                 {top.name} • {selectedBackdrop.city}
               </h3>
-              <p className="text-[11px] text-stone-200 mt-1 line-clamp-1 italic font-light drop-shadow-sm">
+              <p className="text-xs text-slate-300 mt-1 italic drop-shadow-xs line-clamp-2">
                 {lookbookStory.subHeadline}
               </p>
             </div>
           </div>
 
-          {/* 2. PHẦN BÊN DƯỚI BỨC ẢNH LÀ "THẺ THÔNG TIN VĂN HÓA" (AI CULTURAL ANALYSIS) */}
-          <div className="p-6 bg-white flex flex-col justify-between">
+          {/* ==========================================================
+              RIGHT COLUMN: Cultural Narrative, Poetry & Export Actions
+              (Desktop: 6 cols | Mobile: 100% full width below photo)
+             ========================================================== */}
+          <div className="lg:col-span-6 xl:col-span-6 flex flex-col justify-between text-left space-y-4">
             <div>
-              {/* Header Analysis */}
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 rounded-full bg-[#8B1E1E] text-white flex items-center justify-center text-xs">
-                  <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
+              {/* Header Box */}
+              <div className="flex items-center gap-2.5 pb-3 border-b border-slate-700/60">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center">
+                  <Sparkles className="w-4 h-4 text-amber-400" />
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#8B1E1E] block">
-                    Thẻ Thông Tin Văn Hóa (AI Phân Tích)
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400 block">
+                    BIÊN NIÊN SỬ THỜI TRANG (AI ĐỒNG SÁNG TÁC)
                   </span>
-                  <h4 className="font-serif-vi text-base font-bold text-stone-900 leading-none">
-                    Ý nghĩa, Hoa văn & Sự kết hợp
+                  <h4 className="font-serif-vi text-lg font-bold text-slate-100">
+                    Hồn Cốt Di Sản & Dấu Ấn Đương Đại
                   </h4>
                 </div>
               </div>
 
-              {/* Poetic Quote */}
-              <div className="p-3 rounded-2xl bg-[#FAF7F2] border border-[#D4AF37]/30 mb-4 flex items-start gap-2.5">
-                <Quote className="w-4 h-4 text-[#8B1E1E] shrink-0 mt-0.5" />
-                <p className="font-serif-vi text-xs italic text-stone-800 leading-snug">
+              {/* Poetic Couplet */}
+              <div className="my-3.5 p-3.5 rounded-2xl bg-[#131C2E] border border-amber-500/30 flex items-start gap-3 shadow-inner">
+                <Quote className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                <p className="font-serif-vi text-sm italic text-amber-200/95 leading-relaxed">
                   “{lookbookStory.poetryCouple}”
                 </p>
               </div>
 
-              {/* Deep Narrative Text from AI */}
-              <p className="text-xs text-stone-700 leading-relaxed font-sans-vi mb-4">
+              {/* Editorial Narrative */}
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans-vi mb-4">
                 {lookbookStory.editorialStory}
               </p>
 
-              {/* Garment Anatomy Pills */}
-              <div className="space-y-2 text-[11px] mb-6">
-                <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-200 flex items-start gap-2">
-                  <strong className="text-[#8B1E1E] shrink-0">Cổ áo & Phom dáng:</strong>
-                  <span className="text-stone-600">{top.cultureInfo.collarType}</span>
+              {/* Garment Details & Culture Pillars */}
+              <div className="space-y-2 text-xs">
+                <div className="p-2.5 rounded-xl bg-[#131C2E] border border-slate-700/60 flex items-start gap-2">
+                  <strong className="text-amber-400 shrink-0">Cổ áo & Phom dáng:</strong>
+                  <span className="text-slate-300">{top.cultureInfo.collarType}</span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-200 flex items-start gap-2">
-                  <strong className="text-[#8B1E1E] shrink-0">Hoa văn & Biểu trưng:</strong>
-                  <span className="text-stone-600">{top.cultureInfo.symbolism}</span>
+                <div className="p-2.5 rounded-xl bg-[#131C2E] border border-slate-700/60 flex items-start gap-2">
+                  <strong className="text-amber-400 shrink-0">Hoa văn & Biểu trưng:</strong>
+                  <span className="text-slate-300">{top.cultureInfo.symbolism}</span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-stone-50 border border-stone-200 flex items-start gap-2">
-                  <strong className="text-[#B4821A] shrink-0">Ghi chú nhiếp ảnh:</strong>
-                  <span className="text-stone-600">{lookbookStory.photographerNote}</span>
+                <div className="p-2.5 rounded-xl bg-[#131C2E] border border-slate-700/60 flex items-start gap-2">
+                  <strong className="text-amber-300 shrink-0">Ghi chú nhiếp ảnh:</strong>
+                  <span className="text-slate-300">{lookbookStory.photographerNote}</span>
                 </div>
               </div>
             </div>
 
-            {/* 3. BỘ 3 NÚT THAO TÁC NHANH Ở CUỐI MÀN HÌNH THEO YÊU CẦU:
-                - "Tải ảnh xuống"
-                - "Lưu lại" (vào bộ sưu tập Lookbook cá nhân)
-                - "Chia sẻ" */}
-            <div className="pt-4 border-t border-stone-200 flex items-center justify-between gap-2.5">
-              {/* Nút 1: Tải ảnh xuống */}
+            {/* Quick Action Buttons */}
+            <div className="pt-4 border-t border-slate-700/60 flex flex-col sm:flex-row items-center gap-2.5">
+              {/* Button 1: Download High-Res PNG */}
               <button
                 onClick={handleDownload}
                 disabled={isDownloading}
-                className="flex-1 py-3 px-3 rounded-2xl text-[11px] sm:text-xs font-bold uppercase tracking-wider bg-stone-100 hover:bg-stone-200 text-stone-800 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
-                title="Tải thẻ ảnh Lookbook về máy"
+                className="w-full sm:flex-1 py-3 px-3 rounded-2xl text-xs font-bold uppercase tracking-wider bg-[#131C2E] hover:bg-[#1A2640] text-slate-100 border border-slate-700 hover:border-amber-400/60 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
               >
-                <Download className="w-3.5 h-3.5 text-[#8B1E1E]" />
-                <span>{isDownloading ? 'Đang xuất...' : 'Tải ảnh xuống'}</span>
+                <Download className="w-4 h-4 text-amber-400" />
+                <span>{isDownloading ? 'Đang xuất ảnh...' : 'Tải ảnh Lookbook'}</span>
               </button>
 
-              {/* Nút 2: Lưu lại */}
+              {/* Button 2: Save to Library */}
               <button
                 onClick={handleSave}
-                className={`flex-1 py-3 px-3 rounded-2xl text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs ${
+                className={`w-full sm:flex-1 py-3 px-3 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md ${
                   isSaved
                     ? 'bg-emerald-600 text-white'
-                    : 'bg-stone-100 hover:bg-stone-200 text-stone-800'
+                    : 'bg-[#131C2E] hover:bg-[#1A2640] text-slate-100 border border-slate-700 hover:border-amber-400/60'
                 }`}
-                title="Lưu vào bộ sưu tập cá nhân"
               >
-                {isSaved ? <Check className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5 text-[#B4821A]" />}
-                <span>{isSaved ? 'Đã lưu!' : 'Lưu lại'}</span>
+                {isSaved ? (
+                  <Check className="w-4 h-4" />
+                ) : (
+                  <Bookmark className="w-4 h-4 text-amber-400" />
+                )}
+                <span>{isSaved ? 'Đã lưu thành công!' : 'Lưu lại'}</span>
               </button>
 
-              {/* Nút 3: Chia sẻ */}
+              {/* Button 3: Share */}
               <button
                 onClick={handleShare}
-                className="flex-1 py-3 px-3 rounded-2xl text-[11px] sm:text-xs font-bold uppercase tracking-wider bg-[#8B1E1E] hover:bg-black text-white transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
-                title="Chia sẻ Lookbook"
+                className="w-full sm:flex-1 py-3 px-3 rounded-2xl text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg hover:brightness-105"
               >
-                <Share2 className="w-3.5 h-3.5 text-[#FDE68A]" />
+                <Share2 className="w-4 h-4 text-slate-950" />
                 <span>Chia sẻ</span>
               </button>
             </div>
@@ -526,76 +523,45 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
       {/* SHARE MODAL DIALOG */}
       {showShareModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="w-full max-w-sm rounded-3xl bg-white text-stone-900 p-6 shadow-2xl border border-stone-200">
+          <div className="w-full max-w-sm rounded-3xl bg-[#0E1526] text-slate-100 p-6 shadow-2xl border border-amber-500/30 text-left">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-serif-vi text-lg font-bold text-stone-900 flex items-center gap-2">
-                <Share2 className="w-4 h-4 text-[#8B1E1E]" />
+              <h3 className="font-serif-vi text-lg font-bold text-amber-300 flex items-center gap-2">
+                <Share2 className="w-4 h-4 text-amber-400" />
                 Chia Sẻ Lookbook Di Sản
               </h3>
               <button
                 onClick={() => setShowShareModal(false)}
-                className="text-stone-400 hover:text-stone-800 text-sm font-bold p-1"
+                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
               >
                 ✕
               </button>
             </div>
 
-            <p className="text-xs text-stone-600 mb-4 leading-relaxed">
+            <p className="text-xs text-slate-300 mb-4 leading-relaxed">
               Lan tỏa vẻ đẹp của {top.name} phối tại {selectedBackdrop.name} tới bạn bè và cộng đồng yêu Việt phục!
             </p>
 
-            <div className="p-3 bg-stone-100 rounded-2xl flex items-center justify-between text-xs text-stone-700 mb-5">
-              <span className="truncate max-w-[200px] font-mono text-[11px]">
+            <div className="p-3 bg-[#131C2E] border border-slate-700/60 rounded-2xl flex items-center justify-between text-xs text-slate-300 mb-5">
+              <span className="truncate max-w-[200px] font-mono text-[11px] text-slate-400">
                 {window.location.href}
               </span>
               <button
                 onClick={copyShareLink}
-                className="px-3 py-1 rounded-xl text-xs font-bold bg-[#8B1E1E] text-white hover:opacity-90 transition-all flex items-center gap-1"
+                className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 text-xs font-semibold"
               >
-                {copiedLink ? <Check className="w-3 h-3" /> : 'Sao chép'}
+                {copiedLink ? 'Đã sao chép!' : 'Sao chép'}
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 text-xs font-semibold">
-              <button
-                onClick={() => {
-                  window.open(
-                    `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`,
-                    '_blank'
-                  );
-                }}
-                className="p-2.5 rounded-xl border border-stone-200 hover:bg-stone-50 text-center"
-              >
-                Facebook
-              </button>
-              <button
-                onClick={() => {
-                  window.open(
-                    `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-                      `Khám phá bộ Lookbook Việt phục: ${top.name} tại ${selectedBackdrop.name}!`
-                    )}&url=${encodeURIComponent(window.location.href)}`,
-                    '_blank'
-                  );
-                }}
-                className="p-2.5 rounded-xl border border-stone-200 hover:bg-stone-50 text-center"
-              >
-                X (Twitter)
-              </button>
-            </div>
+            <button
+              onClick={() => setShowShareModal(false)}
+              className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold"
+            >
+              Đóng
+            </button>
           </div>
         </div>
       )}
-
-      {/* Footer bar */}
-      <footer className="relative z-30 w-full px-6 py-3 border-t border-white/10 text-center text-[11px] text-stone-400 flex items-center justify-between">
-        <span>Giao diện Lookbook Tạp Chí Kỹ Thuật Số (Mobile Responsive)</span>
-        <button
-          onClick={onBackToFitting}
-          className="text-[#D4AF37] hover:underline font-medium"
-        >
-          ← Chỉnh sửa lại trang phục trong Phòng Thử
-        </button>
-      </footer>
     </div>
   );
 };

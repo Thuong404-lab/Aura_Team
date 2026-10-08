@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { WardrobeItem, FabricOption, ColorOption } from '../data/vietPhucData';
-import { Eye, Info, Sparkles, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { DongSonDrumMandala } from './VietnameseDecorativeElements';
+import { Check, Camera, Box, Sparkles } from 'lucide-react';
 
 interface AvatarModelProps {
   top: WardrobeItem;
@@ -8,9 +9,11 @@ interface AvatarModelProps {
   accessory: WardrobeItem;
   fabric: FabricOption;
   color: ColorOption;
-  showCultureCard: boolean;
-  setShowCultureCard: (show: boolean) => void;
-  onSelectHotspot?: (type: 'collar' | 'sleeve' | 'fabric' | 'accessory') => void;
+  harmonyScore?: number;
+  harmonyBadge?: string;
+  harmonyCritique?: string;
+  showCulturePins?: boolean;
+  onDownloadPhoto?: () => void;
 }
 
 export const AvatarModel: React.FC<AvatarModelProps> = ({
@@ -19,749 +22,298 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
   accessory,
   fabric,
   color,
-  showCultureCard,
-  setShowCultureCard,
+  harmonyScore = 95,
+  harmonyCritique = 'Sự kết hợp hài hòa giữa Áo ngũ thân tay chẽn truyền thống và váy xếp ly hiện đại, giữ được nét thanh lịch nhưng vẫn năng động.',
+  showCulturePins = true,
+  onDownloadPhoto,
 }) => {
-  const [angle, setAngle] = useState<'front' | 'threeQuarter' | 'side'>('front');
-  const [zoomLevel, setZoomLevel] = useState<number>(1);
-  const [activePin, setActivePin] = useState<'collar' | 'buttons' | 'sleeve' | 'fabric' | null>('collar');
+  const [viewMode, setViewMode] = useState<'3D' | '2D'>('3D');
+  const [activePin, setActivePin] = useState<'top' | 'accessory' | null>('top');
 
-  const mainColor = color.hex;
-  const accentColor = color.accentHex || '#D4AF37';
-
-  // Sheen overlay style according to fabric
-  const getFabricOpacity = () => {
-    if (fabric.id === 'sa-nam-bo') return 0.88;
-    return 1;
-  };
+  const mainColor = color.hex || top.defaultColorHex || '#1B365D';
+  const accentGold = '#D4AF37';
 
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center select-none overflow-hidden">
-      {/* Top Controls Overlay */}
-      <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
-        <span className="px-3 py-1 rounded-full text-[11px] font-semibold tracking-wider bg-white/80 backdrop-blur-md text-[#8B1E1E] border border-[#D4AF37]/30 shadow-xs flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-[#8B1E1E] animate-pulse" />
-          MÔ HÌNH 3D VẬT LÝ VẢI
-        </span>
-        <button
-          onClick={() => setShowCultureCard(!showCultureCard)}
-          className={`px-3 py-1 rounded-full text-[11px] font-medium transition-all flex items-center gap-1 border ${
-            showCultureCard
-              ? 'bg-[#8B1E1E] text-white border-[#8B1E1E] shadow-sm'
-              : 'bg-white/80 text-stone-700 hover:bg-white border-stone-200'
-          }`}
-          title="Bật/Tắt thẻ phân tích văn hóa"
-        >
-          <Info className="w-3 h-3" />
-          {showCultureCard ? 'Ẩn thẻ văn hóa' : 'Xem thẻ văn hóa'}
-        </button>
+      {/* 1. Bronze Drum (Trống Đồng) Circular Mandala Glow in Background */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <DongSonDrumMandala className="w-[380px] h-[380px] md:w-[480px] md:h-[480px]" opacity={0.35} />
+        {/* Soft Ambient Radial Halo */}
+        <div className="absolute w-[320px] h-[320px] rounded-full bg-radial from-amber-500/10 via-amber-900/5 to-transparent blur-2xl" />
       </div>
 
-      {/* Angle & Zoom toolbar */}
-      <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 bg-white/85 backdrop-blur-md p-1.5 rounded-2xl border border-stone-200 shadow-sm">
-        <button
-          onClick={() => setAngle('front')}
-          className={`px-2.5 py-1 rounded-xl text-xs font-medium transition-all ${
-            angle === 'front' ? 'bg-[#8B1E1E] text-white shadow-xs' : 'text-stone-600 hover:text-black'
-          }`}
-        >
-          Chính diện
-        </button>
-        <button
-          onClick={() => setAngle('threeQuarter')}
-          className={`px-2.5 py-1 rounded-xl text-xs font-medium transition-all ${
-            angle === 'threeQuarter' ? 'bg-[#8B1E1E] text-white shadow-xs' : 'text-stone-600 hover:text-black'
-          }`}
-        >
-          Nghiêng 3/4
-        </button>
-        <div className="h-4 w-px bg-stone-200 mx-1" />
-        <button
-          onClick={() => setZoomLevel((z) => Math.min(z + 0.15, 1.35))}
-          className="p-1 rounded-lg text-stone-600 hover:bg-stone-100"
-          title="Phóng to chi tiết"
-        >
-          <ZoomIn className="w-3.5 h-3.5" />
-        </button>
-        <button
-          onClick={() => setZoomLevel((z) => Math.max(z - 0.15, 0.85))}
-          className="p-1 rounded-lg text-stone-600 hover:bg-stone-100"
-          title="Thu nhỏ"
-        >
-          <ZoomOut className="w-3.5 h-3.5" />
-        </button>
-        <button
-          onClick={() => {
-            setZoomLevel(1);
-            setAngle('front');
-          }}
-          className="p-1 rounded-lg text-stone-600 hover:bg-stone-100"
-          title="Đặt lại góc nhìn"
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-        </button>
+      {/* 2. Interactive Callout Pin: Mấn Đội Đầu (Top-Right) */}
+      {showCulturePins && (
+        <div className="absolute top-12 right-2 md:right-6 z-30 max-w-[210px] hidden sm:block animate-in fade-in duration-500">
+          <div className="relative bg-[#0E1626]/90 backdrop-blur-md border border-amber-400/40 rounded-xl p-2.5 shadow-2xl text-left">
+            {/* Fine Golden Pointer Line to head */}
+            <div className="absolute -left-10 top-5 w-10 h-[1.5px] bg-amber-400/70" />
+            <div className="absolute -left-10 top-4 w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_#F59E0B]" />
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              <h5 className="text-[12px] font-bold text-amber-300 font-serif-vi">
+                {accessory.name || 'Mấn đội đầu'}
+              </h5>
+            </div>
+            <p className="text-[10px] text-slate-300 leading-relaxed font-sans-vi">
+              {accessory.cultureInfo?.origin ||
+                'Áo ngũ thân quy chuẩn đi kèm mấn tròn quấn nhiều vòng, tạo nét trang trọng, đài các cho diện mạo.'}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* 3. Interactive Callout Pin: Áo Ngũ Thân (Left Side) */}
+      {showCulturePins && (
+        <div className="absolute top-36 left-2 md:left-6 z-30 max-w-[220px] hidden sm:block animate-in fade-in duration-500">
+          <div className="relative bg-[#0E1626]/90 backdrop-blur-md border border-amber-400/40 rounded-xl p-2.5 shadow-2xl text-left">
+            {/* Fine Golden Pointer Line to chest */}
+            <div className="absolute -right-10 top-6 w-10 h-[1.5px] bg-amber-400/70" />
+            <div className="absolute -right-10 top-5 w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_#F59E0B]" />
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              <h5 className="text-[12px] font-bold text-amber-300 font-serif-vi">
+                {top.name}
+              </h5>
+            </div>
+            <p className="text-[10px] text-slate-300 leading-relaxed font-sans-vi">
+              {top.cultureInfo?.symbolism ||
+                'Áo ngũ thân tay chẽn tôn nét đẹp đoan trang, kín đáo với 5 thân áo tượng trưng cho tứ thân phụ mẫu và bản thân.'}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* 4. AI Harmony Badge & Critique Box (Bottom-Right of Avatar) */}
+      <div className="absolute bottom-14 right-2 md:right-8 z-30 max-w-[240px] hidden sm:block animate-in fade-in duration-500">
+        <div className="rounded-xl overflow-hidden shadow-2xl border border-emerald-500/40 bg-[#092018]/85 backdrop-blur-md text-left">
+          {/* Header pill */}
+          <div className="bg-emerald-600/90 text-emerald-50 px-3 py-1 flex items-center gap-1.5 text-[11px] font-semibold tracking-wide">
+            <Check className="w-3.5 h-3.5 stroke-[3]" />
+            <span>ĐÁNH GIÁ SỰ HÀI HÒA</span>
+          </div>
+          {/* Content */}
+          <div className="p-2.5 text-emerald-100">
+            <div className="font-bold text-[12px] text-emerald-300 font-serif-vi mb-1">
+              Phối đồ xuất sắc ({harmonyScore} điểm)
+            </div>
+            <p className="text-[10px] leading-relaxed text-emerald-100/90 font-sans-vi">
+              "{harmonyCritique}"
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* Main Avatar Canvas Area */}
+      {/* 5. Main Character 3D-styled SVG Mannequin */}
       <div
-        className="relative w-full max-w-[340px] md:max-w-[420px] h-[520px] md:h-[620px] flex items-center justify-center transition-transform duration-500 ease-out"
+        className="relative w-[280px] sm:w-[320px] md:w-[360px] h-[480px] sm:h-[530px] flex items-center justify-center transition-all duration-500"
         style={{
-          transform: `scale(${zoomLevel}) ${
-            angle === 'threeQuarter'
-              ? 'rotateY(-12deg) rotateX(2deg)'
-              : angle === 'side'
-              ? 'rotateY(-24deg)'
-              : 'rotateY(0deg)'
-          }`,
-          perspective: '1000px',
+          transform: viewMode === '3D' ? 'perspective(900px) rotateY(-4deg)' : 'none',
         }}
       >
-        {/* Soft Floor Shadow */}
-        <div className="absolute bottom-4 w-56 h-8 bg-black/15 blur-xl rounded-full" />
+        {/* Soft Shadow on Floor */}
+        <div className="absolute bottom-4 w-44 h-6 bg-black/40 blur-md rounded-full pointer-events-none" />
 
-        {/* Ambient Halo Behind Avatar */}
-        <div
-          className="absolute inset-10 rounded-full blur-3xl opacity-25 pointer-events-none transition-colors duration-700"
-          style={{ backgroundColor: mainColor }}
-        />
-
-        {/* Scalable Vector Avatar Illustration */}
-        <svg
-          viewBox="0 0 400 680"
-          className="w-full h-full drop-shadow-2xl overflow-visible"
-          style={{ opacity: getFabricOpacity() }}
-        >
+        <svg viewBox="0 0 380 640" className="w-full h-full drop-shadow-2xl overflow-visible">
           <defs>
-            {/* Fabric Gấm Gold Brocade Texture Pattern */}
-            <pattern id="brocadePattern" width="24" height="24" patternUnits="userSpaceOnUse">
+            {/* Brocade Fabric Texture */}
+            <pattern id="avatarBrocade" width="20" height="20" patternUnits="userSpaceOnUse">
+              <circle cx="10" cy="10" r="1.2" fill={accentGold} opacity="0.35" />
               <path
-                d="M12 0 L24 12 L12 24 L0 12 Z M12 6 L18 12 L12 18 L6 12 Z"
+                d="M10 2 L18 10 L10 18 L2 10 Z"
                 fill="none"
-                stroke={accentColor}
-                strokeWidth="0.75"
-                opacity="0.35"
-              />
-              <circle cx="12" cy="12" r="1.5" fill={accentColor} opacity="0.4" />
-            </pattern>
-
-            {/* Cloud Wave Pattern for Nhật Bình */}
-            <pattern id="cloudWavePattern" width="40" height="20" patternUnits="userSpaceOnUse">
-              <path
-                d="M0 10 Q10 0 20 10 T40 10 M0 15 Q10 5 20 15 T40 15"
-                fill="none"
-                stroke="#D4AF37"
-                strokeWidth="0.8"
-                opacity="0.5"
+                stroke={accentGold}
+                strokeWidth="0.6"
+                opacity="0.25"
               />
             </pattern>
 
-            {/* Gradients */}
-            <linearGradient id="silkShine" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.35" />
-              <stop offset="50%" stopColor="#ffffff" stopOpacity="0.05" />
-              <stop offset="100%" stopColor="#000000" stopOpacity="0.2" />
+            {/* Skirt Pleat Texture */}
+            <linearGradient id="pleatShade" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#EDE6D6" />
+              <stop offset="50%" stopColor="#FAF7F0" />
+              <stop offset="100%" stopColor="#DFD6C2" />
             </linearGradient>
 
-            <linearGradient id="bodySkin" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#F9E8DC" />
-              <stop offset="100%" stopColor="#E5C7B4" />
+            {/* Skin Tone Gradient */}
+            <linearGradient id="skinTone" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#F9E6DA" />
+              <stop offset="100%" stopColor="#E2C2AE" />
             </linearGradient>
 
-            <linearGradient id="goldCollar" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#C59B27" />
-              <stop offset="50%" stopColor="#FDE68A" />
-              <stop offset="100%" stopColor="#B4821A" />
-            </linearGradient>
-
-            {/* Ngũ Hành Five Elements Stripe for Nhật Bình Sleeve */}
-            <linearGradient id="nguHanhStripe" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#1F4E5B" />
-              <stop offset="20%" stopColor="#8B1E1E" />
-              <stop offset="40%" stopColor="#D4AF37" />
-              <stop offset="60%" stopColor="#FDFBF7" />
-              <stop offset="80%" stopColor="#1A1817" />
-              <stop offset="100%" stopColor="#8B1E1E" />
-            </linearGradient>
+            {/* Gold Button Glow */}
+            <radialGradient id="buttonGold">
+              <stop offset="0%" stopColor="#FDE68A" />
+              <stop offset="70%" stopColor="#D4AF37" />
+              <stop offset="100%" stopColor="#8A6623" />
+            </radialGradient>
           </defs>
 
-          {/* ===== 1. BASE BODY & HEAD MANNEQUIN ===== */}
-          {/* Hair Bun / Cổ phục hair style */}
-          <g id="hair">
-            <ellipse cx="200" cy="76" rx="42" ry="46" fill="#1C1817" />
-            <circle cx="200" cy="46" r="24" fill="#181514" />
-            {/* Hair highlight */}
-            <path d="M185 58 Q200 48 215 58" stroke="#3D3634" strokeWidth="2" fill="none" />
+          {/* ===== BASE BODY & HEAD ===== */}
+          {/* Neck */}
+          <path d="M184 95 L184 125 L196 125 L196 95 Z" fill="url(#skinTone)" />
+
+          {/* Serene Vietnamese Face */}
+          <ellipse cx="190" cy="85" rx="22" ry="26" fill="url(#skinTone)" />
+          {/* Eyes & Eyebrows */}
+          <path d="M178 82 Q183 80 186 82" stroke="#4A342B" strokeWidth="1.2" fill="none" />
+          <path d="M194 82 Q197 80 202 82" stroke="#4A342B" strokeWidth="1.2" fill="none" />
+          <path d="M179 85 Q183 87 186 85" stroke="#2B1D16" strokeWidth="1.5" fill="none" />
+          <path d="M194 85 Q197 87 201 85" stroke="#2B1D16" strokeWidth="1.5" fill="none" />
+          {/* Gentle Smile */}
+          <path d="M187 98 Q190 101 193 98" stroke="#A84848" strokeWidth="1.4" fill="none" />
+
+          {/* Hair Base */}
+          <ellipse cx="190" cy="72" rx="30" ry="24" fill="#171514" />
+
+          {/* ===== HEADGEAR: MẤN ĐỘI ĐẦU ===== */}
+          <g id="manDoiDau">
+            {/* Classical round wrapped mấn coronet */}
+            <ellipse cx="190" cy="66" rx="34" ry="16" fill="#142136" stroke="#D4AF37" strokeWidth="1.2" />
+            <ellipse cx="190" cy="62" rx="32" ry="14" fill="#1C2D47" />
+            {/* Wrapped silk bands */}
+            <path d="M160 66 Q190 52 220 66" stroke="#D4AF37" strokeWidth="1" opacity="0.6" fill="none" />
+            <path d="M164 68 Q190 56 216 68" stroke="#0F172A" strokeWidth="1.5" fill="none" />
+            {/* Center pearl / gold jewel */}
+            <circle cx="190" cy="74" r="2.5" fill="#FDE68A" stroke="#B45309" strokeWidth="0.8" />
           </g>
 
-          {/* Face & Neck */}
-          <path d="M192 110 L192 135 L208 135 L208 110 Z" fill="url(#bodySkin)" />
-          <ellipse cx="200" cy="94" rx="28" ry="34" fill="url(#bodySkin)" />
-          {/* Stylized serene facial hints */}
-          <path d="M188 92 Q193 94 196 92" stroke="#8A6658" strokeWidth="1.2" fill="none" />
-          <path d="M204 92 Q207 94 212 92" stroke="#8A6658" strokeWidth="1.2" fill="none" />
-          <path d="M198 97 L200 102 L202 97" stroke="#8A6658" strokeWidth="0.8" fill="none" opacity="0.6" />
-          <path d="M195 109 Q200 112 205 109" stroke="#B04A4A" strokeWidth="1.6" fill="none" />
-
-          {/* ===== 2. BOTTOM LAYER (QUẦN / VÁY) ===== */}
-          <g id="bottomLayer">
+          {/* ===== BOTTOM LAYER: PLEATED SKIRT (VÁY XẾP LY) OR PANTS ===== */}
+          <g id="skirtOrPants">
             {bottom.id === 'vay-xep-ly' ? (
-              // Pleated Skirt with Thủy Ba Hem
-              <g>
+              // Cream / Ivory Pleated Midi Skirt as shown in mockup
+              <g id="pleatedSkirt">
                 <path
-                  d="M145 360 L110 590 Q200 610 290 590 L255 360 Z"
-                  fill={bottom.defaultColorHex}
-                  stroke="#331A1A"
-                  strokeWidth="0.75"
+                  d="M152 320 L130 520 Q190 530 250 520 L228 320 Z"
+                  fill="url(#pleatShade)"
+                  stroke="#C7BC9F"
+                  strokeWidth="0.8"
                 />
-                {/* Pleat lines */}
-                {[-70, -50, -30, -10, 10, 30, 50, 70].map((offset, i) => (
-                  <path
+                {/* Crisp Vertical Pleats */}
+                {[-45, -35, -25, -15, -5, 5, 15, 25, 35, 45].map((offset, i) => (
+                  <line
                     key={i}
-                    d={`M${200 + offset * 0.6} 365 L${200 + offset * 1.15} 595`}
-                    stroke="rgba(0,0,0,0.22)"
-                    strokeWidth="1.5"
+                    x1={190 + offset * 0.75}
+                    y1={322}
+                    x2={190 + offset * 1.25}
+                    y2={520}
+                    stroke="rgba(160, 140, 110, 0.35)"
+                    strokeWidth="1.2"
                   />
                 ))}
-                {/* Thủy Ba wave hem */}
-                <path
-                  d="M110 575 Q150 565 200 580 Q250 565 290 575 L290 590 Q200 610 110 590 Z"
-                  fill="url(#goldCollar)"
-                  opacity="0.85"
-                />
-              </g>
-            ) : bottom.id === 'quan-tay-hien-dai' ? (
-              // Modern Slim Pleated Trousers
-              <g>
-                <path d="M155 350 L140 590 L188 590 L196 420 L204 420 L212 590 L260 590 L245 350 Z" fill="#242120" />
-                <path d="M165 370 L164 585 M235 370 L236 585" stroke="#3D3836" strokeWidth="1" />
+                {/* Hemline shadow */}
+                <path d="M130 520 Q190 530 250 520" stroke="#B0A282" strokeWidth="1.5" fill="none" />
               </g>
             ) : (
-              // Traditional Quần Ống Sớ Lụa Bạch / Quần Cung Đình
-              <g>
+              // Silk Wide Pants (Quần Ống Sớ)
+              <g id="silkPants">
                 <path
-                  d="M150 340 L125 600 L188 600 L196 440 L204 440 L212 600 L275 600 L250 340 Z"
-                  fill={bottom.defaultColorHex}
+                  d="M150 310 L132 530 L185 530 L190 380 L195 380 L200 530 L248 530 L230 310 Z"
+                  fill={bottom.defaultColorHex || '#FAF7F0'}
                   stroke="rgba(0,0,0,0.15)"
                   strokeWidth="1"
                 />
-                {/* Soft Silk folds */}
-                <path d="M155 380 Q150 490 145 595" stroke="rgba(0,0,0,0.1)" strokeWidth="2" fill="none" />
-                <path d="M245 380 Q250 490 255 595" stroke="rgba(0,0,0,0.1)" strokeWidth="2" fill="none" />
-                <path d="M185 460 Q182 530 180 595" stroke="rgba(0,0,0,0.08)" strokeWidth="1.5" fill="none" />
+                <path d="M155 350 Q152 450 148 525" stroke="rgba(0,0,0,0.1)" strokeWidth="1.5" fill="none" />
+                <path d="M225 350 Q228 450 232 525" stroke="rgba(0,0,0,0.1)" strokeWidth="1.5" fill="none" />
               </g>
             )}
 
-            {/* Shoes / Hài */}
-            {accessory.id === 'hai-theu' ? (
-              <g id="haiTheu">
-                <path d="M130 598 Q140 592 165 598 Q175 608 150 612 L130 606 Z" fill="#8B1E1E" />
-                <path d="M128 598 Q120 592 126 586" stroke="#D4AF37" strokeWidth="2" fill="none" />
-                <path d="M270 598 Q260 592 235 598 Q225 608 250 612 L270 606 Z" fill="#8B1E1E" />
-                <path d="M272 598 Q280 592 274 586" stroke="#D4AF37" strokeWidth="2" fill="none" />
-              </g>
-            ) : (
-              <g id="basicShoes">
-                <path d="M136 600 Q150 596 170 600 L166 610 L134 608 Z" fill="#2C2420" />
-                <path d="M264 600 Q250 596 230 600 L234 610 L266 608 Z" fill="#2C2420" />
-              </g>
-            )}
+            {/* Legs & Black Pumps / Shoes (Giày Cao Gót / Hài Đen) */}
+            <g id="shoesAndLegs">
+              {/* Lower Legs */}
+              <rect x="168" y="520" width="10" height="42" rx="4" fill="url(#skinTone)" />
+              <rect x="202" y="520" width="10" height="42" rx="4" fill="url(#skinTone)" />
+              {/* Black Shoes */}
+              <path d="M165 560 Q173 558 184 562 L182 570 L163 568 Z" fill="#1C1917" />
+              <path d="M215 560 Q207 558 196 562 L198 570 L217 568 Z" fill="#1C1917" />
+            </g>
           </g>
 
-          {/* ===== 3. TOP LAYER (ÁO CHÍNH) ===== */}
-          <g id="topLayer">
-            {/* Specific silhouette by Top Type */}
-            {top.id === 'nhat-binh' ? (
-              // ÁO NHẬT BÌNH
-              <g id="aoNhatBinh">
-                {/* Sleeves */}
-                <path
-                  d="M150 145 L70 230 L95 380 L145 320 L155 170 Z"
-                  fill={mainColor}
-                  stroke="rgba(0,0,0,0.2)"
-                  strokeWidth="1"
-                />
-                <path
-                  d="M250 145 L330 230 L305 380 L255 320 L245 170 Z"
-                  fill={mainColor}
-                  stroke="rgba(0,0,0,0.2)"
-                  strokeWidth="1"
-                />
-
-                {/* Ngũ Hành Five Elements Stripe on Sleeve Cuffs */}
-                <path d="M72 235 L95 380 L115 365 L90 220 Z" fill="url(#nguHanhStripe)" />
-                <path d="M328 235 L305 380 L285 365 L310 220 Z" fill="url(#nguHanhStripe)" />
-
-                {/* Main Body Robe */}
-                <path
-                  d="M155 140 L245 140 L265 480 Q200 495 135 480 Z"
-                  fill={mainColor}
-                  stroke="rgba(0,0,0,0.25)"
-                  strokeWidth="1.2"
-                />
-
-                {/* Brocade overlay if fabric is Gấm */}
-                {fabric.id === 'gam-cung-dinh' && (
-                  <path d="M155 140 L245 140 L265 480 Q200 495 135 480 Z" fill="url(#brocadePattern)" />
-                )}
-
-                {/* Rectangular Collar (Cổ Nhật Bình đặc trưng) */}
-                <g id="coNhatBinh">
-                  <path
-                    d="M182 135 L218 135 L218 290 L206 290 L206 484 L194 484 L194 290 L182 290 Z"
-                    fill="url(#goldCollar)"
-                    stroke="#8B1E1E"
-                    strokeWidth="1"
-                  />
-                  {/* Collar embroidery details */}
-                  <rect x="186" y="145" width="28" height="135" fill="none" stroke="#8B1E1E" strokeWidth="1" />
-                  <circle cx="200" cy="180" r="4" fill="#8B1E1E" />
-                  <circle cx="200" cy="220" r="4" fill="#8B1E1E" />
-                  <circle cx="200" cy="260" r="4" fill="#8B1E1E" />
-                </g>
-
-                {/* Thủy Ba Waves at hem */}
-                <path
-                  d="M135 450 Q165 440 200 455 Q235 440 265 450 L265 480 Q200 495 135 480 Z"
-                  fill="url(#cloudWavePattern)"
-                />
-              </g>
-            ) : top.id === 'ao-tac' ? (
-              // ÁO TẤC (TAY THỤNG RỘNG)
-              <g id="aoTac">
-                {/* Ultra-wide ceremonious sleeves hanging down */}
-                <path
-                  d="M150 145 L40 260 L45 460 Q95 490 140 420 L155 200 Z"
-                  fill={mainColor}
-                  stroke="rgba(0,0,0,0.2)"
-                  strokeWidth="1"
-                />
-                <path
-                  d="M250 145 L360 260 L355 460 Q305 490 260 420 L245 200 Z"
-                  fill={mainColor}
-                  stroke="rgba(0,0,0,0.2)"
-                  strokeWidth="1"
-                />
-
-                {/* Main Body */}
-                <path
-                  d="M155 135 L245 135 L260 495 Q200 505 140 495 Z"
-                  fill={mainColor}
-                  stroke="rgba(0,0,0,0.25)"
-                  strokeWidth="1.2"
-                />
-
-                {/* Fabric Brocade Pattern */}
-                {fabric.id === 'gam-cung-dinh' && (
-                  <path d="M155 135 L245 135 L260 495 Q200 505 140 495 Z" fill="url(#brocadePattern)" />
-                )}
-
-                {/* Cổ Đứng Lập Lĩnh (High stand collar 4cm) */}
-                <path
-                  d="M186 130 Q200 132 214 130 L214 146 Q200 148 186 146 Z"
-                  fill={accentColor}
-                  stroke="#5C3B1E"
-                  strokeWidth="1"
-                />
-
-                {/* 5 Cúc cài chéo về nách phải */}
-                <path d="M208 146 Q215 170 230 195 L225 380" stroke="rgba(0,0,0,0.25)" strokeWidth="1.5" fill="none" />
-                {[146, 168, 190, 215, 245].map((y, i) => (
-                  <circle
-                    key={i}
-                    cx={208 + (i * 4.5)}
-                    cy={y}
-                    r="3.5"
-                    fill="url(#goldCollar)"
-                    stroke="#5C3B1E"
-                    strokeWidth="0.8"
-                  />
-                ))}
-              </g>
-            ) : top.id === 'giao-linh' ? (
-              // ÁO GIAO LĨNH (CỔ CHÉO TRỰC LĨNH)
-              <g id="aoGiaoLinh">
-                {/* Traditional wide flowing sleeves */}
-                <path
-                  d="M150 145 L60 240 L85 410 L145 350 L155 180 Z"
-                  fill={mainColor}
-                  stroke="rgba(0,0,0,0.2)"
-                  strokeWidth="1"
-                />
-                <path
-                  d="M250 145 L340 240 L315 410 L255 350 L245 180 Z"
-                  fill={mainColor}
-                  stroke="rgba(0,0,0,0.2)"
-                  strokeWidth="1"
-                />
-
-                {/* Body robe */}
-                <path
-                  d="M155 138 L245 138 L260 480 Q200 492 140 480 Z"
-                  fill={mainColor}
-                  stroke="rgba(0,0,0,0.25)"
-                  strokeWidth="1"
-                />
-
-                {/* Crossed Collars (Giao Lĩnh Hữu Nhậm - vạt trái đè vạt phải) */}
-                <path d="M182 135 L235 240 L215 250 L172 145 Z" fill={accentColor} opacity="0.9" />
-                <path d="M218 135 L170 230 L160 215 L208 135 Z" fill={accentColor} opacity="0.8" />
-
-                {/* Silk Ribbon Tie at Waist */}
-                <rect x="160" y="275" width="80" height="14" fill="#8B1E1E" rx="2" />
-                <path d="M210 285 L225 390 L215 390 L205 285 Z" fill="#8B1E1E" />
-              </g>
-            ) : top.id === 'vien-linh' ? (
-              // ÁO VIÊN LĨNH (CỔ TRÒN TRIỀU QUAN)
-              <g id="aoVienLinh">
-                <path
-                  d="M150 145 L65 235 L90 380 L145 330 L155 180 Z"
-                  fill={mainColor}
-                  stroke="rgba(0,0,0,0.2)"
-                  strokeWidth="1"
-                />
-                <path
-                  d="M250 145 L335 235 L310 380 L255 330 L245 180 Z"
-                  fill={mainColor}
-                  stroke="rgba(0,0,0,0.2)"
-                  strokeWidth="1"
-                />
-
-                <path
-                  d="M155 138 L245 138 L258 485 Q200 495 142 485 Z"
-                  fill={mainColor}
-                  stroke="rgba(0,0,0,0.2)"
-                  strokeWidth="1"
-                />
-
-                {/* Cổ tròn Viên Lĩnh */}
-                <path
-                  d="M180 135 Q200 152 220 135"
-                  stroke={accentColor}
-                  strokeWidth="5"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-                <circle cx="222" cy="140" r="4" fill="#2E6F56" stroke="#D4AF37" strokeWidth="1" />
-
-                {/* Bổ Tử (Imperial Chest Badge) */}
-                <rect
-                  x="180"
-                  y="180"
-                  width="40"
-                  height="40"
-                  fill="none"
-                  stroke="url(#goldCollar)"
-                  strokeWidth="2"
-                  rx="3"
-                />
-                <path d="M192 195 L200 188 L208 195 L200 212 Z" fill={accentColor} opacity="0.8" />
-              </g>
-            ) : top.id === 'cach-tan' ? (
-              // ÁO DÀI CÁCH TÂN 2026 (MODERN NEO-HERITAGE)
-              <g id="aoCachTan">
-                {/* Modern fitted 3/4 sleeves */}
-                <path
-                  d="M155 145 L110 240 L125 330 L150 280 L158 175 Z"
-                  fill={mainColor}
-                  stroke="rgba(0,0,0,0.2)"
-                  strokeWidth="1"
-                />
-                <path
-                  d="M245 145 L290 240 L275 330 L250 280 L242 175 Z"
-                  fill={mainColor}
-                  stroke="rgba(0,0,0,0.2)"
-                  strokeWidth="1"
-                />
-
-                {/* Slim streamlined silhouette with split vents */}
-                <path
-                  d="M160 140 L240 140 L252 470 Q200 480 148 470 Z"
-                  fill={mainColor}
-                  stroke="rgba(0,0,0,0.2)"
-                  strokeWidth="1.2"
-                />
-
-                {/* Modern sleek mandarin collar */}
-                <path
-                  d="M190 132 Q200 134 210 132 L210 142 Q200 144 190 142 Z"
-                  fill={accentColor}
-                  stroke="#5C3B1E"
-                  strokeWidth="0.8"
-                />
-
-                {/* Minimalist gold center-line stitch */}
-                <line x1="200" y1="144" x2="200" y2="475" stroke={accentColor} strokeWidth="1.5" strokeDasharray="3 3" />
-                <circle cx="200" cy="165" r="3" fill="#D4AF37" />
-                <circle cx="200" cy="190" r="3" fill="#D4AF37" />
-              </g>
-            ) : (
-              // ÁO NGŨ THÂN TAY CHẼN (STANDARD / DEFAULT QUỐC PHỤC)
-              <g id="aoNguThan">
-                {/* Tay chẽn gọn gàng thanh thoát */}
-                <path
-                  d="M155 145 L105 240 L118 350 L145 310 L156 175 Z"
-                  fill={mainColor}
-                  stroke="rgba(0,0,0,0.2)"
-                  strokeWidth="1"
-                />
-                <path
-                  d="M245 145 L295 240 L282 350 L255 310 L244 175 Z"
-                  fill={mainColor}
-                  stroke="rgba(0,0,0,0.2)"
-                  strokeWidth="1"
-                />
-
-                {/* 5-panel body flowing naturally */}
-                <path
-                  d="M158 138 L242 138 L255 480 Q200 490 145 480 Z"
-                  fill={mainColor}
-                  stroke="rgba(0,0,0,0.2)"
-                  strokeWidth="1.2"
-                />
-
-                {/* Brocade overlay if Gấm */}
-                {fabric.id === 'gam-cung-dinh' && (
-                  <path d="M158 138 L242 138 L255 480 Q200 490 145 480 Z" fill="url(#brocadePattern)" />
-                )}
-
-                {/* Cổ Đứng Lập Lĩnh (Mandarin collar) */}
-                <path
-                  d="M188 130 Q200 133 212 130 L212 144 Q200 147 188 144 Z"
-                  fill={accentColor}
-                  stroke="#5C3B1E"
-                  strokeWidth="0.8"
-                />
-
-                {/* Đường vạt chéo & 5 Cúc cài tượng trưng cho Ngũ Thường */}
-                <path d="M206 144 Q215 168 228 190 L224 380" stroke="rgba(0,0,0,0.25)" strokeWidth="1.5" fill="none" />
-                {[144, 166, 188, 212, 240].map((y, i) => (
-                  <circle
-                    key={i}
-                    cx={206 + (i * 4)}
-                    cy={y}
-                    r="3.2"
-                    fill="url(#goldCollar)"
-                    stroke="#5C3B1E"
-                    strokeWidth="0.8"
-                  />
-                ))}
-              </g>
-            )}
-
-            {/* Silk Sheen Overlay */}
+          {/* ===== TOP LAYER: ÁO NGŨ THÂN TAY CHẼN (XANH THẪM GẤM) ===== */}
+          <g id="aoNguthantaychen">
+            {/* Left & Right Fitted Sleeves (Tay Chẽn) */}
             <path
-              d="M160 140 Q200 145 240 140 L248 360 Q200 370 152 360 Z"
-              fill="url(#silkShine)"
-              pointerEvents="none"
+              d="M156 130 L120 220 L132 320 L152 280 L160 160 Z"
+              fill={mainColor}
+              stroke="#0D1B2A"
+              strokeWidth="0.8"
+            />
+            <path
+              d="M224 130 L260 220 L248 320 L228 280 L220 160 Z"
+              fill={mainColor}
+              stroke="#0D1B2A"
+              strokeWidth="0.8"
+            />
+
+            {/* Main Robe Body */}
+            <path
+              d="M158 126 L222 126 L232 400 Q190 408 148 400 Z"
+              fill={mainColor}
+              stroke="#0D1B2A"
+              strokeWidth="1"
+            />
+
+            {/* Brocade overlay texture */}
+            <path
+              d="M158 126 L222 126 L232 400 Q190 408 148 400 Z"
+              fill="url(#avatarBrocade)"
+            />
+
+            {/* Mandarin Standing Collar (Cổ Đứng Lập Lĩnh) */}
+            <path
+              d="M182 120 Q190 123 198 120 L198 132 Q190 135 182 132 Z"
+              fill="#D4AF37"
+              stroke="#78350F"
+              strokeWidth="0.8"
+            />
+
+            {/* Diagonal Opening Placket & 5 Frog Buttons (Cúc Cài Chéo) */}
+            <path
+              d="M195 132 Q202 155 212 175 L210 330"
+              stroke="rgba(212, 175, 55, 0.6)"
+              strokeWidth="1.2"
+              fill="none"
+            />
+
+            {/* The 5 Gold Buttons */}
+            {[132, 150, 170, 192, 218].map((y, i) => (
+              <g key={i}>
+                <circle cx={195 + i * 3.5} cy={y} r="2.8" fill="url(#buttonGold)" />
+                <circle cx={195 + i * 3.5} cy={y} r="1" fill="#FFFFFF" opacity="0.6" />
+              </g>
+            ))}
+
+            {/* Subtle Silk Highlight on Chest */}
+            <path
+              d="M165 136 Q190 142 215 136 L218 260 Q190 270 162 260 Z"
+              fill="white"
+              opacity="0.05"
             />
           </g>
 
-          {/* ===== 4. ACCESSORIES LAYER ===== */}
-          <g id="accessoriesLayer">
-            {/* Headgear: Mấn or Khăn Đóng */}
-            {accessory.id === 'man-ngu-sac' ? (
-              <g id="manNguSac">
-                {/* Curved imperial mấn coronet */}
-                <path
-                  d="M166 70 Q200 48 234 70 Q200 62 166 70 Z"
-                  fill="url(#goldCollar)"
-                  stroke="#8B1E1E"
-                  strokeWidth="1.2"
-                />
-                <ellipse cx="200" cy="58" rx="36" ry="12" fill="#8B1E1E" stroke="#D4AF37" strokeWidth="1" />
-                {/* Front Jade Jewel */}
-                <circle cx="200" cy="62" r="4.5" fill="#2E6F56" stroke="#D4AF37" strokeWidth="1" />
-                <path d="M196 66 L200 74 L204 66" stroke="#D4AF37" strokeWidth="1" fill="none" />
-              </g>
-            ) : accessory.id === 'khan-dong' ? (
-              <g id="khanDong">
-                {/* Black Silk Turban with 8-fold texture */}
-                <ellipse cx="200" cy="68" rx="38" ry="15" fill="#1A1817" stroke="#3D3634" strokeWidth="1" />
-                <path d="M164 68 Q200 56 236 68" stroke="#3D3634" strokeWidth="2" fill="none" />
-                <path d="M167 71 Q200 60 233 71" stroke="#2B2624" strokeWidth="1.5" fill="none" />
-                {/* Subtle chữ Nhân (人) crease at center */}
-                <path d="M198 64 L200 70 L202 64" stroke="#524845" strokeWidth="1.5" fill="none" />
-              </g>
-            ) : null}
-
-            {/* Neck accessory: Chuỗi ngọc bích */}
-            {accessory.id === 'chuoi-ngoc' && (
-              <g id="chuoiNgoc">
-                <path d="M185 145 Q200 170 215 145" stroke="#2E6F56" strokeWidth="3" strokeDasharray="3 2" fill="none" />
-                <circle cx="200" cy="162" r="4" fill="#2E6F56" stroke="#D4AF37" strokeWidth="1" />
-              </g>
-            )}
-
-            {/* Waist Accessory: Ngọc Bội */}
-            {accessory.id === 'ngoc-boi' && (
-              <g id="ngocBoi">
-                <line x1="225" y1="280" x2="225" y2="340" stroke="#8B1E1E" strokeWidth="2" />
-                <circle cx="225" cy="340" r="9" fill="#2E6F56" stroke="#D4AF37" strokeWidth="1.5" />
-                <circle cx="225" cy="340" r="3.5" fill="#FAF7F2" />
-                {/* Silk tassel below jade */}
-                <path d="M222 349 L220 380 L230 380 L228 349 Z" fill="#8B1E1E" />
-              </g>
-            )}
-
-            {/* Hand accessory: Quạt Lụa */}
-            {accessory.id === 'quat-lua' && (
-              <g id="quatLua">
-                <path
-                  d="M125 330 L95 295 Q130 270 165 295 L135 330 Z"
-                  fill="#FDFBF7"
-                  stroke="#D4AF37"
-                  strokeWidth="1"
-                />
-                <path d="M130 330 L105 300 M130 330 L120 290 M130 330 L140 290 M130 330 L155 300" stroke="#C59B27" strokeWidth="0.8" />
-                {/* Small landscape painted on fan */}
-                <circle cx="130" cy="300" r="6" fill="#8B1E1E" opacity="0.6" />
-                {/* Tassel */}
-                <line x1="130" y1="330" x2="128" y2="355" stroke="#8B1E1E" strokeWidth="1.5" />
-              </g>
-            )}
-          </g>
-
-          {/* ===== 5. INTERACTIVE CULTURAL HOTSPOTS (GỢI Ý VĂN HÓA TRỰC QUAN) ===== */}
-          {/* Collar Hotspot */}
-          <g
-            className="cursor-pointer transition-transform hover:scale-110"
-            onClick={() => {
-              setActivePin('collar');
-              setShowCultureCard(true);
-            }}
-          >
-            <circle cx="200" cy="142" r="10" fill="#D4AF37" opacity="0.25" className="animate-ping" />
-            <circle cx="200" cy="142" r="5" fill="#D4AF37" stroke="#ffffff" strokeWidth="1.5" />
-            <circle cx="200" cy="142" r="2" fill="#8B1E1E" />
-          </g>
-
-          {/* 5-Buttons Hotspot */}
-          <g
-            className="cursor-pointer transition-transform hover:scale-110"
-            onClick={() => {
-              setActivePin('buttons');
-              setShowCultureCard(true);
-            }}
-          >
-            <circle cx="220" cy="190" r="8" fill="#D4AF37" opacity="0.2" className="animate-ping" />
-            <circle cx="220" cy="190" r="4.5" fill="#D4AF37" stroke="#ffffff" strokeWidth="1.2" />
-          </g>
-
-          {/* Sleeve / Element Hotspot */}
-          <g
-            className="cursor-pointer transition-transform hover:scale-110"
-            onClick={() => {
-              setActivePin('sleeve');
-              setShowCultureCard(true);
-            }}
-          >
-            <circle cx="108" cy="270" r="8" fill="#D4AF37" opacity="0.2" className="animate-ping" />
-            <circle cx="108" cy="270" r="4.5" fill="#D4AF37" stroke="#ffffff" strokeWidth="1.2" />
-          </g>
+          {/* Serene Hands Resting at Sides */}
+          <path d="M129 320 Q126 335 131 340 L135 338 L133 320 Z" fill="url(#skinTone)" />
+          <path d="M251 320 Q254 335 249 340 L245 338 L247 320 Z" fill="url(#skinTone)" />
         </svg>
-
-        {/* Dynamic Glassmorphism Callout Line and Culture Card */}
-        {showCultureCard && (
-          <div className="absolute bottom-4 left-4 right-4 z-20 animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <div className="glass-imperial p-4 rounded-3xl shadow-xl border border-[#D4AF37]/40 relative overflow-hidden">
-              {/* Decorative corner motif */}
-              <div className="absolute top-0 right-0 w-16 h-16 bg-radial from-[#D4AF37]/20 to-transparent pointer-events-none" />
-
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-[#8B1E1E] text-[#FDFBF7] flex items-center justify-center text-xs font-serif-vi shadow-xs">
-                    ✦
-                  </span>
-                  <div>
-                    <span className="text-[10px] font-bold tracking-widest text-[#8B1E1E] uppercase block">
-                      Thẻ Thông Tin Văn Hóa • {top.era}
-                    </span>
-                    <h4 className="font-serif-vi text-base font-bold text-stone-900 leading-tight">
-                      {top.name}
-                    </h4>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => setActivePin('collar')}
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-medium transition-colors ${
-                      activePin === 'collar' ? 'bg-[#8B1E1E] text-white' : 'bg-stone-100 text-stone-600'
-                    }`}
-                  >
-                    Cổ áo
-                  </button>
-                  <button
-                    onClick={() => setActivePin('buttons')}
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-medium transition-colors ${
-                      activePin === 'buttons' ? 'bg-[#8B1E1E] text-white' : 'bg-stone-100 text-stone-600'
-                    }`}
-                  >
-                    5 Cúc
-                  </button>
-                  <button
-                    onClick={() => setActivePin('sleeve')}
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-medium transition-colors ${
-                      activePin === 'sleeve' ? 'bg-[#8B1E1E] text-white' : 'bg-stone-100 text-stone-600'
-                    }`}
-                  >
-                    Hoa văn
-                  </button>
-                  <button
-                    onClick={() => setShowCultureCard(false)}
-                    className="text-stone-400 hover:text-stone-700 ml-1 text-sm font-bold p-1"
-                  >
-                    ✕
-                  </button>
-                </div>
-              </div>
-
-              {/* Dynamic Body content according to active pin */}
-              <div className="mt-2 text-xs text-stone-700 leading-relaxed space-y-1">
-                {activePin === 'collar' && (
-                  <p>
-                    <strong className="text-[#8B1E1E]">Dạng thức cổ: </strong>
-                    {top.cultureInfo.collarType} {top.cultureInfo.origin}
-                  </p>
-                )}
-                {activePin === 'buttons' && (
-                  <p>
-                    <strong className="text-[#8B1E1E]">Ý nghĩa 5 cúc: </strong>
-                    Tượng trưng cho Ngũ thường (Nhân - Lễ - Nghĩa - Trí - Tín) và Ngũ luân phụ tử, phu thê, huynh đệ, bằng hữu, quân thần.
-                  </p>
-                )}
-                {activePin === 'sleeve' && (
-                  <p>
-                    <strong className="text-[#8B1E1E]">Hoa văn & Tay áo: </strong>
-                    {top.cultureInfo.pattern} — {top.cultureInfo.symbolism}
-                  </p>
-                )}
-                {activePin === 'fabric' && (
-                  <p>
-                    <strong className="text-[#8B1E1E]">Chất liệu vải: </strong>
-                    {fabric.name} ({fabric.textureLabel}). Bắt sáng tự nhiên theo ánh đèn cung phủ.
-                  </p>
-                )}
-
-                <div className="pt-2 border-t border-stone-200/60 flex items-center justify-between text-[11px] text-stone-500">
-                  <span className="flex items-center gap-1 text-[#8B1E1E] font-medium">
-                    <Sparkles className="w-3 h-3 text-[#D4AF37]" />
-                    Quy cách: {top.cultureInfo.etiquette}
-                  </span>
-                  <span className="italic font-serif-vi text-stone-600">
-                    Phối cùng {bottom.name}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* Subtle indicator under the avatar */}
-      <div className="absolute bottom-2 z-10 flex items-center gap-2 text-[11px] text-stone-500 font-medium">
-        <Eye className="w-3.5 h-3.5 text-[#D4AF37]" />
-        <span>Bấm vào các điểm tròn vàng trên áo để đọc điển tích văn hóa</span>
+      {/* 6. Bottom Floating Toolbar (Tải ảnh cả chân & Xem 2D/3D) */}
+      <div className="absolute bottom-3 z-30 flex items-center gap-3">
+        <button
+          onClick={onDownloadPhoto}
+          className="px-3.5 py-1.5 rounded-xl text-xs font-medium bg-[#131C2E]/90 hover:bg-[#1C2840] text-slate-200 border border-slate-700/80 hover:border-amber-400/50 shadow-lg flex items-center gap-1.5 transition-all"
+        >
+          <Camera className="w-3.5 h-3.5 text-amber-400" />
+          <span>Tải ảnh cả chân</span>
+        </button>
+
+        <button
+          onClick={() => setViewMode(viewMode === '3D' ? '2D' : '3D')}
+          className="px-3.5 py-1.5 rounded-xl text-xs font-medium bg-[#131C2E]/90 hover:bg-[#1C2840] text-slate-200 border border-slate-700/80 hover:border-amber-400/50 shadow-lg flex items-center gap-1.5 transition-all"
+        >
+          <Box className="w-3.5 h-3.5 text-amber-400" />
+          <span>Xem {viewMode === '3D' ? '3D' : '2D'}</span>
+        </button>
       </div>
     </div>
   );
