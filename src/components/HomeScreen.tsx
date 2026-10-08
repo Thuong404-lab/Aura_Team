@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { PROMPT_SUGGESTIONS, PRESET_OUTFITS, TOPS, BOTTOMS, ACCESSORIES, PresetOutfit } from '../data/vietPhucData';
 import { soundEngine } from '../utils/audioSynth';
+import { getAiSuggestion, AiSuggestionResult } from '../services/aiClient';
 
 interface HomeScreenProps {
   onStartFitting: () => void;
@@ -40,16 +41,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 }) => {
   const [promptInput, setPromptInput] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
-  const [aiResult, setAiResult] = useState<{
-    recommendedTopId: string;
-    recommendedBottomId: string;
-    recommendedAccessoryId: string;
-    conceptTitle: string;
-    characterPersona: string;
-    aiAdvice: string;
-    culturalNote: string;
-    colorScheme?: string;
-  } | null>(null);
+  const [aiResult, setAiResult] = useState<AiSuggestionResult | null>(null);
 
   const handleAiSuggest = async (overridePrompt?: string) => {
     const text = overridePrompt || promptInput;
@@ -60,29 +52,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     setAiResult(null);
 
     try {
-      const res = await fetch('/api/ai/suggest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: text }),
-      });
-      const data = await res.json();
-      if (data.success && data.data) {
-        setAiResult(data.data);
-      } else {
-        throw new Error('Fallback suggestion');
-      }
+      const result = await getAiSuggestion(text);
+      setAiResult(result);
     } catch {
-      // Graceful instant fallback
-      setAiResult({
-        recommendedTopId: 'ngu-than',
-        recommendedBottomId: 'quan-ong-so',
-        recommendedAccessoryId: 'khan-dong',
-        conceptTitle: 'Thu Nhật Kinh Kỳ',
-        characterPersona: 'Sĩ tử Thăng Long thanh nhã ung dung',
-        aiAdvice: `Bản phối Áo Ngũ Thân kết hợp Quần Lụa Bạch và Khăn Đóng rất thích hợp cho yêu cầu "${text}". Phom dáng gọn gàng, kín đáo, đậm đà phong vị văn hiến.`,
-        culturalNote: 'Ngũ thân tượng trưng cho đạo làm người với 5 thân áo và 5 đức tính cao đẹp.',
-        colorScheme: 'Men lam phối lụa bạch tơ tằm',
-      });
+      // Handled inside getAiSuggestion
     } finally {
       setIsAiLoading(false);
     }
