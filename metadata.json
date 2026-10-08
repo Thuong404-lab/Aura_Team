@@ -1,0 +1,6 @@
+{
+  "name": "Sáng Tạo Cùng Việt Phục",
+  "description": "Nền tảng phối đồ Việt phục thông minh giao thoa truyền thống và hiện đại với Trợ lý AI, Phòng thử đồ ảo và Lookbook di sản.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
