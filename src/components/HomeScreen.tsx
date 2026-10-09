@@ -335,12 +335,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         {/* Ambient halos */}
         <div className="absolute top-2/3 right-10 w-[400px] h-[400px] bg-red-900/10 blur-[140px] rounded-full pointer-events-none" />
 
-        {/* Traditional Dong Son Drum Mandala watermarks */}
-        <div className="absolute -top-24 -right-24 opacity-15">
-          <DongSonDrumMandala className="w-[620px] h-[620px]" opacity={0.25} />
+        {/* Traditional Dong Son Drum Mandala watermarks with slow rotational grandeur */}
+        <div className="absolute -top-24 -right-24 opacity-25">
+          <DongSonDrumMandala className="w-[620px] h-[620px]" opacity={0.3} animated={true} glow={true} speed={0.4} />
         </div>
-        <div className="absolute -bottom-36 -left-36 opacity-20">
-          <DongSonDrumMandala className="w-[520px] h-[520px]" opacity={0.3} />
+        <div className="absolute -bottom-36 -left-36 opacity-25">
+          <DongSonDrumMandala className="w-[520px] h-[520px]" opacity={0.3} animated={true} glow={true} speed={0.3} />
         </div>
 
         {/* Co Phong Cloud wisps */}

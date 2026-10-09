@@ -8,7 +8,7 @@ export interface CloudIntroCurtainProps {
   onRevealed?: () => void;
   /** Allow manual dismissal or re-trigger */
   onClose?: () => void;
-  /** Whether to auto-part after a short delay (default: true) */
+  /** Whether to auto-part after a short delay (default: false - require scrolling to open) */
   autoPart?: boolean;
 }
 
@@ -20,14 +20,15 @@ export const CloudIntroCurtain: React.FC<CloudIntroCurtainProps> = ({
   isOpen,
   onRevealed,
   onClose,
-  autoPart = true,
+  autoPart = false,
 }) => {
   return (
     <CloudCurtain
       isOpen={isOpen}
       onRevealed={onRevealed}
       onClose={onClose}
-      autoFlyTimeout={autoPart ? 2.6 : 9999}
+      autoPart={autoPart}
+      autoFlyTimeout={autoPart ? 2.6 : 999999}
     />
   );
 };

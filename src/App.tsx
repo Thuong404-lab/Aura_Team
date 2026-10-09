@@ -85,6 +85,11 @@ export default function App() {
     }
   }, []);
 
+  // Screen transition background music crossfade (Web Audio API fade-in/out)
+  useEffect(() => {
+    soundEngine.transitionToScreen(currentScreen, 1.2);
+  }, [currentScreen]);
+
   const handleStartFitting = () => {
     soundEngine.playPluck(523.25);
     setCurrentScreen('fitting');

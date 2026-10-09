@@ -1,4 +1,6 @@
 import React from 'react';
+export { DongSonDrumMandala } from './DongSonDrumMandala';
+export type { DongSonDrumProps } from './DongSonDrumMandala';
 
 // Stylized Golden Aura Logo Emblem
 export const AuraLogo: React.FC<{ className?: string }> = ({ className = 'w-7 h-7' }) => (
@@ -24,87 +26,6 @@ export const AuraLogo: React.FC<{ className?: string }> = ({ className = 'w-7 h-
       opacity="0.85"
     />
     <circle cx="50" cy="18" r="3" fill="#FDE68A" />
-  </svg>
-);
-
-// Trống Đồng Đông Sơn (Bronze Drum Mandala)
-export const DongSonDrumMandala: React.FC<{ className?: string; opacity?: number }> = ({
-  className = 'w-96 h-96',
-  opacity = 0.25,
-}) => (
-  <svg
-    viewBox="0 0 400 400"
-    className={`pointer-events-none select-none ${className}`}
-    style={{ opacity }}
-    fill="none"
-  >
-    <defs>
-      <linearGradient id="bronzeGold" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#FDE68A" />
-        <stop offset="50%" stopColor="#D4AF37" />
-        <stop offset="100%" stopColor="#8A6623" />
-      </linearGradient>
-    </defs>
-
-    {/* Concentric rings */}
-    <circle cx="200" cy="200" r="190" stroke="url(#bronzeGold)" strokeWidth="2.5" strokeDasharray="6 4" />
-    <circle cx="200" cy="200" r="180" stroke="url(#bronzeGold)" strokeWidth="1" />
-    <circle cx="200" cy="200" r="165" stroke="url(#bronzeGold)" strokeWidth="1.5" />
-    <circle cx="200" cy="200" r="150" stroke="url(#bronzeGold)" strokeWidth="2" strokeDasharray="3 3" />
-    <circle cx="200" cy="200" r="130" stroke="url(#bronzeGold)" strokeWidth="1" />
-    <circle cx="200" cy="200" r="110" stroke="url(#bronzeGold)" strokeWidth="1.5" />
-    <circle cx="200" cy="200" r="90" stroke="url(#bronzeGold)" strokeWidth="2" strokeDasharray="4 4" />
-    <circle cx="200" cy="200" r="68" stroke="url(#bronzeGold)" strokeWidth="1" />
-    <circle cx="200" cy="200" r="48" stroke="url(#bronzeGold)" strokeWidth="1.5" />
-
-    {/* Center 14-point Sun Star (Mặt Trời 14 cánh) */}
-    <g transform="translate(200, 200)">
-      {Array.from({ length: 14 }).map((_, i) => {
-        const rot = (i * 360) / 14;
-        return (
-          <polygon
-            key={i}
-            points="0,-45 -7,-12 0,0 7,-12"
-            fill="url(#bronzeGold)"
-            opacity="0.85"
-            transform={`rotate(${rot})`}
-          />
-        );
-      })}
-    </g>
-
-    {/* Flying Cranes (Chim Lạc bay ngược chiều kim đồng hồ) */}
-    <g transform="translate(200, 200)">
-      {Array.from({ length: 8 }).map((_, i) => {
-        const rot = (i * 360) / 8;
-        return (
-          <g key={i} transform={`rotate(${rot}) translate(0, -140)`}>
-            {/* Stylized flying crane path */}
-            <path
-              d="M-15 0 C-10 -8, 10 -8, 20 0 C12 -2, 0 3, -15 0 Z M5 -4 L25 -10 L15 0 Z M0 0 L-10 8 L-5 2 Z"
-              fill="url(#bronzeGold)"
-              opacity="0.75"
-            />
-          </g>
-        );
-      })}
-    </g>
-
-    {/* Geometric Sawtooth / Meander ring */}
-    <g transform="translate(200, 200)">
-      {Array.from({ length: 28 }).map((_, i) => {
-        const rot = (i * 360) / 28;
-        return (
-          <path
-            key={i}
-            d="M-3 -100 L0 -107 L3 -100 Z"
-            fill="url(#bronzeGold)"
-            opacity="0.6"
-            transform={`rotate(${rot})`}
-          />
-        );
-      })}
-    </g>
   </svg>
 );
 

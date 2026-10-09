@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AuraLogo } from './VietnameseDecorativeElements';
+import { soundEngine } from '../utils/audioSynth';
 import {
   Volume2,
   VolumeX,
@@ -148,24 +149,45 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
               </button>
             )}
 
-            {/* Audio Synthesizer Toggle */}
+            {/* Audio Synthesizer Toggle with Screen Theme & Fade Visualizer */}
             <button
               onClick={onToggleMusic}
-              className={`p-2 sm:px-2.5 sm:py-2 rounded-xl border text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`p-2 sm:px-2.5 sm:py-2 rounded-xl border text-xs font-medium flex items-center gap-2 transition-all cursor-pointer ${
                 isPlayingMusic
-                  ? 'bg-amber-500/15 border-amber-500/40 text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.2)]'
+                  ? 'bg-amber-500/15 border-amber-500/40 text-amber-300 shadow-[0_0_14px_rgba(245,158,11,0.25)]'
                   : 'bg-[#121A2D] border-slate-700/70 text-slate-400 hover:text-slate-200 hover:border-slate-600'
               }`}
-              title={isPlayingMusic ? 'Tắt nhã nhạc cung đình' : 'Bật nhã nhạc cung đình'}
+              title={
+                isPlayingMusic
+                  ? `Đang phát nhã nhạc: ${soundEngine.getThemeName(currentScreen)} (Nhấp để tắt)`
+                  : 'Bật nhã nhạc cung đình (Web Audio API)'
+              }
             >
               {isPlayingMusic ? (
-                <Volume2 className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                <>
+                  <Volume2 className="w-3.5 h-3.5 text-amber-400" />
+                  {/* Equalizer Wave Bars */}
+                  <span className="flex items-end gap-0.5 h-3">
+                    <span className="w-0.5 h-full bg-amber-400 animate-pulse rounded-full" />
+                    <span
+                      className="w-0.5 h-2/3 bg-amber-300 animate-pulse rounded-full"
+                      style={{ animationDelay: '0.15s' }}
+                    />
+                    <span
+                      className="w-0.5 h-4/5 bg-amber-400 animate-pulse rounded-full"
+                      style={{ animationDelay: '0.3s' }}
+                    />
+                  </span>
+                  <span className="hidden lg:inline truncate max-w-[130px]">
+                    {soundEngine.getThemeName(currentScreen)}
+                  </span>
+                </>
               ) : (
-                <VolumeX className="w-3.5 h-3.5 text-slate-400" />
+                <>
+                  <VolumeX className="w-3.5 h-3.5 text-slate-400" />
+                  <span className="hidden lg:inline">Nhã nhạc</span>
+                </>
               )}
-              <span className="hidden lg:inline">
-                {isPlayingMusic ? 'Nhã nhạc: Bật' : 'Nhã nhạc'}
-              </span>
             </button>
 
             {/* Desktop Login Button */}
