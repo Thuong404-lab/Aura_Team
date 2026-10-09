@@ -69,7 +69,6 @@ interface FittingRoomScreenProps {
   onSelectColor: (color: ColorOption) => void;
   onGoHome: () => void;
   onGoLookbook: (harmonyData?: HarmonyResult) => void;
-  onOpenLoginModal?: () => void;
 }
 
 export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({

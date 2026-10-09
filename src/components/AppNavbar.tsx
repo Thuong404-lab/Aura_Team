@@ -7,12 +7,10 @@ import {
   Menu,
   X,
   Bookmark,
-  User,
   Sparkles,
   Shirt,
   BookOpen,
   Home,
-  Compass,
   Wind,
 } from 'lucide-react';
 
@@ -22,7 +20,6 @@ interface AppNavbarProps {
   currentScreen: ScreenType;
   onNavigate: (screen: ScreenType) => void;
   onOpenSavedLibrary: () => void;
-  onOpenLoginModal: () => void;
   savedCount: number;
   isPlayingMusic: boolean;
   onToggleMusic: () => void;
@@ -33,7 +30,6 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
   currentScreen,
   onNavigate,
   onOpenSavedLibrary,
-  onOpenLoginModal,
   savedCount,
   isPlayingMusic,
   onToggleMusic,
@@ -47,29 +43,14 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-[150] w-full transition-all flex flex-col">
-      {/* Top Cultural Heritage Ribbon */}
-      <div className="w-full bg-gradient-to-r from-amber-950/80 via-amber-900/60 to-amber-950/80 border-b border-amber-500/25 text-amber-200 py-1.5 px-4 text-[11px] font-medium tracking-wide flex items-center justify-between shadow-inner">
-        <div className="max-w-7xl mx-auto w-full flex items-center justify-between overflow-hidden">
-          <div className="flex items-center gap-2 truncate">
-            <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-            <span className="truncate">
-              🇻🇳 <strong>Di Sản Việt Phục Ngàn Năm</strong> • Khám phá tinh hoa trang phục truyền thống qua công nghệ 3D & AI
-            </span>
-          </div>
-          <div className="hidden md:flex items-center gap-4 text-[10px] text-amber-300/80 flex-shrink-0">
-            <span>✨ Bảo tàng số hóa văn hóa phi lợi nhuận</span>
-            <span>📜 Khảo cứu chuẩn mực lịch sử</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Navbar */}
-      <div className="w-full border-b border-amber-500/20 bg-[#0C1220]/95 backdrop-blur-md">
+    <header className="sticky top-0 z-[150] w-full transition-all">
+      {/* Main Streamlined Navbar - Đơn giản, tinh tế, hòa hợp với giao diện Cung Điện */}
+      <div className="w-full border-b border-amber-500/20 bg-[#080C16]/90 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.6)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          
           {/* Brand Logo & Title */}
           <div
-            className="flex items-center gap-2.5 cursor-pointer group"
+            className="flex items-center gap-2.5 cursor-pointer group select-none"
             onClick={() => handleNavClick('home')}
           >
             <AuraLogo className="w-7 h-7 sm:w-8 sm:h-8 group-hover:scale-105 transition-transform" />
@@ -88,11 +69,11 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
             </div>
           </div>
 
-          {/* Desktop Navigation Links */}
+          {/* Desktop Navigation Links - Tinh gọn, thanh lịch */}
           <nav className="hidden md:flex items-center gap-6 lg:gap-8">
             <button
               onClick={() => handleNavClick('home')}
-              className={`text-sm font-medium transition-colors relative py-1.5 cursor-pointer ${
+              className={`text-sm font-medium transition-all relative py-2 cursor-pointer ${
                 currentScreen === 'home'
                   ? 'text-amber-300 font-semibold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-gradient-to-r after:from-amber-400 after:to-amber-500 after:rounded-full'
                   : 'text-slate-300 hover:text-amber-300'
@@ -103,7 +84,7 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
 
             <button
               onClick={() => handleNavClick('fitting')}
-              className={`text-sm font-medium transition-colors relative py-1.5 cursor-pointer ${
+              className={`text-sm font-medium transition-all relative py-2 cursor-pointer ${
                 currentScreen === 'fitting'
                   ? 'text-amber-300 font-semibold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-gradient-to-r after:from-amber-400 after:to-amber-500 after:rounded-full'
                   : 'text-slate-300 hover:text-amber-300'
@@ -117,7 +98,7 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
 
             <button
               onClick={() => handleNavClick('lookbook')}
-              className={`text-sm font-medium transition-colors relative py-1.5 cursor-pointer ${
+              className={`text-sm font-medium transition-all relative py-2 cursor-pointer ${
                 currentScreen === 'lookbook'
                   ? 'text-amber-300 font-semibold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-gradient-to-r after:from-amber-400 after:to-amber-500 after:rounded-full'
                   : 'text-slate-300 hover:text-amber-300'
@@ -128,39 +109,39 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
 
             <button
               onClick={onOpenSavedLibrary}
-              className="text-sm font-medium text-slate-300 hover:text-amber-300 transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="text-sm font-medium text-slate-300 hover:text-amber-300 transition-colors flex items-center gap-1.5 cursor-pointer py-2"
             >
               <Bookmark className="w-3.5 h-3.5 text-amber-400" />
               <span>Đã lưu ({savedCount})</span>
             </button>
           </nav>
 
-          {/* Right Action Icons (Music, Cloud, & User) */}
+          {/* Right Action Icons (Vén Mây & Nhã Nhạc) - Không còn Đăng Nhập / Tài Khoản */}
           <div className="flex items-center gap-2 sm:gap-2.5">
             {/* Quick Trigger for Cloud Parting Animation */}
             {onTriggerCloudIntro && (
               <button
                 onClick={onTriggerCloudIntro}
-                className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-medium transition-all cursor-pointer group"
-                title="Trình diễn hiệu ứng Vén Mây Chiều Sâu 3D (Cuộn Chuột)"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:border-amber-400 text-xs font-medium transition-all cursor-pointer group shadow-sm"
+                title="Vén Mây Khai Mở Di Sản"
               >
                 <Wind className="w-3.5 h-3.5 text-amber-400 group-hover:rotate-12 transition-transform" />
                 <span className="hidden xl:inline">Vén Mây 3D</span>
               </button>
             )}
 
-            {/* Audio Synthesizer Toggle with Screen Theme & Fade Visualizer */}
+            {/* Audio Synthesizer Toggle */}
             <button
               onClick={onToggleMusic}
-              className={`p-2 sm:px-2.5 sm:py-2 rounded-xl border text-xs font-medium flex items-center gap-2 transition-all cursor-pointer ${
+              className={`p-2 sm:px-3 sm:py-2 rounded-xl border text-xs font-medium flex items-center gap-2 transition-all cursor-pointer ${
                 isPlayingMusic
                   ? 'bg-amber-500/15 border-amber-500/40 text-amber-300 shadow-[0_0_14px_rgba(245,158,11,0.25)]'
-                  : 'bg-[#121A2D] border-slate-700/70 text-slate-400 hover:text-slate-200 hover:border-slate-600'
+                  : 'bg-[#121A2D]/80 border-slate-700/70 text-slate-400 hover:text-slate-200 hover:border-slate-600'
               }`}
               title={
                 isPlayingMusic
-                  ? `Đang phát nhã nhạc: ${soundEngine.getThemeName(currentScreen)} (Nhấp để tắt)`
-                  : 'Bật nhã nhạc cung đình (Web Audio API)'
+                  ? `Đang phát: ${soundEngine.getThemeName(currentScreen)} (Nhấp để tắt)`
+                  : 'Bật nhã nhạc cung đình'
               }
             >
               {isPlayingMusic ? (
@@ -178,7 +159,7 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
                       style={{ animationDelay: '0.3s' }}
                     />
                   </span>
-                  <span className="hidden lg:inline truncate max-w-[130px]">
+                  <span className="hidden lg:inline truncate max-w-[120px]">
                     {soundEngine.getThemeName(currentScreen)}
                   </span>
                 </>
@@ -188,15 +169,6 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
                   <span className="hidden lg:inline">Nhã nhạc</span>
                 </>
               )}
-            </button>
-
-            {/* Desktop Login Button */}
-            <button
-              onClick={onOpenLoginModal}
-              className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-750 text-slate-200 border border-slate-700 text-xs font-medium transition-all cursor-pointer"
-            >
-              <User className="w-3.5 h-3.5 text-amber-400" />
-              <span>Tài khoản</span>
             </button>
 
             {/* Mobile Hamburger Menu Button */}
@@ -211,9 +183,9 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
         </div>
       </div>
 
-      {/* Mobile Drawer Menu */}
+      {/* Mobile Drawer Menu - Đơn giản, không có đăng nhập */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#0A0E18]/95 border-b border-amber-500/20 px-5 py-4 flex flex-col gap-3 backdrop-blur-xl animate-in slide-in-from-top-2 duration-200">
+        <div className="md:hidden bg-[#090D17]/95 border-b border-amber-500/20 px-5 py-4 flex flex-col gap-2.5 backdrop-blur-xl animate-in slide-in-from-top-2 duration-200 shadow-2xl">
           <button
             onClick={() => handleNavClick('home')}
             className={`w-full py-2.5 px-3 rounded-xl flex items-center gap-3 text-sm font-medium transition-all cursor-pointer ${
@@ -273,19 +245,6 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
               <span>Hiệu ứng Vén Mây Cổ Phong</span>
             </button>
           )}
-
-          <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
-            <button
-              onClick={() => {
-                onOpenLoginModal();
-                setMobileMenuOpen(false);
-              }}
-              className="w-full py-2 px-3 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <User className="w-3.5 h-3.5 text-amber-400" />
-              <span>Đăng nhập</span>
-            </button>
-          </div>
         </div>
       )}
     </header>

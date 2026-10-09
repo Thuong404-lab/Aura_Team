@@ -10,6 +10,7 @@ export interface HeritageLocationNode {
   id: string;
   name: string;
   historicalName?: string;
+  modernLocation: string; // Modern administrative location name (e.g. Thủ đô Hà Nội)
   coordinates: [number, number]; // [longitude, latitude]
   regionId: 'bac-bo' | 'trung-bo' | 'tay-nguyen' | 'nam-bo' | 'tay-bac';
   regionTitle: string;
@@ -25,6 +26,8 @@ export interface HeritageLocationNode {
   accentColor: string;
   icon: string;
   elevationBadge: string;
+  labelOffset?: { x: number; y: number };
+  landmarkNote?: string;
 }
 
 export interface MigrationRoute {
@@ -101,6 +104,7 @@ export const HERITAGE_LOCATIONS: HeritageLocationNode[] = [
     id: 'thang-long',
     name: 'Kinh Đô Thăng Long (Hà Nội)',
     historicalName: 'Đông Đô — Thăng Long Văn Hiến',
+    modernLocation: 'Thủ đô Hà Nội (Khu vực Ba Đình, Hoàn Kiếm)',
     coordinates: [105.85, 21.03],
     regionId: 'bac-bo',
     regionTitle: 'Bắc Bộ — Kinh Đô Ngàn Năm',
@@ -131,14 +135,17 @@ export const HERITAGE_LOCATIONS: HeritageLocationNode[] = [
     philosophicalMeaning:
       'Đề cao sự khiêm nhường, mực thước của Nho học phương Đông kết hợp hào khí độc lập dân tộc.',
     quote: 'Chẳng thơm cũng thể hoa nhài / Dẫu không thanh lịch cũng người Tràng An.',
-    accentColor: '#3B82F6',
+    accentColor: '#38BDF8',
     icon: '🏛️',
     elevationBadge: 'Kinh Đô Đế Vương',
+    labelOffset: { x: -80, y: -26 },
+    landmarkNote: 'Trung tâm quyền lực và quy chế pháp phục ngàn năm',
   },
   {
     id: 'kinh-bac',
     name: 'Hội Lim Kinh Bắc (Bắc Ninh)',
     historicalName: 'Xứ Kinh Bắc Cổ Kính',
+    modernLocation: 'Tỉnh Bắc Ninh (Khu vực Tiên Du, Từ Sơn, Sông Đuống)',
     coordinates: [106.07, 21.18],
     regionId: 'bac-bo',
     regionTitle: 'Bắc Bộ — Dân Gian Quan Họ',
@@ -164,19 +171,22 @@ export const HERITAGE_LOCATIONS: HeritageLocationNode[] = [
     philosophicalMeaning:
       'Triết lý chữ Hiếu với song thân phụ mẫu, sự kín đáo duyên dáng trong đối đãi tình làng nghĩa xóm.',
     quote: 'Ai về Kinh Bắc trao duyên / Tà áo tứ thân nghiêng nón bài thơ bên đình.',
-    accentColor: '#059669',
+    accentColor: '#10B981',
     icon: '🏮',
     elevationBadge: 'Cái Nôi Dân Gian',
+    labelOffset: { x: 22, y: -20 },
+    landmarkNote: 'Cái nôi làn điệu Quan Họ & Áo Tứ Thân',
   },
   {
     id: 'tay-bac',
-    name: 'Cao Nguyên Sa Pa & Tây Bắc',
+    name: 'Sa Pa & Đại Ngàn Hoàng Liên',
     historicalName: 'Xứ Mường, Thái & Mèo Tây Bắc',
+    modernLocation: 'Thị xã Sa Pa & Dãy Hoàng Liên Sơn, Tỉnh Lào Cai',
     coordinates: [103.84, 22.33],
     regionId: 'tay-bac',
-    regionTitle: 'Tây Bắc — Đại Ngàn Hùng Vĩ',
+    regionTitle: 'Tây Bắc — Núi Non Kỳ Vĩ',
     dynasties: ['Thời Lê', 'Dân Gian Bản Địa'],
-    mainGarmentName: 'Thổ Cẩm Dệt Lanh Sáp Ong & Áo Chàm',
+    mainGarmentName: 'Dệt Lanh Sáp Ong & Áo Chàm Bạc',
     targetTopId: 'ao-yem',
     garments: [
       {
@@ -196,14 +206,17 @@ export const HERITAGE_LOCATIONS: HeritageLocationNode[] = [
     philosophicalMeaning:
       'Hòa hợp tuyệt đối với tự nhiên, lòng kiên trì và tinh thần bền bỉ bất khuất trước khắc nghiệt.',
     quote: 'Váy hoa em nở giữa sương mờ dốc núi / Màu chàm quê hương thơm ngát cả rừng mây.',
-    accentColor: '#10B981',
+    accentColor: '#34D399',
     icon: '🏔️',
     elevationBadge: 'Di Sản Thổ Cẩm',
+    labelOffset: { x: 20, y: -24 },
+    landmarkNote: 'Kỹ nghệ dệt lanh thủ công & nhuộm chàm nguyên bản',
   },
   {
     id: 'hoa-lu',
     name: 'Cố Đô Hoa Lư (Ninh Bình)',
     historicalName: 'Đại Cồ Việt Kinh Đô',
+    modernLocation: 'Huyện Hoa Lư & Quần thể Tràng An, Tỉnh Ninh Bình',
     coordinates: [105.90, 20.28],
     regionId: 'bac-bo',
     regionTitle: 'Bắc Bộ — Kinh Đô Đinh - Tiền Lê',
@@ -223,19 +236,22 @@ export const HERITAGE_LOCATIONS: HeritageLocationNode[] = [
     philosophicalMeaning:
       'Ý chí tự chủ dân tộc và sức mạnh quật cường mở đầu kỷ nguyên độc lập phong kiến Việt Nam.',
     quote: 'Vạn Thắng Vương dựng cờ lau / Non sông Đại Cồ Việt rạng rỡ muôn thuở.',
-    accentColor: '#6366F1',
+    accentColor: '#818CF8',
     icon: '⚔️',
     elevationBadge: 'Cố Đô Khởi Nguyên',
+    labelOffset: { x: -84, y: 16 },
+    landmarkNote: 'Khởi đầu độc lập quy chế pháp phục Đại Cồ Việt',
   },
   {
     id: 'dong-son',
     name: 'Xứ Thanh & Đất Mẹ Đông Sơn',
-    historicalName: 'Cái Nôi Văn Minh Sông Mã',
+    historicalName: 'Cái Nôi Văn Minh Sông Mã & Lam Kinh',
+    modernLocation: 'Huyện Thọ Xuân & TP. Thanh Hóa, Tỉnh Thanh Hóa',
     coordinates: [105.78, 19.80],
     regionId: 'trung-bo',
     regionTitle: 'Bắc Trung Bộ — Văn Minh Đông Sơn',
     dynasties: ['Thời Hùng Vương - Đông Sơn', 'Thời Lê Sơ'],
-    mainGarmentName: 'Y Phục Cổ Thời Trống Đồng & Lam Sơn Hào Kiệt',
+    mainGarmentName: 'Y Phục Họa Tiết Chim Lạc & Chiến Bào Lam Sơn',
     targetTopId: 'giao-linh',
     garments: [
       {
@@ -255,14 +271,17 @@ export const HERITAGE_LOCATIONS: HeritageLocationNode[] = [
     philosophicalMeaning:
       'Cội nguồn giống nòi Con Rồng Cháu Tiên, sự kiên trung bền bỉ của người dân xứ Thanh.',
     quote: 'Đông Sơn tiếng trống rền vang / Hào khí Lam Sơn bừng sáng giang sơn.',
-    accentColor: '#D97706',
+    accentColor: '#FBBF24',
     icon: '🥁',
     elevationBadge: 'Nôi Văn Minh Cổ',
+    labelOffset: { x: -88, y: -16 },
+    landmarkNote: 'Cội nguồn hoa văn Thần Điểu trên Trống Đồng Đông Sơn',
   },
   {
     id: 'hue',
     name: 'Cố Đô Huế (Kinh Đô Phú Xuân)',
     historicalName: 'Kinh Sư Thuận Hóa — Đại Nam Quốc',
+    modernLocation: 'Thành phố Huế, Tỉnh Thừa Thiên Huế (Kinh thành bên sông Hương)',
     coordinates: [107.59, 16.46],
     regionId: 'trung-bo',
     regionTitle: 'Trung Bộ — Đỉnh Cao Hoàng Triều',
@@ -296,11 +315,14 @@ export const HERITAGE_LOCATIONS: HeritageLocationNode[] = [
     accentColor: '#F59E0B',
     icon: '👑',
     elevationBadge: 'Đỉnh Cao Hoàng Gia',
+    labelOffset: { x: -84, y: -24 },
+    landmarkNote: 'Trung tâm hoàn thiện Quốc phục Áo Ngũ Thân & Nhật Bình',
   },
   {
     id: 'hoi-an',
     name: 'Phố Cổ Hội An & Xứ Quảng',
     historicalName: 'Thương Cảng Faifo — Giao Thoa Á Âu',
+    modernLocation: 'Thành phố Hội An & Huyện Duy Xuyên, Tỉnh Quảng Nam',
     coordinates: [108.33, 15.88],
     regionId: 'trung-bo',
     regionTitle: 'Trung Bộ — Thương Cảng Giao Lưu',
@@ -326,14 +348,17 @@ export const HERITAGE_LOCATIONS: HeritageLocationNode[] = [
     philosophicalMeaning:
       'Tinh thần cởi mở, hội nhập nhưng vẫn giữ trọn hồn cốt lụa là tinh túy của quê hương.',
     quote: 'Hội An phố cổ đèn giăng / Áo lụa Mã Châu dịu dàng bước chân.',
-    accentColor: '#EA580C',
+    accentColor: '#F97316',
     icon: '🏮',
     elevationBadge: 'Thương Cảng Di Sản',
+    labelOffset: { x: 22, y: 16 },
+    landmarkNote: 'Thương cảng tơ lụa quốc tế lừng danh thế kỷ 16-18',
   },
   {
     id: 'cham-pa',
     name: 'Xứ Champa Cổ (Ninh Thuận - Bình Định)',
     historicalName: 'Vương Quốc Panduranga & Vijaya',
+    modernLocation: 'Huyện Ninh Phước, Tỉnh Ninh Thuận & Đô thị cổ Đồ Bàn, Bình Định',
     coordinates: [108.98, 11.58],
     regionId: 'trung-bo',
     regionTitle: 'Nam Trung Bộ — Di Sản Chăm',
@@ -358,14 +383,17 @@ export const HERITAGE_LOCATIONS: HeritageLocationNode[] = [
     philosophicalMeaning:
       'Sự hòa quyện giữa tín ngưỡng thờ Mẫu (Pô Nagar) và tinh thần tôn kính thiên nhiên đất trời.',
     quote: 'Tiếng trống Ginăng ngân vang / Tà khăn rực rỡ bên tháp Chàm linh thiêng.',
-    accentColor: '#DC2626',
+    accentColor: '#EF4444',
     icon: '🛕',
     elevationBadge: 'Di Sản Thần Thoại',
+    labelOffset: { x: 22, y: -16 },
+    landmarkNote: 'Nghề dệt mẫu hệ & hoa văn sóng nước thần thoại',
   },
   {
     id: 'tay-nguyen',
-    name: 'Đại Ngàn Tây Nguyên (Đắk Lắk - Gia Lai)',
-    historicalName: 'Không Gian Văn Hóa Cồng Chiêng',
+    name: 'Đại Ngàn Tây Nguyên (Đắk Lắk - Pleiku)',
+    historicalName: 'Không Gian Văn Hóa Cồng Chiêng Tây Nguyên',
+    modernLocation: 'TP. Buôn Ma Thuột (Đắk Lắk) & TP. Pleiku (Gia Lai)',
     coordinates: [108.04, 12.67],
     regionId: 'tay-nguyen',
     regionTitle: 'Tây Nguyên — Trường Sơn Hùng Vĩ',
@@ -390,14 +418,17 @@ export const HERITAGE_LOCATIONS: HeritageLocationNode[] = [
     philosophicalMeaning:
       'Tính cộng đồng gắn kết bền chặt, lòng tri ân Mẹ Thiên Nhiên và sức mạnh của thần rừng.',
     quote: 'Vút lên tiếng hát nhà rông / Dải thổ cẩm dệt cả vòng thời gian.',
-    accentColor: '#EC4899',
+    accentColor: '#F472B6',
     icon: '🦅',
     elevationBadge: 'Sử Thi Cồng Chiêng',
+    labelOffset: { x: -88, y: -18 },
+    landmarkNote: 'Không gian văn hóa sử thi & kỹ thuật dệt cườm đá cổ',
   },
   {
     id: 'sai-gon',
-    name: 'Đô Thị Sài Gòn - Gia Định (TP.HCM)',
+    name: 'Sài Gòn - Gia Định (TP.HCM)',
     historicalName: 'Bến Nghé — Gia Định Thành',
+    modernLocation: 'Thành phố Hồ Chí Minh (Trung tâm Quận 1 & Chợ Lớn Quận 5)',
     coordinates: [106.66, 10.77],
     regionId: 'nam-bo',
     regionTitle: 'Nam Bộ — Tân Thời Hiện Đại',
@@ -422,14 +453,17 @@ export const HERITAGE_LOCATIONS: HeritageLocationNode[] = [
     philosophicalMeaning:
       'Sự hòa quyện giữa căn cốt truyền thống và nhịp sống văn minh, năng động, thanh lịch.',
     quote: 'Áo dài bay trên đường Catinat xưa / Nụ cười Sài Gòn đón nắng chiều rực rỡ.',
-    accentColor: '#8B5CF6',
+    accentColor: '#A78BFA',
     icon: '✨',
     elevationBadge: 'Cái Nôi Cách Tân',
+    labelOffset: { x: 22, y: -16 },
+    landmarkNote: 'Cuộc cách mạng Áo dài Raglan đưa tà áo vươn tầm thế giới',
   },
   {
     id: 'tan-chau',
-    name: 'Xứ Lụa Tân Châu & Miệt Vườn Cửu Long',
+    name: 'Tân Châu & Miệt Vườn Cửu Long',
     historicalName: 'An Giang Miệt Vườn Lục Tỉnh',
+    modernLocation: 'Thị xã Tân Châu & TP. Châu Đốc, Tỉnh An Giang',
     coordinates: [105.15, 10.78],
     regionId: 'nam-bo',
     regionTitle: 'Nam Bộ — Sông Nước Miệt Vườn',
@@ -448,56 +482,31 @@ export const HERITAGE_LOCATIONS: HeritageLocationNode[] = [
         significance: 'Họa tiết ca rô đen trắng bình dị, thấm giọt mồ hôi khai hoang mở cõi phương Nam.',
       },
     ],
-    craftAndFabric: 'Kỹ nghệ dệt lụa Lãnh Mỹ A tráng mủ trái mặc nưa độc nhất vô nhị chỉ có tại Tân Châu - An Giang.',
+    craftAndFabric: 'Kỹ nghệ dệt tơ tằm tơ tằm nguyên chất nhuộm trái mặc nưa thủ công trăm công phu.',
     historicalStory:
-      'Tân Châu bên bờ sông Tiền trù phú đã tạo nên huyền thoại Lãnh Mỹ A. Chiếc Áo Bà Ba xẻ tà hai bên hông với hai túi phía trước ra đời từ nhu cầu lao động sông nước: gọn gàng, mau khô, thoáng mát nhưng tôn trọn nét đẹp khỏe khoắn, đôn hậu của con người phương Nam.',
+      'Xứ lụa Tân Châu nằm bên dòng sông Tiền trù phú, nơi khai sinh ra thứ lụa Lãnh Mỹ A đen tuyền bóng bẩy nức tiếng khắp Nam Kỳ Lục Tỉnh và Đông Dương. Chiếc Áo Bà Ba kết hợp cùng khăn rằn và nón lá là biểu tượng bình dị, kiên cường của người dân phương Nam trong công cuộc khai phá ruộng đồng.',
     philosophicalMeaning:
-      'Sự chất phác, hào sảng, trọng nghĩa khinh tài và lòng gắn bó thủy chung với đất mẹ phù sa.',
-    quote: 'Chiếc áo bà ba trên dòng sông xanh thẳm / Nắng tỏa sông Tiền ngời sắc Lãnh Mỹ A.',
-    accentColor: '#0EA5E9',
-    icon: '🚣',
-    elevationBadge: 'Huyền Thoại Vải Đen',
-  },
-  {
-    id: 'hoang-sa-truong-sa',
-    name: 'Quần Đảo Hoàng Sa & Trường Sa',
-    historicalName: 'Vạn Lý Hoàng Sa & Đại Trường Sa',
-    coordinates: [111.9, 16.5],
-    regionId: 'trung-bo',
-    regionTitle: 'Biển Đảo — Chủ Quyền Thiêng Liêng',
-    dynasties: ['Triều Nguyễn'],
-    mainGarmentName: 'Phục Trang Hải Đội Hoàng Sa & Ngư Dân Cổ',
-    targetTopId: 'ngu-than',
-    garments: [
-      {
-        name: 'Quân Phục Thủy Binh Hải Đội Hoàng Sa',
-        type: 'Quân phục hải đội triều Nguyễn',
-        significance: 'Áo chẽn nẹp đai, nón dấu hoặc nón chóp che nắng gió, mang cờ lệnh và chỉ dụ vua ban.',
-      },
-    ],
-    craftAndFabric: 'Vải thô chịu mặn, đan mây tre kiên cố, chỉ gai bện chịu sóng gió đại dương.',
-    historicalStory:
-      'Từ thời các Chúa Nguyễn đến vua Gia Long và Minh Mạng, Hải Đội Hoàng Sa kiêm quản Bắc Hải hàng năm dong thuyền buồm ra đo đạc hải trình, dựng bia cắm mốc chủ quyền thiêng liêng trên hai quần đảo Hoàng Sa và Trường Sa của Tổ quốc.',
-    philosophicalMeaning:
-      'Ý chí kiên cường giữ gìn từng tấc biển thiêng liêng của cha ông ngàn đời truyền lại.',
-    quote: 'Hoàng Sa mây nước mênh mông / Người đi canh giữ non sông muôn đời.',
-    accentColor: '#38BDF8',
-    icon: '⚓',
-    elevationBadge: 'Cương Vực Biển Đảo',
+      'Tinh thần phóng khoáng, tình nghĩa thủy chung và sự gắn bó máu thịt với sông nước phù sa.',
+    quote: 'Chiếc áo bà ba trên dòng sông xanh / Lãnh Mỹ A đen óng nghĩa tình quê hương.',
+    accentColor: '#06B6D4',
+    icon: '🌾',
+    elevationBadge: 'Nữ Hoàng Tơ Lụa',
+    labelOffset: { x: -84, y: 16 },
+    landmarkNote: 'Thủ phủ tơ lụa Lãnh Mỹ A trứ danh Nam Kỳ Lục Tỉnh',
   },
 ];
 
 export const CULTURAL_MIGRATION_ROUTES: MigrationRoute[] = [
   {
-    id: 'route-minh-mang-standard',
-    title: 'Chiếu Dụ Chuẩn Hóa Quốc Phục (1836)',
-    historicalEra: 'Triều Nguyễn (Vua Minh Mạng)',
+    id: 'route-thang-long-to-hue',
+    title: 'Hành Trình Chuyển Giao Quốc Phục Thăng Long — Thuận Hóa',
+    historicalEra: 'Thế Kỷ 16 - 18',
     description:
-      'Từ Cố Đô Huế, vua Minh Mạng ban hành chiếu dụ cải cách y phục trên toàn quốc, đưa Áo Ngũ Thân lan tỏa ra khắp Bắc Hà và Nam Kỳ.',
+      'Chúa Tiên Nguyễn Hoàng mang theo tinh hoa dệt may, nghi lễ và các nghệ nhân Thăng Long vào Nam lập nghiệp, đặt nền móng cho phục sức triều Nguyễn.',
     color: '#F59E0B',
-    fromLocationId: 'hue',
-    toLocationId: 'thang-long',
-    curveOffset: -40,
+    fromLocationId: 'thang-long',
+    toLocationId: 'hue',
+    curveOffset: -38,
   },
   {
     id: 'route-hue-to-saigon',
@@ -505,10 +514,10 @@ export const CULTURAL_MIGRATION_ROUTES: MigrationRoute[] = [
     historicalEra: 'Triều Nguyễn & Cận Đại',
     description:
       'Sự di cư của các bậc trí thức và thợ may cung đình từ Thuận Hóa vào Sài Gòn - Gia Định, hòa nhập tạo nên phong cách phục sức miền Nam.',
-    color: '#8B5CF6',
+    color: '#A78BFA',
     fromLocationId: 'hue',
     toLocationId: 'sai-gon',
-    curveOffset: 45,
+    curveOffset: 42,
   },
   {
     id: 'route-thang-long-kinh-bac',
@@ -516,10 +525,10 @@ export const CULTURAL_MIGRATION_ROUTES: MigrationRoute[] = [
     historicalEra: 'Thời Lý - Trần - Lê',
     description:
       'Sự giao thoa mật thiết giữa nhã nhạc triều nghi Thăng Long và văn hóa dân gian Quan họ Kinh Bắc qua tà áo Tứ Thân & Giao Lĩnh.',
-    color: '#3B82F6',
+    color: '#38BDF8',
     fromLocationId: 'thang-long',
     toLocationId: 'kinh-bac',
-    curveOffset: -15,
+    curveOffset: -14,
   },
   {
     id: 'route-silk-trade',
@@ -530,7 +539,7 @@ export const CULTURAL_MIGRATION_ROUTES: MigrationRoute[] = [
     color: '#10B981',
     fromLocationId: 'hoi-an',
     toLocationId: 'tan-chau',
-    curveOffset: 35,
+    curveOffset: 34,
   },
   {
     id: 'route-modern-expansion',
@@ -541,18 +550,18 @@ export const CULTURAL_MIGRATION_ROUTES: MigrationRoute[] = [
     color: '#EC4899',
     fromLocationId: 'sai-gon',
     toLocationId: 'thang-long',
-    curveOffset: 60,
+    curveOffset: 55,
   },
 ];
 
 /**
- * GeoJSON FeatureCollection for Vietnam with mainland, zones, and sacred islands.
- * Longitude ranges approx 102° to 115°, Latitude approx 8° to 24°.
+ * High-Precision GeoJSON FeatureCollection for Vietnam with natural curved contours,
+ * detailed coastlines, mountainous frontiers, key bays, and sacred archipelagos.
  */
 export const VIETNAM_GEO_JSON: FeatureCollection<Geometry> = {
   type: 'FeatureCollection',
   features: [
-    // 1. VIETNAM MAINLAND CONTOUR (Recognizable S-Shape Boundary Polygon)
+    // 1. VIETNAM MAINLAND CONTOUR (Detailed Organic S-Shape Polygon)
     {
       type: 'Feature',
       id: 'vietnam-mainland',
@@ -564,91 +573,123 @@ export const VIETNAM_GEO_JSON: FeatureCollection<Geometry> = {
         type: 'Polygon',
         coordinates: [
           [
-            // Northern Border (West to East along China border)
+            // Northern Border (West to East along frontier)
             [102.15, 22.40], // Mường Nhé (Điện Biên)
-            [102.80, 22.65], // Lai Châu
-            [103.80, 22.80], // Lào Cai
-            [104.90, 23.35], // Hà Giang
-            [105.35, 23.38], // Lũng Cú (Northernmost tip)
-            [106.10, 23.00], // Cao Bằng
-            [106.80, 22.70], // Trùng Khánh
-            [107.50, 22.00], // Lạng Sơn
-            [108.05, 21.52], // Móng Cái (Quảng Ninh)
-            
-            // Northern Coastline (East to South)
+            [102.35, 22.52], // Mường Tè
+            [102.80, 22.65], // Phong Thổ (Lai Châu)
+            [103.30, 22.75], // Bát Xát
+            [103.80, 22.82], // Lào Cai
+            [104.30, 23.05], // Mường Khương
+            [104.75, 23.25], // Quản Bạ (Hà Giang)
+            [105.15, 23.36], // Đồng Văn
+            [105.35, 23.39], // Cột cờ Lũng Cú (Điểm cực Bắc)
+            [105.65, 23.22], // Mèo Vạc
+            [106.10, 23.00], // Bảo Lạc (Cao Bằng)
+            [106.50, 22.85], // Hà Quảng
+            [106.85, 22.70], // Trùng Khánh (Thác Bản Giốc)
+            [107.15, 22.38], // Phục Hòa
+            [107.50, 21.95], // Chi Lăng / Lạng Sơn
+            [107.80, 21.65], // Đình Lập
+            [108.05, 21.52], // Mũi Sa Vĩ / Móng Cái (Quảng Ninh)
+
+            // Northern Coastline (Vịnh Bắc Bộ)
+            [107.85, 21.35], // Hải Hà
             [107.60, 21.15], // Tiên Yên
-            [107.05, 20.85], // Vịnh Hạ Long
-            [106.70, 20.70], // Hải Phòng
-            [106.35, 20.40], // Thái Bình
+            [107.35, 20.95], // Cẩm Phả
+            [107.05, 20.85], // Vịnh Hạ Long (Kỳ quan thiên nhiên)
+            [106.75, 20.72], // Hải Phòng
+            [106.50, 20.55], // Tiên Lãng
+            [106.35, 20.40], // Thái Bình / Cửa Ba Lạt
             [106.10, 20.05], // Nam Định
-            [105.90, 19.90], // Ninh Bình / Kim Sơn
-            
+            [105.95, 19.92], // Kim Sơn (Ninh Bình)
+
             // North Central Coastline
-            [105.85, 19.75], // Thanh Hóa
-            [105.75, 19.00], // Nghệ An
-            [105.90, 18.35], // Hà Tĩnh
-            [106.40, 17.80], // Đèo Ngang
-            [106.65, 17.50], // Đồng Hới (Quảng Bình narrow waist)
-            [107.10, 17.00], // Quảng Trị
-            [107.60, 16.50], // Thừa Thiên Huế
-            [108.20, 16.15], // Đà Nẵng
-            
-            // South Central Coastline (Bulging East)
-            [108.40, 15.90], // Hội An
-            [108.75, 15.20], // Quảng Ngãi
-            [109.15, 14.30], // Bình Định
+            [105.88, 19.80], // Sầm Sơn (Thanh Hóa)
+            [105.80, 19.45], // Tĩnh Gia
+            [105.75, 19.00], // Cửa Lò (Nghệ An)
+            [105.85, 18.65], // Nghi Xuân
+            [105.92, 18.35], // Thiên Cầm (Hà Tĩnh)
+            [106.15, 18.05], // Kỳ Anh
+            [106.40, 17.80], // Đèo Ngang (Ranh giới lịch sử)
+            [106.55, 17.65], // Quảng Trạch
+            [106.65, 17.50], // Đồng Hới (Quảng Bình - eo hẹp nhất nước)
+            [106.85, 17.25], // Lệ Thủy
+            [107.10, 17.00], // Vĩnh Linh / Cửa Tùng (Quảng Trị)
+            [107.35, 16.75], // Quảng Trị
+            [107.60, 16.50], // Cửa Thuận An (Thừa Thiên Huế)
+            [107.95, 16.30], // Vịnh Lăng Cô
+            [108.20, 16.15], // Bán đảo Sơn Trà / Đà Nẵng
+
+            // South Central Coastline
+            [108.40, 15.90], // Cửa Đại (Hội An)
+            [108.60, 15.55], // Tam Kỳ (Quảng Nam)
+            [108.75, 15.20], // Dung Quất (Quảng Ngãi)
+            [108.95, 14.75], // Sa Huỳnh
+            [109.15, 14.30], // Tam Quan (Bình Định)
             [109.25, 13.75], // Quy Nhơn
             [109.35, 13.10], // Sông Cầu (Phú Yên)
-            [109.47, 12.85], // Mũi Điện / Đại Lãnh (Easternmost tip)
-            [109.20, 12.25], // Nha Trang (Khánh Hòa)
-            [109.15, 11.90], // Cam Ranh
-            [109.00, 11.55], // Phan Rang (Ninh Thuận)
+            [109.47, 12.85], // Mũi Điện / Đại Lãnh (Điểm cực Đông đất liền)
+            [109.28, 12.55], // Vịnh Vân Phong
+            [109.20, 12.25], // Vịnh Nha Trang (Khánh Hòa)
+            [109.15, 11.90], // Vịnh Cam Ranh
+            [109.00, 11.55], // Phan Rang - Tháp Chàm (Ninh Thuận)
+            [108.75, 11.25], // Cà Ná
             [108.30, 11.00], // Mũi Né (Bình Thuận)
             [107.80, 10.60], // Phan Thiết
-            [107.10, 10.35], // Bà Rịa - Vũng Tàu
-            
-            // Mekong Delta Coastline (South tip)
-            [106.75, 10.38], // Cần Giờ
-            [106.50, 10.15], // Tiền Giang / Bến Tre
-            [106.20, 9.75],  // Trà Vinh
-            [105.95, 9.35],  // Sóc Trăng
+            [107.45, 10.45], // La Gi
+            [107.10, 10.35], // Mũi Nghinh Phong (Bà Rịa - Vũng Tàu)
+
+            // Mekong Delta Coastline (Đồng Bằng Sông Cửu Long)
+            [106.85, 10.38], // Vịnh Gành Rái
+            [106.75, 10.35], // Rừng ngập mặn Cần Giờ
+            [106.50, 10.15], // Cửa Đại / Cửa Tiểu (Bến Tre)
+            [106.35, 9.95],  // Ba Tri
+            [106.20, 9.75],  // Duyên Hải (Trà Vinh)
+            [105.95, 9.35],  // Vĩnh Châu (Sóc Trăng)
             [105.65, 9.10],  // Bạc Liêu
-            [105.20, 8.70],  // Đầm Dơi (Cà Mau)
-            [104.75, 8.60],  // Mũi Cà Mau (Southernmost tip)
-            
-            // Gulf of Thailand Coastline (Southwest)
-            [104.85, 9.15],  // U Minh
+            [105.35, 8.85],  // Đầm Dơi
+            [105.05, 8.68],  // Năm Căn (Cà Mau)
+            [104.75, 8.60],  // Mũi Cà Mau (Điểm cực Nam)
+
+            // Gulf of Thailand Coastline (Tây Nam Bộ)
+            [104.85, 9.15],  // U Minh Hạ
             [105.00, 9.80],  // Rạch Giá (Kiên Giang)
-            [104.48, 10.38], // Hà Tiên
-            
-            // Southwest Inland Border with Cambodia & Laos
-            [105.05, 10.75], // An Giang (Châu Đốc / Tân Châu)
-            [105.35, 10.85], // Đồng Tháp
-            [105.80, 11.00], // Long An
-            [106.05, 11.45], // Tây Ninh
-            [106.60, 11.85], // Bình Phước
-            [107.40, 12.15], // Đắk Nông
-            [107.50, 12.90], // Đắk Lắk
-            [107.60, 13.80], // Gia Lai
-            [107.70, 14.70], // Kon Tum (Ngã ba Đông Dương)
-            
-            // Truong Son Mountains Border with Laos (Heading North)
-            [107.35, 15.70], // Quảng Nam
+            [104.80, 10.15], // Hòn Đất
+            [104.48, 10.38], // Hà Tiên (Giáp Campuchia)
+
+            // Southwest Inland Border with Cambodia
+            [105.05, 10.75], // Tân Châu / An Giang
+            [105.35, 10.85], // Hồng Ngự (Đồng Tháp)
+            [105.80, 11.00], // Tân Hưng (Long An)
+            [106.05, 11.45], // Mộc Bài (Tây Ninh)
+            [106.35, 11.75], // Lộc Ninh (Bình Phước)
+            [106.80, 11.95], // Bù Đốp
+            [107.40, 12.15], // Tuy Đức (Đắk Nông)
+            [107.50, 12.90], // Buôn Đôn (Đắk Lắk)
+            [107.60, 13.80], // Ia Grai (Gia Lai)
+            [107.70, 14.70], // Ngọc Hồi (Kon Tum - Ngã ba Đông Dương)
+
+            // Truong Son Mountain Frontier with Laos
+            [107.55, 15.20], // Đắk Glei
+            [107.35, 15.70], // Nam Giang (Quảng Nam)
             [107.10, 16.30], // A Lưới (Thừa Thiên Huế)
-            [106.70, 16.70], // Hướng Hóa (Quảng Trị)
+            [106.70, 16.70], // Hướng Hóa / Lao Bảo (Quảng Trị)
             [106.10, 17.30], // Cha Lo (Quảng Bình)
-            [105.70, 18.25], // Cầu Treo (Hà Tĩnh)
-            [104.80, 19.10], // Tương Dương (Nghệ An)
-            [104.40, 19.80], // Mường Lát (Thanh Hóa)
-            [103.80, 20.80], // Mộc Châu (Sơn La)
-            [103.00, 21.40], // Điện Biên Phủ
-            [102.15, 22.40], // Return to Mường Nhé
+            [105.70, 18.25], // Cửa khẩu Cầu Treo (Hà Tĩnh)
+            [105.20, 18.75], // Thanh Thủy (Nghệ An)
+            [104.60, 19.30], // Kỳ Sơn / Nậm Cắn
+            [104.30, 20.00], // Mường Lát (Thanh Hóa)
+            [104.00, 20.50], // Sốp Cộp (Sơn La)
+            [103.60, 21.00], // Sông Mã
+            [103.00, 21.40], // Điện Biên Đông / Điện Biên Phủ
+            [102.50, 21.90], // Mường Chà
+            [102.15, 22.40], // Trở lại Mường Nhé (Điểm cực Tây)
           ],
         ],
       },
     },
 
-    // 2. PHÚ QUỐC ISLAND (Kiên Giang)
+    // 2. PHÚ QUỐC ISLAND (Kiên Giang - Đảo Ngọc)
     {
       type: 'Feature',
       id: 'island-phu-quoc',
@@ -657,12 +698,12 @@ export const VIETNAM_GEO_JSON: FeatureCollection<Geometry> = {
         type: 'Polygon',
         coordinates: [
           [
-            [103.90, 10.15],
-            [104.05, 10.10],
+            [103.90, 10.08],
+            [104.05, 10.12],
             [104.08, 10.35],
-            [103.95, 10.45],
-            [103.85, 10.30],
-            [103.90, 10.15],
+            [103.98, 10.45],
+            [103.88, 10.32],
+            [103.90, 10.08],
           ],
         ],
       },
@@ -679,7 +720,7 @@ export const VIETNAM_GEO_JSON: FeatureCollection<Geometry> = {
           [
             [106.55, 8.65],
             [106.68, 8.68],
-            [106.65, 8.75],
+            [106.66, 8.76],
             [106.52, 8.72],
             [106.55, 8.65],
           ],
@@ -687,7 +728,7 @@ export const VIETNAM_GEO_JSON: FeatureCollection<Geometry> = {
       },
     },
 
-    // 4. QUẦN ĐẢO HOÀNG SA (Paracel Islands)
+    // 4. QUẦN ĐẢO HOÀNG SA (Paracel Islands - Việt Nam)
     {
       type: 'Feature',
       id: 'archipelago-hoang-sa',
@@ -695,31 +736,41 @@ export const VIETNAM_GEO_JSON: FeatureCollection<Geometry> = {
       geometry: {
         type: 'MultiPolygon',
         coordinates: [
-          // Đảo Hoàng Sa & Đá Lồi
+          // Nhóm An Vĩnh & Đảo Phú Lâm
           [
             [
-              [111.45, 16.50],
-              [111.60, 16.50],
-              [111.60, 16.65],
-              [111.45, 16.65],
-              [111.45, 16.50],
+              [112.20, 16.80],
+              [112.42, 16.80],
+              [112.42, 16.98],
+              [112.20, 16.98],
+              [112.20, 16.80],
             ],
           ],
-          // Đảo Phú Lâm & Linh Côn
+          // Nhóm Lưỡi Liềm & Đảo Hoàng Sa
           [
             [
-              [112.20, 16.80],
-              [112.38, 16.80],
-              [112.38, 16.95],
-              [112.20, 16.95],
-              [112.20, 16.80],
+              [111.45, 16.45],
+              [111.70, 16.45],
+              [111.70, 16.68],
+              [111.45, 16.68],
+              [111.45, 16.45],
+            ],
+          ],
+          // Bãi Cát Tri Tôn
+          [
+            [
+              [111.15, 15.75],
+              [111.30, 15.75],
+              [111.30, 15.88],
+              [111.15, 15.88],
+              [111.15, 15.75],
             ],
           ],
         ],
       },
     },
 
-    // 5. QUẦN ĐẢO TRƯỜNG SA (Spratly Islands)
+    // 5. QUẦN ĐẢO TRƯỜNG SA (Spratly Islands - Việt Nam)
     {
       type: 'Feature',
       id: 'archipelago-truong-sa',
@@ -727,34 +778,44 @@ export const VIETNAM_GEO_JSON: FeatureCollection<Geometry> = {
       geometry: {
         type: 'MultiPolygon',
         coordinates: [
+          // Đảo Song Tử Tây & Song Tử Đông
+          [
+            [
+              [114.28, 11.35],
+              [114.52, 11.35],
+              [114.52, 11.58],
+              [114.28, 11.58],
+              [114.28, 11.35],
+            ],
+          ],
+          // Đảo Nam Yết & Sinh Tồn
+          [
+            [
+              [114.18, 9.75],
+              [114.48, 9.75],
+              [114.48, 10.08],
+              [114.18, 10.08],
+              [114.18, 9.75],
+            ],
+          ],
           // Đảo Trường Sa Lớn & Đá Tây
           [
             [
-              [111.85, 8.80],
-              [112.05, 8.80],
-              [112.05, 9.00],
-              [111.85, 9.00],
-              [111.85, 8.80],
+              [111.85, 8.78],
+              [112.12, 8.78],
+              [112.12, 9.05],
+              [111.85, 9.05],
+              [111.85, 8.78],
             ],
           ],
-          // Đảo Sinh Tồn & Nam Yết
+          // Đảo Thuyền Chài & An Bang
           [
             [
-              [114.20, 9.80],
-              [114.45, 9.80],
-              [114.45, 10.05],
-              [114.20, 10.05],
-              [114.20, 9.80],
-            ],
-          ],
-          // Song Tử Tây & Song Tử Đông
-          [
-            [
-              [114.30, 11.35],
-              [114.50, 11.35],
-              [114.50, 11.55],
-              [114.30, 11.55],
-              [114.30, 11.35],
+              [112.35, 7.85],
+              [112.58, 7.85],
+              [112.58, 8.15],
+              [112.35, 8.15],
+              [112.35, 7.85],
             ],
           ],
         ],

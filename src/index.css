@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 @layer base {
   html {
@@ -123,4 +124,90 @@
 
 .animate-sparkle-glint {
   animation: sparkleGlint 3s ease-in-out infinite;
+}
+
+/* Custom Leaflet Tooltip for Vietnamese Heritage */
+.heritage-map-container .leaflet-tooltip.heritage-cultural-tooltip {
+  background: rgba(10, 15, 29, 0.96) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(245, 158, 11, 0.45) !important;
+  border-radius: 14px !important;
+  color: #F8FAFC !important;
+  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.85), 0 0 20px rgba(212, 175, 55, 0.25) !important;
+  padding: 0 !important;
+  pointer-events: none !important;
+  white-space: normal !important;
+}
+
+.heritage-map-container .leaflet-tooltip-top.heritage-cultural-tooltip::before {
+  border-top-color: rgba(245, 158, 11, 0.7) !important;
+}
+
+.heritage-map-container .leaflet-tooltip-bottom.heritage-cultural-tooltip::before {
+  border-bottom-color: rgba(245, 158, 11, 0.7) !important;
+}
+
+.heritage-map-container .leaflet-tooltip-left.heritage-cultural-tooltip::before {
+  border-left-color: rgba(245, 158, 11, 0.7) !important;
+}
+
+.heritage-map-container .leaflet-tooltip-right.heritage-cultural-tooltip::before {
+  border-right-color: rgba(245, 158, 11, 0.7) !important;
+}
+
+/* Custom Leaflet Map Styling for Vietnamese Heritage */
+.heritage-map-container .leaflet-popup-content-wrapper {
+  background: rgba(14, 21, 38, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 14px;
+  color: #F8FAFC;
+  box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.7), 0 0 25px rgba(212, 175, 55, 0.2);
+  padding: 0;
+}
+
+.heritage-map-container .leaflet-popup-content {
+  margin: 12px 14px;
+  line-height: 1.4;
+}
+
+.heritage-map-container .leaflet-popup-tip {
+  background: rgba(14, 21, 38, 0.95);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+}
+
+.heritage-map-container .leaflet-popup-close-button {
+  color: #D4AF37 !important;
+  padding: 8px 10px 0 0 !important;
+}
+
+.heritage-map-container .leaflet-control-zoom {
+  border: 1px solid rgba(212, 175, 55, 0.3) !important;
+  border-radius: 10px !important;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
+}
+
+.heritage-map-container .leaflet-control-zoom a {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  color: #FBBF24 !important;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2) !important;
+}
+
+.heritage-map-container .leaflet-control-zoom a:hover {
+  background-color: rgba(30, 41, 59, 0.95) !important;
+  color: #FDE047 !important;
+}
+
+.heritage-map-container .leaflet-control-attribution {
+  background: rgba(10, 14, 23, 0.75) !important;
+  color: #94A3B8 !important;
+  font-size: 10px !important;
+  border-top-left-radius: 6px;
+}
+
+.heritage-map-container .leaflet-control-attribution a {
+  color: #D4AF37 !important;
 }

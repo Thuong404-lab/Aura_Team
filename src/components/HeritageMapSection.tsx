@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import * as d3 from 'd3';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import L from 'leaflet';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Compass,
-  MapPin,
   Sparkles,
   Layers,
   ZoomIn,
@@ -11,28 +10,31 @@ import {
   RotateCcw,
   Search,
   ArrowRight,
-  ChevronLeft,
-  ChevronRight,
-  Info,
   Play,
   Pause,
-  Share2,
-  BookOpen,
-  Eye,
-  Check,
   Globe,
-  SlidersHorizontal,
+  MapPin,
+  Check,
+  Shield,
+  Palette,
+  Sun,
+  Flame,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  Camera,
+  Map as MapIcon,
+  Navigation,
+  ExternalLink,
+  Info,
 } from 'lucide-react';
 import {
-  VIETNAM_GEO_JSON,
   HERITAGE_LOCATIONS,
-  CULTURAL_MIGRATION_ROUTES,
   REGIONS_META,
   HeritageLocationNode,
-  MigrationRoute,
 } from '../data/heritageMapData';
 import { soundEngine } from '../utils/audioSynth';
-import { TOPS, PRESET_OUTFITS, PresetOutfit } from '../data/vietPhucData';
+import { PRESET_OUTFITS, PresetOutfit } from '../data/vietPhucData';
 
 interface HeritageMapSectionProps {
   onStartFitting?: () => void;
@@ -40,302 +42,656 @@ interface HeritageMapSectionProps {
   onApplyPreset?: (preset: PresetOutfit) => void;
 }
 
+// Satellite Tile API (Esri World Imagery) - photorealistic high-res satellite imagery
+const SATELLITE_TILE_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+const SATELLITE_ATTRIBUTION = '&copy; Esri, Maxar, Earthstar Geographics, USDA, USGS, AeroGRID, IGN';
+
+// Satellite Hybrid Reference Layer (Boundaries, coastlines, provinces & place names on satellite)
+const SATELLITE_LABELS_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}';
+
+// Landmarks defining the national sovereignty & geographic boundaries of Vietnam
+interface SovereigntyLandmark {
+  id: string;
+  name: string;
+  historicalName?: string;
+  region: string;
+  lat: number;
+  lng: number;
+  role: string;
+  color: string;
+  icon: string;
+}
+
+const SOVEREIGNTY_LANDMARKS: SovereigntyLandmark[] = [
+  {
+    id: 'hoang-sa',
+    name: 'Quần Đảo Hoàng Sa',
+    historicalName: 'Bãi Cát Vàng (Triều Nguyễn lập Hải đội Hoàng Sa)',
+    region: 'Huyện đảo Hoàng Sa, TP. Đà Nẵng',
+    lat: 16.5333,
+    lng: 111.6167,
+    role: 'Chủ quyền thiêng liêng muôn đời trên Biển Đông',
+    color: '#F59E0B',
+    icon: '🌊',
+  },
+  {
+    id: 'truong-sa',
+    name: 'Quần Đảo Trường Sa',
+    historicalName: 'Vạn Lý Trường Sa (Đội Bắc Hải triều Nguyễn kiêm quản)',
+    region: 'Huyện đảo Trường Sa, Tỉnh Khánh Hòa',
+    lat: 9.8833,
+    lng: 114.2833,
+    role: 'Chủ quyền biển đảo muôn đời của Tổ quốc',
+    color: '#EF4444',
+    icon: '🌊',
+  },
+  {
+    id: 'lung-cu',
+    name: 'Cột Cờ Lũng Cú',
+    historicalName: 'Địa đầu Long Cổ (Nơi đặt trống đồng thời Lý Thường Kiệt)',
+    region: 'Huyện Đồng Văn, Tỉnh Hà Giang (Cực Bắc 23°23\'B)',
+    lat: 23.364,
+    lng: 105.319,
+    role: 'Nóc nhà địa đầu dải đất chữ S',
+    color: '#DC2626',
+    icon: '🚩',
+  },
+  {
+    id: 'dat-mui',
+    name: 'Đất Mũi Cà Mau',
+    historicalName: 'Mũi Cà Mau (Gia Định Thành Thông Chí)',
+    region: 'Huyện Ngọc Hiển, Tỉnh Cà Mau (Cực Nam 8°36\'B)',
+    lat: 8.6044,
+    lng: 104.7175,
+    role: 'Gót sen phương Nam phù sa màu mỡ',
+    color: '#10B981',
+    icon: '⛵',
+  },
+  {
+    id: 'phu-quoc',
+    name: 'Đảo Ngọc Phú Quốc',
+    historicalName: 'Vùng đất mở cõi trấn Hà Tiên thời Mạc Cửu',
+    region: 'TP. Phú Quốc, Tỉnh Kiên Giang',
+    lat: 10.2289,
+    lng: 103.9572,
+    role: 'Hòn ngọc viễn tây biển đảo Việt Nam',
+    color: '#06B6D4',
+    icon: '🏝️',
+  },
+  {
+    id: 'con-dao',
+    name: 'Quần Đảo Côn Đảo',
+    historicalName: 'Côn Lôn Đảo (Địa dư chí cổ)',
+    region: 'Huyện Côn Đảo, Tỉnh Bà Rịa - Vũng Tàu',
+    lat: 8.6833,
+    lng: 106.6000,
+    role: 'Di tích lịch sử oai hùng giữa trùng khơi',
+    color: '#8B5CF6',
+    icon: '⚓',
+  },
+];
+
+// Coordinates along Vietnam's authentic S-curve spine from North to South
+const VIETNAM_S_SPINE_LATLNGS: [number, number][] = [
+  [23.364, 105.319], // Lũng Cú
+  [21.850, 105.500], // Tuyên Quang
+  [21.0285, 105.8542], // Hà Nội
+  [20.2506, 105.9744], // Hoa Lư Ninh Bình
+  [19.8000, 105.7800], // Thanh Hóa
+  [18.6700, 105.6800], // Vinh Nghệ An
+  [18.0500, 106.1500], // Hà Tĩnh
+  [17.4800, 106.6000], // Quảng Bình
+  [16.8000, 107.1000], // Quảng Trị
+  [16.4637, 107.5909], // Huế
+  [16.0500, 108.2000], // Đà Nẵng
+  [15.8801, 108.3380], // Hội An Quảng Nam
+  [15.1200, 108.8000], // Quảng Ngãi
+  [13.7800, 109.2200], // Quy Nhơn Bình Định
+  [12.8500, 109.4700], // Mũi Điện Phú Yên
+  [12.2500, 109.1900], // Nha Trang
+  [11.5600, 108.9900], // Phan Rang
+  [10.9300, 108.1000], // Phan Thiết
+  [10.7769, 106.7009], // Sài Gòn
+  [10.3500, 106.3600], // Mỹ Tho Tiền Giang
+  [10.0300, 105.7800], // Cần Thơ
+  [9.1800, 105.1500],  // Cà Mau
+  [8.6044, 104.7175],  // Đất Mũi Cà Mau
+];
+
 export const HeritageMapSection: React.FC<HeritageMapSectionProps> = ({
   onStartFitting,
   onSelectTopItem,
   onApplyPreset,
 }) => {
-  // SVG and Zoom container references
-  const svgRef = useRef<SVGSVGElement | null>(null);
-  const zoomGroupRef = useRef<SVGGElement | null>(null);
-  const zoomBehaviorRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
+  // Map Container Ref & Leaflet Instances
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const leafletMapRef = useRef<L.Map | null>(null);
+  const activeTileLayerRef = useRef<L.TileLayer | null>(null);
+  const satelliteLabelsLayerRef = useRef<L.TileLayer | null>(null);
+  const markersGroupRef = useRef<L.LayerGroup | null>(null);
+  const landmarksGroupRef = useRef<L.LayerGroup | null>(null);
+  const spinePolylineRef = useRef<L.Polyline | null>(null);
 
-  // Map state
-  const [selectedNodeId, setSelectedNodeId] = useState<string>('hue'); // Default to Imperial Hue
+  // States
+  const [showPlaceLabels, setShowPlaceLabels] = useState<boolean>(true);
+  const [selectedNodeId, setSelectedNodeId] = useState<string>('hue');
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
-  const [hoveredRouteId, setHoveredRouteId] = useState<string | null>(null);
   const [selectedRegionFilter, setSelectedRegionFilter] = useState<string>('all');
-  const [selectedDynastyFilter, setSelectedDynastyFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [showRoutes, setShowRoutes] = useState<boolean>(true);
-  const [showWaterways, setShowWaterways] = useState<boolean>(true);
+  const [showSSpine, setShowSSpine] = useState<boolean>(true);
+  const [showSovereignty, setShowSovereignty] = useState<boolean>(true);
   const [isAutoTouring, setIsAutoTouring] = useState<boolean>(false);
-  const [zoomLevel, setZoomLevel] = useState<number>(1);
+  const [mapLoaded, setMapLoaded] = useState<boolean>(false);
 
-  // Dimensions of map viewport
-  const mapWidth = 840;
-  const mapHeight = 920;
-
-  // Selected node object
+  // Current selected location node
   const selectedNode = useMemo(() => {
     return HERITAGE_LOCATIONS.find((n) => n.id === selectedNodeId) || HERITAGE_LOCATIONS[0];
   }, [selectedNodeId]);
 
-  // D3 Mercator Projection calibrated specifically for Vietnam's S-curve & islands
-  const projection = useMemo(() => {
-    return d3
-      .geoMercator()
-      .center([108.2, 16.2]) // Geographic center of Vietnam
-      .scale(2650)
-      .translate([mapWidth / 2 - 15, mapHeight / 2]);
-  }, [mapWidth, mapHeight]);
-
-  // D3 GeoPath generator
-  const pathGenerator = useMemo(() => {
-    return d3.geoPath().projection(projection);
-  }, [projection]);
-
-  // Projected SVG paths for GeoJSON features
-  const projectedFeatures = useMemo(() => {
-    return VIETNAM_GEO_JSON.features.map((feature) => ({
-      feature,
-      pathData: pathGenerator(feature as d3.GeoPermissibleObjects) || '',
-    }));
-  }, [pathGenerator]);
-
-  // Filtered nodes
-  const filteredNodes = useMemo(() => {
-    return HERITAGE_LOCATIONS.filter((node) => {
-      // Region filter
-      if (selectedRegionFilter !== 'all' && node.regionId !== selectedRegionFilter) {
-        return false;
-      }
-      // Dynasty filter
-      if (selectedDynastyFilter !== 'all') {
-        const matchesDynasty = node.dynasties.some((d) =>
-          d.toLowerCase().includes(selectedDynastyFilter.toLowerCase())
-        );
-        if (!matchesDynasty) return false;
-      }
-      // Search query
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase().trim();
-        const matchesName = node.name.toLowerCase().includes(q);
-        const matchesGarment = node.mainGarmentName.toLowerCase().includes(q);
-        const matchesCraft = node.craftAndFabric.toLowerCase().includes(q);
-        const matchesStory = node.historicalStory.toLowerCase().includes(q);
-        const matchesItems = node.garments.some((g) => g.name.toLowerCase().includes(q));
-        if (!matchesName && !matchesGarment && !matchesCraft && !matchesStory && !matchesItems) {
-          return false;
-        }
-      }
-      return true;
+  // Filtered locations
+  const filteredLocations = useMemo(() => {
+    return HERITAGE_LOCATIONS.filter((loc) => {
+      const matchRegion = selectedRegionFilter === 'all' || loc.regionId === selectedRegionFilter;
+      const matchQuery =
+        !searchQuery.trim() ||
+        loc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        loc.mainGarmentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        loc.historicalName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        loc.dynasties.some((d) => d.toLowerCase().includes(searchQuery.toLowerCase()));
+      return matchRegion && matchQuery;
     });
-  }, [selectedRegionFilter, selectedDynastyFilter, searchQuery]);
+  }, [selectedRegionFilter, searchQuery]);
 
-  // Historical Rivers approximate vector coordinates
-  const riverPaths = useMemo(() => {
-    // Sông Hồng (Red River): Starts Northwest through Hanoi out to Gulf of Tonkin
-    const redRiverPoints: [number, number][] = [
-      [103.8, 22.8],
-      [104.5, 22.1],
-      [105.1, 21.6],
-      [105.5, 21.3],
-      [105.85, 21.03],
-      [106.2, 20.8],
-      [106.6, 20.4],
-      [106.8, 20.2],
-    ];
-
-    // Sông Hương (Perfume River in Hue)
-    const perfumeRiverPoints: [number, number][] = [
-      [107.4, 16.2],
-      [107.52, 16.38],
-      [107.59, 16.46],
-      [107.68, 16.58],
-      [107.75, 16.65],
-    ];
-
-    // Sông Tiền & Sông Hậu (Mekong Delta branches)
-    const tienRiverPoints: [number, number][] = [
-      [105.1, 10.8],
-      [105.3, 10.6],
-      [105.7, 10.4],
-      [106.3, 10.3],
-      [106.7, 10.15],
-    ];
-
-    const hauRiverPoints: [number, number][] = [
-      [105.05, 10.7],
-      [105.4, 10.2],
-      [105.8, 10.0],
-      [106.1, 9.6],
-      [106.4, 9.4],
-    ];
-
-    const generateSvgPath = (points: [number, number][]) => {
-      const lineGen = d3
-        .line<[number, number]>()
-        .x((d) => projection(d)?.[0] || 0)
-        .y((d) => projection(d)?.[1] || 0)
-        .curve(d3.curveBasis);
-      return lineGen(points) || '';
-    };
-
-    return [
-      { id: 'song-hong', name: 'Sông Hồng Hà (Đồng Bằng Bắc Bộ)', path: generateSvgPath(redRiverPoints) },
-      { id: 'song-huong', name: 'Sông Hương Thơ Mộng (Cố Đô Huế)', path: generateSvgPath(perfumeRiverPoints) },
-      { id: 'song-tien', name: 'Sông Tiền Giang (Phù Sa Miệt Vườn)', path: generateSvgPath(tienRiverPoints) },
-      { id: 'song-hau', name: 'Sông Hậu Giang (Chín Rồng Phương Nam)', path: generateSvgPath(hauRiverPoints) },
-    ];
-  }, [projection]);
-
-  // Compute Migration Route curved SVG paths using D3 Bezier Curve
-  const migrationRoutePaths = useMemo(() => {
-    return CULTURAL_MIGRATION_ROUTES.map((route) => {
-      const fromLoc = HERITAGE_LOCATIONS.find((l) => l.id === route.fromLocationId);
-      const toLoc = HERITAGE_LOCATIONS.find((l) => l.id === route.toLocationId);
-      if (!fromLoc || !toLoc) return null;
-
-      const p1 = projection(fromLoc.coordinates);
-      const p2 = projection(toLoc.coordinates);
-      if (!p1 || !p2) return null;
-
-      const [x1, y1] = p1;
-      const [x2, y2] = p2;
-
-      // Midpoint
-      const mx = (x1 + x2) / 2;
-      const my = (y1 + y2) / 2;
-
-      // Normal vector
-      const dx = x2 - x1;
-      const dy = y2 - y1;
-      const len = Math.sqrt(dx * dx + dy * dy);
-      const nx = -dy / (len || 1);
-      const ny = dx / (len || 1);
-
-      // Control point offset
-      const cx = mx + nx * route.curveOffset;
-      const cy = my + ny * route.curveOffset;
-
-      const pathStr = `M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`;
-
-      return {
-        route,
-        pathStr,
-        midX: cx,
-        midY: cy,
-        fromLoc,
-        toLoc,
-      };
-    }).filter(Boolean);
-  }, [projection]);
-
-  // Setup D3 Zoom & Pan Behavior
+  // Initialize Leaflet Map once with Satellite Base Layer
   useEffect(() => {
-    if (!svgRef.current || !zoomGroupRef.current) return;
+    if (!mapContainerRef.current || leafletMapRef.current) return;
 
-    const svg = d3.select(svgRef.current);
-    const zoomGroup = d3.select(zoomGroupRef.current);
+    // Center squarely on the Vietnam S-shape [16.2, 107.5]
+    const map = L.map(mapContainerRef.current, {
+      center: [16.2, 107.5],
+      zoom: 6,
+      minZoom: 5,
+      maxZoom: 16,
+      zoomControl: false, // Custom styled zoom controls
+      attributionControl: true,
+      scrollWheelZoom: true,
+      maxBounds: [
+        [6.0, 100.0],
+        [25.5, 120.0],
+      ],
+      maxBoundsViscosity: 0.8,
+    });
 
-    const zoom = d3
-      .zoom<SVGSVGElement, unknown>()
-      .scaleExtent([0.8, 5.0])
-      .translateExtent([
-        [-200, -200],
-        [mapWidth + 200, mapHeight + 200],
-      ])
-      .on('zoom', (event) => {
-        zoomGroup.attr('transform', event.transform.toString());
-        setZoomLevel(event.transform.k);
-      });
+    leafletMapRef.current = map;
 
-    svg.call(zoom);
-    zoomBehaviorRef.current = zoom;
+    // Initialize High-Resolution Satellite Base Layer (Esri World Imagery)
+    const tileLayer = L.tileLayer(SATELLITE_TILE_URL, {
+      attribution: SATELLITE_ATTRIBUTION,
+      maxZoom: 18,
+    }).addTo(map);
+
+    activeTileLayerRef.current = tileLayer;
+
+    // Initialize Satellite Hybrid Labels Layer (Province boundaries & place names)
+    const labelsLayer = L.tileLayer(SATELLITE_LABELS_URL, {
+      maxZoom: 18,
+      opacity: 0.9,
+    });
+    if (showPlaceLabels) {
+      labelsLayer.addTo(map);
+    }
+    satelliteLabelsLayerRef.current = labelsLayer;
+
+    // Groups for markers & overlays
+    const markersGroup = L.layerGroup().addTo(map);
+    markersGroupRef.current = markersGroup;
+
+    const landmarksGroup = L.layerGroup().addTo(map);
+    landmarksGroupRef.current = landmarksGroup;
+
+    // Add S-Spine golden Polyline directly on satellite
+    const spineLine = L.polyline(VIETNAM_S_SPINE_LATLNGS, {
+      color: '#FBBF24',
+      weight: 4.5,
+      opacity: 0.95,
+      dashArray: '8, 6',
+      lineCap: 'round',
+      lineJoin: 'round',
+    }).addTo(map);
+    spinePolylineRef.current = spineLine;
+
+    // Listen for resize and ensure correct rendering
+    setTimeout(() => {
+      map.invalidateSize();
+      setMapLoaded(true);
+    }, 250);
 
     return () => {
-      svg.on('.zoom', null);
+      map.remove();
+      leafletMapRef.current = null;
     };
-  }, [mapWidth, mapHeight]);
+  }, []);
 
-  // Zoom camera smoothly to a specific location node
-  const zoomToNode = (node: HeritageLocationNode) => {
-    if (!svgRef.current || !zoomBehaviorRef.current) return;
+  // Toggle Satellite Place Labels & Boundaries
+  useEffect(() => {
+    if (!leafletMapRef.current || !satelliteLabelsLayerRef.current) return;
+    const map = leafletMapRef.current;
+    const labelsLayer = satelliteLabelsLayerRef.current;
 
-    const [cx, cy] = projection(node.coordinates) || [mapWidth / 2, mapHeight / 2];
-    const targetScale = 2.4;
-    const targetX = mapWidth / 2 - cx * targetScale;
-    const targetY = mapHeight / 2 - cy * targetScale;
+    if (showPlaceLabels) {
+      if (!map.hasLayer(labelsLayer)) {
+        labelsLayer.addTo(map);
+      }
+    } else {
+      if (map.hasLayer(labelsLayer)) {
+        map.removeLayer(labelsLayer);
+      }
+    }
+  }, [showPlaceLabels]);
 
-    d3.select(svgRef.current)
-      .transition()
-      .duration(850)
-      .ease(d3.easeCubicOut)
-      .call(
-        zoomBehaviorRef.current.transform,
-        d3.zoomIdentity.translate(targetX, targetY).scale(targetScale)
-      );
-  };
+  // Toggle S-Spine visibility
+  useEffect(() => {
+    if (!spinePolylineRef.current || !leafletMapRef.current) return;
+    const map = leafletMapRef.current;
+    if (showSSpine) {
+      if (!map.hasLayer(spinePolylineRef.current)) {
+        spinePolylineRef.current.addTo(map);
+      }
+    } else {
+      if (map.hasLayer(spinePolylineRef.current)) {
+        map.removeLayer(spinePolylineRef.current);
+      }
+    }
+  }, [showSSpine]);
 
-  // Zoom Controls Handlers
-  const handleZoomIn = () => {
-    if (!svgRef.current || !zoomBehaviorRef.current) return;
-    d3.select(svgRef.current).transition().duration(350).call(zoomBehaviorRef.current.scaleBy, 1.35);
-  };
+const SHORT_LOCATION_NAMES: Record<string, string> = {
+  'thang-long': 'Thăng Long',
+  'kinh-bac': 'Kinh Bắc',
+  'tay-bac': 'Sa Pa',
+  'hoa-lu': 'Hoa Lư',
+  'dong-son': 'Lam Kinh',
+  'hue': 'Cố Đô Huế',
+  'hoi-an': 'Hội An',
+  'cham-pa': 'Champa',
+  'tay-nguyen': 'Tây Nguyên',
+  'sai-gon': 'Sài Gòn',
+  'tan-chau': 'Tân Châu',
+};
 
-  const handleZoomOut = () => {
-    if (!svgRef.current || !zoomBehaviorRef.current) return;
-    d3.select(svgRef.current).transition().duration(350).call(zoomBehaviorRef.current.scaleBy, 0.74);
-  };
+const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
+  'hoang-sa': 'Hoàng Sa',
+  'truong-sa': 'Trường Sa',
+  'lung-cu': 'Lũng Cú',
+  'dat-mui': 'Đất Mũi',
+  'phu-quoc': 'Phú Quốc',
+  'con-dao': 'Côn Đảo',
+};
 
-  const handleResetZoom = () => {
-    if (!svgRef.current || !zoomBehaviorRef.current) return;
-    d3.select(svgRef.current)
-      .transition()
-      .duration(700)
-      .ease(d3.easeCubicOut)
-      .call(zoomBehaviorRef.current.transform, d3.zoomIdentity);
-  };
+  // Render Sovereignty Landmarks (Hoàng Sa, Trường Sa, Lũng Cú, Cà Mau, Phú Quốc, Côn Đảo)
+  useEffect(() => {
+    if (!landmarksGroupRef.current || !leafletMapRef.current) return;
+    const group = landmarksGroupRef.current;
+    group.clearLayers();
 
-  // Handle Node Selection
-  const handleSelectNode = (node: HeritageLocationNode, shouldZoom = true) => {
-    soundEngine.playPluck(523.25);
-    setSelectedNodeId(node.id);
-    if (shouldZoom) {
-      zoomToNode(node);
+    if (!showSovereignty) return;
+
+    SOVEREIGNTY_LANDMARKS.forEach((lm) => {
+      const isIsland = lm.id === 'hoang-sa' || lm.id === 'truong-sa';
+      const shortName = SHORT_SOVEREIGNTY_NAMES[lm.id] || lm.name;
+
+      const iconHtml = `
+        <div class="relative flex flex-col items-center group cursor-pointer transition-transform duration-200 hover:scale-115">
+          <!-- Pin Circle -->
+          <div class="relative flex items-center justify-center w-7 h-7 rounded-full shadow-xl ${
+            isIsland ? 'bg-amber-500 text-slate-950 ring-2 ring-amber-300' : 'bg-rose-600 text-white ring-2 ring-rose-400'
+          }">
+            <span class="text-xs select-none">${lm.icon}</span>
+            <span class="absolute -top-1 -right-1 flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full ${isIsland ? 'bg-amber-400 opacity-75' : 'bg-rose-400 opacity-75'}"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 ${isIsland ? 'bg-amber-400' : 'bg-rose-500'}"></span>
+            </span>
+          </div>
+          <!-- Compact Badge -->
+          <div class="mt-0.5 px-2 py-0.5 rounded-full bg-slate-950/90 backdrop-blur-md border ${
+            isIsland ? 'border-amber-400/60 text-amber-200' : 'border-rose-400/60 text-rose-100'
+          } shadow-lg whitespace-nowrap text-[10px] font-bold pointer-events-none">
+            <span>${shortName}</span>
+          </div>
+        </div>
+      `;
+
+      const customIcon = L.divIcon({
+        className: 'custom-sovereignty-icon',
+        html: iconHtml,
+        iconSize: [70, 48],
+        iconAnchor: [35, 14],
+      });
+
+      const marker = L.marker([lm.lat, lm.lng], { icon: customIcon });
+
+      // Cultural & Sovereignty Tooltip on Hover
+      marker.bindTooltip(`
+        <div class="cultural-tooltip-card min-w-[250px] max-w-[290px] p-2.5 text-slate-100 font-sans-vi">
+          <div class="flex items-center justify-between gap-2 pb-1.5 mb-1.5 border-b border-amber-500/25">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${
+              isIsland ? 'bg-amber-500/20 border-amber-400/50 text-amber-200' : 'bg-rose-500/20 border-rose-400/50 text-rose-200'
+            } border text-[10px] font-semibold">
+              <span>${lm.icon}</span>
+              <span>${isIsland ? 'Chủ Quyền Biển Đảo' : 'Cương Vực Lãnh Thổ'}</span>
+            </span>
+            <span class="text-[10px] font-mono text-slate-400">
+              ${lm.lat.toFixed(2)}°B, ${lm.lng.toFixed(2)}°Đ
+            </span>
+          </div>
+
+          <div class="mb-1.5">
+            <h4 class="font-serif-vi font-bold text-amber-200 text-sm leading-tight">
+              ${lm.name}
+            </h4>
+            ${
+              lm.historicalName
+                ? `<div class="text-[10px] text-amber-300/90 font-mono italic mt-0.5 flex items-center gap-1">
+                    <span class="text-[9px] px-1 py-0.2 rounded bg-amber-950/70 border border-amber-600/40 text-amber-300 not-italic">CỔ SỬ</span>
+                    <span>${lm.historicalName}</span>
+                  </div>`
+                : ''
+            }
+            <div class="text-[10px] text-sky-200 mt-1 flex items-center gap-1 bg-slate-900/90 px-1.5 py-0.5 rounded border border-sky-500/20">
+              <span class="text-[9px] px-1 py-0.2 rounded bg-sky-950 border border-sky-600/40 text-sky-300 font-medium">HÀNH CHÍNH</span>
+              <span class="truncate">${lm.region}</span>
+            </div>
+          </div>
+
+          <div class="p-1.5 rounded-lg bg-slate-950/80 border border-amber-500/20 mb-1.5 text-[10px] text-amber-100/95 leading-relaxed">
+            <div class="flex items-start gap-1">
+              <span class="text-amber-400 shrink-0">🇻🇳</span>
+              <span>${lm.role}</span>
+            </div>
+          </div>
+
+          <div class="text-[9px] text-center text-amber-300 font-medium flex items-center justify-center gap-1 bg-amber-500/10 py-0.5 rounded border border-amber-500/20">
+            <span>👆 Nhấp để định vị chi tiết</span>
+          </div>
+        </div>
+      `, {
+        direction: 'top',
+        offset: [0, -18],
+        className: 'heritage-cultural-tooltip',
+        opacity: 1,
+        sticky: false,
+      });
+
+      marker.bindPopup(`
+        <div class="p-3 text-slate-100 max-w-xs">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-lg">${lm.icon}</span>
+            <h4 class="font-bold text-amber-300 text-sm">${lm.name}</h4>
+          </div>
+          ${lm.historicalName ? `<p class="text-[11px] text-amber-200/90 font-mono italic mb-1">🏛️ Cổ danh: ${lm.historicalName}</p>` : ''}
+          <p class="text-xs text-sky-300 mb-1.5 flex items-center gap-1">
+            <span class="text-[10px] text-slate-400">📍 Hành chính:</span> ${lm.region}
+          </p>
+          <div class="p-2 rounded bg-amber-500/10 border border-amber-500/30 text-[11px] text-amber-100/90 leading-relaxed">
+            ${lm.role}
+          </div>
+        </div>
+      `);
+
+      marker.on('click', () => {
+        soundEngine.playPluck(587.33);
+        if (leafletMapRef.current) {
+          leafletMapRef.current.flyTo([lm.lat, lm.lng], 8.5, {
+            duration: 1.2,
+            easeLinearity: 0.25,
+          });
+        }
+      });
+
+      group.addLayer(marker);
+    });
+  }, [showSovereignty]);
+
+  // Render Heritage Fashion Location Markers
+  useEffect(() => {
+    if (!markersGroupRef.current || !leafletMapRef.current) return;
+    const group = markersGroupRef.current;
+    group.clearLayers();
+
+    filteredLocations.forEach((loc) => {
+      const isSelected = loc.id === selectedNodeId;
+      const [lng, lat] = loc.coordinates; // Notice GeoJSON is [lng, lat]
+      const shortName = SHORT_LOCATION_NAMES[loc.id] || loc.name.split(' ')[0];
+
+      const markerHtml = `
+        <div class="relative flex flex-col items-center group cursor-pointer transition-all duration-300 ${
+          isSelected ? 'scale-120 z-50' : 'hover:scale-110 z-20'
+        }">
+          <!-- Pulse animation for selected -->
+          ${
+            isSelected
+              ? `<div class="absolute -top-1 -inset-x-2 h-10 rounded-full bg-amber-400/50 animate-ping pointer-events-none"></div>`
+              : ''
+          }
+          <!-- Central Icon Pin -->
+          <div class="relative flex items-center justify-center w-8 h-8 rounded-full shadow-2xl transition-all ${
+            isSelected
+              ? 'bg-gradient-to-tr from-amber-400 via-amber-300 to-yellow-100 text-slate-950 ring-4 ring-amber-400/90 shadow-amber-500/70 scale-105'
+              : 'bg-slate-950/90 text-amber-300 ring-2 ring-amber-500/50 hover:ring-amber-300 hover:bg-slate-900 shadow-slate-950/90'
+          }">
+            <span class="text-sm font-bold select-none">${loc.icon || '🏛️'}</span>
+          </div>
+
+          <!-- Compact Clean Badge Underneath -->
+          <div class="mt-1 px-2.5 py-0.5 rounded-full backdrop-blur-md shadow-xl whitespace-nowrap text-[11px] font-semibold transition-all pointer-events-none flex items-center gap-1 ${
+            isSelected
+              ? 'bg-amber-500 text-slate-950 border border-amber-300 font-bold shadow-amber-500/40 ring-2 ring-amber-400/60'
+              : 'bg-slate-950/90 border border-slate-700/80 text-amber-100/95 group-hover:border-amber-400 group-hover:text-amber-200'
+          }">
+            <span>${shortName}</span>
+          </div>
+        </div>
+      `;
+
+      const customIcon = L.divIcon({
+        className: 'custom-heritage-marker',
+        html: markerHtml,
+        iconSize: [80, 54],
+        iconAnchor: [40, 16],
+      });
+
+      const marker = L.marker([lat, lng], { icon: customIcon });
+
+      // Custom Cultural Tooltip on Hover
+      marker.bindTooltip(`
+        <div class="cultural-tooltip-card min-w-[260px] max-w-[310px] p-2.5 text-slate-100 font-sans-vi">
+          <!-- Top badge + Coordinates -->
+          <div class="flex items-center justify-between gap-2 pb-1.5 mb-1.5 border-b border-amber-500/25">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/35 text-[10px] font-semibold text-amber-300">
+              <span>${loc.icon || '🏛️'}</span>
+              <span>${loc.elevationBadge || 'Di Tích Cổ Phong'}</span>
+            </span>
+            <span class="text-[10px] font-mono text-slate-400">
+              ${lat.toFixed(2)}°B, ${lng.toFixed(2)}°Đ
+            </span>
+          </div>
+
+          <!-- Title & Historical / Modern naming -->
+          <div class="mb-1.5">
+            <h4 class="font-serif-vi font-bold text-amber-200 text-sm leading-snug">
+              ${loc.name}
+            </h4>
+            ${
+              loc.historicalName
+                ? `<div class="text-[10px] text-amber-300/85 font-mono italic mt-0.5 flex items-center gap-1">
+                    <span class="text-[9px] px-1 py-0.2 rounded bg-amber-950/70 border border-amber-600/40 text-amber-300 not-italic">CỔ DANH</span>
+                    <span>${loc.historicalName}</span>
+                  </div>`
+                : ''
+            }
+            <div class="text-[10px] text-sky-200 mt-1 flex items-center gap-1 bg-slate-900/90 px-1.5 py-0.5 rounded border border-sky-500/20">
+              <span class="text-[9px] px-1 py-0.2 rounded bg-sky-950 border border-sky-600/40 text-sky-300 font-medium">HIỆN NAY</span>
+              <span class="truncate">${loc.modernLocation}</span>
+            </div>
+          </div>
+
+          <!-- Cultural Core Info Box -->
+          <div class="space-y-1 p-2 rounded-lg bg-slate-950/80 border border-amber-500/20 mb-1.5 text-[10px]">
+            <div class="flex items-start gap-1">
+              <span class="text-amber-400 shrink-0">👘</span>
+              <div class="leading-tight">
+                <span class="text-slate-400 font-medium">Cổ phục:</span>
+                <span class="text-amber-200 font-semibold ml-1">${loc.mainGarmentName}</span>
+              </div>
+            </div>
+            <div class="flex items-start gap-1">
+              <span class="text-amber-400 shrink-0">🧵</span>
+              <div class="text-slate-300 leading-tight">
+                <span class="text-slate-400 font-medium">Chất liệu:</span>
+                <span class="ml-1">${loc.craftAndFabric.length > 70 ? loc.craftAndFabric.slice(0, 68) + '...' : loc.craftAndFabric}</span>
+              </div>
+            </div>
+            ${
+              loc.dynasties && loc.dynasties.length > 0
+                ? `<div class="flex items-center gap-1 pt-1 border-t border-slate-800 text-[10px] text-slate-400">
+                    <span class="text-amber-400">📜</span>
+                    <span>Triều đại:</span>
+                    <span class="text-amber-200/90 font-medium ml-1">${loc.dynasties.join(' • ')}</span>
+                  </div>`
+                : ''
+            }
+          </div>
+
+          <!-- Call to action hint -->
+          <div class="text-[9px] text-center text-amber-300 font-medium flex items-center justify-center gap-1 bg-amber-500/10 py-1 rounded border border-amber-500/20">
+            <span>✨ Nhấp để mở hồ sơ di sản & mặc thử</span>
+          </div>
+        </div>
+      `, {
+        direction: 'top',
+        offset: [0, -18],
+        className: 'heritage-cultural-tooltip',
+        opacity: 1,
+        sticky: false,
+      });
+
+      marker.on('click', () => {
+        soundEngine.playPluck(523.25);
+        setSelectedNodeId(loc.id);
+        if (leafletMapRef.current) {
+          leafletMapRef.current.flyTo([lat, lng], 8, {
+            duration: 1.2,
+            easeLinearity: 0.25,
+          });
+        }
+      });
+
+      marker.on('mouseover', () => {
+        setHoveredNodeId(loc.id);
+      });
+
+      marker.on('mouseout', () => {
+        setHoveredNodeId(null);
+      });
+
+      group.addLayer(marker);
+    });
+  }, [filteredLocations, selectedNodeId]);
+
+  // Fly to node smoothly
+  const flyToNode = useCallback((node: HeritageLocationNode, zoomLevel = 8) => {
+    if (!leafletMapRef.current) return;
+    const [lng, lat] = node.coordinates;
+    leafletMapRef.current.flyTo([lat, lng], zoomLevel, {
+      duration: 1.2,
+      easeLinearity: 0.25,
+    });
+  }, []);
+
+  // Handle jump along the S-Curve sections
+  const handleJumpToSection = (section: 'north' | 'central' | 'south' | 'islands' | 'full') => {
+    if (!leafletMapRef.current) return;
+    soundEngine.playPluck(440);
+
+    if (section === 'north') {
+      // Focus on Thăng Long & Bắc Bộ
+      leafletMapRef.current.flyTo([21.2, 105.8], 7.5, { duration: 1.2 });
+      setSelectedNodeId('thang-long');
+    } else if (section === 'central') {
+      // Focus on Cố Đô Huế & Hội An
+      leafletMapRef.current.flyTo([16.2, 107.8], 7.5, { duration: 1.2 });
+      setSelectedNodeId('hue');
+    } else if (section === 'south') {
+      // Focus on Sài Gòn & Nam Bộ
+      leafletMapRef.current.flyTo([10.5, 106.2], 7.5, { duration: 1.2 });
+      setSelectedNodeId('saigon');
+    } else if (section === 'islands') {
+      // Focus on Hoàng Sa & Trường Sa (Biển Đông)
+      leafletMapRef.current.flyTo([13.5, 112.5], 6.2, { duration: 1.2 });
+    } else {
+      // Reset full view of Vietnam S-Shape
+      leafletMapRef.current.flyTo([16.2, 107.5], 6, { duration: 1.2 });
     }
   };
 
-  // Step through locations with previous/next
+  // Zoom buttons
+  const handleZoomIn = () => {
+    if (!leafletMapRef.current) return;
+    soundEngine.playPluck(440);
+    leafletMapRef.current.zoomIn();
+  };
+
+  const handleZoomOut = () => {
+    if (!leafletMapRef.current) return;
+    soundEngine.playPluck(330);
+    leafletMapRef.current.zoomOut();
+  };
+
+  const handleResetView = () => {
+    handleJumpToSection('full');
+  };
+
+  // Auto-tour along Vietnam's S-curve
+  useEffect(() => {
+    if (!isAutoTouring) return;
+
+    const interval = setInterval(() => {
+      setSelectedNodeId((currentId) => {
+        const currentIndex = HERITAGE_LOCATIONS.findIndex((n) => n.id === currentId);
+        const nextIndex = (currentIndex + 1) % HERITAGE_LOCATIONS.length;
+        const nextNode = HERITAGE_LOCATIONS[nextIndex];
+        flyToNode(nextNode, 7.5);
+        soundEngine.playPluck(440 + (nextIndex % 5) * 45);
+        return nextNode.id;
+      });
+    }, 4800);
+
+    return () => clearInterval(interval);
+  }, [isAutoTouring, flyToNode]);
+
+  // Navigate next/prev location in inspector
   const handleNavigateNext = () => {
     const currentIndex = HERITAGE_LOCATIONS.findIndex((n) => n.id === selectedNodeId);
     const nextIndex = (currentIndex + 1) % HERITAGE_LOCATIONS.length;
-    handleSelectNode(HERITAGE_LOCATIONS[nextIndex]);
+    const nextNode = HERITAGE_LOCATIONS[nextIndex];
+    setSelectedNodeId(nextNode.id);
+    flyToNode(nextNode, 8);
   };
 
   const handleNavigatePrev = () => {
     const currentIndex = HERITAGE_LOCATIONS.findIndex((n) => n.id === selectedNodeId);
     const prevIndex = (currentIndex - 1 + HERITAGE_LOCATIONS.length) % HERITAGE_LOCATIONS.length;
-    handleSelectNode(HERITAGE_LOCATIONS[prevIndex]);
+    const prevNode = HERITAGE_LOCATIONS[prevIndex];
+    setSelectedNodeId(prevNode.id);
+    flyToNode(prevNode, 8);
   };
-
-  // Auto-tour guided journey mode
-  useEffect(() => {
-    if (!isAutoTouring) return;
-
-    const timer = setInterval(() => {
-      setSelectedNodeId((prevId) => {
-        const currentIndex = HERITAGE_LOCATIONS.findIndex((n) => n.id === prevId);
-        const nextIndex = (currentIndex + 1) % HERITAGE_LOCATIONS.length;
-        const nextNode = HERITAGE_LOCATIONS[nextIndex];
-        zoomToNode(nextNode);
-        soundEngine.playPluck(440);
-        return nextNode.id;
-      });
-    }, 4500);
-
-    return () => clearInterval(timer);
-  }, [isAutoTouring]);
 
   // Try on garment action
   const handleTryOnGarment = () => {
-    soundEngine.playPluck(659.25);
-    if (selectedNode.targetPresetId && onApplyPreset) {
-      const preset = PRESET_OUTFITS.find((p) => p.id === selectedNode.targetPresetId);
-      if (preset) {
-        onApplyPreset(preset);
-        return;
+    soundEngine.playCloudPartChime();
+    if (selectedNode.targetPresetId) {
+      const matchedPreset = PRESET_OUTFITS.find((p) => p.id === selectedNode.targetPresetId);
+      if (matchedPreset && onApplyPreset) {
+        onApplyPreset(matchedPreset);
       }
     }
     if (selectedNode.targetTopId && onSelectTopItem) {
@@ -347,911 +703,425 @@ export const HeritageMapSection: React.FC<HeritageMapSectionProps> = ({
   };
 
   return (
-    <section className="w-full my-16 text-left relative z-10" id="heritage-map-section">
-      {/* 1. Header Banner */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
-        <div>
-          <div className="flex items-center gap-2 mb-2.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.8)]" />
-            <span className="text-xs font-bold tracking-[0.25em] uppercase text-amber-400 font-sans-vi">
-              BẢN ĐỒ VĂN HIẾN VIỆT PHỤC (D3.JS INTERACTIVE HERITAGE MAP)
-            </span>
-            <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-[10px] text-amber-300 font-mono">
-              Non Sông Gấm Vóc
-            </span>
-          </div>
+    <section className="relative w-full py-16 px-4 md:px-8 bg-gradient-to-b from-[#0A0E17] via-[#0E1526] to-[#0A0E17] text-slate-100 overflow-hidden">
+      {/* Decorative Traditional Patterns & Ambient Glow */}
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent"></div>
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-amber-500/5 blur-[140px] pointer-events-none rounded-full"></div>
 
-          <h2 className="font-serif-vi text-3xl sm:text-4xl md:text-5xl font-bold text-amber-100 tracking-tight">
-            Khởi Nguyên Địa Lý Phục Sức Việt
-          </h2>
-          <p className="text-sm text-slate-300 mt-2 max-w-3xl font-light font-sans-vi leading-relaxed">
-            Khám phá nguồn cội và sự lan tỏa của các thức phục cổ truyền trên dải đất hình chữ S.
-            Tương tác trực tiếp trên bản đồ D3.js để tìm hiểu kỹ nghệ dệt thêu, triết lý phục trang và thử ngay các mẫu áo hoàng gia.
-          </p>
-        </div>
-
-        {/* Global Stats Counter */}
-        <div className="flex items-center gap-4 bg-[#0E1526]/80 p-3 px-4 rounded-2xl border border-amber-500/20 backdrop-blur-md self-start lg:self-auto">
-          <div className="text-center pr-3 border-r border-slate-700/80">
-            <span className="font-serif-vi text-xl font-bold text-amber-300 block">12+</span>
-            <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Điểm Di Sản</span>
-          </div>
-          <div className="text-center pr-3 border-r border-slate-700/80">
-            <span className="font-serif-vi text-xl font-bold text-amber-300 block">5</span>
-            <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Tuyến Lan Tỏa</span>
-          </div>
-          <div className="text-center">
-            <span className="font-serif-vi text-xl font-bold text-amber-300 block">1000+</span>
-            <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Năm Cổ Phong</span>
+      <div className="max-w-7xl mx-auto space-y-8 relative z-10">
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-amber-500/20">
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold tracking-wider uppercase">
+              <Globe className="w-3.5 h-3.5 text-amber-400" />
+              <span>Bản Đồ Vệ Tinh Độ Nét Cao</span>
+            </div>
+            <h2 className="text-2xl md:text-3xl font-serif-vi font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100">
+              Dải Non Sông Chữ S & Khởi Nguyên Cổ Phục
+            </h2>
+            <p className="text-slate-300 text-xs md:text-sm max-w-2xl font-light">
+              Khám phá cội nguồn di sản Việt phục trên nền không ảnh vệ tinh chân thực toàn cảnh Việt Nam — từ đỉnh Lũng Cú đến Mũi Cà Mau, cùng chủ quyền thiêng liêng Hoàng Sa — Trường Sa.
+            </p>
           </div>
         </div>
-      </div>
 
-      {/* 2. Interactive Filter & Search Bar */}
-      <div className="mb-6 p-4 rounded-2xl bg-[#0E1526]/90 border border-slate-700/80 backdrop-blur-lg flex flex-wrap items-center justify-between gap-4">
-        {/* Region Filter Buttons */}
-        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-          <span className="text-xs font-semibold text-slate-400 mr-1 hidden sm:inline flex items-center gap-1">
-            <Compass className="w-3.5 h-3.5 text-amber-400" />
-            <span>Vùng đất:</span>
-          </span>
-          <button
-            onClick={() => {
-              setSelectedRegionFilter('all');
-              soundEngine.playPluck(392);
-            }}
-            className={`px-3 py-1.5 rounded-xl text-xs font-medium cursor-pointer transition-all ${
-              selectedRegionFilter === 'all'
-                ? 'bg-amber-400 text-slate-950 font-bold shadow-md'
-                : 'bg-[#121B30] text-slate-300 hover:text-amber-200 border border-slate-700'
-            }`}
-          >
-            Tất Cả ({HERITAGE_LOCATIONS.length})
-          </button>
-          {Object.values(REGIONS_META).map((reg) => (
-            <button
-              key={reg.id}
-              onClick={() => {
-                setSelectedRegionFilter(reg.id);
-                soundEngine.playPluck(440);
-              }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-medium cursor-pointer transition-all ${
-                selectedRegionFilter === reg.id
-                  ? 'bg-amber-400 text-slate-950 font-bold shadow-md'
-                  : 'bg-[#121B30] text-slate-300 hover:text-amber-200 border border-slate-700'
-              }`}
-            >
-              {reg.name.split('&')[0].trim()}
-            </button>
-          ))}
-        </div>
+        {/* Unified Map Navigation & Controls Hub */}
+        <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-amber-500/25 backdrop-blur-md shadow-xl space-y-3">
+          {/* Row 1: Mode toggles + Search + Auto Tour */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            {/* View Layers & Mode Toggles */}
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950/90 border border-emerald-500/40 text-xs shadow-inner">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span className="font-semibold text-emerald-300">🛰️ Vệ Tinh Trực Tuyến</span>
+              </div>
 
-        {/* Search & Tool Buttons */}
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <div className="relative flex-1 sm:w-64">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tìm phục trang, làng nghề, địa danh..."
-              className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-[#090D18] border border-slate-700/80 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-400/80"
-            />
-            {searchQuery && (
               <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-xs"
+                onClick={() => {
+                  soundEngine.playPluck(480);
+                  setShowPlaceLabels(!showPlaceLabels);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
+                  showPlaceLabels
+                    ? 'bg-amber-500/20 border-amber-400 text-amber-200 shadow-sm'
+                    : 'bg-slate-950/60 border-slate-700 text-slate-400 hover:text-slate-200'
+                }`}
+                title="Bật/Tắt nhãn địa danh tỉnh thành trên ảnh vệ tinh"
               >
-                ✕
+                <Layers className="w-3.5 h-3.5 text-amber-400" />
+                <span>{showPlaceLabels ? 'Nhãn địa danh: Bật' : 'Nhãn: Tắt'}</span>
               </button>
-            )}
-          </div>
 
-          {/* Toggle Tour Button */}
-          <button
-            onClick={() => {
-              setIsAutoTouring(!isAutoTouring);
-              soundEngine.playPluck(isAutoTouring ? 330 : 587);
-            }}
-            title={isAutoTouring ? 'Tạm dừng du ngoạn' : 'Bật chế độ du ngoạn tự động'}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all flex items-center gap-1.5 ${
-              isAutoTouring
-                ? 'bg-amber-500 text-slate-950 animate-pulse'
-                : 'bg-[#121B30] text-slate-300 hover:text-amber-200 border border-slate-700'
-            }`}
-          >
-            {isAutoTouring ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-            <span className="hidden md:inline">{isAutoTouring ? 'Dừng Du Ngoạn' : 'Du Ngoạn'}</span>
-          </button>
-        </div>
-      </div>
+              <button
+                onClick={() => {
+                  soundEngine.playPluck(440);
+                  setShowSSpine(!showSSpine);
+                }}
+                className={`px-2.5 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
+                  showSSpine
+                    ? 'bg-amber-500/20 border-amber-400 text-amber-200'
+                    : 'bg-slate-950/60 border-slate-700 text-slate-400 hover:text-slate-200'
+                }`}
+                title="Bật/Tắt đường chỉ lụa vàng hình chữ S"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>Trục chữ S</span>
+              </button>
 
-      {/* 3. Main Display: Interactive Map (Left/Center) + Rich Inspector Detail Drawer (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* 3.1 D3 Interactive Map Canvas Container (Span 7 or 8 on desktop) */}
-        <div className="lg:col-span-7 xl:col-span-7 relative rounded-3xl bg-gradient-to-b from-[#090E1A] via-[#0C1222] to-[#080D19] border border-amber-500/30 shadow-[0_20px_50px_rgba(0,0,0,0.7)] overflow-hidden">
-          {/* Top Bar on Map: Controls and Map Title */}
-          <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between pointer-events-none">
-            {/* Compass Title Badge */}
-            <div className="pointer-events-auto bg-[#090E1A]/85 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-amber-500/30 text-xs flex items-center gap-2 shadow-lg">
-              <span className="w-2 h-2 rounded-full bg-amber-400" />
-              <span className="font-serif-vi font-bold text-amber-200">Đại Nam Dư Địa Chí 3D</span>
-              <span className="text-[10px] text-slate-400 font-mono hidden sm:inline">
-                (Cuộn chuột phóng to / Kéo để di chuyển)
-              </span>
+              <button
+                onClick={() => {
+                  soundEngine.playPluck(440);
+                  setShowSovereignty(!showSovereignty);
+                }}
+                className={`px-2.5 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
+                  showSovereignty
+                    ? 'bg-rose-500/20 border-rose-400 text-rose-200'
+                    : 'bg-slate-950/60 border-slate-700 text-slate-400 hover:text-slate-200'
+                }`}
+                title="Bật/Tắt mốc chủ quyền biển đảo"
+              >
+                <Shield className="w-3.5 h-3.5 text-rose-400" />
+                <span>Mốc chủ quyền</span>
+              </button>
+
+              <div
+                className="hidden xl:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-200 text-xs font-normal select-none"
+                title="Rê chuột (hover) vào bất kỳ điểm mốc nào trên bản đồ để xem thẻ chú thích văn hóa tức thì"
+              >
+                <Info className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <span>Rê chuột vào điểm mốc xem văn hóa</span>
+              </div>
             </div>
 
-            {/* D3 Map Zoom & Layer Controls */}
-            <div className="pointer-events-auto flex items-center gap-1.5 bg-[#090E1A]/85 backdrop-blur-md p-1.5 rounded-xl border border-slate-700/80 shadow-lg">
+            {/* Search Box & Auto-Tour */}
+            <div className="flex items-center gap-2 flex-1 sm:flex-initial min-w-[240px] justify-end">
+              <div className="relative flex-1 sm:w-64">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Tìm kinh đô, áo cổ trang..."
+                  className="w-full pl-8 pr-7 py-1.5 text-xs rounded-xl bg-slate-950/80 border border-slate-700/80 focus:border-amber-400 text-slate-200 placeholder-slate-500 focus:outline-none transition-all"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-xs"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+
+              <button
+                onClick={() => {
+                  soundEngine.playPluck(523.25);
+                  setIsAutoTouring(!isAutoTouring);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                  isAutoTouring
+                    ? 'bg-amber-500 text-slate-950 border-amber-400 animate-pulse'
+                    : 'bg-slate-950/80 border-slate-700 text-slate-300 hover:text-amber-300'
+                }`}
+              >
+                {isAutoTouring ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                <span>{isAutoTouring ? 'Dừng du ngoạn' : 'Du ngoạn'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Row 2: Quick Regional Jump Bar */}
+          <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-800/80">
+            <span className="text-[11px] font-semibold text-amber-400/80 px-1 flex items-center gap-1 mr-1">
+              <Navigation className="w-3 h-3 text-amber-400" />
+              <span>Dạo theo chữ S:</span>
+            </span>
+            <button
+              onClick={() => handleJumpToSection('full')}
+              className="px-2.5 py-1 text-xs rounded-lg font-medium bg-amber-500/15 text-amber-200 hover:bg-amber-500/30 border border-amber-500/30 transition-all cursor-pointer"
+            >
+              🇻🇳 Toàn cảnh
+            </button>
+            <button
+              onClick={() => handleJumpToSection('north')}
+              className="px-2.5 py-1 text-xs rounded-lg font-medium text-slate-300 hover:text-amber-200 hover:bg-slate-800 transition-all cursor-pointer"
+            >
+              🏛️ Bắc Bộ
+            </button>
+            <button
+              onClick={() => handleJumpToSection('central')}
+              className="px-2.5 py-1 text-xs rounded-lg font-medium text-slate-300 hover:text-amber-200 hover:bg-slate-800 transition-all cursor-pointer"
+            >
+              🏯 Trung Bộ
+            </button>
+            <button
+              onClick={() => handleJumpToSection('south')}
+              className="px-2.5 py-1 text-xs rounded-lg font-medium text-slate-300 hover:text-amber-200 hover:bg-slate-800 transition-all cursor-pointer"
+            >
+              🚣 Nam Bộ
+            </button>
+            <button
+              onClick={() => handleJumpToSection('islands')}
+              className="px-2.5 py-1 text-xs rounded-lg font-medium text-amber-300 hover:bg-amber-500/20 border border-amber-500/40 transition-all cursor-pointer"
+            >
+              🌊 Biển Đảo (Hoàng Sa - Trường Sa)
+            </button>
+          </div>
+        </div>
+
+        {/* Main Content Layout: Map Viewport + Heritage Detail Inspector */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Map Viewport Area (8 cols) */}
+          <div className="lg:col-span-7 xl:col-span-8 relative bg-slate-950/90 rounded-3xl border border-amber-500/30 overflow-hidden shadow-2xl heritage-map-container h-[640px] md:h-[720px] flex flex-col">
+            {/* The Actual Leaflet Map Canvas */}
+            <div ref={mapContainerRef} className="w-full h-full z-0 relative" />
+
+            {/* Floating Top Bar on Map: Satellite Status Badge */}
+            <div className="absolute top-4 left-4 z-10 pointer-events-none flex items-center gap-2">
+              <div className="px-3 py-1.5 rounded-xl bg-slate-950/85 backdrop-blur-md border border-amber-500/30 text-xs text-amber-200 shadow-xl flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span className="font-semibold">🛰️ Vệ Tinh Chân Thực (Độ nét cao)</span>
+              </div>
+            </div>
+
+            {/* Floating Sovereignty Declaration Banner */}
+            <div className="absolute top-4 right-4 z-10 pointer-events-none hidden sm:flex items-center gap-2">
+              <div className="px-3 py-1.5 rounded-xl bg-slate-950/85 backdrop-blur-md border border-rose-500/40 text-[11px] text-rose-200 shadow-xl flex items-center gap-1.5 font-semibold">
+                <span>🇻🇳</span>
+                <span>Hoàng Sa & Trường Sa là của Việt Nam</span>
+              </div>
+            </div>
+
+            {/* Map Controls: Floating Action Buttons (Bottom Left) */}
+            <div className="absolute bottom-5 left-4 z-10 flex flex-col gap-1.5">
               <button
                 onClick={handleZoomIn}
+                className="w-9 h-9 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-500/30 shadow-xl flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95"
                 title="Phóng to bản đồ"
-                className="w-8 h-8 rounded-lg bg-[#121B30] hover:bg-amber-400 hover:text-slate-950 text-slate-200 flex items-center justify-center transition-colors cursor-pointer"
               >
                 <ZoomIn className="w-4 h-4" />
               </button>
               <button
                 onClick={handleZoomOut}
+                className="w-9 h-9 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-500/30 shadow-xl flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95"
                 title="Thu nhỏ bản đồ"
-                className="w-8 h-8 rounded-lg bg-[#121B30] hover:bg-amber-400 hover:text-slate-950 text-slate-200 flex items-center justify-center transition-colors cursor-pointer"
               >
                 <ZoomOut className="w-4 h-4" />
               </button>
               <button
-                onClick={handleResetZoom}
-                title="Đặt lại góc nhìn toàn cảnh"
-                className="w-8 h-8 rounded-lg bg-[#121B30] hover:bg-amber-400 hover:text-slate-950 text-slate-200 flex items-center justify-center transition-colors cursor-pointer"
+                onClick={handleResetView}
+                className="w-9 h-9 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-500/30 shadow-xl flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95"
+                title="Đặt lại góc nhìn trọn vẹn hình chữ S"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
               </button>
-              <div className="w-[1px] h-5 bg-slate-700 mx-0.5" />
-              <button
-                onClick={() => setShowRoutes(!showRoutes)}
-                title={showRoutes ? 'Ẩn tuyến lan tỏa' : 'Hiện tuyến lan tỏa'}
-                className={`px-2.5 h-8 rounded-lg text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer ${
-                  showRoutes
-                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                    : 'bg-[#121B30] text-slate-400 hover:text-slate-200'
-                }`}
+            </div>
+
+            {/* Quick Location Dock: All 11 Heritage Locations Carousel (Bottom Dock) */}
+            <div className="absolute bottom-5 left-16 right-4 sm:left-20 sm:right-auto sm:max-w-xl z-10 pointer-events-auto">
+              <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-slate-950/90 backdrop-blur-xl border border-amber-500/30 shadow-2xl overflow-x-auto scrollbar-none">
+                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider px-2 hidden sm:inline whitespace-nowrap">
+                  Di sản:
+                </span>
+                {HERITAGE_LOCATIONS.map((node) => {
+                  const isSelected = node.id === selectedNodeId;
+                  const shortName = SHORT_LOCATION_NAMES[node.id] || node.name.split(' ')[0];
+                  return (
+                    <button
+                      key={node.id}
+                      onClick={() => {
+                        soundEngine.playPluck(523.25);
+                        setSelectedNodeId(node.id);
+                        flyToNode(node, 8);
+                      }}
+                      className={`px-2.5 py-1 rounded-xl text-xs whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                        isSelected
+                          ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/40 scale-105'
+                          : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-amber-200 border border-slate-700/60'
+                      }`}
+                    >
+                      <span>{node.icon}</span>
+                      <span>{shortName}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Heritage Detail Inspector Card (4 cols) */}
+          <div className="lg:col-span-5 xl:col-span-4 space-y-4">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selectedNode.id}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3 }}
+                className="bg-slate-900/90 rounded-3xl border border-amber-500/30 p-6 backdrop-blur-xl shadow-2xl relative overflow-hidden"
               >
-                <Layers className="w-3 h-3" />
-                <span className="hidden sm:inline">Tuyến Lan Tỏa</span>
-              </button>
-            </div>
-          </div>
+                {/* Accent glow corner */}
+                <div
+                  className="absolute -top-16 -right-16 w-36 h-36 rounded-full blur-3xl opacity-30 pointer-events-none"
+                  style={{ backgroundColor: selectedNode.accentColor || '#D4AF37' }}
+                />
 
-          {/* Actual D3 SVG Element */}
-          <div className="w-full h-[580px] sm:h-[680px] md:h-[740px] flex items-center justify-center cursor-grab active:cursor-grabbing relative">
-            <svg
-              ref={svgRef}
-              viewBox={`0 0 ${mapWidth} ${mapHeight}`}
-              className="w-full h-full select-none"
-              style={{ touchAction: 'none' }}
-            >
-              {/* SVG Defs: Gradients, Filters, Patterns, Compass */}
-              <defs>
-                {/* Imperial Metallic Landmass Gradient */}
-                <linearGradient id="vietnamLandGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#1B263B" stopOpacity="0.9" />
-                  <stop offset="40%" stopColor="#121D32" stopOpacity="0.85" />
-                  <stop offset="80%" stopColor="#0F172A" stopOpacity="0.95" />
-                  <stop offset="100%" stopColor="#0B1220" stopOpacity="0.98" />
-                </linearGradient>
-
-                {/* Ocean Ambient Gradient */}
-                <radialGradient id="oceanRadialGradient" cx="60%" cy="50%" r="70%">
-                  <stop offset="0%" stopColor="#0B1528" stopOpacity="0.6" />
-                  <stop offset="60%" stopColor="#080F1E" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="#050811" stopOpacity="0.95" />
-                </radialGradient>
-
-                {/* Glow Filter for Active Nodes & Routes */}
-                <filter id="goldGlow" x="-30%" y="-30%" width="160%" height="160%">
-                  <feGaussianBlur stdDeviation="3.5" result="blur" />
-                  <feMerge>
-                    <feMergeNode in="blur" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
-
-                <filter id="subtleGlow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="2" result="blur" />
-                  <feMerge>
-                    <feMergeNode in="blur" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
-
-                {/* Animated dash effect for cultural migration flow */}
-                <style>{`
-                  @keyframes dashFlow {
-                    from { stroke-dashoffset: 120; }
-                    to { stroke-dashoffset: 0; }
-                  }
-                  .animated-migration-path {
-                    stroke-dasharray: 6 5;
-                    animation: dashFlow 2.8s linear infinite;
-                  }
-                  @keyframes pulsePing {
-                    0% { r: 6px; opacity: 0.9; }
-                    80% { r: 24px; opacity: 0; }
-                    100% { r: 24px; opacity: 0; }
-                  }
-                  .radar-ping {
-                    animation: pulsePing 2.2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
-                  }
-                `}</style>
-              </defs>
-
-              {/* Background Ocean Fill */}
-              <rect width={mapWidth} height={mapHeight} fill="url(#oceanRadialGradient)" />
-
-              {/* D3 Zoomable Container Group */}
-              <g ref={zoomGroupRef}>
-                {/* 1. ANCIENT NAUTICAL CARTOGRAPHY GRATICULE (Kinh tuyến & Vĩ tuyến nhẹ) */}
-                <g className="cartographic-grid opacity-25 pointer-events-none">
-                  {/* Longitude lines */}
-                  {[104, 106, 108, 110, 112, 114].map((lon) => {
-                    const topPt = projection([lon, 23.8]);
-                    const btmPt = projection([lon, 8.0]);
-                    if (!topPt || !btmPt) return null;
-                    return (
-                      <g key={`lon-${lon}`}>
-                        <line
-                          x1={topPt[0]}
-                          y1={topPt[1]}
-                          x2={btmPt[0]}
-                          y2={btmPt[1]}
-                          stroke="#38BDF8"
-                          strokeWidth="0.5"
-                          strokeDasharray="3 4"
-                        />
-                        <text
-                          x={topPt[0]}
-                          y={topPt[1] - 8}
-                          fontSize="9"
-                          fill="#64748B"
-                          textAnchor="middle"
-                          fontFamily="monospace"
-                        >
-                          {lon}°Đ
-                        </text>
-                      </g>
-                    );
-                  })}
-
-                  {/* Latitude lines */}
-                  {[10, 12, 14, 16, 18, 20, 22].map((lat) => {
-                    const leftPt = projection([102.0, lat]);
-                    const rightPt = projection([115.5, lat]);
-                    if (!leftPt || !rightPt) return null;
-                    return (
-                      <g key={`lat-${lat}`}>
-                        <line
-                          x1={leftPt[0]}
-                          y1={leftPt[1]}
-                          x2={rightPt[0]}
-                          y2={rightPt[1]}
-                          stroke="#38BDF8"
-                          strokeWidth="0.5"
-                          strokeDasharray="3 4"
-                        />
-                        <text
-                          x={rightPt[0] + 12}
-                          y={rightPt[1] + 3}
-                          fontSize="9"
-                          fill="#64748B"
-                          fontFamily="monospace"
-                        >
-                          {lat}°B
-                        </text>
-                      </g>
-                    );
-                  })}
-                </g>
-
-                {/* 2. EAST SEA WATERMARK & COMPASS ROSE */}
-                <g className="east-sea-ornaments pointer-events-none">
-                  {/* Ancient Calligraphy Watermark for East Sea */}
-                  <g transform={`translate(${mapWidth * 0.72}, ${mapHeight * 0.44})`}>
-                    <text
-                      textAnchor="middle"
-                      className="font-serif-vi"
-                      fill="#D4AF37"
-                      fillOpacity="0.12"
-                      fontSize="36"
-                      letterSpacing="8"
-                      fontWeight="bold"
-                    >
-                      BIỂN ĐÔNG
-                    </text>
-                    <text
-                      y="24"
-                      textAnchor="middle"
-                      className="font-serif-vi"
-                      fill="#D4AF37"
-                      fillOpacity="0.08"
-                      fontSize="14"
-                      letterSpacing="4"
-                    >
-                      VIỆT NAM
-                    </text>
-                  </g>
-
-                  {/* Ancient Oriental Compass Rose */}
-                  <g transform={`translate(${mapWidth * 0.8}, ${mapHeight * 0.18})`} opacity="0.65">
-                    {/* Concentric rings */}
-                    <circle r="42" fill="none" stroke="#D4AF37" strokeWidth="0.75" strokeDasharray="3 3" />
-                    <circle r="36" fill="none" stroke="#D4AF37" strokeWidth="1.2" opacity="0.7" />
-                    <circle r="12" fill="none" stroke="#D4AF37" strokeWidth="0.75" />
-
-                    {/* 4 Cardinal points */}
-                    <polygon points="0,-36 4,-12 -4,-12" fill="#F59E0B" />
-                    <polygon points="0,36 3,12 -3,12" fill="#D4AF37" opacity="0.7" />
-                    <polygon points="36,0 12,3 12,-3" fill="#D4AF37" opacity="0.7" />
-                    <polygon points="-36,0 -12,3 -12,-3" fill="#D4AF37" opacity="0.7" />
-
-                    {/* 4 Intercardinal needles */}
-                    <polygon points="25,-25 8,-4 4,-8" fill="#D4AF37" opacity="0.4" />
-                    <polygon points="-25,-25 -8,-4 -4,-8" fill="#D4AF37" opacity="0.4" />
-                    <polygon points="25,25 8,4 4,8" fill="#D4AF37" opacity="0.4" />
-                    <polygon points="-25,25 -8,4 -4,8" fill="#D4AF37" opacity="0.4" />
-
-                    {/* North Label */}
-                    <text y="-44" textAnchor="middle" fill="#F59E0B" fontSize="11" fontWeight="bold" fontFamily="serif">
-                      B (BẮC)
-                    </text>
-                  </g>
-                </g>
-
-                {/* 3. VIETNAM MAINLAND & SACRED ARCHIPELAGOS */}
-                <g className="vietnam-landmass">
-                  {projectedFeatures.map(({ feature, pathData }) => {
-                    const isMainland = feature.id === 'vietnam-mainland';
-                    const isIsland = feature.properties?.type === 'island';
-                    const isArchipelago = feature.properties?.type === 'archipelago';
-
-                    return (
-                      <g key={feature.id as string}>
-                        {/* Outer Glow Outline for Coastline */}
-                        <path
-                          d={pathData}
-                          fill="none"
-                          stroke="#F59E0B"
-                          strokeWidth={isMainland ? '4' : '2'}
-                          strokeOpacity="0.25"
-                          filter="url(#subtleGlow)"
-                        />
-
-                        {/* Main Terraced Fill */}
-                        <path
-                          d={pathData}
-                          fill="url(#vietnamLandGradient)"
-                          stroke={isArchipelago ? '#38BDF8' : '#D4AF37'}
-                          strokeWidth={isMainland ? '1.75' : '1.2'}
-                          strokeOpacity={isArchipelago ? '0.7' : '0.85'}
-                          className="transition-all duration-300"
-                        />
-                      </g>
-                    );
-                  })}
-                </g>
-
-                {/* 4. HISTORIC RIVERS (SÔNG HỒNG, SÔNG HƯƠNG, SÔNG TIỀN, SÔNG HẬU) */}
-                {showWaterways && (
-                  <g className="historic-waterways pointer-events-none">
-                    {riverPaths.map((river) => (
-                      <path
-                        key={river.id}
-                        d={river.path}
-                        fill="none"
-                        stroke="#38BDF8"
-                        strokeWidth="1.6"
-                        strokeOpacity="0.55"
-                        strokeLinecap="round"
-                        filter="url(#subtleGlow)"
-                      />
-                    ))}
-                  </g>
-                )}
-
-                {/* 5. CULTURAL MIGRATION & SPREAD ROUTES (FLOW ARCS) */}
-                {showRoutes && (
-                  <g className="migration-routes">
-                    {migrationRoutePaths.map((item) => {
-                      if (!item) return null;
-                      const { route, pathStr, midX, midY } = item;
-                      const isHovered = hoveredRouteId === route.id;
-
-                      return (
-                        <g
-                          key={route.id}
-                          onMouseEnter={() => setHoveredRouteId(route.id)}
-                          onMouseLeave={() => setHoveredRouteId(null)}
-                          className="cursor-pointer"
-                        >
-                          {/* Wide invisible hit area */}
-                          <path
-                            d={pathStr}
-                            fill="none"
-                            stroke="transparent"
-                            strokeWidth="16"
-                          />
-
-                          {/* Base Route Path Glow */}
-                          <path
-                            d={pathStr}
-                            fill="none"
-                            stroke={route.color}
-                            strokeWidth={isHovered ? '3.5' : '1.75'}
-                            strokeOpacity={isHovered ? 0.9 : 0.45}
-                            filter="url(#subtleGlow)"
-                          />
-
-                          {/* Animated Moving Particles along Arc */}
-                          <path
-                            d={pathStr}
-                            fill="none"
-                            stroke="#FFFDF0"
-                            strokeWidth={isHovered ? '2.5' : '1.5'}
-                            strokeOpacity={isHovered ? 1 : 0.8}
-                            className="animated-migration-path"
-                          />
-
-                          {/* Midpoint Info Node Tag on Hover */}
-                          {isHovered && (
-                            <g transform={`translate(${midX}, ${midY})`}>
-                              <rect
-                                x="-110"
-                                y="-24"
-                                width="220"
-                                height="28"
-                                rx="8"
-                                fill="#090E1A"
-                                stroke={route.color}
-                                strokeWidth="1"
-                                opacity="0.95"
-                              />
-                              <text
-                                y="-7"
-                                textAnchor="middle"
-                                fill="#FDFBF7"
-                                fontSize="11"
-                                fontWeight="bold"
-                                className="font-sans-vi"
-                              >
-                                {route.title}
-                              </text>
-                            </g>
-                          )}
-                        </g>
-                      );
-                    })}
-                  </g>
-                )}
-
-                {/* 6. SACRED ARCHIPELAGO LABELS */}
-                <g className="archipelago-labels pointer-events-none">
-                  {/* Hoàng Sa label */}
-                  {(() => {
-                    const hsPt = projection([112.1, 16.6]);
-                    if (!hsPt) return null;
-                    return (
-                      <g transform={`translate(${hsPt[0]}, ${hsPt[1]})`}>
-                        <text
-                          y="-10"
-                          textAnchor="middle"
-                          fill="#38BDF8"
-                          fontSize="10"
-                          fontWeight="bold"
-                          className="font-serif-vi"
-                        >
-                          Q.Đ HOÀNG SA
-                        </text>
-                        <text
-                          y="2"
-                          textAnchor="middle"
-                          fill="#94A3B8"
-                          fontSize="8"
-                          className="font-sans-vi"
-                        >
-                          (Việt Nam)
-                        </text>
-                      </g>
-                    );
-                  })()}
-
-                  {/* Trường Sa label */}
-                  {(() => {
-                    const tsPt = projection([113.6, 9.8]);
-                    if (!tsPt) return null;
-                    return (
-                      <g transform={`translate(${tsPt[0]}, ${tsPt[1]})`}>
-                        <text
-                          y="-10"
-                          textAnchor="middle"
-                          fill="#38BDF8"
-                          fontSize="10"
-                          fontWeight="bold"
-                          className="font-serif-vi"
-                        >
-                          Q.Đ TRƯỜNG SA
-                        </text>
-                        <text
-                          y="2"
-                          textAnchor="middle"
-                          fill="#94A3B8"
-                          fontSize="8"
-                          className="font-sans-vi"
-                        >
-                          (Việt Nam)
-                        </text>
-                      </g>
-                    );
-                  })()}
-                </g>
-
-                {/* 7. HERITAGE LOCATION NODES (INTERACTIVE PINS) */}
-                <g className="heritage-location-nodes">
-                  {filteredNodes.map((node) => {
-                    const pos = projection(node.coordinates);
-                    if (!pos) return null;
-                    const [cx, cy] = pos;
-
-                    const isSelected = selectedNodeId === node.id;
-                    const isHovered = hoveredNodeId === node.id;
-
-                    return (
-                      <g
-                        key={node.id}
-                        transform={`translate(${cx}, ${cy})`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleSelectNode(node);
-                        }}
-                        onMouseEnter={() => setHoveredNodeId(node.id)}
-                        onMouseLeave={() => setHoveredNodeId(null)}
-                        className="cursor-pointer group"
-                      >
-                        {/* Radar Ripple Effect */}
-                        {isSelected && (
-                          <circle
-                            r="18"
-                            fill="none"
-                            stroke={node.accentColor}
-                            strokeWidth="2"
-                            className="radar-ping"
-                          />
-                        )}
-
-                        {/* Outer Glow Halo on Hover or Selection */}
-                        {(isSelected || isHovered) && (
-                          <circle
-                            r={isSelected ? '22' : '16'}
-                            fill={node.accentColor}
-                            fillOpacity={isSelected ? '0.28' : '0.18'}
-                            filter="url(#goldGlow)"
-                          />
-                        )}
-
-                        {/* Outer Metallic Ring */}
-                        <circle
-                          r={isSelected ? '12' : '8'}
-                          fill="#090E1A"
-                          stroke={isSelected ? '#F59E0B' : node.accentColor}
-                          strokeWidth={isSelected ? '2.5' : '1.5'}
-                          className="transition-all duration-200"
-                        />
-
-                        {/* Center Gem Core */}
-                        <circle
-                          r={isSelected ? '6' : '3.5'}
-                          fill={isSelected ? '#FFFDF0' : node.accentColor}
-                          className="transition-all duration-200"
-                        />
-
-                        {/* Location Label (Offset based on node position for no overlap) */}
-                        <g
-                          transform={`translate(${node.coordinates[0] > 108 ? -12 : 12}, ${
-                            node.coordinates[1] > 20 ? -12 : 3
-                          })`}
-                          className="pointer-events-none select-none"
-                        >
-                          {/* Label Badge Backdrop */}
-                          <rect
-                            x={node.coordinates[0] > 108 ? '-110' : '0'}
-                            y="-11"
-                            width="110"
-                            height="20"
-                            rx="5"
-                            fill="#0A0F1D"
-                            fillOpacity={isSelected ? '0.95' : '0.85'}
-                            stroke={isSelected ? '#F59E0B' : '#334155'}
-                            strokeWidth={isSelected ? '1.2' : '0.75'}
-                          />
-                          <text
-                            x={node.coordinates[0] > 108 ? '-55' : '55'}
-                            y="3"
-                            textAnchor="middle"
-                            fill={isSelected ? '#FDE68A' : '#E2E8F0'}
-                            fontSize={isSelected ? '10' : '9'}
-                            fontWeight={isSelected ? 'bold' : 'normal'}
-                            className="font-serif-vi"
-                          >
-                            {node.name.split('(')[0].trim()}
-                          </text>
-                        </g>
-
-                        {/* Tooltip on Hover */}
-                        {isHovered && !isSelected && (
-                          <g transform="translate(0, -32)" className="pointer-events-none z-50">
-                            <rect
-                              x="-85"
-                              y="-28"
-                              width="170"
-                              height="34"
-                              rx="8"
-                              fill="#090E1A"
-                              stroke={node.accentColor}
-                              strokeWidth="1.2"
-                              filter="url(#goldGlow)"
-                            />
-                            <text
-                              x="0"
-                              y="-14"
-                              textAnchor="middle"
-                              fill="#FFFDF0"
-                              fontSize="11"
-                              fontWeight="bold"
-                              className="font-serif-vi"
-                            >
-                              {node.name}
-                            </text>
-                            <text
-                              x="0"
-                              y="-1"
-                              textAnchor="middle"
-                              fill="#FDE68A"
-                              fontSize="9"
-                              className="font-sans-vi truncate"
-                            >
-                              Phục trang: {node.mainGarmentName}
-                            </text>
-                          </g>
-                        )}
-                      </g>
-                    );
-                  })}
-                </g>
-              </g>
-            </svg>
-          </div>
-
-          {/* Bottom Overlay Legend on Map */}
-          <div className="absolute bottom-3 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
-            <div className="pointer-events-auto bg-[#090E1A]/85 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-700/80 text-[11px] text-slate-300 flex items-center gap-3">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                <span>Hoàng Triều</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-                <span>Dân Gian</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-purple-400" />
-                <span>Cách Tân</span>
-              </div>
-              <div className="hidden sm:flex items-center gap-1.5 text-amber-300">
-                <span className="w-3 h-0.5 bg-amber-400" />
-                <span>Tuyến Lan Tỏa</span>
-              </div>
-            </div>
-
-            {/* Scale indicator */}
-            <div className="pointer-events-auto bg-[#090E1A]/85 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-700/80 text-[10px] text-slate-400 font-mono">
-              Độ thu phóng: {(zoomLevel * 100).toFixed(0)}%
-            </div>
-          </div>
-        </div>
-
-        {/* 3.2 Inspector Detail Drawer / Spotlight Card (Span 5 on desktop) */}
-        <div className="lg:col-span-5 xl:col-span-5">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={selectedNode.id}
-              initial={{ opacity: 0, x: 16 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -16 }}
-              transition={{ duration: 0.3 }}
-              className="p-6 sm:p-7 rounded-3xl bg-[#0E1526]/95 border border-amber-500/35 backdrop-blur-xl shadow-2xl relative flex flex-col justify-between overflow-hidden"
-            >
-              {/* Corner Watermark Pattern */}
-              <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-bl from-amber-500/10 to-transparent pointer-events-none rounded-tr-3xl" />
-
-              <div>
-                {/* Header Tag & Navigation Arrows */}
-                <div className="flex items-center justify-between border-b border-slate-700/80 pb-4 mb-5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">{selectedNode.icon}</span>
-                    <span className="px-2.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-mono uppercase font-bold tracking-wider">
-                      {selectedNode.elevationBadge}
-                    </span>
-                    <span className="text-xs text-slate-400 font-light hidden sm:inline">
-                      {selectedNode.coordinates[0].toFixed(2)}°Đ, {selectedNode.coordinates[1].toFixed(2)}°B
-                    </span>
+                {/* Card Header & Location Navigation */}
+                <div className="flex items-start justify-between gap-3 pb-4 border-b border-slate-800">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{selectedNode.icon}</span>
+                      <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300">
+                        {selectedNode.regionTitle}
+                      </span>
+                    </div>
+                    <h3 className="text-2xl font-serif-vi font-bold text-amber-100">
+                      {selectedNode.name}
+                    </h3>
+                    {selectedNode.historicalName && (
+                      <p className="text-xs text-amber-400/90 font-mono italic">
+                        Cổ danh: {selectedNode.historicalName}
+                      </p>
+                    )}
                   </div>
 
-                  {/* Previous / Next Location Buttons */}
-                  <div className="flex items-center gap-1">
+                  {/* Next / Prev Location controls */}
+                  <div className="flex items-center gap-1.5 bg-slate-950 px-2 py-1 rounded-xl border border-slate-800 shrink-0">
                     <button
                       onClick={handleNavigatePrev}
+                      className="p-1 rounded-lg text-slate-400 hover:text-amber-300 hover:bg-slate-800 transition-all cursor-pointer"
                       title="Địa danh trước"
-                      className="p-1.5 rounded-lg bg-[#121B30] hover:bg-amber-400 hover:text-slate-950 text-slate-300 transition-colors cursor-pointer"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
+                    <span className="text-[11px] font-mono text-amber-300/90 font-medium px-0.5">
+                      {HERITAGE_LOCATIONS.findIndex((n) => n.id === selectedNode.id) + 1}/{HERITAGE_LOCATIONS.length}
+                    </span>
                     <button
                       onClick={handleNavigateNext}
-                      title="Địa danh tiếp theo"
-                      className="p-1.5 rounded-lg bg-[#121B30] hover:bg-amber-400 hover:text-slate-950 text-slate-300 transition-colors cursor-pointer"
+                      className="p-1 rounded-lg text-slate-400 hover:text-amber-300 hover:bg-slate-800 transition-all cursor-pointer"
+                      title="Địa danh kế tiếp"
                     >
                       <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
 
-                {/* Main Titles */}
-                <div className="mb-5">
-                  <h3 className="font-serif-vi text-2xl sm:text-3xl font-bold text-amber-100 mb-1 leading-snug">
-                    {selectedNode.name}
-                  </h3>
-                  {selectedNode.historicalName && (
-                    <p className="text-xs font-serif-vi italic text-amber-300/80 mb-2">
-                      {selectedNode.historicalName}
-                    </p>
-                  )}
-                  <div className="flex flex-wrap items-center gap-2 mt-2">
-                    {selectedNode.dynasties.map((dyn, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2 py-0.5 rounded-md bg-[#121B30] text-slate-300 border border-slate-700 text-[11px]"
-                      >
-                        🏛️ {dyn}
-                      </span>
-                    ))}
-                    <span className="px-2 py-0.5 rounded-md bg-[#121B30] text-amber-300 border border-amber-500/30 text-[11px]">
-                      📍 {selectedNode.regionTitle.split('—')[0].trim()}
+                {/* Dynasties / Historic Eras */}
+                <div className="py-2.5 flex flex-wrap gap-1.5 items-center">
+                  <span className="text-[11px] text-slate-400 font-medium">Triều đại tiêu biểu:</span>
+                  {selectedNode.dynasties.map((dynasty) => (
+                    <span
+                      key={dynasty}
+                      className="text-xs px-2 py-0.5 rounded-md bg-slate-800/80 text-amber-200 border border-amber-500/20 font-medium"
+                    >
+                      {dynasty}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Historical vs Modern Comparison Box */}
+                <div className="my-3 p-3.5 rounded-2xl bg-slate-950/80 border border-amber-500/25 space-y-2.5">
+                  <div className="flex items-center justify-between text-[11px] font-semibold text-amber-300 border-b border-slate-800/80 pb-1.5">
+                    <span className="flex items-center gap-1.5">
+                      <Compass className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Đối chiếu Địa Danh Xưa & Nay</span>
+                    </span>
+                    <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      Tọa độ vệ tinh thật
                     </span>
                   </div>
-                </div>
 
-                {/* Garments Showcase list */}
-                <div className="mb-5 space-y-3">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Thức Phục Khởi Nguồn Tiêu Biểu:</span>
-                  </h4>
-                  <div className="space-y-2">
-                    {selectedNode.garments.map((g, gIdx) => (
-                      <div
-                        key={gIdx}
-                        className="p-3 rounded-2xl bg-[#121B30] border border-slate-700/80 text-xs text-slate-200"
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-serif-vi font-bold text-amber-200 text-sm">
-                            {g.name}
-                          </span>
-                          <span className="text-[10px] text-slate-400 uppercase font-mono px-1.5 py-0.5 rounded bg-[#090E1A]">
-                            {g.type}
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-slate-300 font-light leading-relaxed">
-                          {g.significance}
-                        </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div className="p-2.5 rounded-xl bg-amber-950/30 border border-amber-500/20">
+                      <span className="text-[10px] text-amber-400/80 uppercase font-mono block">🏛️ Thời Xưa (Cổ danh)</span>
+                      <p className="text-xs text-amber-100 font-medium mt-0.5 leading-snug">
+                        {selectedNode.historicalName || selectedNode.name}
+                      </p>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-sky-950/30 border border-sky-500/20">
+                      <span className="text-[10px] text-sky-400/80 uppercase font-mono block">📍 Ngày Nay (Hành chính)</span>
+                      <p className="text-xs text-sky-100 font-medium mt-0.5 leading-snug">
+                        {selectedNode.modernLocation}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-800/80 space-y-1.5">
+                    <div className="flex items-center justify-between text-[10.5px] font-mono text-slate-400">
+                      <span className="text-slate-400">Tọa độ vệ tinh:</span>
+                      <span className="text-emerald-400 font-semibold">{selectedNode.coordinates[1].toFixed(2)}°B • {selectedNode.coordinates[0].toFixed(2)}°Đ</span>
+                    </div>
+                    {selectedNode.landmarkNote && (
+                      <div className="p-2 rounded-xl bg-slate-900/90 border border-slate-800/90 text-[11px] text-amber-200/90 font-sans leading-relaxed flex items-start gap-1.5">
+                        <span className="text-amber-400 shrink-0 mt-0.5">ℹ️</span>
+                        <span>{selectedNode.landmarkNote}</span>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
 
-                {/* Craftsmanship & Weaving Village */}
-                <div className="mb-4 p-3.5 rounded-2xl bg-[#090E1A] border border-slate-800 text-xs text-slate-300 space-y-1.5">
-                  <span className="font-bold text-amber-300 flex items-center gap-1.5">
-                    <span>🧵 Kỹ Nghệ Dệt Nhuộm & Làng Nghề:</span>
-                  </span>
-                  <p className="leading-relaxed font-light font-sans-vi text-slate-300 text-[11px]">
-                    {selectedNode.craftAndFabric}
-                  </p>
-                </div>
-
-                {/* Historical Context Story */}
-                <div className="mb-4 text-xs text-slate-300 space-y-1.5">
-                  <span className="font-bold text-amber-400 block uppercase tracking-wider text-[10px]">
-                    📜 Biên Niên Lịch Sử & Nguồn Cội:
-                  </span>
-                  <p className="leading-relaxed font-light font-sans-vi text-slate-300 text-[11px]">
-                    {selectedNode.historicalStory}
-                  </p>
-                </div>
-
-                {/* Philosophical Significance & Quote */}
-                <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-xs text-amber-200 space-y-1.5 mb-6">
-                  <span className="font-bold text-amber-300 block text-[11px]">
-                    🕊️ Triết Lý Thẩm Mỹ:
-                  </span>
-                  <p className="leading-relaxed font-light font-sans-vi text-[11px]">
+                {/* Primary Garment Spotlight */}
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 via-slate-950/60 to-slate-950/90 border border-amber-500/30 space-y-2 mb-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs uppercase font-bold tracking-wider text-amber-400 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                      <span>Trang phục danh xưng</span>
+                    </span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-200 font-mono">
+                      {selectedNode.elevationBadge || 'Di sản văn hóa'}
+                    </span>
+                  </div>
+                  <h4 className="text-lg font-bold text-slate-100 font-serif-vi">
+                    {selectedNode.mainGarmentName}
+                  </h4>
+                  <p className="text-xs text-slate-300 leading-relaxed font-light">
                     {selectedNode.philosophicalMeaning}
                   </p>
-                  <p className="italic font-serif-vi text-xs text-amber-300/90 pt-1 border-t border-amber-500/20">
-                    “{selectedNode.quote}”
-                  </p>
                 </div>
-              </div>
 
-              {/* Action Buttons: Try in Fitting Room & Explore */}
-              <div className="pt-2 border-t border-slate-700/80 flex flex-col sm:flex-row items-center gap-3">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleTryOnGarment}
-                  className="w-full sm:flex-1 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all"
-                >
-                  <Sparkles className="w-4 h-4 text-slate-950" />
-                  <span>Mặc Thử Phục Sức Này Ngay</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-slate-950" />
-                </motion.button>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </div>
-
-      {/* 4. Bottom Horizontal Cultural Timeline Carousel of All Regional Nodes */}
-      <div className="mt-8 pt-6 border-t border-slate-800">
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
-            <Globe className="w-4 h-4 text-amber-400" />
-            <span>Mục Lục Các Địa Danh Khởi Nguyên Cổ Phục Trên Bản Đồ</span>
-          </span>
-          <span className="text-[11px] text-slate-400">
-            Nhấp vào từng thẻ để định vị camera bản đồ
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-          {HERITAGE_LOCATIONS.map((loc) => {
-            const isCurrent = selectedNodeId === loc.id;
-            return (
-              <button
-                key={loc.id}
-                onClick={() => handleSelectNode(loc)}
-                className={`p-3 rounded-2xl text-left transition-all cursor-pointer flex flex-col justify-between ${
-                  isCurrent
-                    ? 'bg-amber-500/20 border-2 border-amber-400 shadow-md text-amber-200'
-                    : 'bg-[#0E1526] hover:bg-[#131D33] border border-slate-800 text-slate-300 hover:border-slate-700'
-                }`}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-lg">{loc.icon}</span>
-                    <span
-                      className="w-2 h-2 rounded-full"
-                      style={{ backgroundColor: loc.accentColor }}
-                    />
+                {/* Cultural Fabric & Craftsmanship */}
+                <div className="space-y-3 text-xs text-slate-300 mb-6">
+                  <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
+                    <span className="font-semibold text-amber-300 block">Kỹ nghệ dệt thêu & chất liệu:</span>
+                    <p className="text-slate-400 leading-relaxed">{selectedNode.craftAndFabric}</p>
                   </div>
-                  <h5 className="font-serif-vi text-xs font-bold truncate text-slate-100">
-                    {loc.name.split('(')[0].trim()}
-                  </h5>
-                  <p className="text-[10px] text-amber-400/90 truncate mt-0.5">
-                    {loc.mainGarmentName.split('&')[0].trim()}
-                  </p>
+
+                  <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
+                    <span className="font-semibold text-amber-300 block">Dấu ấn sử liệu:</span>
+                    <p className="text-slate-400 leading-relaxed italic">"{selectedNode.historicalStory}"</p>
+                  </div>
                 </div>
-                <span className="text-[9px] text-slate-400 uppercase font-mono mt-2 block">
-                  {loc.dynasties[0]}
-                </span>
-              </button>
-            );
-          })}
+
+                {/* Action Button: Try On in Virtual Fitting Room */}
+                <div className="pt-2">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleTryOnGarment}
+                    className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-300 text-slate-950 font-bold text-sm shadow-xl shadow-amber-500/20 hover:shadow-amber-500/40 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Sparkles className="w-4 h-4 text-slate-950" />
+                    <span>Thử {selectedNode.mainGarmentName} trong phòng thử</span>
+                    <ArrowRight className="w-4 h-4 text-slate-950" />
+                  </motion.button>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Quick S-Curve Regional Heritage Guide */}
+            <div className="bg-slate-900/60 rounded-2xl border border-slate-800 p-4 text-xs space-y-2">
+              <div className="flex items-center gap-2 text-amber-300 font-semibold">
+                <Compass className="w-4 h-4" />
+                <span>Trục Di Sản Chữ S Ngàn Năm</span>
+              </div>
+              <p className="text-slate-400 leading-relaxed text-[11px]">
+                Từ đất Thăng Long ngàn năm văn hiến, qua cố đô Hoa Lư, Lam Kinh, kinh thành Thuận Hóa Huế, đến phố hội sông Hoài và đất phương Nam trù phú — từng tà áo giao thoa tạo nên dòng chảy trang phục Việt trọn vẹn, phong phú và đậm đà bản sắc.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>

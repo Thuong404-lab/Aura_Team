@@ -58,7 +58,6 @@ interface HomeScreenProps {
   isPlayingMusic: boolean;
   setIsPlayingMusic: (val: boolean) => void;
   onOpenSavedLibrary?: () => void;
-  onOpenLoginModal?: () => void;
   savedCount?: number;
   onSelectTopItem?: (topId: string) => void;
   triggerCloudIntroCount?: number;
@@ -230,7 +229,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   isPlayingMusic,
   setIsPlayingMusic,
   onOpenSavedLibrary,
-  onOpenLoginModal,
   savedCount = 0,
   onSelectTopItem,
   triggerCloudIntroCount,

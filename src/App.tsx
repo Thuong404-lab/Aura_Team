@@ -15,7 +15,6 @@ import { HomeScreen } from './components/HomeScreen';
 import { FittingRoomScreen, HarmonyResult } from './components/FittingRoomScreen';
 import { LookbookScreen, SavedLookbookItem } from './components/LookbookScreen';
 import { SavedLibraryModal } from './components/SavedLibraryModal';
-import { LoginModal } from './components/LoginModal';
 import { AppNavbar, ScreenType } from './components/AppNavbar';
 import { SmoothScrollManager } from './components/SmoothScrollManager';
 import { soundEngine } from './utils/audioSynth';
@@ -59,7 +58,6 @@ export default function App() {
   // Saved Lookbooks collection (LocalStorage)
   const [savedLookbooks, setSavedLookbooks] = useState<SavedLookbookItem[]>([]);
   const [isLibraryOpen, setIsLibraryOpen] = useState<boolean>(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
 
   // Initialize saved lookbooks from localStorage
   useEffect(() => {
@@ -258,7 +256,6 @@ export default function App() {
                 setCurrentScreen(screen);
               }}
               onOpenSavedLibrary={() => setIsLibraryOpen(true)}
-              onOpenLoginModal={() => setIsLoginModalOpen(true)}
               savedCount={savedLookbooks.length}
               isPlayingMusic={isPlayingMusic}
               onToggleMusic={() => {
@@ -283,7 +280,6 @@ export default function App() {
             isPlayingMusic={isPlayingMusic}
             setIsPlayingMusic={setIsPlayingMusic}
             onOpenSavedLibrary={() => setIsLibraryOpen(true)}
-            onOpenLoginModal={() => setIsLoginModalOpen(true)}
             savedCount={savedLookbooks.length}
             onSelectTopItem={handleSelectTopItemFromEncyclopedia}
             triggerCloudIntroCount={cloudIntroCount}
@@ -306,7 +302,6 @@ export default function App() {
             onSelectColor={setCurrentColor}
             onGoHome={handleGoHome}
             onGoLookbook={handleGoLookbook}
-            onOpenLoginModal={() => setIsLoginModalOpen(true)}
           />
         )}
 
@@ -328,12 +323,6 @@ export default function App() {
             onDeleteSavedItem={handleDeleteSaved}
           />
         )}
-
-        {/* Login Modal */}
-        <LoginModal
-          isOpen={isLoginModalOpen}
-          onClose={() => setIsLoginModalOpen(false)}
-        />
 
         {/* Saved Lookbook Library Modal */}
         <SavedLibraryModal
