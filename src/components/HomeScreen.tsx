@@ -370,8 +370,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       <motion.main
         variants={containerVariants}
         initial="hidden"
-        animate="visible"
-        className="relative z-10 flex-1 flex flex-col items-center justify-start px-4 sm:px-6 md:px-8 py-10 md:py-16 text-center max-w-6xl mx-auto w-full will-change-transform"
+        animate={isCloudIntroOpen ? 'hidden' : 'visible'}
+        className={`relative z-10 flex-1 flex flex-col items-center justify-start px-4 sm:px-6 md:px-8 py-10 md:py-16 text-center max-w-6xl mx-auto w-full will-change-transform transition-opacity duration-1000 ${
+          isCloudIntroOpen ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'
+        }`}
         style={{ willChange: 'transform' }}
       >
         {/* 4.1 WELCOME HERO SECTION: BƯỚC VÀO THẾ GIỚI THỜI TRANG */}

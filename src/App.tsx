@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import {
   WardrobeItem,
   FabricOption,
@@ -225,35 +226,36 @@ export default function App() {
   return (
     <SmoothScrollManager>
       <div className="min-h-screen w-full bg-[#0A0E17] text-slate-100 font-sans-vi flex flex-col justify-start">
-        {/* Unified Global Navigation Bar across all screens - Ẩn hoàn toàn khi màn mây đang mở */}
-        <div
-          className={`transition-all duration-700 ease-out z-[150] sticky top-0 ${
-            isCloudCurtainActive && currentScreen === 'home'
-              ? 'opacity-0 pointer-events-none -translate-y-full h-0 overflow-hidden'
-              : 'opacity-100 pointer-events-auto translate-y-0 h-auto'
-          }`}
-        >
-          <AppNavbar
-            currentScreen={currentScreen}
-            onNavigate={(screen) => {
-              soundEngine.playPluck(440);
-              setCurrentScreen(screen);
-            }}
-            onOpenSavedLibrary={() => setIsLibraryOpen(true)}
-            onOpenLoginModal={() => setIsLoginModalOpen(true)}
-            savedCount={savedLookbooks.length}
-            isPlayingMusic={isPlayingMusic}
-            onToggleMusic={() => {
-              soundEngine.toggleAmbiance((playing) => setIsPlayingMusic(playing));
-            }}
-            onTriggerCloudIntro={() => {
-              soundEngine.playPluck(523.25);
-              setCurrentScreen('home');
-              setIsCloudCurtainActive(true);
-              setCloudIntroCount((prev) => prev + 1);
-            }}
-          />
-        </div>
+        {/* Unified Global Navigation Bar across all screens - Hoàn toàn ẩn khi màn mây đang mở, chỉ hiện khi mây tan & trống đồng hoàn tất xoay vòng */}
+        {(!isCloudCurtainActive || currentScreen !== 'home') && (
+          <motion.div
+            initial={{ opacity: 0, y: -60 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+            className="z-[150] sticky top-0 w-full"
+          >
+            <AppNavbar
+              currentScreen={currentScreen}
+              onNavigate={(screen) => {
+                soundEngine.playPluck(440);
+                setCurrentScreen(screen);
+              }}
+              onOpenSavedLibrary={() => setIsLibraryOpen(true)}
+              onOpenLoginModal={() => setIsLoginModalOpen(true)}
+              savedCount={savedLookbooks.length}
+              isPlayingMusic={isPlayingMusic}
+              onToggleMusic={() => {
+                soundEngine.toggleAmbiance((playing) => setIsPlayingMusic(playing));
+              }}
+              onTriggerCloudIntro={() => {
+                soundEngine.playPluck(523.25);
+                setCurrentScreen('home');
+                setIsCloudCurtainActive(true);
+                setCloudIntroCount((prev) => prev + 1);
+              }}
+            />
+          </motion.div>
+        )}
 
         {/* Active Screen Rendering */}
         {currentScreen === 'home' && (
