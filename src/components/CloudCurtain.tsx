@@ -582,34 +582,20 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
             transition={{ duration: 0.4 }}
             className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2"
           >
-            {/* Interactive Click / Tap Anywhere Banner */}
-            <motion.div
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
+            {/* Single Interactive Instruction Icon Button */}
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.92 }}
               onClick={triggerRevealAnimation}
-              className="px-6 sm:px-8 py-3.5 rounded-full bg-slate-950/90 hover:bg-slate-900/95 backdrop-blur-xl border border-amber-400/60 hover:border-amber-300 shadow-[0_0_35px_rgba(245,158,11,0.45)] transition-all flex items-center gap-4 cursor-pointer group select-none"
+              className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-slate-950/85 hover:bg-slate-900/95 backdrop-blur-xl border border-amber-400/70 hover:border-amber-300 shadow-[0_0_25px_rgba(245,158,11,0.5)] flex items-center justify-center cursor-pointer group select-none transition-all"
+              title="Chạm để khai mở"
+              aria-label="Chạm để khai mở"
             >
-              {/* Luminous Pulsing Touch Icon */}
-              <div className="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-400/60 flex items-center justify-center shadow-[0_0_12px_rgba(245,158,11,0.5)]">
-                <Hand className="w-4 h-4 text-amber-300 animate-bounce" />
+              <div className="relative flex items-center justify-center">
+                <span className="animate-ping absolute inline-flex h-8 w-8 rounded-full bg-amber-400/40 opacity-75 pointer-events-none" />
+                <Hand className="w-5 h-5 sm:w-6 sm:h-6 text-amber-300 group-hover:text-amber-200 animate-bounce transition-colors" />
               </div>
-
-              {/* Status Message */}
-              <div className="flex flex-col text-left">
-                <span className="text-xs sm:text-sm font-bold text-amber-200 group-hover:text-amber-100 flex items-center gap-2 font-serif-vi tracking-wide">
-                  <span>Chạm hoặc bấm vào màn hình để khai mở</span>
-                  <motion.span
-                    animate={{ scale: [1, 1.3, 1] }}
-                    transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
-                  >
-                    ✦
-                  </motion.span>
-                </span>
-                <span className="text-[11px] text-amber-300/80">
-                  Mây tản ra bốn phương, Trống đồng xoay vòng khai mở Cung điện Việt phục
-                </span>
-              </div>
-            </motion.div>
+            </motion.button>
           </motion.div>
         )}
       </AnimatePresence>
