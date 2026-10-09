@@ -24,6 +24,8 @@ import {
   CoPhongCloud,
 } from './VietnameseDecorativeElements';
 import { AtmosphericEffects } from './AtmosphericEffects';
+import { CloudCurtain } from './CloudCurtain';
+import { CloudMotifGalleryModal } from './CloudMotifGalleryModal';
 import { CulturalGarmentEncyclopedia } from './CulturalGarmentEncyclopedia';
 import { RegionalFashionDiversityMap } from './RegionalFashionDiversityMap';
 import { HeritageCraftsmanshipStory } from './HeritageCraftsmanshipStory';
@@ -37,6 +39,7 @@ import {
   Palette,
   Eye,
   Info,
+  Wind,
 } from 'lucide-react';
 
 interface HomeScreenProps {
@@ -56,6 +59,7 @@ interface HomeScreenProps {
   onOpenLoginModal?: () => void;
   savedCount?: number;
   onSelectTopItem?: (topId: string) => void;
+  triggerCloudIntroCount?: number;
 }
 
 // 4 Ancient Imperial Secrets with interactive revelation
@@ -225,10 +229,22 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onOpenLoginModal,
   savedCount = 0,
   onSelectTopItem,
+  triggerCloudIntroCount,
 }) => {
   const [promptInput, setPromptInput] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiResult, setAiResult] = useState<AiSuggestionResult | null>(null);
+
+  // Cloud Intro Curtain overlay state (Full-screen clouds covering and parting on entrance)
+  const [isCloudIntroOpen, setIsCloudIntroOpen] = useState<boolean>(true);
+  const [isCloudGalleryOpen, setIsCloudGalleryOpen] = useState<boolean>(false);
+
+  // Re-trigger cloud intro whenever requested externally
+  React.useEffect(() => {
+    if (triggerCloudIntroCount && triggerCloudIntroCount > 0) {
+      setIsCloudIntroOpen(true);
+    }
+  }, [triggerCloudIntroCount]);
 
   // Active revealed secrets (set of secret IDs)
   const [revealedSecrets, setRevealedSecrets] = useState<Record<string, boolean>>({
@@ -290,6 +306,20 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   return (
     <div className="relative min-h-screen w-full bg-[#080C16] text-slate-100 flex flex-col justify-between overflow-x-hidden font-sans-vi">
       
+      {/* 0. FULL-SCREEN CLOUD CURTAIN ANIMATION (FRAMER MOTION) */}
+      <CloudCurtain
+        isOpen={isCloudIntroOpen}
+        onRevealed={() => setIsCloudIntroOpen(false)}
+        onClose={() => setIsCloudIntroOpen(false)}
+      />
+
+      {/* Cloud Motif Gallery Modal (Bảo Tàng 6 Mẫu Mây Cổ Phong) */}
+      <CloudMotifGalleryModal
+        isOpen={isCloudGalleryOpen}
+        onClose={() => setIsCloudGalleryOpen(false)}
+        onTriggerIntro={() => setIsCloudIntroOpen(true)}
+      />
+
       {/* 1. DEDICATED ATMOSPHERIC EFFECTS OVERLAY (GOLD PARTICLES & MIST) */}
       <AtmosphericEffects positioning="fixed" intensity="mystic" />
 
@@ -408,6 +438,38 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               ) : (
                 <VolumeX className="w-4 h-4 text-slate-400" />
               )}
+            </motion.button>
+          </motion.div>
+
+          {/* Cloud Curtain & Motifs Action Toolbar */}
+          <motion.div
+            variants={slideUpFadeVariants}
+            className="flex flex-wrap items-center justify-center gap-2.5 mb-8"
+          >
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => {
+                soundEngine.playPluck(523.25);
+                setIsCloudIntroOpen(true);
+              }}
+              className="px-4 py-2 rounded-xl text-xs font-semibold tracking-wide text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 hover:border-amber-400 transition-all flex items-center gap-2 cursor-pointer shadow-md shadow-amber-950/20 group"
+            >
+              <Wind className="w-3.5 h-3.5 text-amber-400 group-hover:rotate-12 transition-transform" />
+              <span>Trình Diễn Lại Hiệu Ứng Vén Mây</span>
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => {
+                soundEngine.playPluck(440);
+                setIsCloudGalleryOpen(true);
+              }}
+              className="px-4 py-2 rounded-xl text-xs font-semibold tracking-wide text-slate-300 hover:text-amber-200 bg-slate-900/70 hover:bg-slate-850 border border-slate-700 hover:border-amber-500/40 transition-all flex items-center gap-2 cursor-pointer shadow-sm"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>Bảo Tàng 6 Mẫu Mây Cổ Phong</span>
             </motion.button>
           </motion.div>
 

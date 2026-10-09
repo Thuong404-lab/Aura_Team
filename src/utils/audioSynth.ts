@@ -82,6 +82,53 @@ class TraditionalSoundEngine {
     }
   }
 
+  // Play royal cloud parted chime (majestic pentatonic ascending harp + gong chime)
+  public playCloudPartChime() {
+    try {
+      const ctx = this.getAudioContext();
+      const now = ctx.currentTime;
+
+      // Pentatonic chord cascade: D4, G4, A4, D5, E5, A5
+      const chord = [293.66, 392.0, 440.0, 587.33, 659.25, 880.0];
+      chord.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const startTime = now + idx * 0.08;
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, startTime);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.008, startTime + 0.15);
+
+        gain.gain.setValueAtTime(0.0001, startTime);
+        gain.gain.linearRampToValueAtTime(0.09 / (idx * 0.25 + 1), startTime + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.00001, startTime + 2.5);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(startTime);
+        osc.stop(startTime + 2.6);
+      });
+
+      // Warm gong sub-tone
+      const gongOsc = ctx.createOscillator();
+      const gongGain = ctx.createGain();
+      gongOsc.type = 'sine';
+      gongOsc.frequency.setValueAtTime(146.83, now); // D3
+      gongGain.gain.setValueAtTime(0.0001, now);
+      gongGain.gain.linearRampToValueAtTime(0.12, now + 0.05);
+      gongGain.gain.exponentialRampToValueAtTime(0.00001, now + 3.2);
+
+      gongOsc.connect(gongGain);
+      gongGain.connect(ctx.destination);
+
+      gongOsc.start(now);
+      gongOsc.stop(now + 3.3);
+    } catch {
+      // Audio not permitted yet
+    }
+  }
+
   // Toggle relaxing background melody
   public toggleAmbiance(onStateChange?: (playing: boolean) => void): boolean {
     if (this.isPlaying) {

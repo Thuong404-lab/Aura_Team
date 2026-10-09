@@ -12,6 +12,7 @@ import {
   BookOpen,
   Home,
   Compass,
+  Wind,
 } from 'lucide-react';
 
 export type ScreenType = 'home' | 'fitting' | 'lookbook';
@@ -24,6 +25,7 @@ interface AppNavbarProps {
   savedCount: number;
   isPlayingMusic: boolean;
   onToggleMusic: () => void;
+  onTriggerCloudIntro?: () => void;
 }
 
 export const AppNavbar: React.FC<AppNavbarProps> = ({
@@ -34,6 +36,7 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
   savedCount,
   isPlayingMusic,
   onToggleMusic,
+  onTriggerCloudIntro,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -131,8 +134,20 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
             </button>
           </nav>
 
-          {/* Right Action Icons (Music & User) */}
+          {/* Right Action Icons (Music, Cloud, & User) */}
           <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* Quick Trigger for Cloud Parting Animation */}
+            {onTriggerCloudIntro && (
+              <button
+                onClick={onTriggerCloudIntro}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-medium transition-all cursor-pointer group"
+                title="Trình diễn hiệu ứng Vén Mây Cung Đình"
+              >
+                <Wind className="w-3.5 h-3.5 text-amber-400 group-hover:rotate-12 transition-transform" />
+                <span className="hidden xl:inline">Vén Mây</span>
+              </button>
+            )}
+
             {/* Audio Synthesizer Toggle */}
             <button
               onClick={onToggleMusic}
@@ -223,6 +238,19 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
             <Bookmark className="w-4 h-4 text-amber-400" />
             <span>Bộ sưu tập đã lưu ({savedCount})</span>
           </button>
+
+          {onTriggerCloudIntro && (
+            <button
+              onClick={() => {
+                onTriggerCloudIntro();
+                setMobileMenuOpen(false);
+              }}
+              className="w-full py-2.5 px-3 rounded-xl flex items-center gap-3 text-sm font-medium text-amber-300 bg-amber-500/10 border border-amber-500/30 transition-all cursor-pointer"
+            >
+              <Wind className="w-4 h-4 text-amber-400" />
+              <span>Hiệu ứng Vén Mây Cổ Phong</span>
+            </button>
+          )}
 
           <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
             <button

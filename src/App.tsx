@@ -50,6 +50,9 @@ export default function App() {
   // Music state
   const [isPlayingMusic, setIsPlayingMusic] = useState<boolean>(false);
 
+  // Cloud Intro trigger count (to re-run from navbar)
+  const [cloudIntroCount, setCloudIntroCount] = useState<number>(0);
+
   // Saved Lookbooks collection (LocalStorage)
   const [savedLookbooks, setSavedLookbooks] = useState<SavedLookbookItem[]>([]);
   const [isLibraryOpen, setIsLibraryOpen] = useState<boolean>(false);
@@ -227,6 +230,11 @@ export default function App() {
         onToggleMusic={() => {
           soundEngine.toggleAmbiance((playing) => setIsPlayingMusic(playing));
         }}
+        onTriggerCloudIntro={() => {
+          soundEngine.playPluck(523.25);
+          setCurrentScreen('home');
+          setCloudIntroCount((prev) => prev + 1);
+        }}
       />
 
       {/* Active Screen Rendering */}
@@ -241,6 +249,7 @@ export default function App() {
           onOpenLoginModal={() => setIsLoginModalOpen(true)}
           savedCount={savedLookbooks.length}
           onSelectTopItem={handleSelectTopItemFromEncyclopedia}
+          triggerCloudIntroCount={cloudIntroCount}
         />
       )}
 
