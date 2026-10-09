@@ -199,6 +199,12 @@ app.post('/api/ai/lookbook-story', async (req, res) => {
         contents: `Hãy viết lời bình Lookbook nghệ thuật phong cách tạp chí thời trang di sản cao cấp cho bức ảnh:
 - Trang phục: ${top?.name} phối cùng ${bottom?.name} và ${accessory?.name}.
 - Bối cảnh: ${backdropTitle || 'Hoàng Thành Huế'}.
+LƯU Ý QUY CHUẨN VĂN HÓA VIỆT PHỤC:
+- Tôn vinh cấu trúc 5 thân, tà áo lượn cong dáng chữ A (đáy thúng), đường sống áo "mũi gáy" trung chính giữa lưng và đường may nối ngang ống tay do khổ vải dệt xưa 35-40cm.
+- Cổ đứng lập lĩnh 5 khuy cài tượng trưng Ngũ thường (Nhân, Lễ, Nghĩa, Trí, Tín) hoặc Ngũ hành.
+- Nếu là Áo Nhật Bình: nhấn mạnh cổ đóng khung chữ nhật, 2 dải buộc ngực và viền dải ngũ sắc ngũ hành ở cửa tay.
+- Nếu là Áo Giao Lĩnh: nhấn mạnh vạt trái đè vạt phải tạo hình chữ Y, không siết thắt lưng ôm eo kiểu Hán phục.
+- Mặc cùng quần 2 ống thanh thoát, mực thước.
 Trả về JSON:
 {
   "editionTitle": "string (Ví dụ: 'Nét Cố Đô Thu Sắc', 'Kinh Kỳ Phong Hoa')",
@@ -222,14 +228,33 @@ Trả về JSON:
     }
   }
 
+  // Authentic cultural fallback reflecting user's document
+  const isNhatBinh = top?.id === 'nhat-binh';
+  const isGiaoLinh = top?.id === 'giao-linh';
+  const isAoTac = top?.id === 'ao-tac';
+
+  let customStory = `Dưới bóng tường thành rêu phong, tà ${top?.name || 'Áo Ngũ Thân'} buông suông dáng chữ A đáy thúng thanh thoát, tôn vinh đường sống áo mũi gáy trung chính và năm cúc cài ngũ thường mẫu mực. Bản phối cùng ${bottom?.name || 'Quần Ống Sớ'} giữ vẹn nguyên quy cách quần hai ống thanh tao, hòa quyện kiêu hãnh giữa dòng chảy đương đại.`;
+  let customCouplet = 'Áo xưa khép vạt mây hồng lượn / Bước khẽ nghiêng chào bóng cố đô.';
+
+  if (isNhatBinh) {
+    customStory = `Áo Nhật Bình sắc son quyền quý với khung cổ chữ nhật uy nghi và dải ngũ sắc ngũ hành rực rỡ nơi cửa tay bừng sáng tại ${backdropTitle || 'Hoàng Thành'}. Từng đường kim mũi chỉ thêu phượng hoàng và hoa sen tái hiện đỉnh cao phẩm phục cung đình triều Nguyễn.`;
+    customCouplet = 'Cổ Nhật đóng khung nghìn thu sáng / Tay dải ngũ hành rực bóng hoa.';
+  } else if (isGiaoLinh) {
+    customStory = `Áo Giao Lĩnh với vạt trái đè vạt phải kết chữ Y tự nhiên, tà áo buông lơi thênh thang mang đậm hào khí Đông A và phong vị thiền định thời Lý - Trần. Bản phối mộc mạc kín đáo, hoàn toàn thoát khỏi sự gò bó siết eo ngoại lai.`;
+    customCouplet = 'Cổ chéo chữ Y khai chính đạo / Tà buông lơi gió thoảng kinh kỳ.';
+  } else if (isAoTac) {
+    customStory = `Áo Tấc tay thụng rộng thênh thang biểu trưng cho đạo lý Tứ thân phụ mẫu che chở vạt con khiêm nhu. Khi hai tay chắp trang nghiêm trước ngực, hai tà tay thụng phủ kín đoan trang, thể hiện trọn vẹn lòng thành kính tôn ti trật tự gia tộc.`;
+    customCouplet = 'Tay thụng nâng tà nghiêng kính tổ / Ngũ thân trọn vẹn đức khiêm cung.';
+  }
+
   return res.json({
     success: true,
     data: {
       editionTitle: `Dáng Hoa ${top?.name || 'Việt Phục'}`,
       subHeadline: `Bản giao hưởng giữa ngàn năm di sản và nhịp thở đương đại tại ${backdropTitle || 'Cố Đô'}`,
-      editorialStory: `Dưới ánh chiều tà phủ bóng trên từng lớp rêu phong, tà ${top?.name || 'áo truyền thống'} nhẹ lay trong gió như đánh thức ký ức vàng son một thuở. Bản phối không đơn thuần là trang phục, mà là tuyên ngôn của người trẻ tìm về căn cước văn hóa với lòng tự hào kiêu hãnh.`,
-      poetryCouple: 'Áo xưa khép vạt mây hồng lượn / Bước khẽ nghiêng chào bóng cố đô.',
-      photographerNote: 'Ánh sáng vàng hoàng hôn góc 30 độ làm nổi bật chất óng ánh của tơ lụa và đường kim mũi chỉ thêu tay.',
+      editorialStory: customStory,
+      poetryCouple: customCouplet,
+      photographerNote: 'Ánh sáng vàng hoàng hôn góc 30 độ làm nổi bật chất óng ánh của tơ lụa, đường sống áo mũi gáy và hoa văn thêu tay.',
     },
   });
 });

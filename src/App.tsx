@@ -211,6 +211,24 @@ export default function App() {
     setCurrentScreen('fitting');
   };
 
+  const handleLoadSavedInLookbook = (item: SavedLookbookItem) => {
+    soundEngine.playPluck(523.25);
+    const foundTop = TOPS.find((t) => t.name === item.topName) || TOPS[0];
+    const foundBottom = BOTTOMS.find((b) => b.name === item.bottomName) || BOTTOMS[0];
+    const foundAcc = ACCESSORIES.find((a) => a.name === item.accessoryName) || ACCESSORIES[0];
+
+    setCurrentTop(foundTop);
+    setCurrentBottom(foundBottom);
+    setCurrentAccessory(foundAcc);
+
+    setHarmonyData((prev) => ({
+      ...prev,
+      score: item.score,
+      critiqueTitle: item.title,
+      detailedCritique: item.aiStory,
+    }));
+  };
+
   const handleGoHome = () => {
     soundEngine.playPluck(440);
     setCurrentScreen('home');
@@ -304,6 +322,10 @@ export default function App() {
             onSaveLookbook={handleSaveLookbook}
             savedItems={savedLookbooks}
             onOpenSavedDrawer={() => setIsLibraryOpen(true)}
+            onSelectBottom={setCurrentBottom}
+            onLoadSavedItem={handleLoadSaved}
+            onLoadSavedInLookbook={handleLoadSavedInLookbook}
+            onDeleteSavedItem={handleDeleteSaved}
           />
         )}
 
