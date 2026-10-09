@@ -20,6 +20,7 @@ import { SmoothScrollManager } from './components/SmoothScrollManager';
 import { soundEngine } from './utils/audioSynth';
 
 export default function App() {
+  //ghjghghkhkj
   // Navigation state (Default to 'home' for welcoming entrance into the fashion realm)
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('home');
 
