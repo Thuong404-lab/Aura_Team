@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import {
   ArrowRight,
-  Volume2,
-  VolumeX,
   Sparkles,
   Loader2,
   Check,
@@ -26,7 +24,6 @@ import {
 import { AtmosphericEffects } from './AtmosphericEffects';
 import { CloudCurtain } from './CloudCurtain';
 import { HeroCloudDepthParallax } from './HeroCloudDepthParallax';
-import { CloudMotifGalleryModal } from './CloudMotifGalleryModal';
 import { CulturalGarmentEncyclopedia } from './CulturalGarmentEncyclopedia';
 import { HeritageMapSection } from './HeritageMapSection';
 import { RegionalFashionDiversityMap } from './RegionalFashionDiversityMap';
@@ -55,12 +52,9 @@ interface HomeScreenProps {
     advice: string;
     persona: string;
   }) => void;
-  isPlayingMusic: boolean;
-  setIsPlayingMusic: (val: boolean) => void;
-  onOpenSavedLibrary?: () => void;
-  savedCount?: number;
+  isPlayingMusic?: boolean;
+  setIsPlayingMusic?: (val: boolean) => void;
   onSelectTopItem?: (topId: string) => void;
-  triggerCloudIntroCount?: number;
   isCloudCurtainActive?: boolean;
   onCloudCurtainChange?: (active: boolean) => void;
 }
@@ -167,7 +161,7 @@ const DYNASTY_ERAS = [
     years: 'Thế kỷ XXI',
     headline: 'Giao Thoa Di Sản & Nhịp Sống Hiện Đại',
     summary:
-      'Cách tân phom dáng đương đại, kết hợp tà áo năm thân cùng chân váy xếp ly, chất liệu linen mát nhẹ, ứng dụng AI và 3D để đưa di sản bước ra phố phường.',
+      'Cách tân phom dáng đương đại, kết hợp tà áo năm thân cùng chân váy xếp ly, chất liệu linen mát nhẹ, ứng dụng AI để đưa di sản bước ra phố phường.',
     garments: ['Ngũ Thân phối Chân váy', 'Nhật Bình cách tân', 'Phụ kiện tối giản'],
     palette: ['Vàng cát ánh kim', 'Xanh ngọc đương đại', 'Đen huyền bí'],
   },
@@ -228,10 +222,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onApplyAiSuggestion,
   isPlayingMusic,
   setIsPlayingMusic,
-  onOpenSavedLibrary,
-  savedCount = 0,
   onSelectTopItem,
-  triggerCloudIntroCount,
   isCloudCurtainActive,
   onCloudCurtainChange,
 }) => {
@@ -244,14 +235,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const setCloudIntroOpen = (val: boolean) => {
     onCloudCurtainChange?.(val);
   };
-  const [isCloudGalleryOpen, setIsCloudGalleryOpen] = useState<boolean>(false);
-
-  // Re-trigger cloud intro whenever requested externally
-  React.useEffect(() => {
-    if (triggerCloudIntroCount && triggerCloudIntroCount > 0) {
-      setCloudIntroOpen(true);
-    }
-  }, [triggerCloudIntroCount]);
 
   // Active revealed secrets (set of secret IDs)
   const [revealedSecrets, setRevealedSecrets] = useState<Record<string, boolean>>({
@@ -320,17 +303,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         onClose={() => setCloudIntroOpen(false)}
       />
 
-      {/* Cloud Motif Gallery Modal (Bảo Tàng 6 Mẫu Mây Cổ Phong) */}
-      <CloudMotifGalleryModal
-        isOpen={isCloudGalleryOpen}
-        onClose={() => setIsCloudGalleryOpen(false)}
-        onTriggerIntro={() => setCloudIntroOpen(true)}
-      />
-
       {/* 1. DEDICATED ATMOSPHERIC EFFECTS OVERLAY (GOLD PARTICLES & MIST) */}
       <AtmosphericEffects positioning="fixed" intensity="mystic" />
 
-      {/* 2. HERO 3D CLOUD DEPTH PARALLAX (CUỘN CON LĂN CHUỘT MÂY BAY RA THEO CHIỀU SÂU) */}
+      {/* 2. HERO CLOUD DEPTH PARALLAX (CUỘN CON LĂN CHUỘT MÂY BAY RA THEO CHIỀU SÂU) */}
       <HeroCloudDepthParallax />
 
       {/* 3. ATMOSPHERIC GEOMETRY & TRADITIONAL MOTIFS */}
@@ -387,7 +363,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <span className="text-amber-500/60">·</span>
             <span>THẾ GIỚI VIỆT PHỤC HOÀNG TRIỀU</span>
             <span className="text-amber-500/60">·</span>
-            <span className="text-amber-300">CÔNG NGHỆ 3D & AI</span>
+            <span className="text-amber-300">CÔNG NGHỆ 2D & AI</span>
           </motion.div>
 
           {/* Majestic Hero Headline (Sequential Fade & Scale-Up) */}
@@ -408,15 +384,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             className="text-base sm:text-lg text-slate-300 max-w-2xl mb-10 leading-relaxed font-sans-vi font-light"
           >
             Bước vào không gian phục sức cung đình nghìn năm tuổi. Khám phá các bí mật triều đại,
-            thử nghiệm phối phục 3D sống động và giải mã vẻ đẹp ngũ hành cùng trí tuệ nhân tạo.
+            thử nghiệm phối phục 2D sống động và giải mã vẻ đẹp ngũ hành cùng trí tuệ nhân tạo.
           </motion.p>
 
           {/* Grand CTA Actions (Sequential Motion with Interactive Cultural Navigation) */}
           <motion.div
             variants={slideUpFadeVariants}
-            className="flex flex-col sm:flex-row items-center justify-center gap-3.5 w-full max-w-xl mb-6"
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-xl mb-8"
           >
-            {/* 3D Fitting Room CTA */}
+            {/* 2D Fitting Room CTA */}
             <motion.button
               whileHover={{ scale: 1.03, y: -2 }}
               whileTap={{ scale: 0.98 }}
@@ -427,7 +403,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               className="w-full sm:w-auto px-8 py-3.5 rounded-xl text-sm font-bold tracking-[0.1em] uppercase text-slate-950 bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 shadow-[0_10px_36px_rgba(245,158,11,0.4)] hover:shadow-[0_14px_48px_rgba(245,158,11,0.6)] transition-all duration-300 flex items-center justify-center gap-2.5 cursor-pointer border border-amber-200/60 font-serif-vi"
             >
               <Sparkles className="w-4 h-4 text-slate-950" />
-              <span>PHÒNG THỬ PHỤC SỨC 3D</span>
+              <span>PHÒNG THỬ PHỤC SỨC 2D</span>
             </motion.button>
 
             {/* Encyclopedia Heritage Anchor */}
@@ -440,66 +416,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             >
               <BookOpen className="w-4 h-4 text-amber-400" />
               <span>BÁCH KHOA VIỆT PHỤC</span>
-            </motion.a>
-
-            {/* Quick sound toggle button */}
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => {
-                soundEngine.toggleAmbiance((playing) => setIsPlayingMusic(playing));
-              }}
-              className="w-full sm:w-auto p-3.5 rounded-xl text-xs font-medium text-amber-300 hover:text-amber-200 bg-[#121A2D]/80 hover:bg-[#18233C] border border-slate-700/80 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer backdrop-blur-md"
-              title="Nhã nhạc cung đình"
-            >
-              {isPlayingMusic ? (
-                <Volume2 className="w-4 h-4 text-amber-400 animate-pulse" />
-              ) : (
-                <VolumeX className="w-4 h-4 text-slate-400" />
-              )}
-            </motion.button>
-          </motion.div>
-
-          {/* Cloud Curtain & Motifs Action Toolbar */}
-          <motion.div
-            variants={slideUpFadeVariants}
-            className="flex flex-wrap items-center justify-center gap-2.5 mb-8"
-          >
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => {
-                soundEngine.playPluck(523.25);
-                setCloudIntroOpen(true);
-              }}
-              className="px-4 py-2 rounded-xl text-xs font-semibold tracking-wide text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 hover:border-amber-400 transition-all flex items-center gap-2 cursor-pointer shadow-md shadow-amber-950/20 group"
-            >
-              <Wind className="w-3.5 h-3.5 text-amber-400 group-hover:rotate-12 transition-transform" />
-              <span>Vén Mây Khai Mở Di Sản</span>
-            </motion.button>
-
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => {
-                soundEngine.playPluck(440);
-                setIsCloudGalleryOpen(true);
-              }}
-              className="px-4 py-2 rounded-xl text-xs font-semibold tracking-wide text-slate-300 hover:text-amber-200 bg-slate-900/70 hover:bg-slate-850 border border-slate-700 hover:border-amber-500/40 transition-all flex items-center gap-2 cursor-pointer shadow-sm"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>Bảo Tàng 6 Mẫu Mây Cổ Phong</span>
-            </motion.button>
-
-            <motion.a
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              href="#heritage-map-section"
-              onClick={() => soundEngine.playPluck(493.88)}
-              className="px-4 py-2 rounded-xl text-xs font-semibold tracking-wide text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 hover:border-amber-400 transition-all flex items-center gap-2 cursor-pointer shadow-sm"
-            >
-              <Compass className="w-3.5 h-3.5 text-amber-400" />
-              <span>Bản Đồ Di Sản D3.js</span>
             </motion.a>
           </motion.div>
 
@@ -554,337 +470,187 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         <motion.section
           variants={slideUpFadeVariants}
           id="secrets-section"
-          className="w-full text-left my-8 pt-8 border-t border-amber-500/15"
+          className="w-full text-left my-10 pt-10 border-t border-amber-500/20"
         >
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-3">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
-              <span className="text-xs font-bold tracking-[0.2em] uppercase text-amber-400 block mb-1">
-                KHO TÀNG CUNG ĐÌNH
-              </span>
-              <h2 className="font-serif-vi text-2xl sm:text-3xl md:text-4xl font-bold text-amber-100">
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                <span className="text-xs font-bold tracking-[0.25em] uppercase text-amber-400/90 font-serif-vi">
+                  KHO TÀNG CUNG ĐÌNH
+                </span>
+              </div>
+              <h2 className="font-serif-vi text-2xl sm:text-3xl md:text-4xl font-bold text-amber-100 tracking-tight">
                 Hé Lộ Bí Mật Cổ Phục Nghìn Năm
               </h2>
             </div>
-            <p className="text-xs text-slate-400 max-w-md font-light">
+            <p className="text-xs sm:text-sm text-slate-300/85 max-w-md font-light leading-relaxed">
               Mỗi nếp áo, hạt cúc hay dải thêu đều cất giấu những mật mã văn hóa và vũ trụ quan của tiền nhân.
-              Nhấp vào từng bí mật để khám phá và thử phục sức ngay.
+              Nhấp để mở từng hộp điển tịch và trải nghiệm phục sức ngay.
             </p>
           </div>
 
-          {/* 4 Interactive Secret Chambers with Staggered Entrance */}
+          {/* 4 Interactive Imperial Secret Cards */}
           <motion.div
             variants={containerVariants}
-            className="grid grid-cols-1 md:grid-cols-2 gap-5"
+            className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start"
           >
             {HERITAGE_SECRETS.map((secret, index) => {
               const isRevealed = !!revealedSecrets[secret.id];
+              const garment = TOPS.find((t) => t.id === secret.targetTopId);
 
               return (
                 <motion.div
                   key={secret.id}
                   variants={cardStaggerVariants}
-                  className={`rounded-2xl transition-all duration-300 p-6 relative overflow-hidden backdrop-blur-md border ${
+                  className={`group rounded-2xl transition-all duration-300 relative overflow-hidden backdrop-blur-xl border flex flex-col ${
                     isRevealed
-                      ? 'bg-[#10172A]/90 border-amber-400/50 shadow-[0_8px_30px_rgba(245,158,11,0.18)]'
-                      : 'bg-[#0E1526]/75 hover:bg-[#121B30] border-slate-700/60 hover:border-amber-500/40'
+                      ? 'bg-gradient-to-b from-[#11192E] via-[#0E1528] to-[#0A0F1E] border-amber-400/50 shadow-[0_12px_40px_rgba(245,158,11,0.16)]'
+                      : 'bg-gradient-to-b from-[#0D1424]/90 to-[#090E1A]/95 hover:bg-[#11192E] border-slate-700/60 hover:border-amber-400/40 shadow-lg hover:shadow-xl'
                   }`}
                 >
-                  {/* Subtle top indicator */}
-                  <div className="flex items-center justify-between mb-3 text-xs">
-                    <span className="font-serif-vi text-amber-400/90 font-semibold tracking-wider">
-                      Bí Mật {`0${index + 1}`} · {secret.dynasty}
-                    </span>
-                    <button
-                      onClick={() => toggleSecret(secret.id)}
-                      className="text-[11px] font-semibold text-amber-300 hover:text-amber-200 transition-colors cursor-pointer py-0.5 px-2 rounded-md bg-amber-500/10 border border-amber-500/30"
-                    >
-                      {isRevealed ? 'Thu gọn' : 'Khai mở bí mật'}
-                    </button>
+                  {/* Subtle top ambient glow */}
+                  <div
+                    className="absolute top-0 right-0 w-48 h-32 opacity-20 pointer-events-none rounded-full blur-2xl transition-opacity duration-300 group-hover:opacity-35"
+                    style={{ background: secret.accentColor }}
+                  />
+
+                  {/* Header Bar: Number + Dynasty + Toggle */}
+                  <div
+                    onClick={() => toggleSecret(secret.id)}
+                    className="p-5 sm:p-6 pb-4 cursor-pointer select-none"
+                  >
+                    <div className="flex items-center justify-between mb-3 text-xs">
+                      <div className="flex items-center gap-2 text-slate-400">
+                        <span className="font-serif-vi font-bold text-amber-400 text-sm">
+                          {`0${index + 1}`}
+                        </span>
+                        <span className="text-slate-600">/</span>
+                        <span className="tracking-wide text-slate-300 font-medium">
+                          {secret.dynasty}
+                        </span>
+                      </div>
+
+                      {/* Expand / Collapse Button */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleSecret(secret.id);
+                        }}
+                        className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 cursor-pointer ${
+                          isRevealed
+                            ? 'bg-amber-400/15 text-amber-300 border border-amber-400/40 hover:bg-amber-400/25'
+                            : 'bg-slate-800/80 text-slate-300 border border-slate-700 hover:text-amber-300 hover:border-amber-400/50'
+                        }`}
+                      >
+                        <span>{isRevealed ? 'Thu gọn' : 'Khai mở bí mật'}</span>
+                        <motion.span
+                          animate={{ rotate: isRevealed ? 180 : 0 }}
+                          transition={{ duration: 0.25 }}
+                          className="inline-block"
+                        >
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        </motion.span>
+                      </button>
+                    </div>
+
+                    {/* Main Title & Garment Thumbnail */}
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <h3 className="font-serif-vi text-xl sm:text-2xl font-bold text-amber-100 group-hover:text-amber-200 transition-colors">
+                          {secret.garmentName}
+                        </h3>
+                        <p className="text-xs text-amber-300/80 font-medium mt-0.5 tracking-wide">
+                          {secret.mysteryTitle}
+                        </p>
+                      </div>
+
+                      {/* Garment Image Thumbnail */}
+                      {garment?.imageUrl && (
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border border-amber-500/30 flex-shrink-0 bg-slate-900 shadow-md relative group/img">
+                          <img
+                            src={garment.imageUrl}
+                            alt={secret.garmentName}
+                            className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
+                            loading="lazy"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent pointer-events-none" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Teaser Question in Quote Style */}
+                    <div className="mt-3.5 text-xs text-slate-300/90 italic border-l-2 border-amber-400/50 pl-3 py-1 bg-amber-500/5 rounded-r-lg">
+                      "{secret.teaser}"
+                    </div>
                   </div>
 
-                  {/* Secret Garment Name */}
-                  <h3 className="font-serif-vi text-xl font-bold text-amber-200 mb-2">
-                    {secret.garmentName}
-                  </h3>
-
-                  {/* Teaser Question */}
-                  <div className="text-xs text-slate-300 italic mb-4 border-l-2 border-amber-500/40 pl-3 py-0.5">
-                    "{secret.teaser}"
-                  </div>
-
-                  {/* Revealed Content with smooth Framer Motion AnimatePresence */}
-                  <AnimatePresence>
-                    {isRevealed ? (
+                  {/* Revealed Content Drawer */}
+                  <AnimatePresence initial={false}>
+                    {isRevealed && (
                       <motion.div
-                        key="revealed"
+                        key="revealed-content"
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.35, ease: 'easeOut' }}
-                        className="space-y-4 pt-1 overflow-hidden"
+                        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                        className="overflow-hidden border-t border-amber-500/20"
                       >
-                        <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-sans-vi">
-                          {secret.revealedSecret}
-                        </p>
+                        <div className="p-5 sm:p-6 pt-4 space-y-4 bg-slate-950/40">
+                          {/* Secret Explanation */}
+                          <div className="space-y-1.5">
+                            <span className="text-[11px] font-bold tracking-wider uppercase text-amber-400 block font-serif-vi">
+                              Hé lộ mật mã
+                            </span>
+                            <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-sans-vi">
+                              {secret.revealedSecret}
+                            </p>
+                          </div>
 
-                        <div className="text-xs text-amber-300/90 font-medium bg-amber-500/10 p-3 rounded-xl border border-amber-500/25">
-                          <span className="font-semibold text-amber-200">Ý nghĩa triết lý: </span>
-                          {secret.significance}
-                        </div>
-
-                        <div className="pt-2 flex items-center justify-between">
-                          <span className="text-[11px] text-slate-400">
-                            Sẵn sàng trong phòng thử đồ 3D
-                          </span>
-                          <motion.button
-                            whileHover={{ scale: 1.03 }}
-                            whileTap={{ scale: 0.97 }}
-                            onClick={() => applySecretTopAndGo(secret.targetTopId)}
-                            className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 shadow-md flex items-center gap-1.5 cursor-pointer"
-                          >
-                            <span>Thử Dáng Áo Này</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
-                          </motion.button>
+                          {/* Philosophical Significance Card */}
+                          <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-3">
+                            <span className="text-amber-400 text-base leading-none mt-0.5">✦</span>
+                            <div className="text-xs text-amber-200/95 leading-relaxed">
+                              <strong className="text-amber-100 font-semibold font-serif-vi mr-1">
+                                Ý nghĩa triết lý:
+                              </strong>
+                              {secret.significance}
+                            </div>
+                          </div>
                         </div>
                       </motion.div>
-                    ) : (
-                      <div className="pt-2">
-                        <button
-                          onClick={() => toggleSecret(secret.id)}
-                          className="w-full py-2.5 rounded-xl text-xs font-semibold text-amber-300/80 hover:text-amber-200 bg-[#141E34]/60 hover:bg-[#18243E] border border-amber-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
-                        >
-                          <span>Nhấp để hé lộ bí mật ẩn giấu</span>
-                          <ChevronDown className="w-3.5 h-3.5 text-amber-400" />
-                        </button>
-                      </div>
                     )}
                   </AnimatePresence>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        </motion.section>
 
-        {/* 4.3 THƯỢNG PHỤC VIỆN AI: TRỢ LÝ TƯ VẤN PHỐI ĐỒ */}
-        <motion.section
-          variants={slideUpFadeVariants}
-          className="w-full my-12 text-left"
-        >
-          <div className="bg-[#0E1526]/90 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-amber-500/30 shadow-2xl relative overflow-hidden">
-            {/* Background glowing halo */}
-            <div className="absolute -top-16 -right-16 w-60 h-60 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+                  {/* Footer Action Bar */}
+                  <div className="p-4 sm:p-5 pt-3 border-t border-slate-800/80 bg-slate-950/30 flex items-center justify-between gap-3 mt-auto">
+                    <span className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+                      Phòng thử phục sắc 2D
+                    </span>
 
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-6">
-              <div>
-                <span className="text-xs font-bold tracking-[0.2em] uppercase text-amber-400 block mb-1">
-                  THƯỢNG PHỤC VIỆN AI
-                </span>
-                <h3 className="font-serif-vi text-xl sm:text-2xl font-bold text-amber-200">
-                  Trợ Lý Stylist Di Sản & Ngũ Hành
-                </h3>
-              </div>
-              <p className="text-xs text-slate-400 max-w-sm font-light">
-                Nhập bối cảnh hoặc phong cách bạn mong muốn, AI sẽ chọn lọc cổ phục phù hợp quy chuẩn triều đại.
-              </p>
-            </div>
-
-            {/* Input Bar */}
-            <div className="flex flex-col sm:flex-row items-center gap-2.5 bg-[#090D18] p-2 rounded-2xl border border-slate-700/80 focus-within:border-amber-400/80 transition-colors">
-              <input
-                type="text"
-                value={promptInput}
-                onChange={(e) => setPromptInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleAiSuggest()}
-                placeholder="Ví dụ: Gợi ý cho tôi một bộ Việt phục đi dạo phố mùa thu, thanh lịch hiện đại..."
-                className="w-full bg-transparent px-4 py-2.5 text-slate-100 placeholder-slate-400 text-sm outline-none font-sans-vi"
-              />
-
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => handleAiSuggest()}
-                disabled={isAiLoading}
-                className="w-full sm:w-auto px-7 py-3 rounded-xl text-xs sm:text-sm font-bold tracking-tight text-slate-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer whitespace-nowrap"
-              >
-                {isAiLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
-                    <span>Đang suy nghĩ...</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4 text-slate-950" />
-                    <span>Nhờ AI Gợi Ý</span>
-                  </>
-                )}
-              </motion.button>
-            </div>
-
-            {/* Clean Prompt Suggestions */}
-            <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
-              <span className="text-amber-400/80 font-medium mr-1 text-[11px]">
-                Gợi ý nhanh:
-              </span>
-              {PROMPT_SUGGESTIONS.map((prompt, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => {
-                    setPromptInput(prompt);
-                    handleAiSuggest(prompt);
-                  }}
-                  className="px-3 py-1.5 rounded-lg bg-[#141E34] hover:bg-amber-500/20 text-slate-300 hover:text-amber-200 border border-slate-700/60 hover:border-amber-500/40 transition-all text-xs text-left cursor-pointer"
-                >
-                  {prompt}
-                </button>
-              ))}
-            </div>
-
-            {/* AI Result Card Display */}
-            <AnimatePresence>
-              {aiResult && (
-                <motion.div
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.4 }}
-                  className="mt-6 pt-6 border-t border-slate-700/70"
-                >
-                  <div className="bg-[#121B30] p-6 rounded-2xl border border-amber-500/40 relative">
-                    <div className="flex items-start justify-between gap-4 mb-4">
-                      <div>
-                        <span className="text-[10px] uppercase font-bold tracking-widest text-amber-400 block mb-0.5">
-                          Bản Phối Đề Xuất
-                        </span>
-                        <h4 className="font-serif-vi text-xl font-bold text-amber-200">
-                          {aiResult.conceptTitle}
-                        </h4>
-                      </div>
-                      <button
-                        onClick={() => setAiResult(null)}
-                        className="text-slate-400 hover:text-white text-sm font-semibold p-1.5 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
-                      >
-                        ✕
-                      </button>
-                    </div>
-
-                    <p className="text-xs sm:text-sm text-slate-200 leading-relaxed mb-4 font-sans-vi">
-                      {aiResult.aiAdvice}
-                    </p>
-
-                    {/* Character Persona quote */}
-                    <div className="bg-[#0B101E] p-3 rounded-xl border border-slate-700/60 text-xs italic text-slate-300 mb-4">
-                      <span className="text-amber-400 font-serif-vi font-bold mr-1.5">“</span>
-                      {aiResult.characterPersona}
-                    </div>
-
-                    {/* Garment parts list */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5 text-center text-xs">
-                      <div className="p-3 bg-[#0B101E] rounded-xl border border-slate-700/60">
-                        <span className="text-[10px] text-slate-400 uppercase block mb-1">Áo Thượng Phục</span>
-                        <span className="font-bold text-amber-300 block truncate">
-                          {TOPS.find((t) => t.id === aiResult.recommendedTopId)?.name || 'Áo Ngũ Thân'}
-                        </span>
-                      </div>
-                      <div className="p-3 bg-[#0B101E] rounded-xl border border-slate-700/60">
-                        <span className="text-[10px] text-slate-400 uppercase block mb-1">Quần / Chân Váy</span>
-                        <span className="font-bold text-slate-200 block truncate">
-                          {BOTTOMS.find((b) => b.id === aiResult.recommendedBottomId)?.name || 'Quần Ống Sớ'}
-                        </span>
-                      </div>
-                      <div className="p-3 bg-[#0B101E] rounded-xl border border-slate-700/60">
-                        <span className="text-[10px] text-slate-400 uppercase block mb-1">Phụ Kiện</span>
-                        <span className="font-bold text-slate-200 block truncate">
-                          {ACCESSORIES.find((a) => a.id === aiResult.recommendedAccessoryId)?.name || 'Mấn Đội Đầu'}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-end gap-3">
-                      <button
-                        onClick={() => setAiResult(null)}
-                        className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 cursor-pointer"
-                      >
-                        Đóng
-                      </button>
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={applyAiAndGo}
-                        className="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 shadow-md flex items-center gap-2 cursor-pointer"
-                      >
-                        <Check className="w-4 h-4" />
-                        Áp Dụng Vào Phòng Thử Ngay
-                      </motion.button>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </motion.section>
-
-        {/* 4.4 RUNWAY PRESETS: BỘ SƯU TẬP HOÀNG GIA ĐƯƠNG ĐẠI */}
-        <motion.section
-          variants={slideUpFadeVariants}
-          className="w-full my-8 text-left"
-        >
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-3">
-            <div>
-              <span className="text-xs font-bold tracking-[0.2em] uppercase text-amber-400 block mb-1">
-                TUYỂN TẬP ĐIỂN HÌNH
-              </span>
-              <h3 className="font-serif-vi text-2xl sm:text-3xl font-bold text-amber-100">
-                Các Bản Phối Mẫu Kinh Điển
-              </h3>
-            </div>
-            <span className="text-xs text-slate-400 font-light">
-              Tuyển tập đã được chuẩn hóa theo thẩm mỹ và phong cách di sản
-            </span>
-          </div>
-
-          <motion.div
-            variants={containerVariants}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"
-          >
-            {PRESET_OUTFITS.map((preset) => {
-              const top = TOPS.find((t) => t.id === preset.topId);
-              return (
-                <motion.div
-                  key={preset.id}
-                  variants={cardStaggerVariants}
-                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                  onClick={() => onApplyPreset(preset)}
-                  className="group p-6 rounded-2xl bg-[#0E1526]/85 hover:bg-[#131D33] border border-amber-500/20 hover:border-amber-400/60 shadow-lg hover:shadow-[0_10px_32px_rgba(245,158,11,0.2)] transition-all duration-300 cursor-pointer flex flex-col justify-between"
-                >
-                  <div>
-                    {/* Clean top metadata: Dynasty and Score */}
-                    <div className="flex items-center justify-between mb-4 text-xs">
-                      <span className="text-slate-400 font-medium">
-                        {top?.era || 'Triều Nguyễn'}
-                      </span>
-                      <span className="font-serif-vi font-bold text-amber-400">
-                        {preset.presetScore} điểm
-                      </span>
-                    </div>
-
-                    <h4 className="font-serif-vi text-lg font-bold text-slate-100 group-hover:text-amber-300 transition-colors mb-2">
-                      {preset.title}
-                    </h4>
-                    
-                    <p className="text-xs text-slate-300 line-clamp-3 leading-relaxed font-light mb-4">
-                      {preset.subtitle}
-                    </p>
-                  </div>
-
-                  <div className="pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-amber-400 font-semibold group-hover:text-amber-300 transition-colors">
-                    <span>Thử bản phối này</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform" />
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        applySecretTopAndGo(secret.targetTopId);
+                      }}
+                      className="px-4 py-2 rounded-xl text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:brightness-110 shadow-[0_4px_14px_rgba(245,158,11,0.3)] flex items-center gap-1.5 cursor-pointer whitespace-nowrap transition-all"
+                    >
+                      <span>Thử Dáng Áo Này</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-slate-950" />
+                    </motion.button>
                   </div>
                 </motion.div>
               );
             })}
           </motion.div>
         </motion.section>
+
+
 
         {/* 4.5 INTERACTIVE DYNASTY CHRONOLOGY: BIÊN NIÊN SỬ TRIỀU ĐẠI */}
         <motion.section
@@ -995,7 +761,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </AnimatePresence>
         </motion.section>
 
-        {/* 4.6 INTERACTIVE HERITAGE MAP (BẢN ĐỒ KHỞI NGUYÊN ĐỊA LÝ D3.JS) */}
+        {/* 4.6 INTERACTIVE HERITAGE MAP (BẢN ĐỒ DI SẢN KHỞI NGUYÊN) */}
         <HeritageMapSection
           onStartFitting={onStartFitting}
           onSelectTopItem={onSelectTopItem}
@@ -1022,7 +788,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               <span className="font-serif-vi font-bold text-xl text-amber-300">AURA — VIỆT PHỤC</span>
             </div>
             <p className="text-slate-400 text-xs leading-relaxed font-light">
-              Dự án số hóa và lan tỏa vẻ đẹp cổ phục Việt Nam phi lợi nhuận. Tôn vinh bề dày văn hiến, kỹ nghệ dệt thêu cổ truyền và triết lý thẩm mỹ phương Đông qua góc nhìn công nghệ tương tác 3D.
+              Dự án số hóa và lan tỏa vẻ đẹp cổ phục Việt Nam phi lợi nhuận. Tôn vinh bề dày văn hiến, kỹ nghệ dệt thêu cổ truyền và triết lý thẩm mỹ phương Đông qua góc nhìn công nghệ tương tác 2D.
             </p>
             <div className="flex items-center gap-3 text-amber-400 font-medium">
               <Award className="w-4 h-4" />
@@ -1063,7 +829,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </h4>
             <div className="space-y-2">
               <p className="text-slate-400 text-xs leading-relaxed font-light">
-                Trang bị công nghệ mô phỏng phục trang đa lớp, phân tích ngũ hành hòa hợp và tương tác âm hưởng nhã nhạc ngũ cung thuần Việt.
+                Trang bị công nghệ mô phỏng phục trang đa lớp, phân tích ngũ hành hòa hợp và tôn vinh bản sắc di sản văn hóa thuần Việt.
               </p>
               <div className="pt-2 text-[11px] text-amber-400/90 font-medium">
                 ✨ Trải nghiệm hoàn toàn phi thương mại, tôn vinh văn hóa cội nguồn

@@ -102,33 +102,17 @@ class TraditionalSoundEngine {
   // =========================================================================
 
   /**
-   * Start background music with smooth fade-in
+  /**
+   * Start background music - DISABLED as per user request (web does not need music)
    */
-  public startAmbiance(theme: ScreenAudioTheme = this.currentTheme, fadeDuration = 1.5) {
-    const ctx = this.getAudioContext();
-    this.currentTheme = theme;
-    this.isPlaying = true;
-
-    // Start ambient continuous drone
-    this.setupDrone(theme);
-
-    // Fade-in music gain smoothly
-    if (this.musicGain) {
-      const now = ctx.currentTime;
-      this.musicGain.gain.cancelScheduledValues(now);
-      this.musicGain.gain.setValueAtTime(0.0001, now);
-      this.musicGain.gain.linearRampToValueAtTime(0.18, now + fadeDuration);
-    }
-
-    // Start melodic pentatonic pluck loop
-    this.scheduleNextPluck();
+  public startAmbiance(_theme: ScreenAudioTheme = this.currentTheme, _fadeDuration = 1.5) {
+    this.stopAmbiance();
   }
 
   /**
-   * Stop background music with smooth fade-out
+   * Stop background music with immediate silence
    */
-  public stopAmbiance(fadeDuration = 1.0) {
-    if (!this.isPlaying || !this.ctx) return;
+  public stopAmbiance(_fadeDuration = 0.2) {
     this.isPlaying = false;
 
     if (this.melodyTimer) {
@@ -136,69 +120,29 @@ class TraditionalSoundEngine {
       this.melodyTimer = null;
     }
 
-    if (this.musicGain) {
+    if (this.musicGain && this.ctx) {
       const now = this.ctx.currentTime;
       this.musicGain.gain.cancelScheduledValues(now);
-      this.musicGain.gain.setValueAtTime(this.musicGain.gain.value, now);
-      this.musicGain.gain.linearRampToValueAtTime(0.0001, now + fadeDuration);
-
-      setTimeout(() => {
-        if (!this.isPlaying) {
-          this.teardownDrone();
-        }
-      }, fadeDuration * 1000 + 50);
+      this.musicGain.gain.setValueAtTime(0, now);
     }
+
+    this.teardownDrone();
   }
 
   /**
-   * Seamlessly crossfade between screen musical themes when user navigates
-   * @param newScreen Target screen theme ('home' | 'fitting' | 'lookbook')
-   * @param fadeDuration Total crossfade time in seconds (default: 1.2s)
+   * Screen transition - Background music disabled
    */
-  public transitionToScreen(newScreen: ScreenAudioTheme, fadeDuration = 1.2) {
-    if (this.currentTheme === newScreen) return;
+  public transitionToScreen(newScreen: ScreenAudioTheme, _fadeDuration = 1.2) {
     this.currentTheme = newScreen;
-
-    if (!this.isPlaying || !this.ctx || !this.musicGain) {
-      return;
-    }
-
-    const now = this.ctx.currentTime;
-    const halfDuration = fadeDuration * 0.5;
-
-    // Phase 1: Fade down current theme slightly
-    this.musicGain.gain.cancelScheduledValues(now);
-    this.musicGain.gain.setValueAtTime(this.musicGain.gain.value, now);
-    this.musicGain.gain.linearRampToValueAtTime(0.04, now + halfDuration);
-
-    // Switch drone frequencies and filter smoothly at the midpoint
-    setTimeout(() => {
-      if (!this.isPlaying || !this.ctx) return;
-      this.retuneDrone(newScreen);
-
-      // Phase 2: Fade back up into the new theme
-      const midNow = this.ctx.currentTime;
-      if (this.musicGain) {
-        this.musicGain.gain.cancelScheduledValues(midNow);
-        this.musicGain.gain.setValueAtTime(this.musicGain.gain.value, midNow);
-        this.musicGain.gain.linearRampToValueAtTime(0.18, midNow + halfDuration);
-      }
-    }, halfDuration * 1000);
   }
 
   /**
-   * Toggle music on/off with fade
+   * Toggle music on/off - Always remains off
    */
   public toggleAmbiance(onStateChange?: (playing: boolean) => void): boolean {
-    if (this.isPlaying) {
-      this.stopAmbiance();
-      onStateChange?.(false);
-      return false;
-    } else {
-      this.startAmbiance(this.currentTheme);
-      onStateChange?.(true);
-      return true;
-    }
+    this.stopAmbiance();
+    onStateChange?.(false);
+    return false;
   }
 
   // =========================================================================

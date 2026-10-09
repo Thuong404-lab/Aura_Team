@@ -188,7 +188,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   className="absolute bottom-3 left-3 right-3 py-2 px-3 bg-[#0A0E17]/90 hover:bg-amber-600 text-amber-300 hover:text-white text-xs font-semibold rounded-lg border border-amber-500/40 backdrop-blur-md flex items-center justify-center gap-2 transition-all shadow-lg"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                  Mặc thử ngay trên người mẫu 3D / AI
+                  Mặc thử ngay trên người mẫu 2D / AI
                 </button>
               </div>
 

@@ -348,7 +348,7 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                 bottomCustomColor={bottomCustomColor}
                 harmonyScore={harmonyResult.score}
                 harmonyCritique={harmonyResult.detailedCritique}
-                showCulturePins={true}
+                showCulturePins={false}
                 onDownloadPhoto={() => onGoLookbook(harmonyResult)}
                 hoveredItem={hoveredItem}
                 isHoveringSilk={Boolean(hoveredItem || hoveredTabId)}

@@ -13,8 +13,7 @@ import {
 } from './data/vietPhucData';
 import { HomeScreen } from './components/HomeScreen';
 import { FittingRoomScreen, HarmonyResult } from './components/FittingRoomScreen';
-import { LookbookScreen, SavedLookbookItem } from './components/LookbookScreen';
-import { SavedLibraryModal } from './components/SavedLibraryModal';
+import { LookbookScreen } from './components/LookbookScreen';
 import { AppNavbar, ScreenType } from './components/AppNavbar';
 import { SmoothScrollManager } from './components/SmoothScrollManager';
 import { soundEngine } from './utils/audioSynth';
@@ -52,47 +51,8 @@ export default function App() {
       'Khi tạo dáng, hãy đứng thẳng người thanh thoát, tay giữ nhẹ tà áo để tôn trọn phom áo năm thân.',
   });
 
-  // Music state
-  const [isPlayingMusic, setIsPlayingMusic] = useState<boolean>(false);
-
-  // Cloud Intro trigger count (to re-run from navbar)
-  const [cloudIntroCount, setCloudIntroCount] = useState<number>(0);
+  // Cloud Curtain visibility state
   const [isCloudCurtainActive, setIsCloudCurtainActive] = useState<boolean>(true);
-
-  // Saved Lookbooks collection (LocalStorage)
-  const [savedLookbooks, setSavedLookbooks] = useState<SavedLookbookItem[]>([]);
-  const [isLibraryOpen, setIsLibraryOpen] = useState<boolean>(false);
-
-  // Initialize saved lookbooks from localStorage
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('vietphuc_saved_lookbooks');
-      if (stored) {
-        setSavedLookbooks(JSON.parse(stored));
-      } else {
-        const initialSample: SavedLookbookItem = {
-          id: 'sample-1',
-          date: new Date().toLocaleDateString('vi-VN'),
-          title: 'Phối đồ xuất sắc (95 điểm)',
-          topName: 'Áo ngũ thân tay chẽn',
-          bottomName: 'Chân Váy Xếp Ly',
-          accessoryName: 'Mấn đội đầu',
-          backdropName: 'Phố Cổ Hội An',
-          score: 95,
-          aiStory:
-            'Sự kết hợp hài hòa giữa Áo ngũ thân tay chẽn truyền thống và váy xếp ly hiện đại, giữ được nét thanh lịch nhưng vẫn năng động.',
-        };
-        setSavedLookbooks([initialSample]);
-      }
-    } catch {
-      // Ignore storage errors
-    }
-  }, []);
-
-  // Screen transition background music crossfade (Web Audio API fade-in/out)
-  useEffect(() => {
-    soundEngine.transitionToScreen(currentScreen, 1.2);
-  }, [currentScreen]);
 
   const handleStartFitting = () => {
     soundEngine.playPluck(523.25);
@@ -175,67 +135,6 @@ export default function App() {
     setCurrentScreen('fitting');
   };
 
-  const handleSaveLookbook = (item: SavedLookbookItem) => {
-    soundEngine.playPluck(783.99);
-    const updated = [item, ...savedLookbooks];
-    setSavedLookbooks(updated);
-    try {
-      localStorage.setItem('vietphuc_saved_lookbooks', JSON.stringify(updated));
-    } catch {
-      // Ignore storage errors
-    }
-  };
-
-  const handleDeleteSaved = (id: string) => {
-    soundEngine.playPluck(330);
-    const updated = savedLookbooks.filter((item) => item.id !== id);
-    setSavedLookbooks(updated);
-    try {
-      localStorage.setItem('vietphuc_saved_lookbooks', JSON.stringify(updated));
-    } catch {
-      // Ignore storage errors
-    }
-  };
-
-  const handleLoadSaved = (item: SavedLookbookItem) => {
-    soundEngine.playPluck(523.25);
-    const foundTop = TOPS.find((t) => t.name === item.topName) || TOPS[0];
-    const foundBottom = BOTTOMS.find((b) => b.name === item.bottomName) || BOTTOMS[0];
-    const foundAcc = ACCESSORIES.find((a) => a.name === item.accessoryName) || ACCESSORIES[0];
-
-    setCurrentTop(foundTop);
-    setCurrentBottom(foundBottom);
-    setCurrentAccessory(foundAcc);
-
-    setHarmonyData((prev) => ({
-      ...prev,
-      score: item.score,
-      critiqueTitle: item.title,
-      detailedCritique: item.aiStory,
-    }));
-
-    setIsLibraryOpen(false);
-    setCurrentScreen('fitting');
-  };
-
-  const handleLoadSavedInLookbook = (item: SavedLookbookItem) => {
-    soundEngine.playPluck(523.25);
-    const foundTop = TOPS.find((t) => t.name === item.topName) || TOPS[0];
-    const foundBottom = BOTTOMS.find((b) => b.name === item.bottomName) || BOTTOMS[0];
-    const foundAcc = ACCESSORIES.find((a) => a.name === item.accessoryName) || ACCESSORIES[0];
-
-    setCurrentTop(foundTop);
-    setCurrentBottom(foundBottom);
-    setCurrentAccessory(foundAcc);
-
-    setHarmonyData((prev) => ({
-      ...prev,
-      score: item.score,
-      critiqueTitle: item.title,
-      detailedCritique: item.aiStory,
-    }));
-  };
-
   const handleGoHome = () => {
     soundEngine.playPluck(440);
     setCurrentScreen('home');
@@ -264,18 +163,6 @@ export default function App() {
                 soundEngine.playPluck(440);
                 setCurrentScreen(screen);
               }}
-              onOpenSavedLibrary={() => setIsLibraryOpen(true)}
-              savedCount={savedLookbooks.length}
-              isPlayingMusic={isPlayingMusic}
-              onToggleMusic={() => {
-                soundEngine.toggleAmbiance((playing) => setIsPlayingMusic(playing));
-              }}
-              onTriggerCloudIntro={() => {
-                soundEngine.playPluck(523.25);
-                setCurrentScreen('home');
-                setIsCloudCurtainActive(true);
-                setCloudIntroCount((prev) => prev + 1);
-              }}
             />
           </motion.div>
         )}
@@ -286,12 +173,7 @@ export default function App() {
             onStartFitting={handleStartFitting}
             onApplyPreset={handleApplyPreset}
             onApplyAiSuggestion={handleApplyAiSuggestion}
-            isPlayingMusic={isPlayingMusic}
-            setIsPlayingMusic={setIsPlayingMusic}
-            onOpenSavedLibrary={() => setIsLibraryOpen(true)}
-            savedCount={savedLookbooks.length}
             onSelectTopItem={handleSelectTopItemFromEncyclopedia}
-            triggerCloudIntroCount={cloudIntroCount}
             isCloudCurtainActive={isCloudCurtainActive}
             onCloudCurtainChange={setIsCloudCurtainActive}
           />
@@ -333,24 +215,9 @@ export default function App() {
             color={currentColor}
             harmonyData={harmonyData}
             onBackToFitting={() => setCurrentScreen('fitting')}
-            onSaveLookbook={handleSaveLookbook}
-            savedItems={savedLookbooks}
-            onOpenSavedDrawer={() => setIsLibraryOpen(true)}
             onSelectBottom={setCurrentBottom}
-            onLoadSavedItem={handleLoadSaved}
-            onLoadSavedInLookbook={handleLoadSavedInLookbook}
-            onDeleteSavedItem={handleDeleteSaved}
           />
         )}
-
-        {/* Saved Lookbook Library Modal */}
-        <SavedLibraryModal
-          isOpen={isLibraryOpen}
-          onClose={() => setIsLibraryOpen(false)}
-          savedItems={savedLookbooks}
-          onLoadItem={handleLoadSaved}
-          onDelete={handleDeleteSaved}
-        />
       </div>
     </SmoothScrollManager>
   );

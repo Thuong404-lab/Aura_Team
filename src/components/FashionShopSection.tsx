@@ -121,7 +121,7 @@ export const FashionShopSection: React.FC<FashionShopSectionProps> = ({
         </h2>
 
         <p className="text-xs sm:text-sm text-slate-300 max-w-2xl mx-auto">
-          Mỗi thiết kế là một tác phẩm nghệ thuật gìn giữ hồn cốt nghìn năm. Trải nghiệm mua sắm tiện lợi hoặc thử đồ trực tiếp bằng công nghệ AI 3D.
+          Mỗi thiết kế là một tác phẩm nghệ thuật gìn giữ hồn cốt nghìn năm. Trải nghiệm mua sắm tiện lợi hoặc thử đồ trực tiếp bằng công nghệ AI 2D.
         </p>
       </div>
 

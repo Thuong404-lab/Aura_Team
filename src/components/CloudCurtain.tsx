@@ -531,20 +531,22 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
               crisp={true}
             />
           </div>
+        </motion.div>
 
-          {/* Biển ngọc: ĐẠI VIỆT DI SẢN (Ẩn nhẹ khi phóng to cực đại) */}
-          <motion.div
-            animate={{
-              opacity: isRevealing ? [1, 0.8, 0] : 1,
-              y: isRevealing ? [0, 30, 60] : 0,
-            }}
-            transition={{ duration: 1.2 }}
-            className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full text-xs font-bold tracking-[0.26em] bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 text-slate-950 uppercase shadow-[0_6px_22px_rgba(0,0,0,0.9)] border border-yellow-100 whitespace-nowrap font-serif-vi flex items-center gap-2 z-10"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-950 inline-block" />
-            <span>ĐẠI VIỆT DI SẢN</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-950 inline-block" />
-          </motion.div>
+        {/* Biển ngọc: ĐẠI VIỆT DI SẢN - ĐỨNG YÊN HOÀN TOÀN KHÔNG XOAY THEO TRỐNG ĐỒNG */}
+        <motion.div
+          animate={{
+            opacity: isRevealing ? [1, 0.8, 0] : 1,
+            scale: isRevealing ? [1, 1.05, 0.95] : 1,
+            y: isRevealing ? [0, 20, 40] : 0,
+          }}
+          transition={{ duration: 1.2 }}
+          className="relative -mt-4 px-6 py-1.5 rounded-full text-xs font-bold tracking-[0.26em] bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 text-slate-950 uppercase shadow-[0_6px_22px_rgba(0,0,0,0.9)] border border-yellow-100 whitespace-nowrap font-serif-vi flex items-center gap-2 z-40 select-none pointer-events-none"
+          style={{ transform: 'none' }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-950 inline-block" />
+          <span>ĐẠI VIỆT DI SẢN</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-950 inline-block" />
         </motion.div>
 
         {/* Tiêu đề & Lời dẫn thơ mộng */}

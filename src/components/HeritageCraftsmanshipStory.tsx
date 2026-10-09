@@ -79,40 +79,49 @@ export const HeritageCraftsmanshipStory: React.FC = () => {
 
   return (
     <section className="w-full my-16 text-left relative z-10">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+      {/* Section Header */}
+      <div className="border-b border-amber-500/20 pb-6 mb-8">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="w-2 h-2 rounded-full bg-amber-400" />
-            <span className="text-xs font-bold tracking-[0.25em] uppercase text-amber-400 font-sans-vi">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+            <span className="text-xs font-bold tracking-[0.25em] uppercase text-amber-400 font-serif-vi">
               TINH HOA CHẤT LIỆU
             </span>
           </div>
-          <h2 className="font-serif-vi text-3xl sm:text-4xl md:text-5xl font-bold text-amber-100 tracking-tight">
+          <h2 className="font-serif-vi text-2xl sm:text-3xl md:text-4xl font-bold text-amber-100 tracking-tight">
             Kỹ Nghệ Dệt & Nhuộm Cổ Truyền
           </h2>
-          <p className="text-sm text-slate-300 mt-2 max-w-2xl font-light font-sans-vi leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-300 mt-2 max-w-2xl font-light font-sans-vi leading-relaxed">
             Mỗi thước vải làm nên trang phục truyền thống là kết tinh từ kén tằm dâu, nhựa cây rừng và đôi bàn tay tài hoa của người thợ dệt Việt.
           </p>
         </div>
 
-        {/* Fabric selector buttons */}
-        <div className="flex flex-wrap gap-2">
-          {TRADITIONAL_FABRICS.map((fabric) => (
-            <button
-              key={fabric.id}
-              onClick={() => {
-                soundEngine.playPluck(587.33);
-                setSelectedFabricId(fabric.id);
-              }}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                selectedFabricId === fabric.id
-                  ? 'bg-amber-400 text-slate-950 font-bold shadow-md'
-                  : 'bg-[#121A2D] text-slate-300 hover:text-amber-200 border border-slate-700/80 hover:border-amber-500/40'
-              }`}
-            >
-              {fabric.name}
-            </button>
-          ))}
+        {/* Fabric selector buttons: Single unified tab bar, no wrapped words */}
+        <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-1.5 p-1 bg-[#0A0F1E]/90 rounded-xl border border-slate-800 overflow-x-auto scrollbar-none max-w-full">
+            {TRADITIONAL_FABRICS.map((fabric) => (
+              <button
+                key={fabric.id}
+                type="button"
+                onClick={() => {
+                  soundEngine.playPluck(587.33);
+                  setSelectedFabricId(fabric.id);
+                }}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex-shrink-0 ${
+                  selectedFabricId === fabric.id
+                    ? 'bg-amber-400 text-slate-950 font-bold shadow-sm shadow-amber-500/20'
+                    : 'text-slate-400 hover:text-amber-200 hover:bg-slate-800/60'
+                }`}
+              >
+                {fabric.name}
+              </button>
+            ))}
+          </div>
+
+          <div className="text-xs text-amber-300/80 font-mono hidden sm:flex items-center gap-2 bg-amber-500/10 px-3 py-1.5 rounded-lg border border-amber-500/20">
+            <span className="text-slate-400">Xuất xứ:</span>
+            <span className="font-semibold text-amber-200">{activeFabric.origin}</span>
+          </div>
         </div>
       </div>
 

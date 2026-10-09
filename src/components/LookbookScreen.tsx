@@ -11,7 +11,6 @@ import {
 } from '../data/vietPhucData';
 import {
   Download,
-  Bookmark,
   Share2,
   ArrowLeft,
   Sparkles,
@@ -33,14 +32,8 @@ import {
   Sliders,
   Compass,
   Filter,
-  Search,
-  Clock,
   X,
-  RotateCcw,
-  Trash2,
   ArrowRight,
-  ArrowUpDown,
-  Tag,
 } from 'lucide-react';
 import { soundEngine } from '../utils/audioSynth';
 import { getLookbookStory } from '../services/aiClient';
@@ -58,21 +51,6 @@ import {
   DynasticPeriod,
 } from '../data/culturalRulesData';
 
-export interface SavedLookbookItem {
-  id: string;
-  date: string;
-  timestamp?: number;
-  category?: string;
-  era?: string;
-  title: string;
-  topName: string;
-  bottomName: string;
-  accessoryName: string;
-  backdropName: string;
-  score: number;
-  aiStory: string;
-}
-
 interface LookbookScreenProps {
   top: WardrobeItem;
   bottom: WardrobeItem;
@@ -88,50 +66,7 @@ interface LookbookScreenProps {
     stylingTip: string;
   };
   onBackToFitting: () => void;
-  onSaveLookbook: (item: SavedLookbookItem) => void;
-  savedItems: SavedLookbookItem[];
-  onOpenSavedDrawer: () => void;
   onSelectBottom?: (item: WardrobeItem) => void;
-  onLoadSavedItem?: (item: SavedLookbookItem) => void;
-  onLoadSavedInLookbook?: (item: SavedLookbookItem) => void;
-  onDeleteSavedItem?: (id: string) => void;
-}
-
-// Helpers for timestamp and category identification
-function getItemTimestamp(item: SavedLookbookItem): number {
-  if (item.timestamp && item.timestamp > 0) return item.timestamp;
-  try {
-    const parts = item.date.split('/');
-    if (parts.length === 3) {
-      const d = new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
-      return d.getTime();
-    }
-  } catch {
-    // fallback
-  }
-  return 0;
-}
-
-function getItemCategory(item: SavedLookbookItem): string {
-  if (item.category && item.category !== 'all') return item.category;
-  if (item.era) return item.era;
-  const name = (item.topName || '').toLowerCase();
-  if (name.includes('nhật bình') || name.includes('ngũ thân') || name.includes('áo tấc') || name.includes('tấc')) {
-    return 'Triều Nguyễn';
-  }
-  if (name.includes('đối khâm')) {
-    return 'Thời Lê';
-  }
-  if (name.includes('giao lĩnh') || name.includes('viên lĩnh')) {
-    return 'Thời Lý - Trần';
-  }
-  if (name.includes('tứ thân') || name.includes('bà ba') || name.includes('yếm')) {
-    return 'Dân Gian';
-  }
-  if (name.includes('cách tân') || name.includes('hiện đại')) {
-    return 'Cách Tân';
-  }
-  return 'Triều Nguyễn';
 }
 
 export const LookbookScreen: React.FC<LookbookScreenProps> = ({
@@ -142,29 +77,15 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
   color,
   harmonyData,
   onBackToFitting,
-  onSaveLookbook,
-  savedItems,
-  onOpenSavedDrawer,
   onSelectBottom,
-  onLoadSavedItem,
-  onLoadSavedInLookbook,
-  onDeleteSavedItem,
 }) => {
   const [selectedBackdrop, setSelectedBackdrop] = useState<BackdropOption>(BACKDROPS[0]);
-  const [isSaved, setIsSaved] = useState<boolean>(false);
   const [showShareModal, setShowShareModal] = useState<boolean>(false);
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
 
   // Active view tab for the editorial inspector panel
   const [activeTab, setActiveTab] = useState<'story' | 'hallmarks' | 'timeline' | 'rules'>('story');
-
-  // SAVED OUTFITS DRAWER & FILTER STATES
-  const [isSavedDrawerOpen, setIsSavedDrawerOpen] = useState<boolean>(false);
-  const [savedSearchQuery, setSavedSearchQuery] = useState<string>('');
-  const [savedCategoryFilter, setSavedCategoryFilter] = useState<string>('all');
-  const [savedTimeFilter, setSavedTimeFilter] = useState<'all' | 'today' | 'week' | 'month'>('all');
-  const [savedSortBy, setSavedSortBy] = useState<'newest' | 'oldest' | 'highest_score'>('newest');
 
   // Authenticity and Cultural Rules Evaluation based on user's cultural text
   const evaluation = useMemo(() => {
@@ -211,28 +132,6 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
       isMounted = false;
     };
   }, [selectedBackdrop, top, bottom, accessory, color, fabric]);
-
-  // Handle Save Lookbook
-  const handleSave = () => {
-    soundEngine.playPluck(659.25);
-    const item: SavedLookbookItem = {
-      id: `lb-${Date.now()}`,
-      date: new Date().toLocaleDateString('vi-VN'),
-      timestamp: Date.now(),
-      category: top.era || 'Triều Nguyễn',
-      era: top.era || 'Triều Nguyễn',
-      title: `${top.name} tại ${selectedBackdrop.city}`,
-      topName: top.name,
-      bottomName: bottom.name,
-      accessoryName: accessory.name,
-      backdropName: selectedBackdrop.name,
-      score: (harmonyData?.score || 95) + evaluation.scoreAdjustment,
-      aiStory: lookbookStory.editorialStory,
-    };
-    onSaveLookbook(item);
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 2500);
-  };
 
   // High-Resolution Image Export (Canvas)
   const handleDownload = async () => {
@@ -378,169 +277,7 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
-  // ==========================================
-  // SAVED OUTFITS FILTERING AND SORTING LOGIC
-  // ==========================================
-  const categoryOptions = [
-    { id: 'all', label: 'Tất cả' },
-    { id: 'Triều Nguyễn', label: 'Triều Nguyễn' },
-    { id: 'Thời Lê', label: 'Thời Lê' },
-    { id: 'Thời Lý - Trần', label: 'Thời Lý - Trần' },
-    { id: 'Dân Gian', label: 'Dân Gian' },
-    { id: 'Cách Tân', label: 'Cách Tân' },
-  ];
 
-  const timeOptions = [
-    { id: 'all', label: 'Toàn bộ thời gian' },
-    { id: 'today', label: 'Hôm nay' },
-    { id: 'week', label: '7 ngày qua' },
-    { id: 'month', label: 'Tháng này' },
-  ];
-
-  const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: savedItems.length };
-    categoryOptions.forEach((opt) => {
-      if (opt.id !== 'all') counts[opt.id] = 0;
-    });
-    savedItems.forEach((item) => {
-      const cat = getItemCategory(item);
-      counts[cat] = (counts[cat] || 0) + 1;
-    });
-    return counts;
-  }, [savedItems]);
-
-  const timeCounts = useMemo(() => {
-    const now = Date.now();
-    let todayCount = 0;
-    let weekCount = 0;
-    let monthCount = 0;
-    savedItems.forEach((item) => {
-      const t = getItemTimestamp(item);
-      if (t > 0) {
-        const diff = now - t;
-        const itemDate = new Date(t);
-        const nowDate = new Date(now);
-        if (
-          itemDate.getDate() === nowDate.getDate() &&
-          itemDate.getMonth() === nowDate.getMonth() &&
-          itemDate.getFullYear() === nowDate.getFullYear()
-        ) {
-          todayCount++;
-        }
-        if (diff <= 7 * 24 * 60 * 60 * 1000) weekCount++;
-        if (diff <= 30 * 24 * 60 * 60 * 1000) monthCount++;
-      }
-    });
-    return { all: savedItems.length, today: todayCount, week: weekCount, month: monthCount };
-  }, [savedItems]);
-
-  const filteredSavedItems = useMemo(() => {
-    const now = Date.now();
-    return savedItems
-      .filter((item) => {
-        // 1. Search Query filter
-        if (savedSearchQuery.trim()) {
-          const q = savedSearchQuery.toLowerCase().trim();
-          const matchTitle = (item.title || '').toLowerCase().includes(q);
-          const matchTop = (item.topName || '').toLowerCase().includes(q);
-          const matchBottom = (item.bottomName || '').toLowerCase().includes(q);
-          const matchAcc = (item.accessoryName || '').toLowerCase().includes(q);
-          const matchBackdrop = (item.backdropName || '').toLowerCase().includes(q);
-          if (!matchTitle && !matchTop && !matchBottom && !matchAcc && !matchBackdrop) {
-            return false;
-          }
-        }
-
-        // 2. Category filter
-        if (savedCategoryFilter !== 'all') {
-          const cat = getItemCategory(item);
-          if (cat !== savedCategoryFilter) {
-            return false;
-          }
-        }
-
-        // 3. Time filter
-        if (savedTimeFilter !== 'all') {
-          const itemTime = getItemTimestamp(item);
-          if (itemTime > 0) {
-            const diffMs = now - itemTime;
-            if (savedTimeFilter === 'today') {
-              const itemDate = new Date(itemTime);
-              const nowDate = new Date(now);
-              if (
-                itemDate.getDate() !== nowDate.getDate() ||
-                itemDate.getMonth() !== nowDate.getMonth() ||
-                itemDate.getFullYear() !== nowDate.getFullYear()
-              ) {
-                return false;
-              }
-            } else if (savedTimeFilter === 'week') {
-              if (diffMs > 7 * 24 * 60 * 60 * 1000) return false;
-            } else if (savedTimeFilter === 'month') {
-              if (diffMs > 30 * 24 * 60 * 60 * 1000) return false;
-            }
-          }
-        }
-
-        return true;
-      })
-      .sort((a, b) => {
-        if (savedSortBy === 'highest_score') {
-          return b.score - a.score;
-        }
-        const timeA = getItemTimestamp(a);
-        const timeB = getItemTimestamp(b);
-        if (savedSortBy === 'oldest') {
-          return timeA - timeB;
-        }
-        // newest first (default)
-        return timeB - timeA;
-      });
-  }, [savedItems, savedSearchQuery, savedCategoryFilter, savedTimeFilter, savedSortBy]);
-
-  const hasActiveFilters =
-    savedSearchQuery.trim() !== '' ||
-    savedCategoryFilter !== 'all' ||
-    savedTimeFilter !== 'all' ||
-    savedSortBy !== 'newest';
-
-  const handleResetFilters = () => {
-    soundEngine.playPluck(440);
-    setSavedSearchQuery('');
-    setSavedCategoryFilter('all');
-    setSavedTimeFilter('all');
-    setSavedSortBy('newest');
-  };
-
-  // Actions on saved outfit items
-  const handleSelectSavedInLookbook = (item: SavedLookbookItem) => {
-    soundEngine.playPluck(523.25);
-    const foundBd = BACKDROPS.find(
-      (b) => b.name.toLowerCase() === (item.backdropName || '').toLowerCase()
-    );
-    if (foundBd) {
-      setSelectedBackdrop(foundBd);
-    }
-    if (onLoadSavedInLookbook) {
-      onLoadSavedInLookbook(item);
-    }
-    setIsSavedDrawerOpen(false);
-  };
-
-  const handleOpenInFittingRoom = (item: SavedLookbookItem) => {
-    soundEngine.playPluck(587.33);
-    if (onLoadSavedItem) {
-      onLoadSavedItem(item);
-    }
-    setIsSavedDrawerOpen(false);
-  };
-
-  const handleDeleteItem = (id: string) => {
-    soundEngine.playPluck(330);
-    if (onDeleteSavedItem) {
-      onDeleteSavedItem(id);
-    }
-  };
 
   return (
     <div className="min-h-screen w-full bg-[#0A0E17] text-slate-100 flex flex-col relative overflow-x-hidden font-sans-vi">
@@ -571,19 +308,6 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
             <span>Quay lại Phòng Thử Đồ</span>
           </button>
 
-          {/* Saved Outfits Management Trigger */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                soundEngine.playPluck(493.88);
-                setIsSavedDrawerOpen(true);
-              }}
-              className="px-3 py-1.5 rounded-xl text-xs font-medium bg-[#141E34] hover:bg-amber-500/20 text-slate-200 border border-slate-700/60 hover:border-amber-400/50 transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
-            >
-              <Bookmark className="w-3.5 h-3.5 text-amber-400" />
-              <span>Quản lý bản phối ({savedItems.length})</span>
-            </button>
-          </div>
         </div>
       </div>
 
@@ -1102,35 +826,19 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
             </div>
 
             {/* Quick Action Buttons */}
-            <div className="pt-3 border-t border-slate-700/60 flex flex-col sm:flex-row items-center gap-2.5">
+            <div className="pt-3 border-t border-slate-700/60 flex flex-col sm:flex-row items-center gap-3">
               <button
                 onClick={handleDownload}
                 disabled={isDownloading}
-                className="w-full sm:flex-1 py-3 px-3 rounded-2xl text-xs font-bold uppercase tracking-wider bg-[#131C2E] hover:bg-[#1A2640] text-slate-100 border border-slate-700 hover:border-amber-400/60 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                className="w-full sm:flex-1 py-3 px-4 rounded-2xl text-xs font-bold uppercase tracking-wider bg-[#131C2E] hover:bg-[#1A2640] text-slate-100 border border-slate-700 hover:border-amber-400/60 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
               >
                 <Download className="w-4 h-4 text-amber-400" />
                 <span>{isDownloading ? 'Đang xuất ảnh...' : 'Tải Lookbook Chuẩn'}</span>
               </button>
 
               <button
-                onClick={handleSave}
-                className={`w-full sm:flex-1 py-3 px-3 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md ${
-                  isSaved
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-[#131C2E] hover:bg-[#1A2640] text-slate-100 border border-slate-700 hover:border-amber-400/60'
-                }`}
-              >
-                {isSaved ? (
-                  <Check className="w-4 h-4" />
-                ) : (
-                  <Bookmark className="w-4 h-4 text-amber-400" />
-                )}
-                <span>{isSaved ? 'Đã lưu thành công!' : 'Lưu lại'}</span>
-              </button>
-
-              <button
                 onClick={handleShare}
-                className="w-full sm:flex-1 py-3 px-3 rounded-2xl text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg hover:brightness-105"
+                className="w-full sm:flex-1 py-3 px-4 rounded-2xl text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg hover:brightness-105"
               >
                 <Share2 className="w-4 h-4 text-slate-950" />
                 <span>Chia sẻ</span>
@@ -1140,277 +848,6 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
         </div>
       </main>
 
-      {/* ==========================================================
-          SAVED LOOKBOOKS MANAGEMENT DRAWER (WITH FILTERS & TIME SORT)
-         ========================================================== */}
-      {isSavedDrawerOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="w-full max-w-2xl max-h-[90vh] rounded-3xl bg-[#0E1526] text-slate-100 p-5 sm:p-6 shadow-2xl border border-amber-500/30 flex flex-col justify-between overflow-hidden text-left">
-            {/* Header */}
-            <div className="flex items-center justify-between pb-3.5 border-b border-slate-700/60">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shadow-xs">
-                  <Bookmark className="w-5 h-5 text-amber-400" />
-                </div>
-                <div>
-                  <h3 className="font-serif-vi text-xl font-bold text-amber-300 flex items-center gap-2">
-                    <span>Kho Bản Phối Di Sản</span>
-                    <span className="px-2 py-0.5 rounded-full text-xs font-sans-vi font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                      {savedItems.length}
-                    </span>
-                  </h3>
-                  <p className="text-xs text-slate-400">
-                    Lọc theo triều đại danh mục hoặc thời gian để dễ dàng quản lý
-                  </p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setIsSavedDrawerOpen(false)}
-                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
-                title="Đóng"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* FILTER CONTROLS AREA */}
-            <div className="pt-3 pb-2 space-y-3 border-b border-slate-800/80">
-              {/* Row 1: Search & Sort Dropdown */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-                {/* Search Bar */}
-                <div className="relative flex-1">
-                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={savedSearchQuery}
-                    onChange={(e) => setSavedSearchQuery(e.target.value)}
-                    placeholder="Tìm theo tên áo, bối cảnh, phụ kiện..."
-                    className="w-full bg-[#131C2E] border border-slate-700/70 focus:border-amber-400/80 rounded-xl pl-9 pr-8 py-2 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none"
-                  />
-                  {savedSearchQuery && (
-                    <button
-                      onClick={() => setSavedSearchQuery('')}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                </div>
-
-                {/* Sort Selector */}
-                <div className="flex items-center gap-1.5 shrink-0 bg-[#131C2E] border border-slate-700/70 rounded-xl px-2.5 py-1.5 text-xs text-slate-300">
-                  <ArrowUpDown className="w-3.5 h-3.5 text-amber-400" />
-                  <span className="text-[11px] text-slate-400 hidden sm:inline">Sắp xếp:</span>
-                  <select
-                    value={savedSortBy}
-                    onChange={(e) => setSavedSortBy(e.target.value as any)}
-                    className="bg-transparent text-amber-300 font-semibold focus:outline-none text-xs cursor-pointer"
-                  >
-                    <option value="newest" className="bg-[#0E1526] text-slate-200">
-                      Mới nhất trước
-                    </option>
-                    <option value="oldest" className="bg-[#0E1526] text-slate-200">
-                      Cũ nhất trước
-                    </option>
-                    <option value="highest_score" className="bg-[#0E1526] text-slate-200">
-                      Điểm cao nhất
-                    </option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Row 2: Category Filter Pills */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-[11px] text-slate-400 font-semibold">
-                  <span className="flex items-center gap-1 text-amber-400/90 uppercase tracking-wider">
-                    <Tag className="w-3 h-3 text-amber-400" /> Danh mục / Triều đại:
-                  </span>
-                  {hasActiveFilters && (
-                    <button
-                      onClick={handleResetFilters}
-                      className="text-amber-400 hover:text-amber-300 flex items-center gap-1 cursor-pointer font-normal text-[11px]"
-                    >
-                      <RotateCcw className="w-3 h-3" /> Đặt lại bộ lọc
-                    </button>
-                  )}
-                </div>
-                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
-                  {categoryOptions.map((cat) => {
-                    const isSelected = savedCategoryFilter === cat.id;
-                    const count = categoryCounts[cat.id] || 0;
-                    return (
-                      <button
-                        key={cat.id}
-                        onClick={() => {
-                          setSavedCategoryFilter(cat.id);
-                          soundEngine.playPluck(440);
-                        }}
-                        className={`px-2.5 py-1 rounded-xl text-xs whitespace-nowrap font-medium transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
-                          isSelected
-                            ? 'bg-amber-500/25 text-amber-300 border border-amber-400/70 shadow-xs'
-                            : 'bg-[#131C2E] text-slate-400 hover:text-slate-200 border border-slate-700/60'
-                        }`}
-                      >
-                        <span>{cat.label}</span>
-                        <span
-                          className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                            isSelected ? 'bg-amber-400 text-slate-950' : 'bg-slate-800 text-slate-400'
-                          }`}
-                        >
-                          {count}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Row 3: Time Filter Pills */}
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-1 text-[11px] text-amber-400/90 font-semibold uppercase tracking-wider">
-                  <Clock className="w-3 h-3 text-amber-400" /> Thời gian lưu:
-                </div>
-                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
-                  {timeOptions.map((timeOpt) => {
-                    const isSelected = savedTimeFilter === timeOpt.id;
-                    const count = timeCounts[timeOpt.id as keyof typeof timeCounts] || 0;
-                    return (
-                      <button
-                        key={timeOpt.id}
-                        onClick={() => {
-                          setSavedTimeFilter(timeOpt.id as any);
-                          soundEngine.playPluck(493.88);
-                        }}
-                        className={`px-2.5 py-1 rounded-xl text-xs whitespace-nowrap font-medium transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
-                          isSelected
-                            ? 'bg-amber-500/25 text-amber-300 border border-amber-400/70 shadow-xs'
-                            : 'bg-[#131C2E] text-slate-400 hover:text-slate-200 border border-slate-700/60'
-                        }`}
-                      >
-                        <span>{timeOpt.label}</span>
-                        <span
-                          className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                            isSelected ? 'bg-amber-400 text-slate-950' : 'bg-slate-800 text-slate-400'
-                          }`}
-                        >
-                          {count}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {/* LIST OF FILTERED SAVED OUTFITS */}
-            <div className="my-3 overflow-y-auto flex-1 pr-1 space-y-2.5 custom-scrollbar min-h-[220px]">
-              {filteredSavedItems.length === 0 ? (
-                <div className="text-center py-10 text-slate-400 flex flex-col items-center justify-center">
-                  <Bookmark className="w-10 h-10 mb-2 opacity-30 text-amber-400" />
-                  <p className="font-serif-vi text-sm font-bold text-slate-200">
-                    Không tìm thấy bản phối nào phù hợp
-                  </p>
-                  <p className="text-xs text-slate-400 mt-1 max-w-sm text-center">
-                    {hasActiveFilters
-                      ? 'Hãy thử thay đổi từ khóa tìm kiếm hoặc chọn lại danh mục / thời gian.'
-                      : 'Hãy lưu các bản phối yêu thích từ Lookbook để quản lý tại đây!'}
-                  </p>
-                  {hasActiveFilters && (
-                    <button
-                      onClick={handleResetFilters}
-                      className="mt-3 px-3 py-1.5 rounded-xl bg-[#131C2E] hover:bg-slate-800 border border-slate-700 text-amber-300 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      <span>Đặt lại bộ lọc</span>
-                    </button>
-                  )}
-                </div>
-              ) : (
-                filteredSavedItems.map((item) => {
-                  const itemCategory = getItemCategory(item);
-                  return (
-                    <div
-                      key={item.id}
-                      className="p-3.5 rounded-2xl bg-[#131C2E] border border-slate-700/70 hover:border-amber-400/60 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-left group"
-                    >
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <span className="font-serif-vi font-bold text-sm sm:text-base text-slate-100">
-                            {item.title}
-                          </span>
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                            {itemCategory}
-                          </span>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
-                            <Crown className="w-2.5 h-2.5 text-emerald-400" />
-                            {item.score} Điểm
-                          </span>
-                        </div>
-
-                        <p className="text-xs text-slate-300">
-                          <strong className="text-amber-400 font-semibold">{item.topName}</strong> • {item.bottomName} • {item.accessoryName}
-                        </p>
-
-                        <div className="flex items-center gap-3 text-[11px] text-slate-400 mt-1">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3 text-slate-400" /> {item.date}
-                          </span>
-                          <span>• Bối cảnh: <strong className="text-slate-300 font-normal">{item.backdropName}</strong></span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0">
-                        {/* Option 1: View in Lookbook directly */}
-                        <button
-                          onClick={() => handleSelectSavedInLookbook(item)}
-                          className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#1A2640] hover:bg-[#223356] text-amber-300 border border-amber-500/40 transition-all flex items-center gap-1 cursor-pointer"
-                          title="Xem bản phối này ngay trong Lookbook"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>Xem Lookbook</span>
-                        </button>
-
-                        {/* Option 2: Open in Fitting Room */}
-                        <button
-                          onClick={() => handleOpenInFittingRoom(item)}
-                          className="px-3 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 transition-all flex items-center gap-1 shadow-md hover:brightness-105 cursor-pointer"
-                          title="Chuyển vào Phòng thử đồ để phối thêm"
-                        >
-                          <span>Thử đồ</span>
-                          <ArrowRight className="w-3 h-3" />
-                        </button>
-
-                        {/* Option 3: Delete */}
-                        <button
-                          onClick={() => handleDeleteItem(item.id)}
-                          className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer"
-                          title="Xóa bản phối này"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className="pt-3 border-t border-slate-700/60 flex items-center justify-between">
-              <span className="text-xs text-slate-400">
-                Hiển thị <strong className="text-amber-300">{filteredSavedItems.length}</strong> / {savedItems.length} bản phối
-              </span>
-              <button
-                onClick={() => setIsSavedDrawerOpen(false)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors cursor-pointer"
-              >
-                Đóng
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* SHARE MODAL DIALOG */}
       {showShareModal && (

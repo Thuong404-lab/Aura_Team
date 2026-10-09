@@ -182,7 +182,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       Túi đồ của bạn đang trống
                     </h3>
                     <p className="text-xs text-slate-400 mt-1 max-w-xs">
-                      Hãy dạo quanh cửa hàng và chọn cho mình tà áo cổ phục ưng ý hoặc thử phối đồ trên người mẫu 3D.
+                      Hãy dạo quanh cửa hàng và chọn cho mình tà áo cổ phục ưng ý hoặc thử phối đồ trên người mẫu 2D.
                     </p>
                   </div>
                   {onExploreShop && (
@@ -377,7 +377,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     className="w-full py-2 px-3 rounded-lg text-xs font-medium text-amber-400 hover:text-amber-300 bg-amber-950/30 border border-amber-500/20 flex items-center justify-center gap-1.5 transition-colors"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    Thử các trang phục trong giỏ trên người mẫu 3D
+                    Thử các trang phục trong giỏ trên người mẫu 2D
                   </button>
                 )}
               </div>

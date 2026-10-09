@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen,
@@ -75,7 +76,7 @@ export const CULTURAL_GARMENTS: GarmentShowcaseItem[] = [
     fabricMatch: 'Lụa tơ tằm Vạn Phúc, Gấm trơn Sa Nam',
     colorSpirit: 'Sắc Tía thắm / Đỏ Chu Sa / Xanh Thiên Thanh',
     colorHex: '#C53030',
-    imageUrl: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80&w=600',
+    imageUrl: 'https://res.cloudinary.com/f4wgawlg/image/upload/v1791523459/Ng%C5%A9_Th%C3%A2n_n%E1%BB%AF.jpg',
     avatarTopId: 'ngu-than',
     layerStructure: [
       { layer: 1, name: 'Áo cánh lót trắng mỏng', purpose: 'Thấm hút mồ hôi và bảo vệ lớp lụa quý bên ngoài' },
@@ -109,7 +110,7 @@ export const CULTURAL_GARMENTS: GarmentShowcaseItem[] = [
     fabricMatch: 'Gấm Cung Đình dệt sợi vàng, Sa hoàng gia Huế',
     colorSpirit: 'Vàng Hoàng Yến / Cam Xích Đào / Tím Cung Đình',
     colorHex: '#D97706',
-    imageUrl: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&q=80&w=600',
+    imageUrl: 'https://res.cloudinary.com/f4wgawlg/image/upload/v1791523470/Nh%E1%BA%ADt_B%C3%ACnh_n%E1%BB%AF.jpg',
     avatarTopId: 'nhat-binh',
     layerStructure: [
       { layer: 1, name: 'Áo cánh cổ thìa bằng lụa bạch', purpose: 'Lớp lót êm ái bảo vệ làn da tôn quý' },
@@ -144,7 +145,7 @@ export const CULTURAL_GARMENTS: GarmentShowcaseItem[] = [
     fabricMatch: 'Gấm dệt chữ Thọ, Lụa tơ sống nhuộm chàm thẫm',
     colorSpirit: 'Xanh Chàm Đậm / Lam Thẫm Triều Nghi / Đỏ Huyết',
     colorHex: '#1E3A8A',
-    imageUrl: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&q=80&w=600',
+    imageUrl: 'https://res.cloudinary.com/f4wgawlg/image/upload/v1791523426/%C3%81o_T%E1%BA%A5c_n%E1%BB%AF.jpg',
     avatarTopId: 'ao-tac',
     layerStructure: [
       { layer: 1, name: 'Áo lót cổ trắng', purpose: 'Tạo viền trắng thanh nhã nơi cổ áo' },
@@ -178,7 +179,7 @@ export const CULTURAL_GARMENTS: GarmentShowcaseItem[] = [
     fabricMatch: 'Đũi tơ tằm Nam Cao, Lụa chũi tự nhiên',
     colorSpirit: 'Huyền Thiên (Đen nhung) / Xanh Lục Cỏ Non / Vàng Đất',
     colorHex: '#059669',
-    imageUrl: 'https://images.unsplash.com/photo-1590333746438-283450096582?auto=format&fit=crop&q=80&w=600',
+    imageUrl: 'https://res.cloudinary.com/f4wgawlg/image/upload/v1791523448/Giao_L%C4%A9nh_n%E1%BB%AF.jpg',
     avatarTopId: 'giao-linh',
     layerStructure: [
       { layer: 1, name: 'Trung đơn lót trắng', purpose: 'Viền cổ áo trong tạo sự tương phản mỹ thuật' },
@@ -212,7 +213,7 @@ export const CULTURAL_GARMENTS: GarmentShowcaseItem[] = [
     fabricMatch: 'Đũi thô nhuộm nâu non, Lụa tơ Hà Đông mộc',
     colorSpirit: 'Nâu Sồng Gỗ / Đỏ Yếm Đào / Xanh Cốm',
     colorHex: '#92400E',
-    imageUrl: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&q=80&w=600',
+    imageUrl: 'https://res.cloudinary.com/f4wgawlg/image/upload/v1791523488/T%E1%BB%A9_Th%C3%A2n_n%E1%BB%AF.jpg',
     avatarTopId: 'tu-than',
     layerStructure: [
       { layer: 1, name: 'Yếm đào lụa thắm', purpose: 'Nâng niu bờ ngực và tôn vẻ đẹp lưng ong' },
@@ -247,7 +248,7 @@ export const CULTURAL_GARMENTS: GarmentShowcaseItem[] = [
     fabricMatch: 'Đoạn Bát Ty hoàng cung, Gấm tơ thêu chỉ kim hoàn',
     colorSpirit: 'Đỏ Tía Son Triều Thần / Xanh Biển Sâu / Đen Huyền Mặc',
     colorHex: '#991B1B',
-    imageUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=600',
+    imageUrl: 'https://res.cloudinary.com/f4wgawlg/image/upload/v1791523496/Vi%C3%AAn_L%C4%A9nh_nam.jpg',
     avatarTopId: 'vien-linh',
     layerStructure: [
       { layer: 1, name: 'Trung đơn trắng cổ tròn', purpose: 'Định hình chân cổ sạch sẽ uy nghiêm' },
@@ -257,72 +258,72 @@ export const CULTURAL_GARMENTS: GarmentShowcaseItem[] = [
     funFact: 'Nhìn vào con chim hay con thú thêu trên ngực áo Viên Lĩnh, người dân thời xưa có thể biết ngay vị quan này giữ chức phẩm hàm cấp bậc nào.',
   },
   {
-    id: 'ao-tu-than-kinh-bac',
-    name: 'Áo Tứ Thân & Nón Ba Tầm (Dân Gian Bắc Bộ)',
-    hanTu: '四身衣',
+    id: 'ao-yem-khue-cac',
+    name: 'Áo Yếm Khuê Các (Nội Y Cổ Truyền)',
+    hanTu: '掩衣 (春桃)',
     category: 'Trang Phục Thường Nhật',
-    dynasty: 'Dân Gian Xứ Bắc (Lý — Trần — Lê — Nguyễn)',
+    dynasty: 'Thời Lý — Trần — Lê — Nguyễn',
     period: 'Thế kỷ XI — Hiện đại',
-    socialRank: 'Phụ nữ thôn quê, thị dân và liền chị Quan họ Kinh Bắc',
+    socialRank: 'Phụ nữ mọi tầng lớp (từ cung cấm khuê phòng đến thôn nữ bình dân)',
     description:
-      'Áo Tứ Thân gồm bốn vạt thướt tha mềm mại, hai vạt trước thắt nút duyên dáng trước bụng để lộ yếm đào bên trong. Đi liền với nón ba tầm quai thao và khăn mỏ quạ.',
+      'Áo Yếm là mảnh lụa hình thoi hoặc vuông che ngực, có dây buộc qua cổ và hai bên lưng. Tôn vinh nét đẹp thắt đáy lưng ong và bờ vai mềm mại thuần khiết của người phụ nữ Việt Nam.',
     history:
-      'Tồn tại qua hàng trăm năm lịch sử, phản ánh nếp sống thuần nông chăm chỉ, đùm bọc yêu thương của người phụ nữ Việt Nam. Được UNESCO công nhận nét đẹp gắn liền Di sản Dân ca Quan họ Bắc Ninh.',
+      'Tồn tại qua ngàn năm lịch sử, trải qua nhiều dạng cổ áo: Cổ xẻ (chữ V), Cổ tròn (cổ thìa) và Cổ khoét sâu. Trong cung đình, cung phi mặc yếm lụa thêu hoa sen, ngoài dân gian mặc yếm nâu, yếm đào dệt bằng tơ mộc.',
     meaning:
-      'Bốn thân áo tượng trưng cho tứ thân phụ mẫu (cha mẹ đẻ và cha mẹ chồng), hai vạt trước thắt vào nhau thể hiện tình nghĩa vợ chồng son sắt, bền chặt khăng khít.',
+      'Biểu tượng của nét xuân thì tràn trề sức sống, sự dịu dàng kín đáo mà gợi cảm tinh tế của người phụ nữ Á Đông. Yếm đào đỏ gắn liền với câu ca dao tình tứ ngàn đời.',
     material:
-      'Lụa the mỏng nhẹ, vải đũi nhuộm bùn hoặc củ nâu mộc mạc, yếm đào dệt bằng tơ tằm óng ả.',
+      'Lụa tơ tằm mềm mại, đũi mộc hoặc lụa sa thoáng khí. Dây yếm bằng sợi tơ se tròn dẻo dai buộc sau gáy và quanh eo.',
     craftsmanship:
-      'May ráp 4 thân áo khéo léo, ghép hai thân sau tạo đường sống áo lưng thẳng đắn; nút thắt vạt trước đòi hỏi sự ý nhị, đoan trang.',
+      'Cắt lượn hình thoi khéo léo, may viền lộn mép mềm mại tránh cọ xát làn da ngọc ngà; hoa sen và hoa cúc thêu tơ tằm tinh xảo trên ngực yếm.',
     culturalPhilosophy:
-      'Đề cao đạo hiếu làm người, đức tính cần kiệm, kín đáo và vẻ đẹp đằm thắm mặn mà của người phụ nữ thôn quê.',
-    silhouetteDescription: 'Bốn tà rủ mềm mại, thắt nút eo thon gọn gàng, tôn vinh nét duyên dáng thùy mị.',
-    symbolism: ['Đạo hiếu phụ mẫu', 'Tình nghĩa phu thê', 'Hồn quê thuần hậu'],
-    fabricMatch: 'Lụa the đen khoác ngoài yếm đào, Đũi tơ sống',
-    colorSpirit: 'Nâu Sồng / Hồng Cánh Sen / Xanh Lụa Đào',
-    colorHex: '#3D342D',
-    imageUrl: 'https://res.cloudinary.com/f4wgawlg/image/upload/v1791523488/T%E1%BB%A9_Th%C3%A2n_n%E1%BB%AF.jpg',
-    avatarTopId: 'tu-than',
+      'Nâng niu vẻ đẹp tự nhiên của thân thể người phụ nữ trong khuôn khổ mỹ học Á Đông kín đáo, e ấp mà quyến rũ.',
+    silhouetteDescription: 'Mảnh lụa ôm trọn vòm ngực, khoe trọn lưng ong và cần cổ trắng ngần khi mặc kèm áo khoác sa.',
+    symbolism: ['Xuân thì thiếu nữ', 'Duyên ngầm e ấp', 'Thuần khiết thanh tao'],
+    fabricMatch: 'Lụa tơ tằm Hà Đông mỏng nhẹ, Đũi tơ sống',
+    colorSpirit: 'Đỏ Yếm Đào / Hồng Cánh Sen / Trắng Ngà Lụa Bạch',
+    colorHex: '#B23A48',
+    imageUrl: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=600',
+    avatarTopId: 'ao-yem',
     layerStructure: [
-      { layer: 1, name: 'Yếm đào thắt dây sau gáy', purpose: 'Nâng niu cơ thể và tạo điểm tựa duyên dáng' },
-      { layer: 2, name: 'Áo cánh trắng/màu lót bên trong', purpose: 'Tạo lớp đệm kín đáo, lịch thiệp' },
-      { layer: 3, name: 'Áo Tứ thân khoác ngoài thắt nút', purpose: 'Định hình nét uyển chuyển đặc trưng quan họ' },
+      { layer: 1, name: 'Yếm lụa ôm sát ngực', purpose: 'Nâng niu cơ thể và tạo điểm tựa êm ái' },
+      { layer: 2, name: 'Dây lụa buộc sau gáy và lưng', purpose: 'Định hình độ ôm vừa vặn uyển chuyển' },
+      { layer: 3, name: 'Áo khoác ngoài (Tứ thân hoặc Áo cánh)', purpose: 'Phối tầng lớp nửa kín nửa hở duyên dáng' },
     ],
-    funFact: 'Khi hát quan họ đối đáp, liền chị thắt nút vạt áo hờ hững và cầm nón quai thao nghiêng che nụ cười e ấp.',
+    funFact: 'Thời xưa, màu yếm còn thể hiện tuổi tác: Thiếu nữ chưa chồng mặc yếm đỏ, yếm đào; phụ nữ đứng tuổi mặc yếm nâu, yếm sẫm.',
   },
   {
-    id: 'ao-doi-kham-le-trieu',
-    name: 'Áo Đối Khâm Quý Tộc Thời Lê',
-    hanTu: '對襟衣',
-    category: 'Áo Lễ & Thượng Phục',
-    dynasty: 'Thời Hậu Lê (Lê Sơ & Lê Trung Hưng)',
-    period: 'Thế kỷ XV — XVIII',
-    socialRank: 'Hoàng hậu, phi tần và mệnh phụ phu nhân quý tộc',
+    id: 'ao-cach-tan-duong-dai',
+    name: 'Áo Dài Phom Cổ Cách Tân 2026',
+    hanTu: '新古風衣',
+    category: 'Cổ Phong Cách Tân',
+    dynasty: 'Kỷ Nguyên Hiện Đại 2026',
+    period: 'Thế kỷ XXI (Đương đại)',
+    socialRank: 'Giới trẻ, nghệ sĩ, tín đồ thời trang di sản & phong cách sống mới',
     description:
-      'Áo có hai vạt song song buông rủ xẻ dọc chính giữa ngực, vạt áo buông rủ thướt tha viền thêu hoa văn tinh xảo lộng lẫy.',
+      'Giao thoa đỉnh cao giữa cấu trúc 5 thân cổ truyền và đường cắt may tối giản đương đại. Giữ trọn tinh thần cổ phong nhưng được may bằng kỹ thuật hiện đại, phóng khoáng và tiện dụng cho nhịp sống đô thị.',
     history:
-      'Thời Lê Sơ và Lê Trung Hưng quy định phẩm phục khắt khe theo lễ nghi Nho gia. Áo Đối Khâm là trang phục khoác ngoài cao quý bậc nhất của phụ nữ quý tộc trong các đại điển.',
+      'Khởi nguồn từ làn sóng "Phục hưng Cổ phục Việt" của thế hệ trẻ trong thập niên 2020, kết hợp khảo cứu bảo tàng với xu hướng thời trang quốc tế đương đại.',
     meaning:
-      'Hai vạt song song đối xứng tượng trưng cho sự chính trực, trật tự tôn ti và cân bằng âm dương trong phép tắc hoàng triều.',
+      'Tuyên ngôn về bản sắc văn hóa Việt trong thời đại toàn cầu hóa: Di sản không phải là thứ đóng khung trong viện bảo tàng, mà là nguồn cảm hứng sống động đồng hành cùng nhịp đập hiện đại.',
     material:
-      'Gấm dệt tơ tằm thượng hạng, lụa sa cung đình thêu kim tuyến chỉ vàng rực rỡ.',
+      'Lụa tơ sống dệt sợi bạc, sợi gai dầu sinh học cao cấp, đũi tơ tằm dệt chìm họa tiết mây hạc đương đại kết hợp khóa cài kim loại mạ vàng tinh xảo.',
     craftsmanship:
-      'Viền cổ áo thêu hoa văn mây lửa đặc trưng thời Lê, hoa cúc dây uốn lượn và chim phụng tinh xảo.',
+      'Đường cắt rập chuẩn xác kết hợp chi tiết khâu tay thủ công từ các nghệ nhân làng nghề truyền thống.',
     culturalPhilosophy:
-      'Tôn vinh khí chất uy nghi, đài các và địa vị tôn quý của nữ chủ chốn phủ chúa vương triều.',
-    silhouetteDescription: 'Hai vạt thẳng tắp tạo hiệu ứng kéo dài thân người, tôn dáng vẻ trang trọng vương giả.',
-    symbolism: ['Kỷ cương phép nước', 'Uy nghi hoàng triều', 'Vương giả đài các'],
-    fabricMatch: 'Gấm thêu cung đình, Sa lụa tự nhiên',
-    colorSpirit: 'Đỏ Chu Sa / Hoàng Thổ / Lam Ngọc',
+      'Sự tiếp nối và tiến hóa không ngừng của cái đẹp. Thể hiện niềm tự hào cội nguồn của thế hệ người Việt hiện đại tự tin bước ra thế giới.',
+    silhouetteDescription: 'Cổ trụ thấp thanh mảnh, phom suông tối giản, tà áo bay bổng nhẹ nhàng trên phố.',
+    symbolism: ['Tiếp nối di sản', 'Hội nhập toàn cầu', 'Sáng tạo đột phá'],
+    fabricMatch: 'Đũi tơ tằm pha sợi bạc, Lụa cát cao cấp',
+    colorSpirit: 'Đỏ Thẫm Hiện Đại / Trắng Ngà Ánh Kim / Xanh Rêu',
     colorHex: '#8B1E1E',
-    imageUrl: 'https://res.cloudinary.com/f4wgawlg/image/upload/v1791523432/%C4%90%E1%BB%91i_Kh%C3%A2m.jpg',
-    avatarTopId: 'doi-kham',
+    imageUrl: 'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&q=80&w=600',
+    avatarTopId: 'cach-tan',
     layerStructure: [
-      { layer: 1, name: 'Quần lụa & Váy quây xếp tầng', purpose: 'Hạ y kín đáo uy nghiêm' },
-      { layer: 2, name: 'Áo giao lĩnh lót bên trong', purpose: 'Tạo lớp cổ áo chéo phong nhã' },
-      { layer: 3, name: 'Áo Đối Khâm khoác ngoài cùng', purpose: 'Lớp phẩm phục vương triều rực rỡ nhất' },
+      { layer: 1, name: 'Lớp lót tơ lụa kháng khuẩn', purpose: 'Tạo cảm giác thông thoáng cho ngày dài' },
+      { layer: 2, name: 'Phom áo 5 thân chuẩn mực', purpose: 'Đứng phom dáng chuẩn mực mà vẫn êm ái linh hoạt' },
+      { layer: 3, name: 'Phụ kiện mạ vàng đính kèm', purpose: 'Tạo điểm nhấn thời thượng đương đại' },
     ],
-    funFact: 'Thời Lê, chỉ có phụ nữ từ hàng tam phẩm trở lên mới được phép viền thêu chỉ vàng trên hai vạt áo đối khâm.',
+    funFact: 'Các mẫu áo cổ phong cách tân hiện đang được giới trẻ diện phổ biến tại các tuần lễ thời trang Paris, Seoul và các lễ hội quốc tế lớn.',
   },
 ];
 
@@ -338,6 +339,36 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'cards' | 'studio'>('cards');
   const [modalGarment, setModalGarment] = useState<GarmentShowcaseItem | null>(null);
+  const [modalTab, setModalTab] = useState<'all' | 'history' | 'meaning' | 'material' | 'layers'>('all');
+
+  // Prevent background scrolling, pause Lenis, and enable Escape key to close modal
+  useEffect(() => {
+    if (modalGarment) {
+      setModalTab('all');
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+
+      // Explicitly pause Lenis smooth scroll engine so it never intercepts modal mousewheel/trackpad
+      if (typeof window !== 'undefined' && (window as any).__lenis) {
+        (window as any).__lenis.stop();
+      }
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          setModalGarment(null);
+        }
+      };
+
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.body.style.overflow = prevOverflow;
+        window.removeEventListener('keydown', handleKeyDown);
+        if (typeof window !== 'undefined' && (window as any).__lenis) {
+          (window as any).__lenis.start();
+        }
+      };
+    }
+  }, [modalGarment]);
 
   const selectedGarment =
     CULTURAL_GARMENTS.find((g) => g.id === selectedGarmentId) || CULTURAL_GARMENTS[0];
@@ -357,85 +388,86 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
   return (
     <section id="encyclopedia-section" className="w-full my-16 text-left relative z-10">
       {/* Decorative Title Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4 border-b border-amber-500/20 pb-6">
+      <div className="border-b border-amber-500/20 pb-6 mb-8">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="p-1.5 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300">
-              <BookOpen className="w-4 h-4" />
-            </span>
-            <span className="text-xs font-bold tracking-[0.25em] uppercase text-amber-400">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+            <span className="text-xs font-bold tracking-[0.25em] uppercase text-amber-400/90 font-serif-vi">
               KHO TÀNG KHẢO CỨU DI SẢN
             </span>
           </div>
-          <h2 className="font-serif-vi text-2xl sm:text-3xl md:text-4xl font-bold text-amber-100">
+          <h2 className="font-serif-vi text-2xl sm:text-3xl md:text-4xl font-bold text-amber-100 tracking-tight">
             Bách Khoa Toàn Thư Cổ Phục Việt
           </h2>
-          <p className="text-sm text-slate-300 mt-2 max-w-2xl font-light font-sans-vi leading-relaxed">
-            Tra cứu toàn diện về <strong className="text-amber-300 font-semibold">Lịch sử ra đời</strong>,{' '}
-            <strong className="text-amber-300 font-semibold">Ý nghĩa triết lý</strong> và{' '}
-            <strong className="text-amber-300 font-semibold">Chất liệu gấm vóc</strong> của từng loại trang phục truyền thống qua các thời kỳ.
+          <p className="text-xs sm:text-sm text-slate-300/85 mt-2 max-w-2xl font-light font-sans-vi leading-relaxed">
+            Tra cứu chuẩn mực về <strong className="text-amber-200 font-medium">Lịch sử ra đời</strong>,{' '}
+            <strong className="text-amber-200 font-medium">Ý nghĩa triết lý</strong> và{' '}
+            <strong className="text-amber-200 font-medium">Chất liệu gấm vóc</strong> của từng loại trang phục truyền thống qua các thời kỳ.
           </p>
         </div>
 
-        {/* Action Controls: Filter & View Mode */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-          {/* View Mode Toggle */}
-          <div className="flex items-center bg-[#10182b] p-1 rounded-xl border border-slate-700/80">
-            <button
-              onClick={() => {
-                soundEngine.playPluck(440);
-                setViewMode('cards');
-              }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                viewMode === 'cards'
-                  ? 'bg-amber-400 text-slate-950 font-bold shadow'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-              title="Dạng thẻ bách khoa toàn thư"
-            >
-              <LayoutGrid className="w-3.5 h-3.5" />
-              <span>Thẻ Thông Tin (Cards)</span>
-            </button>
-            <button
-              onClick={() => {
-                soundEngine.playPluck(523.25);
-                setViewMode('studio');
-              }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                viewMode === 'studio'
-                  ? 'bg-amber-400 text-slate-950 font-bold shadow'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-              title="Khảo cứu chuyên sâu 2 cột"
-            >
-              <Columns3 className="w-3.5 h-3.5" />
-              <span>Bàn Khảo Cứu (Studio)</span>
-            </button>
-          </div>
-
-          {/* Filter Categories */}
-          <div className="flex flex-wrap gap-1.5">
+        {/* Action Controls Toolbar: Clean, Spacious, No Broken Lines */}
+        <div className="mt-6 flex flex-col md:flex-row md:items-center justify-between gap-4 pt-4 border-t border-slate-800/80">
+          {/* Category Filter Tabs */}
+          <div className="flex items-center gap-1.5 p-1 bg-[#0A0F1E]/90 rounded-xl border border-slate-800 overflow-x-auto scrollbar-none max-w-full">
             {categories.map((cat) => (
               <button
                 key={cat.id}
+                type="button"
                 onClick={() => {
                   soundEngine.playPluck(440);
                   setFilterCategory(cat.id);
                 }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all cursor-pointer flex-shrink-0 ${
                   filterCategory === cat.id
-                    ? 'bg-amber-400/20 text-amber-300 border border-amber-400/60 font-bold'
-                    : 'bg-[#121A2D] text-slate-400 hover:text-slate-200 border border-slate-800'
+                    ? 'bg-amber-400 text-slate-950 font-bold shadow-sm shadow-amber-500/20'
+                    : 'text-slate-400 hover:text-amber-200 hover:bg-slate-800/60'
                 }`}
               >
                 {cat.label}
               </button>
             ))}
           </div>
+
+          {/* View Mode Toggle: Symmetrical, Crisp, No Word Breaking */}
+          <div className="flex items-center bg-[#0A0F1E]/90 p-1 rounded-xl border border-slate-800 self-start md:self-auto flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                soundEngine.playPluck(440);
+                setViewMode('cards');
+              }}
+              className={`py-1.5 px-3.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 flex-shrink-0 ${
+                viewMode === 'cards'
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-850'
+              }`}
+              title="Xem dạng thẻ bách khoa toàn thư"
+            >
+              <LayoutGrid className="w-3.5 h-3.5 text-amber-400" />
+              <span>Dạng Thẻ</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                soundEngine.playPluck(523.25);
+                setViewMode('studio');
+              }}
+              className={`py-1.5 px-3.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 flex-shrink-0 ${
+                viewMode === 'studio'
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-850'
+              }`}
+              title="Khảo cứu chuyên sâu 2 cột"
+            >
+              <Columns3 className="w-3.5 h-3.5 text-amber-400" />
+              <span>Bàn Khảo Cứu</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* VIEW MODE 1: ENCYCLOPEDIA CARDS GRID WITH SOFT HOVER ZOOM */}
+      {/* VIEW MODE 1: ENCYCLOPEDIA CARDS GRID WITH HARMONIOUS PROPORTIONS */}
       {viewMode === 'cards' && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -447,102 +479,103 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
             <motion.div
               key={garment.id}
               whileHover={{
-                scale: 1.025,
-                y: -6,
+                y: -5,
                 transition: { duration: 0.25, ease: 'easeOut' },
               }}
-              className="group rounded-3xl bg-gradient-to-b from-[#11192e] to-[#0b101e] border border-amber-500/25 hover:border-amber-400/70 p-5 shadow-lg hover:shadow-[0_16px_36px_rgba(245,158,11,0.18)] transition-all flex flex-col justify-between relative overflow-hidden backdrop-blur-md cursor-pointer"
+              className="group rounded-2xl bg-gradient-to-b from-[#10172A]/95 via-[#0C1222]/90 to-[#080D1A]/95 border border-slate-700/60 hover:border-amber-400/60 p-5 shadow-lg hover:shadow-[0_14px_36px_rgba(245,158,11,0.16)] transition-all flex flex-col justify-between relative overflow-hidden backdrop-blur-xl cursor-pointer"
               onClick={() => {
                 soundEngine.playPluck(523.25 + idx * 25);
                 setModalGarment(garment);
               }}
             >
-              {/* Top ambient color glow on hover */}
+              {/* Subtle top ambient glow */}
               <div
-                className="absolute -top-12 -right-12 w-36 h-36 rounded-full blur-2xl opacity-15 group-hover:opacity-35 transition-opacity pointer-events-none"
+                className="absolute top-0 right-0 w-44 h-32 opacity-15 group-hover:opacity-30 rounded-full blur-2xl transition-opacity pointer-events-none"
                 style={{ backgroundColor: garment.colorHex }}
               />
 
-              <div>
-                {/* Visual Header with Image & Zoom effect */}
-                <div className="relative w-full h-44 rounded-2xl overflow-hidden mb-4 bg-slate-900 border border-slate-700/60">
+              <div className="flex flex-col flex-1">
+                {/* Visual Header Image Container */}
+                <div className="relative w-full h-48 rounded-xl overflow-hidden mb-4 bg-slate-900 border border-slate-700/60">
                   <img
                     src={garment.imageUrl}
                     alt={garment.name}
-                    className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
+                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500 ease-out"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0b101e] via-black/30 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#080D1A] via-transparent to-black/30" />
 
-                  {/* Top Badges */}
-                  <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
-                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider uppercase bg-black/60 backdrop-blur-md text-amber-300 border border-amber-500/40">
+                  {/* Category Chip */}
+                  <div className="absolute top-2.5 left-2.5">
+                    <span className="px-2.5 py-1 rounded-md text-[10px] font-bold tracking-wider uppercase bg-slate-950/80 backdrop-blur-md text-amber-300 border border-amber-500/30">
                       {garment.category}
                     </span>
                   </div>
 
-                  {/* Top Right Han Tu */}
-                  <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-md text-xs font-serif-vi bg-black/60 backdrop-blur-md text-amber-200 border border-amber-500/30">
-                    {garment.hanTu}
-                  </div>
+                  {/* Han Tu Calligraphy Chip */}
+                  {garment.hanTu && (
+                    <div className="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-md text-xs font-serif-vi bg-slate-950/80 backdrop-blur-md text-amber-200 border border-amber-500/30">
+                      {garment.hanTu}
+                    </div>
+                  )}
 
-                  {/* Bottom Image Overlay Title */}
-                  <div className="absolute bottom-2.5 left-3 right-3 flex items-end justify-between">
+                  {/* Garment Title on bottom of image */}
+                  <div className="absolute bottom-2.5 left-3 right-3 flex items-end justify-between gap-2">
                     <div>
-                      <span className="text-[10px] font-mono text-amber-300/90 block font-semibold">
+                      <span className="text-[11px] font-mono text-amber-300/90 block font-semibold">
                         {garment.period}
                       </span>
-                      <h3 className="font-serif-vi text-lg font-bold text-amber-100 group-hover:text-amber-200 transition-colors">
+                      <h3 className="font-serif-vi text-lg font-bold text-slate-100 group-hover:text-amber-200 transition-colors drop-shadow-md">
                         {garment.name}
                       </h3>
                     </div>
                     <span
-                      className="w-3.5 h-3.5 rounded-full border-2 border-white/60 shadow"
+                      className="w-3.5 h-3.5 rounded-full border-2 border-amber-300/60 shadow flex-shrink-0 mb-0.5"
                       style={{ backgroundColor: garment.colorHex }}
                       title={`Tông màu: ${garment.colorSpirit}`}
                     />
                   </div>
                 </div>
 
-                {/* THE 3 CORE ENCYCLOPEDIA DATA BLOCKS (LỊCH SỬ - Ý NGHĨA - CHẤT LIỆU) */}
-                <div className="space-y-3 mb-4">
-                  {/* 1. LỊCH SỬ (HISTORY) */}
-                  <div className="p-3 rounded-xl bg-[#0d1424]/90 border border-slate-800/80 group-hover:border-amber-500/30 transition-colors">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-300 uppercase tracking-wider mb-1">
-                      <Clock className="w-3.5 h-3.5 text-amber-400" />
+                {/* 3 Core Encyclopedia Attribute Cards */}
+                <div className="space-y-2.5 mb-4 flex-1">
+                  {/* 1. Lịch sử & Triều đại */}
+                  <div className="p-3 rounded-xl bg-slate-950/50 border border-slate-800/80 group-hover:border-slate-700 transition-colors">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-400/90 uppercase tracking-wide mb-1 font-serif-vi">
+                      <Clock className="w-3 h-3 text-amber-400" />
                       <span>Lịch Sử & Triều Đại</span>
                     </div>
-                    <p className="text-xs text-slate-300 leading-relaxed font-sans-vi line-clamp-2">
+                    <p className="text-xs text-slate-300/90 leading-relaxed font-sans-vi line-clamp-2">
                       {garment.history}
                     </p>
                   </div>
 
-                  {/* 2. Ý NGHĨA (MEANING & SYMBOLISM) */}
-                  <div className="p-3 rounded-xl bg-[#0d1424]/90 border border-slate-800/80 group-hover:border-amber-500/30 transition-colors">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-300 uppercase tracking-wider mb-1">
-                      <Shield className="w-3.5 h-3.5 text-amber-400" />
+                  {/* 2. Ý nghĩa & Biểu trưng */}
+                  <div className="p-3 rounded-xl bg-slate-950/50 border border-slate-800/80 group-hover:border-slate-700 transition-colors">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-400/90 uppercase tracking-wide mb-1 font-serif-vi">
+                      <Shield className="w-3 h-3 text-amber-400" />
                       <span>Ý Nghĩa & Biểu Trưng</span>
                     </div>
-                    <p className="text-xs text-slate-300 leading-relaxed font-sans-vi line-clamp-2">
+                    <p className="text-xs text-slate-300/90 leading-relaxed font-sans-vi line-clamp-2">
                       {garment.meaning}
                     </p>
                   </div>
 
-                  {/* 3. CHẤT LIỆU (MATERIAL & FABRIC) */}
-                  <div className="p-3 rounded-xl bg-[#0d1424]/90 border border-slate-800/80 group-hover:border-amber-500/30 transition-colors">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-300 uppercase tracking-wider mb-1">
-                      <Feather className="w-3.5 h-3.5 text-amber-400" />
+                  {/* 3. Chất liệu & Gấm vóc */}
+                  <div className="p-3 rounded-xl bg-slate-950/50 border border-slate-800/80 group-hover:border-slate-700 transition-colors">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-400/90 uppercase tracking-wide mb-1 font-serif-vi">
+                      <Feather className="w-3 h-3 text-amber-400" />
                       <span>Chất Liệu & Gấm Vóc</span>
                     </div>
-                    <p className="text-xs text-slate-300 leading-relaxed font-sans-vi line-clamp-2">
+                    <p className="text-xs text-slate-300/90 leading-relaxed font-sans-vi line-clamp-2">
                       {garment.material}
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Bottom Card Actions */}
-              <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
+              {/* Bottom Action Footer */}
+              <div className="pt-3.5 border-t border-slate-800/80 flex items-center justify-between gap-2 mt-auto">
                 <button
                   type="button"
                   onClick={(e) => {
@@ -550,25 +583,27 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
                     soundEngine.playPluck(493.88);
                     setModalGarment(garment);
                   }}
-                  className="text-xs font-semibold text-amber-300 hover:text-amber-200 flex items-center gap-1 cursor-pointer py-1 px-2.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-colors"
+                  className="text-xs font-semibold text-slate-300 hover:text-amber-200 flex items-center gap-1.5 cursor-pointer py-1.5 px-3 rounded-xl bg-slate-800/70 hover:bg-slate-800 border border-slate-700 transition-colors"
                 >
-                  <Eye className="w-3.5 h-3.5" />
+                  <Eye className="w-3.5 h-3.5 text-amber-400" />
                   <span>Đọc Khảo Cứu</span>
                 </button>
 
                 {garment.avatarTopId && (
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       soundEngine.playPluck(659.25);
                       onSelectGarmentForFitting(garment.avatarTopId!);
                     }}
-                    className="text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 py-1.5 px-3 rounded-lg shadow flex items-center gap-1.5 cursor-pointer transition-transform active:scale-95"
+                    className="text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:brightness-110 py-1.5 px-3.5 rounded-xl shadow-[0_4px_14px_rgba(245,158,11,0.25)] flex items-center gap-1.5 cursor-pointer transition-all"
                   >
                     <Sparkles className="w-3 h-3 text-slate-950" />
                     <span>Mặc Thử Ngay</span>
-                  </button>
+                  </motion.button>
                 )}
               </div>
             </motion.div>
@@ -586,7 +621,7 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
               <span>{filteredGarments.length} thức áo</span>
             </div>
 
-            <div className="space-y-2.5 max-h-[640px] overflow-y-auto pr-1 scrollbar-thin">
+            <div data-lenis-prevent="true" className="space-y-2.5 max-h-[640px] overflow-y-auto pr-1.5 scrollbar-heritage">
               {filteredGarments.map((garment, idx) => {
                 const isSelected = garment.id === selectedGarment.id;
                 return (
@@ -939,116 +974,311 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
         </div>
       )}
 
-      {/* MODAL CHI TIẾT KHẢO CỨU KHI BẤM VÀO THẺ (EXPANDED CARD DIALOG) */}
-      <AnimatePresence>
-        {modalGarment && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-[#0f172a] border border-amber-500/40 rounded-3xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6 sm:p-8 shadow-2xl relative text-left"
-            >
-              {/* Close Button */}
-              <button
-                onClick={() => setModalGarment(null)}
-                className="absolute top-5 right-5 p-2 rounded-full bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors cursor-pointer"
+      {/* MODAL CHI TIẾT KHẢO CỨU KHI BẤM VÀO THẺ (EXPANDED CARD DIALOG) - RENDERED VIA PORTAL TO BODY */}
+      {typeof document !== 'undefined' &&
+        createPortal(
+          <AnimatePresence>
+            {modalGarment && (
+              <div
+                role="dialog"
+                aria-modal="true"
+                aria-label={`Khảo Cứu ${modalGarment.name}`}
+                data-lenis-prevent="true"
+                className="fixed inset-0 z-[120] flex items-center justify-center p-2 sm:p-5 bg-black/85 backdrop-blur-md overflow-hidden"
+                onClick={() => {
+                  soundEngine.playPluck(330);
+                  setModalGarment(null);
+                }}
               >
-                <X className="w-5 h-5" />
-              </button>
-
-              {/* Header */}
-              <div className="flex items-center gap-2 mb-2">
-                <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold tracking-wider uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                  {modalGarment.category}
-                </span>
-                <span className="text-xs text-slate-400">{modalGarment.dynasty}</span>
-              </div>
-              <h3 className="font-serif-vi text-2xl sm:text-3xl font-bold text-amber-100 flex items-center gap-3 mb-4">
-                <span>{modalGarment.name}</span>
-                <span className="text-xl font-normal text-amber-400/80 font-serif-vi border-l border-amber-500/40 pl-3">
-                  {modalGarment.hanTu}
-                </span>
-              </h3>
-
-              {/* Visual image */}
-              <div className="w-full h-52 sm:h-64 rounded-2xl overflow-hidden mb-6 relative">
-                <img
-                  src={modalGarment.imageUrl}
-                  alt={modalGarment.name}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-transparent to-transparent" />
-              </div>
-
-              {/* 3 Core Fields in Full View */}
-              <div className="space-y-4 mb-6">
-                <div className="p-4 rounded-2xl bg-[#141f38] border border-amber-500/30">
-                  <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider mb-1">
-                    <Clock className="w-4 h-4 text-amber-400" />
-                    <span>1. Lịch Sử Ra Đời & Triều Đại</span>
-                  </div>
-                  <p className="text-sm text-slate-200 leading-relaxed font-sans-vi">
-                    {modalGarment.history}
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-[#141f38] border border-amber-500/30">
-                  <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider mb-1">
-                    <Shield className="w-4 h-4 text-amber-400" />
-                    <span>2. Ý Nghĩa Triết Lý & Biểu Trưng Văn Hóa</span>
-                  </div>
-                  <p className="text-sm text-slate-200 leading-relaxed font-sans-vi">
-                    {modalGarment.meaning}
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-[#141f38] border border-amber-500/30">
-                  <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider mb-1">
-                    <Feather className="w-4 h-4 text-amber-400" />
-                    <span>3. Chất Liệu Tơ Lụa & Kỹ Nghệ May Gấm</span>
-                  </div>
-                  <p className="text-sm text-slate-200 leading-relaxed font-sans-vi">
-                    {modalGarment.material}
-                  </p>
-                </div>
-              </div>
-
-              {/* Fun fact */}
-              <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 mb-6 flex items-start gap-2">
-                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                <div>
-                  <strong>Bạn có biết? </strong> {modalGarment.funFact}
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-end gap-3 pt-2">
-                <button
-                  onClick={() => setModalGarment(null)}
-                  className="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white border border-slate-700 hover:border-slate-600 transition-colors cursor-pointer"
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.94, y: 16 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.94, y: 16 }}
+                  transition={{ duration: 0.22, ease: 'easeOut' }}
+                  onClick={(e) => e.stopPropagation()}
+                  data-lenis-prevent="true"
+                  className="bg-[#0D1424] border border-amber-500/40 rounded-3xl w-full max-w-3xl h-[88vh] max-h-[850px] flex flex-col shadow-[0_24px_70px_rgba(0,0,0,0.85)] relative text-left overflow-hidden my-auto"
                 >
-                  Đóng
-                </button>
-                {modalGarment.avatarTopId && (
-                  <button
-                    onClick={() => {
-                      const id = modalGarment.avatarTopId!;
-                      setModalGarment(null);
-                      soundEngine.playPluck(659.25);
-                      onSelectGarmentForFitting(id);
-                    }}
-                    className="px-5 py-2.5 rounded-xl text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 shadow-[0_6px_20px_rgba(245,158,11,0.3)] flex items-center gap-2 cursor-pointer"
+                  {/* Top Header Bar */}
+                  <div className="p-5 sm:p-6 border-b border-amber-500/20 bg-gradient-to-r from-amber-950/40 via-[#0D1424] to-amber-950/30 flex items-start justify-between gap-4 flex-shrink-0">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                        <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold tracking-wider uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono">
+                          {modalGarment.category}
+                        </span>
+                        <span className="text-xs text-amber-200/80 font-medium">
+                          {modalGarment.dynasty}
+                        </span>
+                        <span className="text-slate-500">·</span>
+                        <span className="text-xs font-mono text-slate-400">
+                          {modalGarment.period}
+                        </span>
+                      </div>
+                      <h3 className="font-serif-vi text-2xl sm:text-3xl font-bold text-amber-100 flex items-center gap-3">
+                        <span>{modalGarment.name}</span>
+                        {modalGarment.hanTu && (
+                          <span className="text-xl font-normal text-amber-400/80 font-serif-vi border-l border-amber-500/40 pl-3">
+                            {modalGarment.hanTu}
+                          </span>
+                        )}
+                      </h3>
+                    </div>
+
+                    {/* Close Button */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundEngine.playPluck(330);
+                        setModalGarment(null);
+                      }}
+                      className="p-2.5 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-all cursor-pointer border border-slate-700/80 flex-shrink-0"
+                      title="Đóng khảo cứu (Phím Esc)"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* Sub-tab Navigation */}
+                  <div className="px-5 sm:px-6 pt-3 pb-2 border-b border-slate-800 bg-[#090E1A]/60 flex items-center gap-1.5 overflow-x-auto scrollbar-none flex-shrink-0">
+                    {[
+                      { id: 'all', label: 'Tất Cả Khảo Cứu' },
+                      { id: 'history', label: '1. Lịch Sử & Triều Đại' },
+                      { id: 'meaning', label: '2. Ý Nghĩa & Triết Lý' },
+                      { id: 'material', label: '3. Chất Liệu & Kỹ Nghệ' },
+                      { id: 'layers', label: '4. Cấu Trúc Các Tầng Áo' },
+                    ].map((tab) => (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => {
+                          soundEngine.playPluck(493.88);
+                          setModalTab(tab.id as any);
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                          modalTab === tab.id
+                            ? 'bg-amber-400/20 text-amber-300 border border-amber-400/50 shadow-sm'
+                            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Modal Scrollable Body with Custom Heritage Scrollbar & Lenis Prevention */}
+                  <div
+                    data-lenis-prevent="true"
+                    tabIndex={0}
+                    className="p-5 sm:p-7 overflow-y-auto overscroll-contain space-y-6 flex-1 min-h-0 scrollbar-heritage focus:outline-none"
                   >
-                    <Sparkles className="w-4 h-4" />
-                    <span>Mặc Thử Ngay Trong Phòng Thử Đồ</span>
-                  </button>
-                )}
+                    {/* Visual image & Quick Metadata strip */}
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-stretch">
+                      <div className="md:col-span-5 relative rounded-2xl overflow-hidden bg-slate-950 border border-amber-500/30 max-h-64 sm:max-h-72">
+                        <img
+                          src={modalGarment.imageUrl}
+                          alt={modalGarment.name}
+                          className="w-full h-full object-cover object-top"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#0D1424] via-transparent to-transparent opacity-80" />
+                        <div className="absolute bottom-2.5 left-3 right-3 text-[11px] text-amber-300 font-mono bg-slate-950/80 backdrop-blur-sm p-1.5 rounded-lg border border-amber-500/20">
+                          {modalGarment.fabricMatch}
+                        </div>
+                      </div>
+
+                      <div className="md:col-span-7 flex flex-col justify-between space-y-3">
+                        <div className="grid grid-cols-2 gap-2.5 text-xs">
+                          <div className="p-3 rounded-xl bg-[#131B30] border border-slate-700/70">
+                            <span className="text-[10px] text-slate-400 uppercase tracking-wider block mb-0.5">
+                              Tầng Lớp Mặc
+                            </span>
+                            <span className="text-slate-200 font-medium leading-snug">
+                              {modalGarment.socialRank}
+                            </span>
+                          </div>
+
+                          <div className="p-3 rounded-xl bg-[#131B30] border border-slate-700/70">
+                            <span className="text-[10px] text-slate-400 uppercase tracking-wider block mb-0.5">
+                              Sắc Độ Thần Thái
+                            </span>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <span
+                                className="w-3 h-3 rounded-full border border-white/40 flex-shrink-0"
+                                style={{ backgroundColor: modalGarment.colorHex }}
+                              />
+                              <span className="text-amber-200 font-medium truncate text-xs">
+                                {modalGarment.colorSpirit}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="p-3.5 rounded-xl bg-[#10172A] border border-slate-700/60 text-xs leading-relaxed text-slate-300">
+                          <strong className="text-amber-300 font-semibold block mb-1">
+                            Tổng quan thức áo:
+                          </strong>
+                          {modalGarment.description}
+                        </div>
+
+                        {modalGarment.symbolism && modalGarment.symbolism.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 pt-1">
+                            {modalGarment.symbolism.map((sym, sIdx) => (
+                              <span
+                                key={sIdx}
+                                className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#141F36] text-amber-200 border border-amber-500/30 flex items-center gap-1.5"
+                              >
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                                {sym}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Section 1: Lịch Sử & Triều Đại */}
+                    {(modalTab === 'all' || modalTab === 'history') && (
+                      <div className="p-4 sm:p-5 rounded-2xl bg-[#141f38] border border-amber-500/30 space-y-2">
+                        <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
+                          <Clock className="w-4 h-4 text-amber-400" />
+                          <span>1. Lịch Sử Ra Đời & Bối Cảnh Triều Đại</span>
+                        </div>
+                        <p className="text-sm text-slate-200 leading-relaxed font-sans-vi">
+                          {modalGarment.history}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Section 2: Ý Nghĩa Triết Lý */}
+                    {(modalTab === 'all' || modalTab === 'meaning') && (
+                      <div className="p-4 sm:p-5 rounded-2xl bg-[#141f38] border border-amber-500/30 space-y-3">
+                        <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
+                          <Shield className="w-4 h-4 text-amber-400" />
+                          <span>2. Ý Nghĩa Triết Lý & Biểu Trưng Văn Hóa</span>
+                        </div>
+                        <p className="text-sm text-slate-200 leading-relaxed font-sans-vi">
+                          {modalGarment.meaning}
+                        </p>
+                        {modalGarment.culturalPhilosophy && (
+                          <div className="p-3 rounded-xl bg-[#0B101D] border border-amber-500/20 text-xs text-amber-200/90 leading-relaxed">
+                            <strong className="text-amber-400 block mb-0.5">Tư Tưởng Cốt Lõi:</strong>
+                            {modalGarment.culturalPhilosophy}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Section 3: Chất Liệu & Kỹ Nghệ */}
+                    {(modalTab === 'all' || modalTab === 'material') && (
+                      <div className="p-4 sm:p-5 rounded-2xl bg-[#141f38] border border-amber-500/30 space-y-3">
+                        <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
+                          <Feather className="w-4 h-4 text-amber-400" />
+                          <span>3. Chất Liệu Tơ Lụa & Kỹ Nghệ May Gấm</span>
+                        </div>
+                        <p className="text-sm text-slate-200 leading-relaxed font-sans-vi">
+                          {modalGarment.material}
+                        </p>
+                        {modalGarment.craftsmanship && (
+                          <div className="p-3 rounded-xl bg-[#0B101D] border border-slate-700/60 text-xs text-slate-300 leading-relaxed">
+                            <strong className="text-amber-300 block mb-0.5">Kỹ Thuật Thêu May Thủ Công:</strong>
+                            {modalGarment.craftsmanship}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Section 4: Cấu Trúc Các Tầng Áo */}
+                    {(modalTab === 'all' || modalTab === 'layers') && (
+                      <div className="p-4 sm:p-5 rounded-2xl bg-[#141f38] border border-amber-500/30 space-y-3">
+                        <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
+                          <Layers className="w-4 h-4 text-amber-400" />
+                          <span>4. Cấu Trúc Các Tầng Lớp Áo (Layering)</span>
+                        </div>
+                        <div className="space-y-2">
+                          {modalGarment.layerStructure.map((layer) => (
+                            <div
+                              key={layer.layer}
+                              className="p-3 rounded-xl bg-[#0E1528] border border-slate-700/60 flex items-start gap-3"
+                            >
+                              <div className="w-6 h-6 rounded-full bg-amber-400/20 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                                {layer.layer}
+                              </div>
+                              <div>
+                                <span className="text-xs font-bold text-amber-200 block">
+                                  {layer.name}
+                                </span>
+                                <span className="text-xs text-slate-300 font-light leading-relaxed">
+                                  {layer.purpose}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Fun fact */}
+                    <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-xs text-amber-300 flex items-start gap-2.5">
+                      <Info className="w-4 h-4 flex-shrink-0 mt-0.5 text-amber-400" />
+                      <div>
+                        <strong>Bạn có biết? </strong> {modalGarment.funFact}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Modal Action Footer */}
+                  <div className="p-4 sm:p-5 border-t border-slate-800 bg-[#0A0F1E] flex flex-wrap items-center justify-between gap-3 flex-shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const targetId = modalGarment.id;
+                        setModalGarment(null);
+                        setSelectedGarmentId(targetId);
+                        setViewMode('studio');
+                        soundEngine.playPluck(523.25);
+                      }}
+                      className="px-3.5 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-amber-200 bg-slate-800/60 hover:bg-slate-800 border border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Columns3 className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Xem ở Chế Độ Studio 2 Cột</span>
+                    </button>
+
+                    <div className="flex items-center gap-2.5 ml-auto">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          soundEngine.playPluck(330);
+                          setModalGarment(null);
+                        }}
+                        className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white border border-slate-700 hover:border-slate-600 transition-colors cursor-pointer"
+                      >
+                        Đóng
+                      </button>
+
+                      {modalGarment.avatarTopId && (
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          type="button"
+                          onClick={() => {
+                            const id = modalGarment.avatarTopId!;
+                            setModalGarment(null);
+                            soundEngine.playPluck(659.25);
+                            onSelectGarmentForFitting(id);
+                          }}
+                          className="px-4 sm:px-5 py-2 rounded-xl text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:brightness-110 shadow-[0_6px_20px_rgba(245,158,11,0.35)] flex items-center gap-2 cursor-pointer transition-all"
+                        >
+                          <Sparkles className="w-3.5 h-3.5 text-slate-950" />
+                          <span>Mặc Thử Ngay Trong Phòng Thử Đồ</span>
+                        </motion.button>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
               </div>
-            </motion.div>
-          </div>
+            )}
+          </AnimatePresence>,
+          document.body
         )}
-      </AnimatePresence>
     </section>
   );
 };

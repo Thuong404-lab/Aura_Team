@@ -101,41 +101,50 @@ export const RegionalFashionDiversityMap: React.FC = () => {
 
   return (
     <section className="w-full my-16 text-left relative z-10">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+      {/* Section Header */}
+      <div className="border-b border-amber-500/20 pb-6 mb-8">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="w-2 h-2 rounded-full bg-amber-400" />
-            <span className="text-xs font-bold tracking-[0.25em] uppercase text-amber-400 font-sans-vi">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+            <span className="text-xs font-bold tracking-[0.25em] uppercase text-amber-400 font-serif-vi">
               BẢN ĐỒ VĂN HÓA 3 MIỀN
             </span>
           </div>
-          <h2 className="font-serif-vi text-3xl sm:text-4xl md:text-5xl font-bold text-amber-100 tracking-tight">
+          <h2 className="font-serif-vi text-2xl sm:text-3xl md:text-4xl font-bold text-amber-100 tracking-tight">
             Sắc Thái Trang Phục Bắc — Trung — Nam
           </h2>
-          <p className="text-sm text-slate-300 mt-2 max-w-2xl font-light font-sans-vi leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-300 mt-2 max-w-2xl font-light font-sans-vi leading-relaxed">
             Mỗi vùng đất trên dải non sông hình chữ S lại ươm mầm một phong cách phục sức độc đáo, phản chiếu địa lý, khí hậu và tâm hồn con người nơi ấy.
           </p>
         </div>
 
-        {/* 3 Region Selection Tabs */}
-        <div className="flex flex-wrap gap-2">
-          {REGION_TRADITIONS.map((reg) => (
-            <button
-              key={reg.id}
-              onClick={() => {
-                soundEngine.playPluck(520);
-                setSelectedRegionId(reg.id);
-              }}
-              className={`px-4 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 ${
-                selectedRegionId === reg.id
-                  ? 'bg-amber-400 text-slate-950 font-bold shadow-lg'
-                  : 'bg-[#121A2D] text-slate-300 hover:text-amber-200 border border-slate-700/80 hover:border-amber-500/40'
-              }`}
-            >
-              <span>{reg.iconSymbol}</span>
-              <span>{reg.regionName.split('—')[0].trim()}</span>
-            </button>
-          ))}
+        {/* 3 Region Selection Tabs: Single clean row, no word breaking, cohesive pill design */}
+        <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-2 p-1 bg-[#0A0F1E]/90 rounded-xl border border-slate-800 overflow-x-auto scrollbar-none max-w-full">
+            {REGION_TRADITIONS.map((reg) => (
+              <button
+                key={reg.id}
+                type="button"
+                onClick={() => {
+                  soundEngine.playPluck(520);
+                  setSelectedRegionId(reg.id);
+                }}
+                className={`px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 flex-shrink-0 ${
+                  selectedRegionId === reg.id
+                    ? 'bg-amber-400 text-slate-950 font-bold shadow-sm shadow-amber-500/20'
+                    : 'text-slate-400 hover:text-amber-200 hover:bg-slate-800/60'
+                }`}
+              >
+                <span>{reg.iconSymbol}</span>
+                <span>{reg.regionName.split('—')[0].trim()}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="text-xs text-amber-300/80 font-mono hidden sm:flex items-center gap-1.5 bg-amber-500/10 px-3 py-1.5 rounded-lg border border-amber-500/20">
+            <span>{currentRegion.iconSymbol}</span>
+            <span className="font-medium">{currentRegion.subTitle}</span>
+          </div>
         </div>
       </div>
 

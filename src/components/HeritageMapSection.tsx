@@ -178,7 +178,7 @@ export const HeritageMapSection: React.FC<HeritageMapSectionProps> = ({
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
   const [selectedRegionFilter, setSelectedRegionFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [showSSpine, setShowSSpine] = useState<boolean>(true);
+  const [showSSpine, setShowSSpine] = useState<boolean>(false);
   const [showSovereignty, setShowSovereignty] = useState<boolean>(true);
   const [isAutoTouring, setIsAutoTouring] = useState<boolean>(false);
   const [mapLoaded, setMapLoaded] = useState<boolean>(false);
@@ -249,7 +249,7 @@ export const HeritageMapSection: React.FC<HeritageMapSectionProps> = ({
     const landmarksGroup = L.layerGroup().addTo(map);
     landmarksGroupRef.current = landmarksGroup;
 
-    // Add S-Spine golden Polyline directly on satellite
+    // Initialize S-Spine golden Polyline directly on satellite
     const spineLine = L.polyline(VIETNAM_S_SPINE_LATLNGS, {
       color: '#FBBF24',
       weight: 4.5,
@@ -257,8 +257,11 @@ export const HeritageMapSection: React.FC<HeritageMapSectionProps> = ({
       dashArray: '8, 6',
       lineCap: 'round',
       lineJoin: 'round',
-    }).addTo(map);
+    });
     spinePolylineRef.current = spineLine;
+    if (showSSpine) {
+      spineLine.addTo(map);
+    }
 
     // Listen for resize and ensure correct rendering
     setTimeout(() => {
@@ -709,34 +712,102 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-amber-500/5 blur-[140px] pointer-events-none rounded-full"></div>
 
       <div className="max-w-7xl mx-auto space-y-8 relative z-10">
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-amber-500/20">
-          <div className="space-y-1.5">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold tracking-wider uppercase">
+        {/* Section Header (Centered) */}
+        <div className="flex flex-col items-center text-center max-w-3xl mx-auto pb-6 border-b border-amber-500/20">
+          <div className="space-y-2 flex flex-col items-center">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold tracking-wider uppercase">
               <Globe className="w-3.5 h-3.5 text-amber-400" />
               <span>Bản Đồ Vệ Tinh Độ Nét Cao</span>
             </div>
-            <h2 className="text-2xl md:text-3xl font-serif-vi font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif-vi font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100 text-center">
               Dải Non Sông Chữ S & Khởi Nguyên Cổ Phục
             </h2>
-            <p className="text-slate-300 text-xs md:text-sm max-w-2xl font-light">
+            <p className="text-slate-300 text-xs sm:text-sm max-w-2xl font-light text-center leading-relaxed">
               Khám phá cội nguồn di sản Việt phục trên nền không ảnh vệ tinh chân thực toàn cảnh Việt Nam — từ đỉnh Lũng Cú đến Mũi Cà Mau, cùng chủ quyền thiêng liêng Hoàng Sa — Trường Sa.
             </p>
           </div>
         </div>
 
         {/* Unified Map Navigation & Controls Hub */}
-        <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-amber-500/25 backdrop-blur-md shadow-xl space-y-3">
-          {/* Row 1: Mode toggles + Search + Auto Tour */}
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            {/* View Layers & Mode Toggles */}
+        <div className="bg-[#0A0F1E]/90 p-3 sm:p-4 rounded-2xl border border-amber-500/25 backdrop-blur-md shadow-xl space-y-3">
+          {/* Tier 1: Search & Regional S-Curve Navigation */}
+          <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+            {/* Search Box */}
+            <div className="relative w-full md:w-72">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Tìm kinh đô, áo cổ trang..."
+                className="w-full pl-8 pr-7 py-2 text-xs rounded-xl bg-slate-950/80 border border-slate-700/80 focus:border-amber-400 text-slate-200 placeholder-slate-500 focus:outline-none transition-all"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-xs"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* S-Curve Regional Jumps (Single Horizontal Bar) */}
+            <div className="flex items-center gap-1.5 p-1 bg-slate-950/80 rounded-xl border border-slate-800 overflow-x-auto scrollbar-none">
+              <span className="text-[11px] font-semibold text-amber-400/80 px-2 hidden lg:flex items-center gap-1 whitespace-nowrap">
+                <Navigation className="w-3 h-3 text-amber-400" />
+                <span>Trục chữ S:</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => handleJumpToSection('full')}
+                className="px-3 py-1.5 text-xs rounded-lg font-medium bg-amber-500/15 text-amber-200 hover:bg-amber-500/25 border border-amber-500/30 transition-all cursor-pointer whitespace-nowrap flex-shrink-0"
+              >
+                🇻🇳 Toàn cảnh
+              </button>
+              <button
+                type="button"
+                onClick={() => handleJumpToSection('north')}
+                className="px-3 py-1.5 text-xs rounded-lg font-medium text-slate-300 hover:text-amber-200 hover:bg-slate-850 transition-all cursor-pointer whitespace-nowrap flex-shrink-0"
+              >
+                🏛️ Bắc Bộ
+              </button>
+              <button
+                type="button"
+                onClick={() => handleJumpToSection('central')}
+                className="px-3 py-1.5 text-xs rounded-lg font-medium text-slate-300 hover:text-amber-200 hover:bg-slate-850 transition-all cursor-pointer whitespace-nowrap flex-shrink-0"
+              >
+                🏯 Trung Bộ
+              </button>
+              <button
+                type="button"
+                onClick={() => handleJumpToSection('south')}
+                className="px-3 py-1.5 text-xs rounded-lg font-medium text-slate-300 hover:text-amber-200 hover:bg-slate-850 transition-all cursor-pointer whitespace-nowrap flex-shrink-0"
+              >
+                🚣 Nam Bộ
+              </button>
+              <button
+                type="button"
+                onClick={() => handleJumpToSection('islands')}
+                className="px-3 py-1.5 text-xs rounded-lg font-semibold text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-all cursor-pointer whitespace-nowrap flex-shrink-0"
+              >
+                🌊 Biển Đảo (Hoàng Sa - Trường Sa)
+              </button>
+            </div>
+          </div>
+
+          {/* Tier 2: Layer Toggles & Auto Tour Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800/80">
+            {/* Layer & Feature Toggles */}
             <div className="flex flex-wrap items-center gap-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950/90 border border-emerald-500/40 text-xs shadow-inner">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950/90 border border-emerald-500/40 text-xs shadow-inner">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span className="font-semibold text-emerald-300">🛰️ Vệ Tinh Trực Tuyến</span>
               </div>
 
               <button
+                type="button"
                 onClick={() => {
                   soundEngine.playPluck(480);
                   setShowPlaceLabels(!showPlaceLabels);
@@ -744,7 +815,7 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
                 className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
                   showPlaceLabels
                     ? 'bg-amber-500/20 border-amber-400 text-amber-200 shadow-sm'
-                    : 'bg-slate-950/60 border-slate-700 text-slate-400 hover:text-slate-200'
+                    : 'bg-slate-950/70 border-slate-700 text-slate-400 hover:text-slate-200'
                 }`}
                 title="Bật/Tắt nhãn địa danh tỉnh thành trên ảnh vệ tinh"
               >
@@ -753,14 +824,15 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
               </button>
 
               <button
+                type="button"
                 onClick={() => {
                   soundEngine.playPluck(440);
                   setShowSSpine(!showSSpine);
                 }}
-                className={`px-2.5 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
                   showSSpine
-                    ? 'bg-amber-500/20 border-amber-400 text-amber-200'
-                    : 'bg-slate-950/60 border-slate-700 text-slate-400 hover:text-slate-200'
+                    ? 'bg-amber-500/20 border-amber-400 text-amber-200 shadow-sm'
+                    : 'bg-slate-950/70 border-slate-700 text-slate-400 hover:text-slate-200'
                 }`}
                 title="Bật/Tắt đường chỉ lụa vàng hình chữ S"
               >
@@ -769,104 +841,49 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
               </button>
 
               <button
+                type="button"
                 onClick={() => {
                   soundEngine.playPluck(440);
                   setShowSovereignty(!showSovereignty);
                 }}
-                className={`px-2.5 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
                   showSovereignty
-                    ? 'bg-rose-500/20 border-rose-400 text-rose-200'
-                    : 'bg-slate-950/60 border-slate-700 text-slate-400 hover:text-slate-200'
+                    ? 'bg-amber-500/20 border-amber-400 text-amber-200 shadow-sm'
+                    : 'bg-slate-950/70 border-slate-700 text-slate-400 hover:text-slate-200'
                 }`}
                 title="Bật/Tắt mốc chủ quyền biển đảo"
               >
-                <Shield className="w-3.5 h-3.5 text-rose-400" />
+                <Shield className="w-3.5 h-3.5 text-amber-400" />
                 <span>Mốc chủ quyền</span>
               </button>
+            </div>
 
+            {/* Auto-Tour & Cultural Hint */}
+            <div className="flex items-center gap-2.5">
               <div
-                className="hidden xl:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-200 text-xs font-normal select-none"
+                className="hidden xl:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-200/90 text-xs font-normal select-none"
                 title="Rê chuột (hover) vào bất kỳ điểm mốc nào trên bản đồ để xem thẻ chú thích văn hóa tức thì"
               >
                 <Info className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                 <span>Rê chuột vào điểm mốc xem văn hóa</span>
               </div>
-            </div>
-
-            {/* Search Box & Auto-Tour */}
-            <div className="flex items-center gap-2 flex-1 sm:flex-initial min-w-[240px] justify-end">
-              <div className="relative flex-1 sm:w-64">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Tìm kinh đô, áo cổ trang..."
-                  className="w-full pl-8 pr-7 py-1.5 text-xs rounded-xl bg-slate-950/80 border border-slate-700/80 focus:border-amber-400 text-slate-200 placeholder-slate-500 focus:outline-none transition-all"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-xs"
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
 
               <button
+                type="button"
                 onClick={() => {
                   soundEngine.playPluck(523.25);
                   setIsAutoTouring(!isAutoTouring);
                 }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap shadow-sm ${
                   isAutoTouring
-                    ? 'bg-amber-500 text-slate-950 border-amber-400 animate-pulse'
-                    : 'bg-slate-950/80 border-slate-700 text-slate-300 hover:text-amber-300'
+                    ? 'bg-amber-400 text-slate-950 border-amber-300 font-bold shadow-amber-500/30 animate-pulse'
+                    : 'bg-amber-500/15 border-amber-500/30 text-amber-200 hover:bg-amber-500/25'
                 }`}
               >
                 {isAutoTouring ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
                 <span>{isAutoTouring ? 'Dừng du ngoạn' : 'Du ngoạn'}</span>
               </button>
             </div>
-          </div>
-
-          {/* Row 2: Quick Regional Jump Bar */}
-          <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-800/80">
-            <span className="text-[11px] font-semibold text-amber-400/80 px-1 flex items-center gap-1 mr-1">
-              <Navigation className="w-3 h-3 text-amber-400" />
-              <span>Dạo theo chữ S:</span>
-            </span>
-            <button
-              onClick={() => handleJumpToSection('full')}
-              className="px-2.5 py-1 text-xs rounded-lg font-medium bg-amber-500/15 text-amber-200 hover:bg-amber-500/30 border border-amber-500/30 transition-all cursor-pointer"
-            >
-              🇻🇳 Toàn cảnh
-            </button>
-            <button
-              onClick={() => handleJumpToSection('north')}
-              className="px-2.5 py-1 text-xs rounded-lg font-medium text-slate-300 hover:text-amber-200 hover:bg-slate-800 transition-all cursor-pointer"
-            >
-              🏛️ Bắc Bộ
-            </button>
-            <button
-              onClick={() => handleJumpToSection('central')}
-              className="px-2.5 py-1 text-xs rounded-lg font-medium text-slate-300 hover:text-amber-200 hover:bg-slate-800 transition-all cursor-pointer"
-            >
-              🏯 Trung Bộ
-            </button>
-            <button
-              onClick={() => handleJumpToSection('south')}
-              className="px-2.5 py-1 text-xs rounded-lg font-medium text-slate-300 hover:text-amber-200 hover:bg-slate-800 transition-all cursor-pointer"
-            >
-              🚣 Nam Bộ
-            </button>
-            <button
-              onClick={() => handleJumpToSection('islands')}
-              className="px-2.5 py-1 text-xs rounded-lg font-medium text-amber-300 hover:bg-amber-500/20 border border-amber-500/40 transition-all cursor-pointer"
-            >
-              🌊 Biển Đảo (Hoàng Sa - Trường Sa)
-            </button>
           </div>
         </div>
 
@@ -877,21 +894,6 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
             {/* The Actual Leaflet Map Canvas */}
             <div ref={mapContainerRef} className="w-full h-full z-0 relative" />
 
-            {/* Floating Top Bar on Map: Satellite Status Badge */}
-            <div className="absolute top-4 left-4 z-10 pointer-events-none flex items-center gap-2">
-              <div className="px-3 py-1.5 rounded-xl bg-slate-950/85 backdrop-blur-md border border-amber-500/30 text-xs text-amber-200 shadow-xl flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span className="font-semibold">🛰️ Vệ Tinh Chân Thực (Độ nét cao)</span>
-              </div>
-            </div>
-
-            {/* Floating Sovereignty Declaration Banner */}
-            <div className="absolute top-4 right-4 z-10 pointer-events-none hidden sm:flex items-center gap-2">
-              <div className="px-3 py-1.5 rounded-xl bg-slate-950/85 backdrop-blur-md border border-rose-500/40 text-[11px] text-rose-200 shadow-xl flex items-center gap-1.5 font-semibold">
-                <span>🇻🇳</span>
-                <span>Hoàng Sa & Trường Sa là của Việt Nam</span>
-              </div>
-            </div>
 
             {/* Map Controls: Floating Action Buttons (Bottom Left) */}
             <div className="absolute bottom-5 left-4 z-10 flex flex-col gap-1.5">
@@ -967,38 +969,30 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
                   style={{ backgroundColor: selectedNode.accentColor || '#D4AF37' }}
                 />
 
-                {/* Card Header & Location Navigation */}
-                <div className="flex items-start justify-between gap-3 pb-4 border-b border-slate-800">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl">{selectedNode.icon}</span>
-                      <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300">
-                        {selectedNode.regionTitle}
-                      </span>
-                    </div>
-                    <h3 className="text-2xl font-serif-vi font-bold text-amber-100">
-                      {selectedNode.name}
-                    </h3>
-                    {selectedNode.historicalName && (
-                      <p className="text-xs text-amber-400/90 font-mono italic">
-                        Cổ danh: {selectedNode.historicalName}
-                      </p>
-                    )}
+                {/* Card Header Top Row: Region Badge & Location Navigation */}
+                <div className="flex items-center justify-between gap-3 pb-3.5 border-b border-slate-800">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{selectedNode.icon}</span>
+                    <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-300">
+                      {selectedNode.regionTitle}
+                    </span>
                   </div>
 
                   {/* Next / Prev Location controls */}
-                  <div className="flex items-center gap-1.5 bg-slate-950 px-2 py-1 rounded-xl border border-slate-800 shrink-0">
+                  <div className="flex items-center gap-1.5 bg-slate-950 px-2.5 py-1 rounded-xl border border-slate-800 shrink-0">
                     <button
+                      type="button"
                       onClick={handleNavigatePrev}
                       className="p-1 rounded-lg text-slate-400 hover:text-amber-300 hover:bg-slate-800 transition-all cursor-pointer"
                       title="Địa danh trước"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
-                    <span className="text-[11px] font-mono text-amber-300/90 font-medium px-0.5">
+                    <span className="text-[11px] font-mono text-amber-300/90 font-medium px-1">
                       {HERITAGE_LOCATIONS.findIndex((n) => n.id === selectedNode.id) + 1}/{HERITAGE_LOCATIONS.length}
                     </span>
                     <button
+                      type="button"
                       onClick={handleNavigateNext}
                       className="p-1 rounded-lg text-slate-400 hover:text-amber-300 hover:bg-slate-800 transition-all cursor-pointer"
                       title="Địa danh kế tiếp"
@@ -1008,13 +1002,25 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
                   </div>
                 </div>
 
-                {/* Dynasties / Historic Eras */}
-                <div className="py-2.5 flex flex-wrap gap-1.5 items-center">
+                {/* Centered Main Location Title & Ancient Name */}
+                <div className="py-3 text-center flex flex-col items-center border-b border-slate-800/60">
+                  <h3 className="text-2xl sm:text-3xl font-serif-vi font-bold text-amber-100 text-center leading-tight">
+                    {selectedNode.name}
+                  </h3>
+                  {selectedNode.historicalName && (
+                    <p className="text-xs text-amber-400/90 font-mono italic text-center mt-1.5">
+                      Cổ danh: {selectedNode.historicalName}
+                    </p>
+                  )}
+                </div>
+
+                {/* Dynasties / Historic Eras (Centered) */}
+                <div className="py-2.5 flex flex-wrap gap-1.5 items-center justify-center text-center">
                   <span className="text-[11px] text-slate-400 font-medium">Triều đại tiêu biểu:</span>
                   {selectedNode.dynasties.map((dynasty) => (
                     <span
                       key={dynasty}
-                      className="text-xs px-2 py-0.5 rounded-md bg-slate-800/80 text-amber-200 border border-amber-500/20 font-medium"
+                      className="text-xs px-2.5 py-0.5 rounded-lg bg-slate-800/80 text-amber-200 border border-amber-500/20 font-medium"
                     >
                       {dynasty}
                     </span>
@@ -1028,22 +1034,22 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
                       <Compass className="w-3.5 h-3.5 text-amber-400" />
                       <span>Đối chiếu Địa Danh Xưa & Nay</span>
                     </span>
-                    <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      Tọa độ vệ tinh thật
+                    <span className="text-[10px] text-amber-400/90 font-mono flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                      Tọa độ vệ tinh
                     </span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <div className="p-2.5 rounded-xl bg-amber-950/30 border border-amber-500/20">
-                      <span className="text-[10px] text-amber-400/80 uppercase font-mono block">🏛️ Thời Xưa (Cổ danh)</span>
-                      <p className="text-xs text-amber-100 font-medium mt-0.5 leading-snug">
+                    <div className="p-3 rounded-xl bg-[#111A2E] border border-amber-500/20">
+                      <span className="text-[10px] text-amber-400 font-mono font-semibold block mb-1">🏛️ THỜI XƯA (CỔ DANH)</span>
+                      <p className="text-xs text-amber-100 font-medium leading-relaxed">
                         {selectedNode.historicalName || selectedNode.name}
                       </p>
                     </div>
-                    <div className="p-2.5 rounded-xl bg-sky-950/30 border border-sky-500/20">
-                      <span className="text-[10px] text-sky-400/80 uppercase font-mono block">📍 Ngày Nay (Hành chính)</span>
-                      <p className="text-xs text-sky-100 font-medium mt-0.5 leading-snug">
+                    <div className="p-3 rounded-xl bg-[#111A2E] border border-slate-700/80">
+                      <span className="text-[10px] text-slate-300 font-mono font-semibold block mb-1">📍 NGÀY NAY (HÀNH CHÍNH)</span>
+                      <p className="text-xs text-slate-200 font-medium leading-relaxed">
                         {selectedNode.modernLocation}
                       </p>
                     </div>
@@ -1051,12 +1057,12 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
 
                   <div className="pt-2 border-t border-slate-800/80 space-y-1.5">
                     <div className="flex items-center justify-between text-[10.5px] font-mono text-slate-400">
-                      <span className="text-slate-400">Tọa độ vệ tinh:</span>
-                      <span className="text-emerald-400 font-semibold">{selectedNode.coordinates[1].toFixed(2)}°B • {selectedNode.coordinates[0].toFixed(2)}°Đ</span>
+                      <span>Tọa độ vệ tinh:</span>
+                      <span className="text-amber-300 font-semibold">{selectedNode.coordinates[1].toFixed(2)}°B • {selectedNode.coordinates[0].toFixed(2)}°Đ</span>
                     </div>
                     {selectedNode.landmarkNote && (
-                      <div className="p-2 rounded-xl bg-slate-900/90 border border-slate-800/90 text-[11px] text-amber-200/90 font-sans leading-relaxed flex items-start gap-1.5">
-                        <span className="text-amber-400 shrink-0 mt-0.5">ℹ️</span>
+                      <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-200 leading-relaxed flex items-start gap-2">
+                        <Info className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
                         <span>{selectedNode.landmarkNote}</span>
                       </div>
                     )}
@@ -1064,17 +1070,17 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
                 </div>
 
                 {/* Primary Garment Spotlight */}
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 via-slate-950/60 to-slate-950/90 border border-amber-500/30 space-y-2 mb-4">
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 via-[#0E1528] to-[#0A0F1D] border border-amber-500/30 space-y-2 mb-4">
                   <div className="flex items-center justify-between">
                     <span className="text-xs uppercase font-bold tracking-wider text-amber-400 flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5 text-amber-300" />
                       <span>Trang phục danh xưng</span>
                     </span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-200 font-mono">
+                    <span className="text-[10px] px-2.5 py-0.5 rounded-md bg-amber-400/20 text-amber-200 border border-amber-400/30 font-medium font-mono">
                       {selectedNode.elevationBadge || 'Di sản văn hóa'}
                     </span>
                   </div>
-                  <h4 className="text-lg font-bold text-slate-100 font-serif-vi">
+                  <h4 className="text-lg font-bold text-amber-100 font-serif-vi">
                     {selectedNode.mainGarmentName}
                   </h4>
                   <p className="text-xs text-slate-300 leading-relaxed font-light">
@@ -1110,17 +1116,6 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
                 </div>
               </motion.div>
             </AnimatePresence>
-
-            {/* Quick S-Curve Regional Heritage Guide */}
-            <div className="bg-slate-900/60 rounded-2xl border border-slate-800 p-4 text-xs space-y-2">
-              <div className="flex items-center gap-2 text-amber-300 font-semibold">
-                <Compass className="w-4 h-4" />
-                <span>Trục Di Sản Chữ S Ngàn Năm</span>
-              </div>
-              <p className="text-slate-400 leading-relaxed text-[11px]">
-                Từ đất Thăng Long ngàn năm văn hiến, qua cố đô Hoa Lư, Lam Kinh, kinh thành Thuận Hóa Huế, đến phố hội sông Hoài và đất phương Nam trù phú — từng tà áo giao thoa tạo nên dòng chảy trang phục Việt trọn vẹn, phong phú và đậm đà bản sắc.
-              </p>
-            </div>
           </div>
         </div>
       </div>

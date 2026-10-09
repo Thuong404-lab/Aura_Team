@@ -2,16 +2,12 @@ import React, { useState } from 'react';
 import { AuraLogo } from './VietnameseDecorativeElements';
 import { soundEngine } from '../utils/audioSynth';
 import {
-  Volume2,
-  VolumeX,
   Menu,
   X,
-  Bookmark,
   Sparkles,
   Shirt,
   BookOpen,
   Home,
-  Wind,
 } from 'lucide-react';
 
 export type ScreenType = 'home' | 'fitting' | 'lookbook';
@@ -19,21 +15,13 @@ export type ScreenType = 'home' | 'fitting' | 'lookbook';
 interface AppNavbarProps {
   currentScreen: ScreenType;
   onNavigate: (screen: ScreenType) => void;
-  onOpenSavedLibrary: () => void;
-  savedCount: number;
-  isPlayingMusic: boolean;
-  onToggleMusic: () => void;
-  onTriggerCloudIntro?: () => void;
+  isPlayingMusic?: boolean;
+  onToggleMusic?: () => void;
 }
 
 export const AppNavbar: React.FC<AppNavbarProps> = ({
   currentScreen,
   onNavigate,
-  onOpenSavedLibrary,
-  savedCount,
-  isPlayingMusic,
-  onToggleMusic,
-  onTriggerCloudIntro,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -64,7 +52,7 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
                 </span>
               </div>
               <span className="text-[9px] uppercase tracking-[0.2em] text-amber-400/80 font-semibold hidden sm:block">
-                Di Sản Dân Tộc • Khảo Cứu Triều Đại • Phục Sức 3D
+                Di Sản Dân Tộc • Khảo Cứu Triều Đại • Phục Sức 2D
               </span>
             </div>
           </div>
@@ -92,7 +80,7 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
             >
               <span className="flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                Phòng thử phục sắc 3D
+                Phòng thử phục sắc 2D
               </span>
             </button>
 
@@ -106,71 +94,10 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
             >
               Lookbook cá nhân
             </button>
-
-            <button
-              onClick={onOpenSavedLibrary}
-              className="text-sm font-medium text-slate-300 hover:text-amber-300 transition-colors flex items-center gap-1.5 cursor-pointer py-2"
-            >
-              <Bookmark className="w-3.5 h-3.5 text-amber-400" />
-              <span>Đã lưu ({savedCount})</span>
-            </button>
           </nav>
 
-          {/* Right Action Icons (Vén Mây & Nhã Nhạc) - Không còn Đăng Nhập / Tài Khoản */}
+          {/* Right Action Icons */}
           <div className="flex items-center gap-2 sm:gap-2.5">
-            {/* Quick Trigger for Cloud Parting Animation */}
-            {onTriggerCloudIntro && (
-              <button
-                onClick={onTriggerCloudIntro}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:border-amber-400 text-xs font-medium transition-all cursor-pointer group shadow-sm"
-                title="Vén Mây Khai Mở Di Sản"
-              >
-                <Wind className="w-3.5 h-3.5 text-amber-400 group-hover:rotate-12 transition-transform" />
-                <span className="hidden xl:inline">Vén Mây 3D</span>
-              </button>
-            )}
-
-            {/* Audio Synthesizer Toggle */}
-            <button
-              onClick={onToggleMusic}
-              className={`p-2 sm:px-3 sm:py-2 rounded-xl border text-xs font-medium flex items-center gap-2 transition-all cursor-pointer ${
-                isPlayingMusic
-                  ? 'bg-amber-500/15 border-amber-500/40 text-amber-300 shadow-[0_0_14px_rgba(245,158,11,0.25)]'
-                  : 'bg-[#121A2D]/80 border-slate-700/70 text-slate-400 hover:text-slate-200 hover:border-slate-600'
-              }`}
-              title={
-                isPlayingMusic
-                  ? `Đang phát: ${soundEngine.getThemeName(currentScreen)} (Nhấp để tắt)`
-                  : 'Bật nhã nhạc cung đình'
-              }
-            >
-              {isPlayingMusic ? (
-                <>
-                  <Volume2 className="w-3.5 h-3.5 text-amber-400" />
-                  {/* Equalizer Wave Bars */}
-                  <span className="flex items-end gap-0.5 h-3">
-                    <span className="w-0.5 h-full bg-amber-400 animate-pulse rounded-full" />
-                    <span
-                      className="w-0.5 h-2/3 bg-amber-300 animate-pulse rounded-full"
-                      style={{ animationDelay: '0.15s' }}
-                    />
-                    <span
-                      className="w-0.5 h-4/5 bg-amber-400 animate-pulse rounded-full"
-                      style={{ animationDelay: '0.3s' }}
-                    />
-                  </span>
-                  <span className="hidden lg:inline truncate max-w-[120px]">
-                    {soundEngine.getThemeName(currentScreen)}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <VolumeX className="w-3.5 h-3.5 text-slate-400" />
-                  <span className="hidden lg:inline">Nhã nhạc</span>
-                </>
-              )}
-            </button>
-
             {/* Mobile Hamburger Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -207,7 +134,7 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
             }`}
           >
             <Shirt className="w-4 h-4 text-amber-400" />
-            <span>Phòng thử phục sắc 3D</span>
+            <span>Phòng thử phục sắc 2D</span>
           </button>
 
           <button
@@ -221,30 +148,6 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
             <BookOpen className="w-4 h-4 text-amber-400" />
             <span>Lookbook cá nhân</span>
           </button>
-
-          <button
-            onClick={() => {
-              onOpenSavedLibrary();
-              setMobileMenuOpen(false);
-            }}
-            className="w-full py-2.5 px-3 rounded-xl flex items-center gap-3 text-sm font-medium text-slate-300 hover:bg-slate-800/60 transition-all cursor-pointer"
-          >
-            <Bookmark className="w-4 h-4 text-amber-400" />
-            <span>Bộ sưu tập đã lưu ({savedCount})</span>
-          </button>
-
-          {onTriggerCloudIntro && (
-            <button
-              onClick={() => {
-                onTriggerCloudIntro();
-                setMobileMenuOpen(false);
-              }}
-              className="w-full py-2.5 px-3 rounded-xl flex items-center gap-3 text-sm font-medium text-amber-300 bg-amber-500/10 border border-amber-500/30 transition-all cursor-pointer"
-            >
-              <Wind className="w-4 h-4 text-amber-400" />
-              <span>Hiệu ứng Vén Mây Cổ Phong</span>
-            </button>
-          )}
         </div>
       )}
     </header>
