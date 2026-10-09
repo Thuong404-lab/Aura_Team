@@ -9,6 +9,7 @@ import {
   ACCESSORIES,
   FABRICS,
   COLOR_PALETTES,
+  BACKDROPS,
 } from '../data/vietPhucData';
 import { AvatarModel, GARMENT_VISUAL_PROFILES } from './AvatarModel';
 import {
@@ -31,9 +32,10 @@ import {
   Crown,
   Feather,
   Waves,
-  Eye,
   Maximize2,
   X,
+  Download,
+  Camera,
 } from 'lucide-react';
 import {
   SilkCategoryTabs,
@@ -151,10 +153,16 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
 
   // Dynasty Era Filter & Gender Filter
   const [eraFilter, setEraFilter] = useState<string>('all');
-  const [genderFilter, setGenderFilter] = useState<'all' | 'nam' | 'nu'>('all');
+  const [genderFilter, setGenderFilter] = useState<'nam' | 'nu'>(
+    currentTop?.gender === 'nu' ? 'nu' : 'nam'
+  );
 
-  // Preview Image Lightbox Modal state
-  const [previewImageItem, setPreviewImageItem] = useState<WardrobeItem | null>(null);
+  // Sync gender filter with current garment when changed from preset or suggestion
+  React.useEffect(() => {
+    if (currentTop?.gender && (currentTop.gender === 'nam' || currentTop.gender === 'nu')) {
+      setGenderFilter(currentTop.gender);
+    }
+  }, [currentTop?.id]);
 
   // Real-time Hovered Garment & Category for Silk Drape physics
   const [hoveredItem, setHoveredItem] = useState<WardrobeItem | null>(null);
@@ -201,7 +209,7 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
         );
       }
     }
-    if (genderFilter !== 'all') {
+    if (genderFilter) {
       list = list.filter((i) => !i.gender || i.gender === genderFilter || i.gender === 'unisex');
     }
     return list;
@@ -258,7 +266,7 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
     }
   };
 
-  // Save Lookbook action
+  // Save Lookbook action (📖 Mở Trang Soạn Thảo Lookbook)
   const handleSaveToLookbook = () => {
     soundEngine.playPluck(523.25);
     onGoLookbook(harmonyResult);
@@ -360,23 +368,18 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
               <div className="flex items-center gap-1.5 sm:gap-2">
                 {/* Top preview */}
                 {currentTop ? (
-                  <button
-                    onClick={() => {
-                      soundEngine.playPluck(523.25);
-                      setPreviewImageItem(currentTop);
-                    }}
-                    className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-900/90 border border-amber-500/40 hover:border-amber-400 transition-all cursor-pointer group/pill shrink-0 shadow-xs"
-                    title="Nhấp để xem chi tiết ảnh Áo"
+                  <div
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/90 border border-amber-500/40 shrink-0 shadow-xs"
                   >
                     <img
                       src={currentTop.imageUrl}
                       alt={currentTop.name}
                       className="w-5 h-5 rounded-md object-cover border border-amber-400/50"
                     />
-                    <span className="text-amber-300 font-semibold group-hover/pill:text-amber-200 truncate max-w-[120px] sm:max-w-none">
+                    <span className="text-amber-300 font-semibold truncate max-w-[120px] sm:max-w-none">
                       {currentTop.name}
                     </span>
-                  </button>
+                  </div>
                 ) : (
                   <span className="px-2 py-1 rounded-lg bg-slate-900/60 border border-dashed border-slate-700/80 text-slate-500 text-[10.5px]">
                     Chưa chọn áo
@@ -387,23 +390,18 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
 
                 {/* Bottom preview */}
                 {currentBottom ? (
-                  <button
-                    onClick={() => {
-                      soundEngine.playPluck(587.33);
-                      setPreviewImageItem(currentBottom);
-                    }}
-                    className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-900/90 border border-slate-700 hover:border-amber-400 transition-all cursor-pointer group/pill shrink-0 shadow-xs"
-                    title="Nhấp để xem chi tiết ảnh Quần/Váy"
+                  <div
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/90 border border-slate-700 shrink-0 shadow-xs"
                   >
                     <img
                       src={currentBottom.imageUrl}
                       alt={currentBottom.name}
                       className="w-5 h-5 rounded-md object-cover border border-slate-600"
                     />
-                    <span className="text-slate-200 group-hover/pill:text-amber-200 truncate max-w-[110px] sm:max-w-none">
+                    <span className="text-slate-200 truncate max-w-[110px] sm:max-w-none">
                       {currentBottom.name}
                     </span>
-                  </button>
+                  </div>
                 ) : (
                   <span className="px-2 py-1 rounded-lg bg-slate-900/60 border border-dashed border-slate-700/80 text-slate-500 text-[10.5px]">
                     Chưa chọn quần/váy
@@ -414,23 +412,18 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
 
                 {/* Accessory preview */}
                 {currentAccessory ? (
-                  <button
-                    onClick={() => {
-                      soundEngine.playPluck(659.25);
-                      setPreviewImageItem(currentAccessory);
-                    }}
-                    className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-900/90 border border-slate-700 hover:border-amber-400 transition-all cursor-pointer group/pill shrink-0 shadow-xs"
-                    title="Nhấp để xem chi tiết ảnh Phụ kiện"
+                  <div
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/90 border border-slate-700 shrink-0 shadow-xs"
                   >
                     <img
                       src={currentAccessory.imageUrl}
                       alt={currentAccessory.name}
                       className="w-5 h-5 rounded-md object-cover border border-slate-600"
                     />
-                    <span className="text-slate-300 group-hover/pill:text-amber-200 truncate max-w-[100px] sm:max-w-none">
+                    <span className="text-slate-300 truncate max-w-[100px] sm:max-w-none">
                       {currentAccessory.name}
                     </span>
-                  </button>
+                  </div>
                 ) : (
                   <span className="px-2 py-1 rounded-lg bg-slate-900/60 border border-dashed border-slate-700/80 text-slate-500 text-[10.5px]">
                     Chưa chọn phụ kiện
@@ -559,7 +552,6 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                     <span className="text-[11px] text-slate-400 font-medium shrink-0">Giới tính:</span>
                     <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 custom-scrollbar">
                       {[
-                        { id: 'all', label: 'Tất cả' },
                         { id: 'nam', label: 'Nam Phục' },
                         { id: 'nu', label: 'Nữ Phục' },
                       ].map((gen) => (
@@ -567,7 +559,7 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                           key={gen.id}
                           onClick={() => {
                             soundEngine.playSilkFlutter();
-                            setGenderFilter(gen.id as any);
+                            setGenderFilter(gen.id as 'nam' | 'nu');
                           }}
                           className={`px-2.5 py-0.5 rounded-lg text-[10px] font-medium transition-all whitespace-nowrap cursor-pointer ${
                             genderFilter === gen.id
@@ -585,7 +577,11 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
             )}
 
             {/* 4. Wardrobe Item List Grid with Framer Motion Silk Drape Transitions */}
-            <div className="flex-1 min-h-[240px] max-h-[300px] md:max-h-[350px] lg:max-h-[390px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+            <div
+              data-lenis-prevent="true"
+              tabIndex={0}
+              className="flex-1 min-h-[260px] max-h-[320px] md:max-h-[380px] lg:max-h-[420px] overflow-y-auto overscroll-contain space-y-2 pr-1.5 custom-scrollbar scrollbar-heritage touch-pan-y focus:outline-none"
+            >
               <AnimatePresence mode="wait">
                 <motion.div
                   key={`${activeTab}-${eraFilter}-${genderFilter}`}
@@ -641,26 +637,14 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                           <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500/0 via-amber-400/70 to-amber-500/0 opacity-0 group-hover:opacity-100 transition-opacity" />
 
                           <div className="flex items-center gap-3 relative z-10 flex-1 min-w-0">
-                            {/* Rich Thumbnail with Eye Button */}
+                            {/* Rich Thumbnail */}
                             <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden bg-slate-900 shrink-0 border border-slate-700/80 group-hover:border-amber-400/80 transition-all shadow-md">
                               <img
                                 src={item.imageUrl}
                                 alt={item.name}
                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
                               />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  soundEngine.playPluck(523.25);
-                                  setPreviewImageItem(item);
-                                }}
-                                className="absolute bottom-1 right-1 p-1 rounded-md bg-black/75 hover:bg-amber-400 text-slate-300 hover:text-slate-950 transition-colors shadow-sm cursor-pointer z-10"
-                                title="Phóng to ảnh độ nét cao"
-                              >
-                                <Eye className="w-3 h-3" />
-                              </button>
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
                             </div>
 
                             <div className="flex-1 min-w-0 text-left">
@@ -758,19 +742,7 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                                 alt={item.name}
                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
                               />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  soundEngine.playPluck(587.33);
-                                  setPreviewImageItem(item);
-                                }}
-                                className="absolute bottom-1 right-1 p-1 rounded-md bg-black/75 hover:bg-amber-400 text-slate-300 hover:text-slate-950 transition-colors shadow-sm cursor-pointer z-10"
-                                title="Phóng to ảnh"
-                              >
-                                <Eye className="w-3 h-3" />
-                              </button>
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
                             </div>
 
                             <div className="flex-1 min-w-0 text-left">
@@ -871,19 +843,7 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                                 alt={item.name}
                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
                               />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  soundEngine.playPluck(659.25);
-                                  setPreviewImageItem(item);
-                                }}
-                                className="absolute bottom-1 right-1 p-1 rounded-md bg-black/75 hover:bg-amber-400 text-slate-300 hover:text-slate-950 transition-colors shadow-sm cursor-pointer z-10"
-                                title="Phóng to ảnh"
-                              >
-                                <Eye className="w-3 h-3" />
-                              </button>
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
                             </div>
 
                             <div className="flex-1 min-w-0 text-left">
@@ -1180,153 +1140,24 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                 )}
               </button>
 
-              {/* Chuyển sang Lookbook */}
-              <button
-                onClick={handleSaveToLookbook}
-                className="w-full py-2.5 rounded-2xl bg-[#121A2C] hover:bg-[#18233C] text-slate-200 border border-slate-700/80 hover:border-amber-400/60 text-xs font-semibold shadow-md active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Bookmark className="w-3.5 h-3.5 text-amber-400" />
-                <span>Xuất Trang Bìa Lookbook Cá Nhân</span>
-                <ArrowRight className="w-3.5 h-3.5 text-amber-400" />
-              </button>
+              <div className="pt-1">
+                {/* 📖 Mở Trang Soạn Thảo & Tải Poster Lookbook */}
+                <button
+                  onClick={handleSaveToLookbook}
+                  className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#121A2C] via-[#1A2640] to-[#121A2C] hover:from-[#18233C] hover:to-[#223254] text-amber-200 hover:text-amber-100 border border-amber-400/60 hover:border-amber-300 text-xs font-bold shadow-lg active:scale-[0.99] transition-all flex items-center justify-between gap-2.5 cursor-pointer group"
+                  title="Mở Trang Soạn Thảo Lookbook để tùy biến bối cảnh, tiêu đề, thơ đề từ và tải Poster HD"
+                >
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform shrink-0" />
+                    <span>📖 Mở Trang Soạn Thảo & Tải Poster Lookbook</span>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform shrink-0" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </main>
-
-      {/* ========================================================
-          IMAGE LIGHTBOX MODAL: FULL RESOLUTION GARMENT INSPECTION
-         ======================================================== */}
-      <AnimatePresence>
-        {previewImageItem && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setPreviewImageItem(null)}
-            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-6"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative max-w-4xl w-full max-h-[92vh] bg-[#0E1526] border border-amber-500/40 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row text-left"
-            >
-              {/* Close Button */}
-              <button
-                onClick={() => setPreviewImageItem(null)}
-                className="absolute top-4 right-4 z-40 p-2 rounded-full bg-black/75 hover:bg-black text-slate-300 hover:text-white border border-slate-700 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              {/* Left Column: High-Res Image */}
-              <div className="w-full md:w-3/5 bg-black/70 flex items-center justify-center p-4 relative min-h-[350px] md:min-h-[500px]">
-                <img
-                  src={previewImageItem.imageUrl}
-                  alt={previewImageItem.name}
-                  className="max-h-[75vh] w-auto object-contain rounded-xl shadow-2xl"
-                />
-              </div>
-
-              {/* Right Column: Cultural Details */}
-              <div className="w-full md:w-2/5 p-5 sm:p-6 flex flex-col justify-between overflow-y-auto max-h-[50vh] md:max-h-[85vh] custom-scrollbar space-y-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                    <span className="px-2 py-0.5 rounded-md bg-amber-400/20 text-amber-300 border border-amber-400/30 text-[10px] font-semibold uppercase">
-                      {previewImageItem.era}
-                    </span>
-                    <span className="text-xs text-slate-400">{previewImageItem.badge}</span>
-                    {previewImageItem.gender && (
-                      <span
-                        className={`text-[9px] px-2 py-0.5 rounded-md font-sans-vi border uppercase font-semibold ${
-                          previewImageItem.gender === 'nam'
-                            ? 'bg-sky-950/80 text-sky-300 border-sky-400/50'
-                            : previewImageItem.gender === 'nu'
-                            ? 'bg-rose-950/80 text-rose-300 border-rose-400/50'
-                            : 'bg-amber-950/80 text-amber-300 border-amber-400/50'
-                        }`}
-                      >
-                        {previewImageItem.gender === 'nam'
-                          ? 'Nam Phục'
-                          : previewImageItem.gender === 'nu'
-                          ? 'Nữ Phục'
-                          : 'Unisex'}
-                      </span>
-                    )}
-                  </div>
-
-                  <h2 className="text-xl sm:text-2xl font-bold font-serif-vi text-amber-200">
-                    {previewImageItem.name}
-                  </h2>
-
-                  <p className="text-xs text-slate-300 mt-2 leading-relaxed font-sans-vi">
-                    {previewImageItem.summary}
-                  </p>
-
-                  {/* Cultural Specs Box */}
-                  <div className="mt-4 space-y-2.5 bg-[#131B2F] p-3.5 rounded-2xl border border-slate-700/60 text-xs">
-                    {previewImageItem.cultureInfo?.collarType && (
-                      <div>
-                        <strong className="text-amber-300 text-[11px] block">Cổ Áo & Kiểu Dáng:</strong>
-                        <span className="text-slate-300 text-[11px] leading-relaxed">
-                          {previewImageItem.cultureInfo.collarType}
-                        </span>
-                      </div>
-                    )}
-
-                    {previewImageItem.cultureInfo?.symbolism && (
-                      <div>
-                        <strong className="text-amber-300 text-[11px] block">Ý Nghĩa Biểu Tượng:</strong>
-                        <span className="text-slate-300 text-[11px] leading-relaxed">
-                          {previewImageItem.cultureInfo.symbolism}
-                        </span>
-                      </div>
-                    )}
-
-                    {previewImageItem.cultureInfo?.origin && (
-                      <div className="pt-2 border-t border-slate-700/60">
-                        <strong className="text-amber-400 text-[11px] block">Nguồn Gốc Lịch Sử:</strong>
-                        <span className="text-slate-300 text-[11px] leading-relaxed">
-                          {previewImageItem.cultureInfo.origin}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="pt-2 flex flex-col gap-2">
-                  <button
-                    onClick={() => {
-                      soundEngine.playPluck(523.25);
-                      if (previewImageItem.category === 'top') {
-                        onSelectTop(previewImageItem);
-                      } else if (previewImageItem.category === 'bottom') {
-                        onSelectBottom(previewImageItem);
-                      } else if (previewImageItem.category === 'accessory') {
-                        onSelectAccessory(previewImageItem);
-                      }
-                      setPreviewImageItem(null);
-                    }}
-                    className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-bold text-xs transition-colors shadow-lg cursor-pointer flex items-center justify-center gap-1.5"
-                  >
-                    <Check className="w-4 h-4 stroke-[3]" />
-                    <span>Mặc Trang Phục Này Vào Phòng Thử Đồ</span>
-                  </button>
-
-                  <button
-                    onClick={() => setPreviewImageItem(null)}
-                    className="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs transition-colors cursor-pointer"
-                  >
-                    Đóng
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };

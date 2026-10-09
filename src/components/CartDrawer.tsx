@@ -171,7 +171,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             </div>
 
             {/* Cart Items List */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3.5 divide-y divide-slate-800/80">
+            <div
+              data-lenis-prevent="true"
+              className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5 space-y-3.5 divide-y divide-slate-800/80 custom-scrollbar scrollbar-heritage"
+            >
               {items.length === 0 ? (
                 <div className="py-16 flex flex-col items-center justify-center text-center space-y-4">
                   <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">

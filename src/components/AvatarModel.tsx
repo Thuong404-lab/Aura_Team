@@ -1,16 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WardrobeItem, FabricOption, ColorOption } from '../data/vietPhucData';
+import { WardrobeItem, FabricOption, ColorOption, TOPS, BOTTOMS, ACCESSORIES } from '../data/vietPhucData';
 import { DongSonDrumMandala } from './VietnameseDecorativeElements';
 import { CelestialSilkSash } from './SilkMotionElements';
-import {
-  Check,
-  Camera,
-  Waves,
-  Eye,
-  X,
-  Sparkles,
-} from 'lucide-react';
+import { Waves, Check } from 'lucide-react';
 import { soundEngine } from '../utils/audioSynth';
 
 interface AvatarModelProps {
@@ -28,6 +21,7 @@ interface AvatarModelProps {
   onDownloadPhoto?: () => void;
   hoveredItem?: WardrobeItem | null;
   isHoveringSilk?: boolean;
+  hideOverlays?: boolean;
 }
 
 // Visual profile matching the 15 authentic photos
@@ -254,9 +248,10 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
   onDownloadPhoto,
   hoveredItem = null,
   isHoveringSilk = false,
+  hideOverlays = false,
 }) => {
   const [hoveredPin, setHoveredPin] = useState<'accessory' | 'garment' | 'bottom' | null>(null);
-  const [isLightboxOpen, setIsLightboxOpen] = useState<boolean>(false);
+  const svgRef = useRef<SVGSVGElement | null>(null);
 
   // Active top and bottom items (accounts for real-time hover preview)
   const activeGarment = hoveredItem && hoveredItem.category === 'top' ? hoveredItem : top;
@@ -332,16 +327,18 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center select-none overflow-hidden">
       {/* 1. Bronze Drum (Trống Đồng) Circular Mandala Glow in Background */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <DongSonDrumMandala
-          className="w-[380px] h-[380px] md:w-[480px] md:h-[480px]"
-          opacity={0.22}
-        />
-        <div className="absolute w-[360px] h-[360px] rounded-full bg-radial from-amber-500/10 via-amber-900/5 to-transparent blur-3xl" />
-      </div>
+      {!hideOverlays && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <DongSonDrumMandala
+            className="w-[380px] h-[380px] md:w-[480px] md:h-[480px]"
+            opacity={0.22}
+          />
+          <div className="absolute w-[360px] h-[360px] rounded-full bg-radial from-amber-500/10 via-amber-900/5 to-transparent blur-3xl" />
+        </div>
+      )}
 
       {/* 2. Interactive Cultural Callout Hotspots (Ẩn mặc định, chỉ hiện khi rê chuột) */}
-      {showCulturePins && (
+      {showCulturePins && !hideOverlays && (
         <>
           {/* Phụ Kiện / Mấn Đội Đầu (Top-Right) */}
           {activeAccessory && (
@@ -483,22 +480,24 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
       )}
 
       {/* 5. AI Harmony Evaluation Badge (Bottom-Right of Canvas) */}
-      <div className="absolute bottom-16 right-2 md:right-6 z-30 max-w-[230px] hidden lg:block animate-in fade-in duration-500 pointer-events-none">
-        <div className="rounded-xl overflow-hidden shadow-2xl border border-emerald-500/40 bg-[#092018]/90 backdrop-blur-md text-left">
-          <div className="bg-emerald-600/90 text-emerald-50 px-3 py-1 flex items-center gap-1.5 text-[11px] font-semibold tracking-wide">
-            <Check className="w-3.5 h-3.5 stroke-[3]" />
-            <span>CHUẨN BẢN VẼ 2D DI SẢN</span>
-          </div>
-          <div className="p-2.5 text-emerald-100">
-            <div className="font-bold text-[11px] text-emerald-300 font-serif-vi mb-0.5">
-              Khớp chuẩn di sản ({harmonyScore} điểm)
+      {!hideOverlays && (
+        <div className="absolute bottom-16 right-2 md:right-6 z-30 max-w-[230px] hidden lg:block animate-in fade-in duration-500 pointer-events-none">
+          <div className="rounded-xl overflow-hidden shadow-2xl border border-emerald-500/40 bg-[#092018]/90 backdrop-blur-md text-left">
+            <div className="bg-emerald-600/90 text-emerald-50 px-3 py-1 flex items-center gap-1.5 text-[11px] font-semibold tracking-wide">
+              <Check className="w-3.5 h-3.5 stroke-[3]" />
+              <span>CHUẨN BẢN VẼ 2D DI SẢN</span>
             </div>
-            <p className="text-[10px] leading-relaxed text-emerald-100/90 font-sans-vi line-clamp-3">
-              "{harmonyCritique}"
-            </p>
+            <div className="p-2.5 text-emerald-100">
+              <div className="font-bold text-[11px] text-emerald-300 font-serif-vi mb-0.5">
+                Khớp chuẩn di sản ({harmonyScore} điểm)
+              </div>
+              <p className="text-[10px] leading-relaxed text-emerald-100/90 font-sans-vi line-clamp-3">
+                "{harmonyCritique}"
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* ========================================================
           6. BẢN VẼ 2D: KHỚP 100% TỪNG PHẦN, MÀU SẮC, HỌA TIẾT & KIỂU DÁNG
@@ -508,6 +507,7 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
         <div className="absolute bottom-3 w-52 h-6 bg-black/55 blur-md rounded-full pointer-events-none" />
 
         <svg
+          ref={svgRef}
           viewBox="0 0 380 640"
           className="w-full h-full drop-shadow-[0_16px_44px_rgba(0,0,0,0.85)] overflow-visible"
         >
@@ -1199,14 +1199,16 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
         </svg>
 
         {/* Celestial Silk Sash Fluttering Around 2D Mannequin */}
-        <CelestialSilkSash
-          isHovering={isHoveringSilk}
-          className="absolute inset-0 w-full h-full pointer-events-none z-20"
-        />
+        {!hideOverlays && (
+          <CelestialSilkSash
+            isHovering={isHoveringSilk}
+            className="absolute inset-0 w-full h-full pointer-events-none z-20"
+          />
+        )}
 
         {/* Floating Silk Tactile Feedback on Hover */}
         <AnimatePresence>
-          {isHoveringSilk && (
+          {!hideOverlays && isHoveringSilk && (
             <motion.div
               initial={{ opacity: 0, y: 12, scale: 0.92 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -1223,155 +1225,6 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
         </AnimatePresence>
       </div>
 
-      {/* 7. Bottom Floating Action Toolbar */}
-      <div className="absolute bottom-3 z-30 flex items-center gap-2 sm:gap-3">
-        <button
-          onClick={onDownloadPhoto}
-          className="px-3.5 py-1.5 rounded-xl text-xs font-medium bg-[#131C2E]/90 hover:bg-[#1C2840] text-slate-200 border border-slate-700/80 hover:border-amber-400/50 shadow-lg flex items-center gap-1.5 transition-all cursor-pointer"
-        >
-          <Camera className="w-3.5 h-3.5 text-amber-400" />
-          <span>Xuất Lookbook</span>
-        </button>
-
-        <button
-          onClick={() => {
-            soundEngine.playPluck(523.25);
-            setIsLightboxOpen(true);
-          }}
-          className="px-3.5 py-1.5 rounded-xl text-xs font-medium bg-[#131C2E]/90 hover:bg-[#1C2840] text-slate-200 border border-slate-700/80 hover:border-amber-400/50 shadow-lg flex items-center gap-1.5 transition-all cursor-pointer"
-        >
-          <Eye className="w-3.5 h-3.5 text-amber-400" />
-          <span>Soi Chi Tiết Cổ Phục Gốc</span>
-        </button>
-      </div>
-
-      {/* ========================================================
-          8. HIGH-RES LIGHTBOX MODAL: FULL RESOLUTION INSPECTION
-         ======================================================== */}
-      <AnimatePresence>
-        {isLightboxOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setIsLightboxOpen(false)}
-            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-6"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative max-w-4xl w-full max-h-[92vh] bg-[#0E1526] border border-amber-500/40 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row text-left"
-            >
-              {/* Close Button */}
-              <button
-                onClick={() => setIsLightboxOpen(false)}
-                className="absolute top-4 right-4 z-40 p-2 rounded-full bg-black/70 hover:bg-black text-slate-300 hover:text-white border border-slate-700 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              {/* Left Column: Image in High Detail */}
-              <div className="w-full md:w-3/5 bg-black/70 flex items-center justify-center p-4 relative min-h-[350px] md:min-h-[500px]">
-                {(activeGarment || activeBottom || activeAccessory) ? (
-                  <img
-                    src={(activeGarment || activeBottom || activeAccessory)!.imageUrl}
-                    alt={(activeGarment || activeBottom || activeAccessory)!.name}
-                    className="max-h-[75vh] w-auto object-contain rounded-xl shadow-2xl"
-                  />
-                ) : (
-                  <div className="text-slate-400 text-xs">Chưa có trang phục được chọn</div>
-                )}
-              </div>
-
-              {/* Right Column: Cultural Details & Historical Analysis */}
-              <div className="w-full md:w-2/5 p-5 sm:p-6 flex flex-col justify-between overflow-y-auto max-h-[50vh] md:max-h-[85vh] custom-scrollbar space-y-4">
-                {(activeGarment || activeBottom || activeAccessory) && (() => {
-                  const item = (activeGarment || activeBottom || activeAccessory)!;
-                  return (
-                    <div>
-                      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                        <span className="px-2 py-0.5 rounded-md bg-amber-400/20 text-amber-300 border border-amber-400/30 text-[10px] font-semibold uppercase">
-                          {item.era}
-                        </span>
-                        <span className="text-xs text-slate-400">{item.badge}</span>
-                        {item.gender && (
-                          <span
-                            className={`text-[9px] px-2 py-0.5 rounded-md font-sans-vi border uppercase font-semibold ${
-                              item.gender === 'nam'
-                                ? 'bg-sky-950/80 text-sky-300 border-sky-400/50'
-                                : item.gender === 'nu'
-                                ? 'bg-rose-950/80 text-rose-300 border-rose-400/50'
-                                : 'bg-amber-950/80 text-amber-300 border-amber-400/50'
-                            }`}
-                          >
-                            {item.gender === 'nam'
-                              ? 'Nam Phục'
-                              : item.gender === 'nu'
-                              ? 'Nữ Phục'
-                              : 'Unisex'}
-                          </span>
-                        )}
-                      </div>
-
-                      <h2 className="text-xl sm:text-2xl font-bold font-serif-vi text-amber-200">
-                        {item.name}
-                      </h2>
-
-                      {item.cultureInfo && (
-                        <div className="mt-4 space-y-3 bg-[#131B2F] p-3.5 rounded-2xl border border-slate-700/60 text-xs">
-                          {item.cultureInfo.collarType && (
-                            <div>
-                              <strong className="text-amber-300 text-[11px] block">
-                                Cổ Áo & Đường May:
-                              </strong>
-                              <span className="text-slate-300 text-[11px] leading-relaxed">
-                                {item.cultureInfo.collarType}
-                              </span>
-                            </div>
-                          )}
-
-                          {item.cultureInfo.symbolism && (
-                            <div>
-                              <strong className="text-amber-300 text-[11px] block">
-                                Ý Nghĩa Biểu Tượng:
-                              </strong>
-                              <span className="text-slate-300 text-[11px] leading-relaxed">
-                                {item.cultureInfo.symbolism}
-                              </span>
-                            </div>
-                          )}
-
-                          {item.cultureInfo.origin && (
-                            <div className="pt-2 border-t border-slate-700/60">
-                              <strong className="text-amber-400 text-[11px] block">
-                                Nguồn Gốc Lịch Sử:
-                              </strong>
-                              <span className="text-slate-300 text-[11px] leading-relaxed">
-                                {item.cultureInfo.origin}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })()}
-
-                <div className="pt-2">
-                  <button
-                    onClick={() => setIsLightboxOpen(false)}
-                    className="w-full py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs transition-colors shadow-lg cursor-pointer"
-                  >
-                    Đóng Xem Chi Tiết
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };

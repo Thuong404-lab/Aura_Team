@@ -130,7 +130,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="relative w-full max-w-4xl max-h-[92vh] overflow-y-auto bg-[#0E1526] border border-amber-500/30 rounded-2xl shadow-2xl shadow-black/80 z-10 text-slate-100 flex flex-col"
+          data-lenis-prevent="true"
+          className="relative w-full max-w-4xl max-h-[92vh] overflow-y-auto overscroll-contain bg-[#0E1526] border border-amber-500/30 rounded-2xl shadow-2xl shadow-black/80 z-10 text-slate-100 flex flex-col custom-scrollbar scrollbar-heritage"
         >
           {/* Header Bar */}
           <div className="sticky top-0 z-20 flex items-center justify-between px-5 py-3.5 bg-[#0C1220]/95 backdrop-blur-md border-b border-amber-500/20">

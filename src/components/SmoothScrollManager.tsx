@@ -49,6 +49,17 @@ export const SmoothScrollManager: React.FC<SmoothScrollManagerProps> = ({ childr
       touchMultiplier: 1.3,
       wheelMultiplier: 1.0,
       infinite: false,
+      prevent: (node) => {
+        if (!node || !(node instanceof HTMLElement)) return false;
+        return Boolean(
+          node.hasAttribute('data-lenis-prevent') ||
+          node.classList.contains('custom-scrollbar') ||
+          node.classList.contains('scrollbar-heritage') ||
+          node.closest('[data-lenis-prevent]') ||
+          node.closest('.custom-scrollbar') ||
+          node.closest('.scrollbar-heritage')
+        );
+      },
     });
 
     lenisRef.current = lenis;

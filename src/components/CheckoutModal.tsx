@@ -105,7 +105,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-3xl max-h-[92vh] overflow-y-auto bg-[#0C1220] border border-amber-500/30 rounded-2xl shadow-2xl z-10 text-slate-100 flex flex-col"
+          data-lenis-prevent="true"
+          className="relative w-full max-w-3xl max-h-[92vh] overflow-y-auto overscroll-contain bg-[#0C1220] border border-amber-500/30 rounded-2xl shadow-2xl z-10 text-slate-100 flex flex-col custom-scrollbar scrollbar-heritage"
         >
           {/* Header */}
           <div className="sticky top-0 z-20 flex items-center justify-between px-6 py-4 bg-[#0A0E17]/95 border-b border-amber-500/20 backdrop-blur-md">

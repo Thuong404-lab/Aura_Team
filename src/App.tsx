@@ -213,6 +213,8 @@ export default function App() {
             accessory={currentAccessory || ACCESSORIES[0]}
             fabric={currentFabric}
             color={currentColor}
+            topCustomColor={topCustomColor}
+            bottomCustomColor={bottomCustomColor}
             harmonyData={harmonyData}
             onBackToFitting={() => setCurrentScreen('fitting')}
             onSelectBottom={setCurrentBottom}
