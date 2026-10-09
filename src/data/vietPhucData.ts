@@ -201,8 +201,8 @@ export const TOPS: WardrobeItem[] = [
       pattern: 'Long vân đại hội, hoa văn Thủy Ba sóng nước và chữ Thọ đỉnh cao.',
       notableDynasty: 'Nhà Nguyễn',
     },
-    defaultColorHex: '#D4AF37',
-    secondaryColorHex: '#8B1E1E',
+    defaultColorHex: '#C82333',
+    secondaryColorHex: '#D4AF37',
     svgLayerType: 'nhat-binh',
   },
 
@@ -225,8 +225,8 @@ export const TOPS: WardrobeItem[] = [
       pattern: 'Họa tiết rồng thời Lê, hoa cúc dây uốn lượn phong vị thiền định.',
       notableDynasty: 'Thời Lý - Trần & Lê',
     },
-    defaultColorHex: '#2D5A46',
-    secondaryColorHex: '#C59B27',
+    defaultColorHex: '#F2EDE4',
+    secondaryColorHex: '#2D5A46',
     svgLayerType: 'giao-linh',
   },
 
