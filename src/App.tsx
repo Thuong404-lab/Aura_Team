@@ -53,6 +53,7 @@ export default function App() {
 
   // Cloud Intro trigger count (to re-run from navbar)
   const [cloudIntroCount, setCloudIntroCount] = useState<number>(0);
+  const [isCloudCurtainActive, setIsCloudCurtainActive] = useState<boolean>(true);
 
   // Saved Lookbooks collection (LocalStorage)
   const [savedLookbooks, setSavedLookbooks] = useState<SavedLookbookItem[]>([]);
@@ -223,26 +224,35 @@ export default function App() {
   return (
     <SmoothScrollManager>
       <div className="min-h-screen w-full bg-[#0A0E17] text-slate-100 font-sans-vi flex flex-col justify-start">
-        {/* Unified Global Navigation Bar across all screens */}
-        <AppNavbar
-          currentScreen={currentScreen}
-          onNavigate={(screen) => {
-            soundEngine.playPluck(440);
-            setCurrentScreen(screen);
-          }}
-          onOpenSavedLibrary={() => setIsLibraryOpen(true)}
-          onOpenLoginModal={() => setIsLoginModalOpen(true)}
-          savedCount={savedLookbooks.length}
-          isPlayingMusic={isPlayingMusic}
-          onToggleMusic={() => {
-            soundEngine.toggleAmbiance((playing) => setIsPlayingMusic(playing));
-          }}
-          onTriggerCloudIntro={() => {
-            soundEngine.playPluck(523.25);
-            setCurrentScreen('home');
-            setCloudIntroCount((prev) => prev + 1);
-          }}
-        />
+        {/* Unified Global Navigation Bar across all screens - Ẩn hoàn toàn khi màn mây đang mở */}
+        <div
+          className={`transition-all duration-700 ease-out z-[150] sticky top-0 ${
+            isCloudCurtainActive && currentScreen === 'home'
+              ? 'opacity-0 pointer-events-none -translate-y-full h-0 overflow-hidden'
+              : 'opacity-100 pointer-events-auto translate-y-0 h-auto'
+          }`}
+        >
+          <AppNavbar
+            currentScreen={currentScreen}
+            onNavigate={(screen) => {
+              soundEngine.playPluck(440);
+              setCurrentScreen(screen);
+            }}
+            onOpenSavedLibrary={() => setIsLibraryOpen(true)}
+            onOpenLoginModal={() => setIsLoginModalOpen(true)}
+            savedCount={savedLookbooks.length}
+            isPlayingMusic={isPlayingMusic}
+            onToggleMusic={() => {
+              soundEngine.toggleAmbiance((playing) => setIsPlayingMusic(playing));
+            }}
+            onTriggerCloudIntro={() => {
+              soundEngine.playPluck(523.25);
+              setCurrentScreen('home');
+              setIsCloudCurtainActive(true);
+              setCloudIntroCount((prev) => prev + 1);
+            }}
+          />
+        </div>
 
         {/* Active Screen Rendering */}
         {currentScreen === 'home' && (
@@ -257,6 +267,8 @@ export default function App() {
             savedCount={savedLookbooks.length}
             onSelectTopItem={handleSelectTopItemFromEncyclopedia}
             triggerCloudIntroCount={cloudIntroCount}
+            isCloudCurtainActive={isCloudCurtainActive}
+            onCloudCurtainChange={setIsCloudCurtainActive}
           />
         )}
 
