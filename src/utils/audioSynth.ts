@@ -49,6 +49,39 @@ class TraditionalSoundEngine {
     }
   }
 
+  // Play subtle soft silk rustle / fabric flutter sound on hover
+  public playSilkFlutter() {
+    try {
+      const ctx = this.getAudioContext();
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      // Gentle airy harmonic frequency
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(520, now);
+      osc.frequency.exponentialRampToValueAtTime(660, now + 0.08);
+      osc.frequency.exponentialRampToValueAtTime(440, now + 0.22);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(900, now);
+
+      gain.gain.setValueAtTime(0.0005, now);
+      gain.gain.linearRampToValueAtTime(0.02, now + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.28);
+    } catch {
+      // Audio not permitted yet
+    }
+  }
+
   // Toggle relaxing background melody
   public toggleAmbiance(onStateChange?: (playing: boolean) => void): boolean {
     if (this.isPlaying) {

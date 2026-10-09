@@ -51,3 +51,57 @@
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(245, 158, 11, 0.2);
 }
+
+/* Atmospheric Entry Mist & Shimmer Animations */
+@keyframes mistDriftSlow {
+  0% {
+    transform: translateX(-5%) translateY(0) scale(1);
+    opacity: 0.45;
+  }
+  50% {
+    transform: translateX(5%) translateY(-15px) scale(1.05);
+    opacity: 0.75;
+  }
+  100% {
+    transform: translateX(-5%) translateY(0) scale(1);
+    opacity: 0.45;
+  }
+}
+
+@keyframes mistDriftReverse {
+  0% {
+    transform: translateX(6%) translateY(0) scale(1.03);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translateX(-6%) translateY(20px) scale(0.97);
+    opacity: 0.65;
+  }
+  100% {
+    transform: translateX(6%) translateY(0) scale(1.03);
+    opacity: 0.35;
+  }
+}
+
+@keyframes sparkleGlint {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15) rotate(90deg);
+  }
+}
+
+.animate-mist-drift-slow {
+  animation: mistDriftSlow 24s ease-in-out infinite;
+}
+
+.animate-mist-drift-reverse {
+  animation: mistDriftReverse 30s ease-in-out infinite;
+}
+
+.animate-sparkle-glint {
+  animation: sparkleGlint 3s ease-in-out infinite;
+}

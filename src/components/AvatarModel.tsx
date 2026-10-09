@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { WardrobeItem, FabricOption, ColorOption } from '../data/vietPhucData';
 import { DongSonDrumMandala } from './VietnameseDecorativeElements';
-import { Check, Camera, Box, Sparkles } from 'lucide-react';
+import { CelestialSilkSash } from './SilkMotionElements';
+import { Check, Camera, Box, Sparkles, Waves } from 'lucide-react';
 
 interface AvatarModelProps {
   top: WardrobeItem;
@@ -14,6 +16,8 @@ interface AvatarModelProps {
   harmonyCritique?: string;
   showCulturePins?: boolean;
   onDownloadPhoto?: () => void;
+  hoveredItem?: WardrobeItem | null;
+  isHoveringSilk?: boolean;
 }
 
 export const AvatarModel: React.FC<AvatarModelProps> = ({
@@ -26,6 +30,8 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
   harmonyCritique = 'Sự kết hợp hài hòa giữa Áo ngũ thân tay chẽn truyền thống và váy xếp ly hiện đại, giữ được nét thanh lịch nhưng vẫn năng động.',
   showCulturePins = true,
   onDownloadPhoto,
+  hoveredItem = null,
+  isHoveringSilk = false,
 }) => {
   const [viewMode, setViewMode] = useState<'3D' | '2D'>('3D');
   const [activePin, setActivePin] = useState<'top' | 'accessory' | null>('top');
@@ -179,7 +185,26 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
           </g>
 
           {/* ===== BOTTOM LAYER: PLEATED SKIRT (VÁY XẾP LY) OR PANTS ===== */}
-          <g id="skirtOrPants">
+          <motion.g
+            id="skirtOrPants"
+            animate={
+              isHoveringSilk
+                ? {
+                    rotate: [-1.2, 1.2, -1.2],
+                    skewX: [-1.4, 1.4, -1.4],
+                    y: [0, -3.5, 0],
+                  }
+                : {
+                    rotate: [-0.3, 0.3, -0.3],
+                    y: [0, -1, 0],
+                  }
+            }
+            transition={{
+              duration: isHoveringSilk ? 2.2 : 4,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          >
             {bottom.id === 'vay-xep-ly' ? (
               // Cream / Ivory Pleated Midi Skirt as shown in mockup
               <g id="pleatedSkirt">
@@ -227,10 +252,29 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
               <path d="M165 560 Q173 558 184 562 L182 570 L163 568 Z" fill="#1C1917" />
               <path d="M215 560 Q207 558 196 562 L198 570 L217 568 Z" fill="#1C1917" />
             </g>
-          </g>
+          </motion.g>
 
           {/* ===== TOP LAYER: ÁO NGŨ THÂN TAY CHẼN (XANH THẪM GẤM) ===== */}
-          <g id="aoNguthantaychen">
+          <motion.g
+            id="aoNguthantaychen"
+            animate={
+              isHoveringSilk
+                ? {
+                    rotate: [0.8, -0.8, 0.8],
+                    skewX: [1, -1, 1],
+                    y: [-1, 2, -1],
+                  }
+                : {
+                    rotate: [0.2, -0.2, 0.2],
+                    y: [0, 0.5, 0],
+                  }
+            }
+            transition={{
+              duration: isHoveringSilk ? 2.6 : 4.5,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          >
             {/* Left & Right Fitted Sleeves (Tay Chẽn) */}
             <path
               d="M156 130 L120 220 L132 320 L152 280 L160 160 Z"
@@ -289,12 +333,36 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
               fill="white"
               opacity="0.05"
             />
-          </g>
+          </motion.g>
 
           {/* Serene Hands Resting at Sides */}
           <path d="M129 320 Q126 335 131 340 L135 338 L133 320 Z" fill="url(#skinTone)" />
           <path d="M251 320 Q254 335 249 340 L245 338 L247 320 Z" fill="url(#skinTone)" />
         </svg>
+
+        {/* Celestial Silk Sash Fluttering Around Avatar */}
+        <CelestialSilkSash
+          isHovering={isHoveringSilk}
+          className="absolute inset-0 w-full h-full pointer-events-none z-20"
+        />
+
+        {/* Floating Silk Tactile Toast Feedback on Hover */}
+        <AnimatePresence>
+          {isHoveringSilk && (
+            <motion.div
+              initial={{ opacity: 0, y: 12, scale: 0.92 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.95 }}
+              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute bottom-16 z-30 px-3.5 py-1.5 rounded-full bg-[#0B1324]/95 backdrop-blur-md border border-amber-400/60 shadow-[0_4px_24px_rgba(245,158,11,0.25)] flex items-center gap-2 text-xs font-serif-vi text-amber-200 pointer-events-none"
+            >
+              <Waves className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+              <span>
+                {hoveredItem ? `Độ rủ lụa: ${hoveredItem.name}` : 'Cảm nhận độ rủ tơ lụa mềm mại'}
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* 6. Bottom Floating Toolbar (Tải ảnh cả chân & Xem 2D/3D) */}

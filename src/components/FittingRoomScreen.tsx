@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   WardrobeItem,
   FabricOption,
@@ -26,7 +27,17 @@ import {
   BookOpen,
   ArrowRight,
   ShieldCheck,
+  Shirt,
+  Crown,
+  Feather,
+  Waves,
 } from 'lucide-react';
+import {
+  SilkCategoryTabs,
+  SilkWaveRibbon,
+  SilkSheenSweep,
+  SilkTabItem,
+} from './SilkMotionElements';
 import { soundEngine } from '../utils/audioSynth';
 import { checkAiHarmony, getAiSuggestion } from '../services/aiClient';
 
@@ -75,8 +86,46 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
   // Wardrobe Navigation Tabs
   const [activeTab, setActiveTab] = useState<'top' | 'bottom' | 'accessory' | 'fabric' | 'color'>('top');
 
+  // Silk Category Tabs configuration
+  const categoryTabs: SilkTabItem[] = [
+    {
+      id: 'top',
+      label: 'Áo',
+      count: TOPS.length,
+      icon: <Shirt className="w-4 h-4" />,
+    },
+    {
+      id: 'bottom',
+      label: 'Quần / Váy',
+      count: BOTTOMS.length,
+      icon: <Layers className="w-4 h-4" />,
+    },
+    {
+      id: 'accessory',
+      label: 'Phụ kiện',
+      count: ACCESSORIES.length,
+      icon: <Crown className="w-4 h-4" />,
+    },
+    {
+      id: 'fabric',
+      label: 'Chất liệu',
+      count: FABRICS.length,
+      icon: <Feather className="w-4 h-4" />,
+    },
+    {
+      id: 'color',
+      label: 'Màu sắc',
+      count: COLOR_PALETTES.length,
+      icon: <Palette className="w-4 h-4" />,
+    },
+  ];
+
   // Dynasty Era Filter
   const [eraFilter, setEraFilter] = useState<string>('all');
+
+  // Real-time Hovered Garment & Category for Silk Drape physics
+  const [hoveredItem, setHoveredItem] = useState<WardrobeItem | null>(null);
+  const [hoveredTabId, setHoveredTabId] = useState<string | null>(null);
 
   // AI Assistant prompt bar state
   const [aiPrompt, setAiPrompt] = useState<string>(
@@ -222,13 +271,14 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
           </div>
         </div>
 
-        {/* WORKSPACE CONTAINER: Fully Responsive Grid */}
-        <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-6 bg-[#0E1526]/85 backdrop-blur-xl border border-amber-500/20 rounded-3xl p-4 sm:p-5 md:p-6 shadow-[0_12px_48px_rgba(0,0,0,0.6)]">
+        {/* WORKSPACE CONTAINER: Dynamic CSS Grid (Single-column mobile, Side-by-side md:grid-cols-2 laptop) */}
+        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 bg-[#0E1526]/85 backdrop-blur-xl border border-amber-500/20 rounded-3xl p-4 sm:p-5 md:p-6 shadow-[0_12px_48px_rgba(0,0,0,0.6)]">
           {/* ==========================================================
-              LEFT COLUMN: 3D Avatar Workspace
-              (Desktop: 7 cols wide | Mobile: 100% full width naturally)
+              LEFT COLUMN (Visualizer):
+              - Mobile: Full width single column stacked on top
+              - Laptop (md:): Left column in md:grid-cols-2 side-by-side
              ========================================================== */}
-          <div className="lg:col-span-7 bg-[#090D18]/95 border border-slate-800 rounded-2xl relative min-h-[440px] sm:min-h-[520px] lg:min-h-[640px] flex items-center justify-center overflow-hidden shadow-inner flex-col">
+          <div className="w-full bg-[#090D18]/95 border border-slate-800 rounded-2xl relative min-h-[460px] sm:min-h-[520px] md:min-h-[580px] lg:min-h-[640px] flex items-center justify-center overflow-hidden shadow-inner flex-col">
             {/* Top Score Badge inside Canvas */}
             <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20 flex items-center gap-2">
               <div className="px-3 py-1.5 rounded-xl bg-[#0F172A]/90 backdrop-blur-md border border-amber-500/40 text-amber-300 text-xs font-semibold shadow-lg flex items-center gap-1.5">
@@ -236,6 +286,13 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                 <span>{harmonyResult.score} Điểm</span>
                 <span className="text-slate-400 font-normal hidden sm:inline">• {harmonyResult.ratingBadge}</span>
               </div>
+            </div>
+
+            {/* Top Silk Drape Badge */}
+            <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0F172A]/90 backdrop-blur-md border border-amber-500/30 text-amber-300 text-xs shadow-lg">
+              <Waves className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+              <span className="font-semibold">{currentFabric.name}</span>
+              <span className="text-slate-400 font-normal hidden sm:inline">• Độ rủ lụa tự nhiên</span>
             </div>
 
             {/* Avatar Component */}
@@ -250,6 +307,8 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                 harmonyCritique={harmonyResult.detailedCritique}
                 showCulturePins={true}
                 onDownloadPhoto={() => onGoLookbook(harmonyResult)}
+                hoveredItem={hoveredItem}
+                isHoveringSilk={Boolean(hoveredItem || hoveredTabId)}
               />
             </div>
 
@@ -276,10 +335,11 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
           </div>
 
           {/* ==========================================================
-              RIGHT COLUMN: Wardrobe & AI Tools
-              (Desktop: 5 cols wide | Mobile: 100% full width below avatar)
+              RIGHT COLUMN (Interactive Controls & Wardrobe):
+              - Mobile: Full width single column stacked below visualizer
+              - Laptop (md:): Right column in md:grid-cols-2 side-by-side
              ========================================================== */}
-          <div className="lg:col-span-5 flex flex-col gap-4 text-left">
+          <div className="w-full flex flex-col gap-4 text-left">
             {/* 1. Trợ Lý AI Prompt Bar */}
             <div className="bg-[#121A2C] border border-amber-400/30 rounded-2xl p-2.5 flex items-center gap-2 shadow-lg">
               <div className="pl-1.5 text-amber-400 shrink-0">
@@ -309,61 +369,32 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
               </button>
             </div>
 
-            {/* 2. Category Tabs */}
-            <div className="flex items-center gap-1 border-b border-slate-700/60 pb-1 overflow-x-auto custom-scrollbar">
-              <button
-                onClick={() => setActiveTab('top')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap ${
-                  activeTab === 'top'
-                    ? 'text-amber-300 border-b-2 border-amber-400 bg-amber-500/10'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                Áo ({TOPS.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('bottom')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap ${
-                  activeTab === 'bottom'
-                    ? 'text-amber-300 border-b-2 border-amber-400 bg-amber-500/10'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                Quần / Váy ({BOTTOMS.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('accessory')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap ${
-                  activeTab === 'accessory'
-                    ? 'text-amber-300 border-b-2 border-amber-400 bg-amber-500/10'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                Phụ kiện ({ACCESSORIES.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('fabric')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap ${
-                  activeTab === 'fabric'
-                    ? 'text-amber-300 border-b-2 border-amber-400 bg-amber-500/10'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                Chất liệu ({FABRICS.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('color')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap ${
-                  activeTab === 'color'
-                    ? 'text-amber-300 border-b-2 border-amber-400 bg-amber-500/10'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                Màu sắc ({COLOR_PALETTES.length})
-              </button>
+            {/* 2. Silk Category Navigation Tabs (Framer Motion Silk Ribbon Glide) */}
+            <SilkCategoryTabs
+              items={categoryTabs}
+              activeId={activeTab}
+              onSelect={(id) => setActiveTab(id as any)}
+              onHoverTab={(id) => setHoveredTabId(id)}
+            />
+
+            {/* Silk Sensation & Fabric Tactile Banner */}
+            <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-200/90">
+              <div className="flex items-center gap-1.5 truncate">
+                <Waves className="w-3.5 h-3.5 text-amber-400 shrink-0 animate-pulse" />
+                <span className="font-medium truncate">
+                  {activeTab === 'top' && 'Áo Cổ Phục: Rê chuột để cảm nhận tà áo bay nhẹ & phom dáng rủ mềm.'}
+                  {activeTab === 'bottom' && 'Quần / Váy: Nếp lụa uyển chuyển bồng bềnh theo từng bước chân.'}
+                  {activeTab === 'accessory' && 'Phụ Kiện: Kim hoàn, ngọc bội & dải lụa thêu tơ tằm tinh xảo.'}
+                  {activeTab === 'fabric' && 'Chất Liệu: Cảm nhận độ rủ mềm, độ dệt vân óng & sự thoáng khí.'}
+                  {activeTab === 'color' && 'Màu Sắc Ngũ Hành: Ánh sắc tơ lụa biến đổi tinh tế dưới ánh sáng.'}
+                </span>
+              </div>
+              <span className="text-[10px] text-amber-400/80 font-mono shrink-0 pl-2 hidden sm:inline">
+                Chuyển động lụa mềm
+              </span>
             </div>
 
-            {/* 3. Dynasty Filters (Visible for clothing items) */}
+            {/* 3. Dynasty Filters with Framer Motion interactive feedback */}
             {(activeTab === 'top' || activeTab === 'bottom' || activeTab === 'accessory') && (
               <div className="flex items-center gap-2 pt-0.5">
                 <span className="text-[11px] text-slate-400 font-medium shrink-0">Triều đại:</span>
@@ -374,242 +405,377 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                     { id: 'le', label: 'Triều Lê' },
                     { id: 'tran', label: 'Lý - Trần' },
                   ].map((era) => (
-                    <button
+                    <motion.button
                       key={era.id}
-                      onClick={() => setEraFilter(era.id)}
-                      className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all whitespace-nowrap ${
+                      onClick={() => {
+                        soundEngine.playSilkFlutter();
+                        setEraFilter(era.id);
+                      }}
+                      whileHover={{ y: -1.5, scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all whitespace-nowrap cursor-pointer ${
                         eraFilter === era.id
                           ? 'bg-amber-500/25 text-amber-300 border border-amber-400/50 shadow-xs'
                           : 'bg-[#121A2C] text-slate-400 hover:text-slate-200 border border-slate-700/50'
                       }`}
                     >
                       {era.label}
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* 4. Wardrobe Item List Grid */}
-            <div className="flex-1 min-h-[240px] max-h-[300px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
-              {/* TOPS TAB */}
-              {activeTab === 'top' &&
-                getFilteredItems(TOPS).map((item) => {
-                  const isSelected = currentTop.id === item.id;
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={() => {
-                        soundEngine.playPluck(523.25);
-                        onSelectTop(item);
-                      }}
-                      className={`p-2.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
-                        isSelected
-                          ? 'bg-amber-950/30 border-amber-400/80 shadow-[0_0_12px_rgba(212,175,55,0.15)]'
-                          : 'bg-[#101728]/90 border-slate-800 hover:border-slate-700 hover:bg-[#141C30]'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-800 shrink-0 border border-slate-700/60">
-                          <img
-                            src={item.imageUrl}
-                            alt={item.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div>
-                          <h4 className="text-xs font-semibold text-slate-100 font-serif-vi">
-                            {item.name}
-                          </h4>
-                          <span className="text-[10px] text-amber-400/90 font-medium">
-                            {item.era} • {item.badge}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div
-                        className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
-                          isSelected
-                            ? 'bg-amber-400 border-amber-300 text-slate-950'
-                            : 'border-slate-600'
-                        }`}
-                      >
-                        {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                      </div>
-                    </div>
-                  );
-                })}
-
-              {/* BOTTOMS TAB */}
-              {activeTab === 'bottom' &&
-                getFilteredItems(BOTTOMS).map((item) => {
-                  const isSelected = currentBottom.id === item.id;
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={() => {
-                        soundEngine.playPluck(587.33);
-                        onSelectBottom(item);
-                      }}
-                      className={`p-2.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
-                        isSelected
-                          ? 'bg-amber-950/30 border-amber-400/80 shadow-[0_0_12px_rgba(212,175,55,0.15)]'
-                          : 'bg-[#101728]/90 border-slate-800 hover:border-slate-700 hover:bg-[#141C30]'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-800 shrink-0 border border-slate-700/60">
-                          <img
-                            src={item.imageUrl}
-                            alt={item.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div>
-                          <h4 className="text-xs font-semibold text-slate-100 font-serif-vi">
-                            {item.name}
-                          </h4>
-                          <span className="text-[10px] text-amber-400/90 font-medium">
-                            {item.era} • {item.badge}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div
-                        className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
-                          isSelected
-                            ? 'bg-amber-400 border-amber-300 text-slate-950'
-                            : 'border-slate-600'
-                        }`}
-                      >
-                        {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                      </div>
-                    </div>
-                  );
-                })}
-
-              {/* ACCESSORIES TAB */}
-              {activeTab === 'accessory' &&
-                getFilteredItems(ACCESSORIES).map((item) => {
-                  const isSelected = currentAccessory.id === item.id;
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={() => {
-                        soundEngine.playPluck(659.25);
-                        onSelectAccessory(item);
-                      }}
-                      className={`p-2.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
-                        isSelected
-                          ? 'bg-amber-950/30 border-amber-400/80 shadow-[0_0_12px_rgba(212,175,55,0.15)]'
-                          : 'bg-[#101728]/90 border-slate-800 hover:border-slate-700 hover:bg-[#141C30]'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-800 shrink-0 border border-slate-700/60">
-                          <img
-                            src={item.imageUrl}
-                            alt={item.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div>
-                          <h4 className="text-xs font-semibold text-slate-100 font-serif-vi">
-                            {item.name}
-                          </h4>
-                          <span className="text-[10px] text-amber-400/90 font-medium">
-                            {item.era} • {item.badge}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div
-                        className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
-                          isSelected
-                            ? 'bg-amber-400 border-amber-300 text-slate-950'
-                            : 'border-slate-600'
-                        }`}
-                      >
-                        {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                      </div>
-                    </div>
-                  );
-                })}
-
-              {/* FABRICS TAB */}
-              {activeTab === 'fabric' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                  {FABRICS.map((fab) => {
-                    const isSelected = currentFabric.id === fab.id;
-                    return (
-                      <div
-                        key={fab.id}
-                        onClick={() => {
-                          soundEngine.playPluck(523.25);
-                          onSelectFabric(fab);
-                        }}
-                        className={`p-2.5 rounded-xl border cursor-pointer transition-all ${
-                          isSelected
-                            ? 'bg-amber-950/40 border-amber-400 shadow-sm'
-                            : 'bg-[#101728] border-slate-800 hover:border-slate-700'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-semibold text-slate-100 font-serif-vi">
-                            {fab.name}
-                          </span>
-                          {isSelected && <Check className="w-3.5 h-3.5 text-amber-400" />}
-                        </div>
-                        <p className="text-[10px] text-slate-400 line-clamp-2">
-                          {fab.description}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* COLORS TAB */}
-              {activeTab === 'color' && (
-                <div className="space-y-2.5 pt-1">
-                  <div className="text-[11px] font-semibold text-amber-300 flex items-center gap-1.5">
-                    <Palette className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Bảng màu Ngũ Hành truyền thống:</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    {COLOR_PALETTES.map((palette) => {
-                      const isSelected = currentColor.id === palette.id;
+            {/* 4. Wardrobe Item List Grid with Framer Motion Silk Drape Transitions */}
+            <div className="flex-1 min-h-[240px] max-h-[300px] md:max-h-[350px] lg:max-h-[390px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`${activeTab}-${eraFilter}`}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                  className="space-y-2"
+                >
+                  {/* TOPS TAB */}
+                  {activeTab === 'top' &&
+                    getFilteredItems(TOPS).map((item) => {
+                      const isSelected = currentTop.id === item.id;
                       return (
-                        <div
-                          key={palette.id}
+                        <motion.div
+                          key={item.id}
                           onClick={() => {
                             soundEngine.playPluck(523.25);
-                            onSelectColor(palette);
+                            onSelectTop(item);
                           }}
-                          className={`p-2.5 rounded-xl border cursor-pointer flex items-center gap-2.5 transition-all ${
+                          onMouseEnter={() => {
+                            setHoveredItem(item);
+                            soundEngine.playSilkFlutter();
+                          }}
+                          onMouseLeave={() => setHoveredItem(null)}
+                          whileHover={{
+                            y: -3.5,
+                            scale: 1.015,
+                            boxShadow: '0 10px 28px -4px rgba(245, 158, 11, 0.22)',
+                            transition: { type: 'spring', stiffness: 350, damping: 22 },
+                          }}
+                          whileTap={{ scale: 0.985 }}
+                          className={`group relative p-2.5 rounded-xl border flex items-center justify-between cursor-pointer transition-colors overflow-hidden ${
                             isSelected
-                              ? 'bg-amber-950/40 border-amber-400 shadow-sm'
-                              : 'bg-[#101728] border-slate-800 hover:border-slate-700'
+                              ? 'bg-amber-950/35 border-amber-400/80 shadow-[0_0_16px_rgba(212,175,55,0.2)]'
+                              : 'bg-[#101728]/90 border-slate-800 hover:border-amber-500/40 hover:bg-[#141C30]'
                           }`}
                         >
-                          <div
-                            className="w-7 h-7 rounded-full border border-white/30 shrink-0 shadow-sm"
-                            style={{ backgroundColor: palette.hex }}
-                          />
-                          <div className="text-left overflow-hidden">
-                            <div className="text-xs font-medium text-slate-100 truncate">
-                              {palette.name}
+                          {/* Silk light sheen pass on hover */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/10 to-transparent pointer-events-none -translate-x-full group-hover:translate-x-[200%] transition-transform duration-700 ease-in-out" />
+
+                          {/* Mini Silk Drape Wave Ribbon on Hover */}
+                          <div className="absolute top-1/2 -translate-y-1/2 right-12 w-20 h-5 pointer-events-none opacity-0 group-hover:opacity-80 transition-opacity">
+                            <SilkWaveRibbon isHovered={true} className="w-full h-full" color="#F59E0B" />
+                          </div>
+
+                          {/* Hover Silk Wave Accent line at bottom */}
+                          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500/0 via-amber-400/70 to-amber-500/0 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                          <div className="flex items-center gap-3 relative z-10">
+                            <div className="w-11 h-11 rounded-lg overflow-hidden bg-slate-800 shrink-0 border border-slate-700/60 group-hover:border-amber-400/60 transition-colors relative">
+                              <img
+                                src={item.imageUrl}
+                                alt={item.name}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
                             </div>
-                            <div className="text-[10px] text-slate-400 truncate">
-                              {palette.meaning}
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <h4 className="text-xs font-semibold text-slate-100 font-serif-vi group-hover:text-amber-200 transition-colors">
+                                  {item.name}
+                                </h4>
+                                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-sans-vi border border-amber-400/30">
+                                  Lụa mềm
+                                </span>
+                              </div>
+                              <span className="text-[10px] text-amber-400/90 font-medium">
+                                {item.era} • {item.badge}
+                              </span>
                             </div>
                           </div>
-                        </div>
+
+                          <div
+                            className={`relative z-10 w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
+                              isSelected
+                                ? 'bg-amber-400 border-amber-300 text-slate-950 shadow-[0_0_8px_rgba(245,158,11,0.5)]'
+                                : 'border-slate-600 group-hover:border-amber-400/60'
+                            }`}
+                          >
+                            {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                          </div>
+                        </motion.div>
                       );
                     })}
-                  </div>
-                </div>
-              )}
+
+                  {/* BOTTOMS TAB */}
+                  {activeTab === 'bottom' &&
+                    getFilteredItems(BOTTOMS).map((item) => {
+                      const isSelected = currentBottom.id === item.id;
+                      return (
+                        <motion.div
+                          key={item.id}
+                          onClick={() => {
+                            soundEngine.playPluck(587.33);
+                            onSelectBottom(item);
+                          }}
+                          onMouseEnter={() => {
+                            setHoveredItem(item);
+                            soundEngine.playSilkFlutter();
+                          }}
+                          onMouseLeave={() => setHoveredItem(null)}
+                          whileHover={{
+                            y: -3.5,
+                            scale: 1.015,
+                            boxShadow: '0 10px 28px -4px rgba(245, 158, 11, 0.22)',
+                            transition: { type: 'spring', stiffness: 350, damping: 22 },
+                          }}
+                          whileTap={{ scale: 0.985 }}
+                          className={`group relative p-2.5 rounded-xl border flex items-center justify-between cursor-pointer transition-colors overflow-hidden ${
+                            isSelected
+                              ? 'bg-amber-950/35 border-amber-400/80 shadow-[0_0_16px_rgba(212,175,55,0.2)]'
+                              : 'bg-[#101728]/90 border-slate-800 hover:border-amber-500/40 hover:bg-[#141C30]'
+                          }`}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/10 to-transparent pointer-events-none -translate-x-full group-hover:translate-x-[200%] transition-transform duration-700 ease-in-out" />
+
+                          {/* Mini Silk Drape Wave Ribbon on Hover */}
+                          <div className="absolute top-1/2 -translate-y-1/2 right-12 w-20 h-5 pointer-events-none opacity-0 group-hover:opacity-80 transition-opacity">
+                            <SilkWaveRibbon isHovered={true} className="w-full h-full" color="#F59E0B" />
+                          </div>
+
+                          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500/0 via-amber-400/70 to-amber-500/0 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                          <div className="flex items-center gap-3 relative z-10">
+                            <div className="w-11 h-11 rounded-lg overflow-hidden bg-slate-800 shrink-0 border border-slate-700/60 group-hover:border-amber-400/60 transition-colors relative">
+                              <img
+                                src={item.imageUrl}
+                                alt={item.name}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <h4 className="text-xs font-semibold text-slate-100 font-serif-vi group-hover:text-amber-200 transition-colors">
+                                  {item.name}
+                                </h4>
+                                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-sans-vi border border-amber-400/30">
+                                  Nếp rủ
+                                </span>
+                              </div>
+                              <span className="text-[10px] text-amber-400/90 font-medium">
+                                {item.era} • {item.badge}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div
+                            className={`relative z-10 w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
+                              isSelected
+                                ? 'bg-amber-400 border-amber-300 text-slate-950 shadow-[0_0_8px_rgba(245,158,11,0.5)]'
+                                : 'border-slate-600 group-hover:border-amber-400/60'
+                            }`}
+                          >
+                            {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+
+                  {/* ACCESSORIES TAB */}
+                  {activeTab === 'accessory' &&
+                    getFilteredItems(ACCESSORIES).map((item) => {
+                      const isSelected = currentAccessory.id === item.id;
+                      return (
+                        <motion.div
+                          key={item.id}
+                          onClick={() => {
+                            soundEngine.playPluck(659.25);
+                            onSelectAccessory(item);
+                          }}
+                          onMouseEnter={() => {
+                            setHoveredItem(item);
+                            soundEngine.playSilkFlutter();
+                          }}
+                          onMouseLeave={() => setHoveredItem(null)}
+                          whileHover={{
+                            y: -3.5,
+                            scale: 1.015,
+                            boxShadow: '0 10px 28px -4px rgba(245, 158, 11, 0.22)',
+                            transition: { type: 'spring', stiffness: 350, damping: 22 },
+                          }}
+                          whileTap={{ scale: 0.985 }}
+                          className={`group relative p-2.5 rounded-xl border flex items-center justify-between cursor-pointer transition-colors overflow-hidden ${
+                            isSelected
+                              ? 'bg-amber-950/35 border-amber-400/80 shadow-[0_0_16px_rgba(212,175,55,0.2)]'
+                              : 'bg-[#101728]/90 border-slate-800 hover:border-amber-500/40 hover:bg-[#141C30]'
+                          }`}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/10 to-transparent pointer-events-none -translate-x-full group-hover:translate-x-[200%] transition-transform duration-700 ease-in-out" />
+
+                          {/* Mini Silk Drape Wave Ribbon on Hover */}
+                          <div className="absolute top-1/2 -translate-y-1/2 right-12 w-20 h-5 pointer-events-none opacity-0 group-hover:opacity-80 transition-opacity">
+                            <SilkWaveRibbon isHovered={true} className="w-full h-full" color="#F59E0B" />
+                          </div>
+
+                          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500/0 via-amber-400/70 to-amber-500/0 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                          <div className="flex items-center gap-3 relative z-10">
+                            <div className="w-11 h-11 rounded-lg overflow-hidden bg-slate-800 shrink-0 border border-slate-700/60 group-hover:border-amber-400/60 transition-colors relative">
+                              <img
+                                src={item.imageUrl}
+                                alt={item.name}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <h4 className="text-xs font-semibold text-slate-100 font-serif-vi group-hover:text-amber-200 transition-colors">
+                                  {item.name}
+                                </h4>
+                                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-sans-vi border border-amber-400/30">
+                                  Thêu tơ
+                                </span>
+                              </div>
+                              <span className="text-[10px] text-amber-400/90 font-medium">
+                                {item.era} • {item.badge}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div
+                            className={`relative z-10 w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
+                              isSelected
+                                ? 'bg-amber-400 border-amber-300 text-slate-950 shadow-[0_0_8px_rgba(245,158,11,0.5)]'
+                                : 'border-slate-600 group-hover:border-amber-400/60'
+                            }`}
+                          >
+                            {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+
+                  {/* FABRICS TAB */}
+                  {activeTab === 'fabric' && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                      {FABRICS.map((fab) => {
+                        const isSelected = currentFabric.id === fab.id;
+                        return (
+                          <motion.div
+                            key={fab.id}
+                            onClick={() => {
+                              soundEngine.playPluck(523.25);
+                              onSelectFabric(fab);
+                            }}
+                            onMouseEnter={() => {
+                              setHoveredItem(fab as any);
+                              soundEngine.playSilkFlutter();
+                            }}
+                            onMouseLeave={() => setHoveredItem(null)}
+                            whileHover={{
+                              y: -3,
+                              scale: 1.02,
+                              boxShadow: '0 8px 24px -4px rgba(245, 158, 11, 0.25)',
+                              transition: { type: 'spring', stiffness: 350, damping: 22 },
+                            }}
+                            whileTap={{ scale: 0.98 }}
+                            className={`group relative p-2.5 rounded-xl border cursor-pointer transition-colors overflow-hidden ${
+                              isSelected
+                                ? 'bg-amber-950/40 border-amber-400 shadow-sm'
+                                : 'bg-[#101728] border-slate-800 hover:border-amber-500/40 hover:bg-[#141C30]'
+                            }`}
+                          >
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/10 to-transparent pointer-events-none -translate-x-full group-hover:translate-x-[200%] transition-transform duration-700 ease-in-out" />
+                            <div className="flex items-center justify-between mb-1 relative z-10">
+                              <span className="text-xs font-semibold text-slate-100 font-serif-vi group-hover:text-amber-200 transition-colors">
+                                {fab.name}
+                              </span>
+                              {isSelected ? (
+                                <Check className="w-3.5 h-3.5 text-amber-400" />
+                              ) : (
+                                <Waves className="w-3 h-3 text-slate-500 group-hover:text-amber-400 transition-colors" />
+                              )}
+                            </div>
+                            <p className="text-[10px] text-slate-400 line-clamp-2 relative z-10 group-hover:text-slate-300">
+                              {fab.description}
+                            </p>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* COLORS TAB */}
+                  {activeTab === 'color' && (
+                    <div className="space-y-2.5 pt-1">
+                      <div className="text-[11px] font-semibold text-amber-300 flex items-center gap-1.5">
+                        <Palette className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Bảng màu Ngũ Hành truyền thống (Ánh lụa tự nhiên):</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {COLOR_PALETTES.map((palette) => {
+                          const isSelected = currentColor.id === palette.id;
+                          return (
+                            <motion.div
+                              key={palette.id}
+                              onClick={() => {
+                                soundEngine.playPluck(523.25);
+                                onSelectColor(palette);
+                              }}
+                              onMouseEnter={() => {
+                                setHoveredItem(palette as any);
+                                soundEngine.playSilkFlutter();
+                              }}
+                              onMouseLeave={() => setHoveredItem(null)}
+                              whileHover={{
+                                y: -2.5,
+                                scale: 1.025,
+                                boxShadow: '0 8px 24px -4px rgba(245, 158, 11, 0.2)',
+                                transition: { type: 'spring', stiffness: 350, damping: 22 },
+                              }}
+                              whileTap={{ scale: 0.98 }}
+                              className={`group relative p-2.5 rounded-xl border cursor-pointer flex items-center gap-2.5 transition-colors overflow-hidden ${
+                                isSelected
+                                  ? 'bg-amber-950/40 border-amber-400 shadow-sm'
+                                  : 'bg-[#101728] border-slate-800 hover:border-amber-500/40 hover:bg-[#141C30]'
+                              }`}
+                            >
+                              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/10 to-transparent pointer-events-none -translate-x-full group-hover:translate-x-[200%] transition-transform duration-700 ease-in-out" />
+                              <div
+                                className="w-7 h-7 rounded-full border border-white/30 shrink-0 shadow-sm group-hover:scale-110 transition-transform relative"
+                                style={{ backgroundColor: palette.hex }}
+                              >
+                                {isSelected && (
+                                  <div className="absolute inset-0 rounded-full flex items-center justify-center text-white drop-shadow">
+                                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                  </div>
+                                )}
+                              </div>
+                              <div className="text-left overflow-hidden relative z-10">
+                                <div className="text-xs font-medium text-slate-100 truncate group-hover:text-amber-200 transition-colors">
+                                  {palette.name}
+                                </div>
+                                <div className="text-[10px] text-slate-400 truncate">
+                                  {palette.meaning}
+                                </div>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
             </div>
 
             {/* 5. Harmony Assessment Breakdown Box */}

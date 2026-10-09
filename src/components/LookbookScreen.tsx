@@ -323,16 +323,17 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
           </div>
         </div>
 
-        {/* WORKSPACE: Fully Responsive 2-Column on Desktop, 1-Column on Mobile */}
+        {/* WORKSPACE: Consistent CSS Grid Responsive Strategy */}
         <div
           ref={cardRef}
-          className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 bg-[#0E1526]/85 backdrop-blur-xl border border-amber-500/20 rounded-3xl p-4 sm:p-6 shadow-[0_16px_56px_rgba(0,0,0,0.7)]"
+          className="w-full grid grid-cols-1 md:grid-cols-12 gap-6 bg-[#0E1526]/85 backdrop-blur-xl border border-amber-500/20 rounded-3xl p-4 sm:p-6 shadow-[0_16px_56px_rgba(0,0,0,0.7)]"
         >
           {/* ==========================================================
               LEFT COLUMN: Editorial Scenery Photo
-              (Desktop: 6 or 7 cols | Mobile: 100% full width)
+              - Small screen (< md:): Stacks vertically (100% width)
+              - Laptop (md: and up): Side-by-side split view (6 cols)
              ========================================================== */}
-          <div className="lg:col-span-6 xl:col-span-6 rounded-2xl overflow-hidden border border-amber-500/30 bg-[#090D18] relative min-h-[460px] sm:min-h-[520px] flex flex-col justify-between shadow-2xl group">
+          <div className="md:col-span-6 lg:col-span-6 rounded-2xl overflow-hidden border border-amber-500/30 bg-[#090D18] relative min-h-[460px] sm:min-h-[520px] md:min-h-[580px] flex flex-col justify-between shadow-2xl group">
             {/* Real World Backdrop Photo */}
             <div className="absolute inset-0">
               <img
@@ -429,9 +430,10 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
 
           {/* ==========================================================
               RIGHT COLUMN: Cultural Narrative, Poetry & Export Actions
-              (Desktop: 6 cols | Mobile: 100% full width below photo)
+              - Small screen (< md:): Stacks vertically below photo
+              - Laptop (md: and up): Side-by-side split view (6 cols)
              ========================================================== */}
-          <div className="lg:col-span-6 xl:col-span-6 flex flex-col justify-between text-left space-y-4">
+          <div className="md:col-span-6 lg:col-span-6 flex flex-col justify-between text-left space-y-4">
             <div>
               {/* Header Box */}
               <div className="flex items-center gap-2.5 pb-3 border-b border-slate-700/60">

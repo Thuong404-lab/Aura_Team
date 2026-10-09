@@ -19,10 +19,10 @@ import { AppNavbar, ScreenType } from './components/AppNavbar';
 import { soundEngine } from './utils/audioSynth';
 
 export default function App() {
-  // Navigation state (Default to 'fitting' as shown in the user's mockup)
-  const [currentScreen, setCurrentScreen] = useState<ScreenType>('fitting');
+  // Navigation state (Default to 'home' for welcoming entrance into the fashion realm)
+  const [currentScreen, setCurrentScreen] = useState<ScreenType>('home');
 
-  // Outfit state - Defaults exactly to the mockup: Áo ngũ thân tay chẽn + Váy xếp ly + Mấn đội đầu
+  // Outfit state - Defaults to Áo ngũ thân tay chẽn + Váy xếp ly + Mấn đội đầu
   const [currentTop, setCurrentTop] = useState<WardrobeItem>(TOPS[0]); // Áo ngũ thân tay chẽn
   const [currentBottom, setCurrentBottom] = useState<WardrobeItem>(
     BOTTOMS.find((b) => b.id === 'vay-xep-ly') || BOTTOMS[0]
@@ -81,73 +81,50 @@ export default function App() {
     }
   }, []);
 
-  // Save lookbook handler
-  const handleSaveLookbook = (item: SavedLookbookItem) => {
-    setSavedLookbooks((prev) => {
-      const updated = [item, ...prev];
-      try {
-        localStorage.setItem('vietphuc_saved_lookbooks', JSON.stringify(updated));
-      } catch {
-        // Storage full or disabled
-      }
-      return updated;
-    });
-  };
-
-  // Delete saved lookbook
-  const handleDeleteSaved = (id: string) => {
-    setSavedLookbooks((prev) => {
-      const updated = prev.filter((i) => i.id !== id);
-      try {
-        localStorage.setItem('vietphuc_saved_lookbooks', JSON.stringify(updated));
-      } catch {
-        // Storage full or disabled
-      }
-      return updated;
-    });
-  };
-
-  // Load a saved lookbook into workspace
-  const handleLoadSaved = (item: SavedLookbookItem) => {
-    const foundTop = TOPS.find((t) => t.name === item.topName) || TOPS[0];
-    const foundBottom = BOTTOMS.find((b) => b.name === item.bottomName) || BOTTOMS[0];
-    const foundAcc = ACCESSORIES.find((a) => a.name === item.accessoryName) || ACCESSORIES[0];
-    setCurrentTop(foundTop);
-    setCurrentBottom(foundBottom);
-    setCurrentAccessory(foundAcc);
-    setHarmonyData((prev) => ({
-      ...prev,
-      score: item.score,
-      critiqueTitle: item.title,
-      detailedCritique: item.aiStory,
-    }));
-    setCurrentScreen('fitting');
-  };
-
-  // Apply preset outfit
-  const handleApplyPreset = (preset: PresetOutfit) => {
+  const handleStartFitting = () => {
     soundEngine.playPluck(523.25);
-    const top = TOPS.find((t) => t.id === preset.topId) || TOPS[0];
-    const bottom = BOTTOMS.find((b) => b.id === preset.bottomId) || BOTTOMS[0];
-    const acc = ACCESSORIES.find((a) => a.id === preset.accessoryId) || ACCESSORIES[0];
-    const fab = FABRICS.find((f) => f.id === preset.fabricId) || FABRICS[0];
-    const col = COLOR_PALETTES.find((c) => c.id === preset.colorId) || COLOR_PALETTES[0];
-
-    setCurrentTop(top);
-    setCurrentBottom(bottom);
-    setCurrentAccessory(acc);
-    setCurrentFabric(fab);
-    setCurrentColor(col);
-    setHarmonyData((prev) => ({
-      ...prev,
-      score: preset.presetScore,
-      critiqueTitle: `Bản Phối ${preset.title}`,
-      detailedCritique: preset.subtitle,
-    }));
     setCurrentScreen('fitting');
   };
 
-  // Apply AI Suggestion
+  const handleApplyPreset = (preset: PresetOutfit) => {
+    soundEngine.playPluck(587.33);
+    const topItem = TOPS.find((t) => t.id === preset.topId) || TOPS[0];
+    const bottomItem = BOTTOMS.find((b) => b.id === preset.bottomId) || BOTTOMS[0];
+    const accessoryItem = ACCESSORIES.find((a) => a.id === preset.accessoryId) || ACCESSORIES[0];
+    const colorItem = COLOR_PALETTES.find((c) => c.id === preset.colorId) || COLOR_PALETTES[0];
+    const fabricItem = FABRICS.find((f) => f.id === preset.fabricId) || FABRICS[0];
+
+    setCurrentTop(topItem);
+    setCurrentBottom(bottomItem);
+    setCurrentAccessory(accessoryItem);
+    setCurrentColor(colorItem);
+    setCurrentFabric(fabricItem);
+
+    setHarmonyData({
+      score: preset.presetScore,
+      ratingBadge: 'Bản Phối Điển Hình',
+      historicalMatchPercent: 96,
+      colorHarmonyPercent: 95,
+      contextAestheticPercent: 94,
+      critiqueTitle: `${preset.title} (${preset.presetScore} điểm)`,
+      detailedCritique: preset.subtitle,
+      culturalSecret: topItem.cultureInfo.symbolism,
+      stylingTip:
+        'Thần thái tự tin, đoan trang là chìa khóa tôn vinh trọn vẹn nét đẹp cổ phục.',
+    });
+
+    setCurrentScreen('fitting');
+  };
+
+  const handleSelectTopItemFromEncyclopedia = (topId: string) => {
+    soundEngine.playPluck(587.33);
+    const foundTop = TOPS.find((t) => t.id === topId);
+    if (foundTop) {
+      setCurrentTop(foundTop);
+    }
+    setCurrentScreen('fitting');
+  };
+
   const handleApplyAiSuggestion = (suggestion: {
     topId: string;
     bottomId: string;
@@ -156,30 +133,75 @@ export default function App() {
     advice: string;
     persona: string;
   }) => {
-    const top = TOPS.find((t) => t.id === suggestion.topId) || TOPS[0];
-    const bottom = BOTTOMS.find((b) => b.id === suggestion.bottomId) || BOTTOMS[0];
-    const acc = ACCESSORIES.find((a) => a.id === suggestion.accessoryId) || ACCESSORIES[0];
+    soundEngine.playPluck(659.25);
+    const topItem = TOPS.find((t) => t.id === suggestion.topId) || TOPS[0];
+    const bottomItem = BOTTOMS.find((b) => b.id === suggestion.bottomId) || BOTTOMS[0];
+    const accessoryItem = ACCESSORIES.find((a) => a.id === suggestion.accessoryId) || ACCESSORIES[0];
 
-    setCurrentTop(top);
-    setCurrentBottom(bottom);
-    setCurrentAccessory(acc);
-    setHarmonyData((prev) => ({
-      ...prev,
-      score: 96,
-      critiqueTitle: suggestion.title,
-      detailedCritique: `${suggestion.advice} (Hình mẫu: ${suggestion.persona})`,
-    }));
+    setCurrentTop(topItem);
+    setCurrentBottom(bottomItem);
+    setCurrentAccessory(accessoryItem);
+
+    setHarmonyData({
+      score: 93,
+      ratingBadge: 'Đề xuất AI Khuyên Dùng',
+      historicalMatchPercent: 94,
+      colorHarmonyPercent: 92,
+      contextAestheticPercent: 95,
+      critiqueTitle: `${suggestion.title} (93 điểm)`,
+      detailedCritique: suggestion.advice,
+      culturalSecret: `Bản phối hướng đến nhân vật: ${suggestion.persona}`,
+      stylingTip: 'Hãy phối hợp ánh mắt và tư thế khoan thai để toát lên thần thái di sản.',
+    });
+
     setCurrentScreen('fitting');
   };
 
-  // Navigation handlers
-  const handleStartFitting = () => {
-    soundEngine.playPluck(440);
+  const handleSaveLookbook = (item: SavedLookbookItem) => {
+    soundEngine.playPluck(783.99);
+    const updated = [item, ...savedLookbooks];
+    setSavedLookbooks(updated);
+    try {
+      localStorage.setItem('vietphuc_saved_lookbooks', JSON.stringify(updated));
+    } catch {
+      // Ignore storage errors
+    }
+  };
+
+  const handleDeleteSaved = (id: string) => {
+    soundEngine.playPluck(330);
+    const updated = savedLookbooks.filter((item) => item.id !== id);
+    setSavedLookbooks(updated);
+    try {
+      localStorage.setItem('vietphuc_saved_lookbooks', JSON.stringify(updated));
+    } catch {
+      // Ignore storage errors
+    }
+  };
+
+  const handleLoadSaved = (item: SavedLookbookItem) => {
+    soundEngine.playPluck(523.25);
+    const foundTop = TOPS.find((t) => t.name === item.topName) || TOPS[0];
+    const foundBottom = BOTTOMS.find((b) => b.name === item.bottomName) || BOTTOMS[0];
+    const foundAcc = ACCESSORIES.find((a) => a.name === item.accessoryName) || ACCESSORIES[0];
+
+    setCurrentTop(foundTop);
+    setCurrentBottom(foundBottom);
+    setCurrentAccessory(foundAcc);
+
+    setHarmonyData((prev) => ({
+      ...prev,
+      score: item.score,
+      critiqueTitle: item.title,
+      detailedCritique: item.aiStory,
+    }));
+
+    setIsLibraryOpen(false);
     setCurrentScreen('fitting');
   };
 
   const handleGoHome = () => {
-    soundEngine.playPluck(392);
+    soundEngine.playPluck(440);
     setCurrentScreen('home');
   };
 
@@ -215,6 +237,10 @@ export default function App() {
           onApplyAiSuggestion={handleApplyAiSuggestion}
           isPlayingMusic={isPlayingMusic}
           setIsPlayingMusic={setIsPlayingMusic}
+          onOpenSavedLibrary={() => setIsLibraryOpen(true)}
+          onOpenLoginModal={() => setIsLoginModalOpen(true)}
+          savedCount={savedLookbooks.length}
+          onSelectTopItem={handleSelectTopItemFromEncyclopedia}
         />
       )}
 
