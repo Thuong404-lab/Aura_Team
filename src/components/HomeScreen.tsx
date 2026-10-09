@@ -62,6 +62,8 @@ interface HomeScreenProps {
   savedCount?: number;
   onSelectTopItem?: (topId: string) => void;
   triggerCloudIntroCount?: number;
+  isCloudCurtainActive?: boolean;
+  onCloudCurtainChange?: (active: boolean) => void;
 }
 
 // 4 Ancient Imperial Secrets with interactive revelation
@@ -232,19 +234,24 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   savedCount = 0,
   onSelectTopItem,
   triggerCloudIntroCount,
+  isCloudCurtainActive,
+  onCloudCurtainChange,
 }) => {
   const [promptInput, setPromptInput] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiResult, setAiResult] = useState<AiSuggestionResult | null>(null);
 
   // Cloud Intro Curtain overlay state (Full-screen clouds covering and parting on entrance)
-  const [isCloudIntroOpen, setIsCloudIntroOpen] = useState<boolean>(true);
+  const isCloudIntroOpen = isCloudCurtainActive !== undefined ? isCloudCurtainActive : true;
+  const setCloudIntroOpen = (val: boolean) => {
+    onCloudCurtainChange?.(val);
+  };
   const [isCloudGalleryOpen, setIsCloudGalleryOpen] = useState<boolean>(false);
 
   // Re-trigger cloud intro whenever requested externally
   React.useEffect(() => {
     if (triggerCloudIntroCount && triggerCloudIntroCount > 0) {
-      setIsCloudIntroOpen(true);
+      setCloudIntroOpen(true);
     }
   }, [triggerCloudIntroCount]);
 
@@ -311,15 +318,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       {/* 0. FULL-SCREEN CLOUD CURTAIN ANIMATION (FRAMER MOTION) */}
       <CloudCurtain
         isOpen={isCloudIntroOpen}
-        onRevealed={() => setIsCloudIntroOpen(false)}
-        onClose={() => setIsCloudIntroOpen(false)}
+        onRevealed={() => setCloudIntroOpen(false)}
+        onClose={() => setCloudIntroOpen(false)}
       />
 
       {/* Cloud Motif Gallery Modal (Bảo Tàng 6 Mẫu Mây Cổ Phong) */}
       <CloudMotifGalleryModal
         isOpen={isCloudGalleryOpen}
         onClose={() => setIsCloudGalleryOpen(false)}
-        onTriggerIntro={() => setIsCloudIntroOpen(true)}
+        onTriggerIntro={() => setCloudIntroOpen(true)}
       />
 
       {/* 1. DEDICATED ATMOSPHERIC EFFECTS OVERLAY (GOLD PARTICLES & MIST) */}
@@ -344,12 +351,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <DongSonDrumMandala className="w-[520px] h-[520px]" opacity={0.3} animated={true} glow={true} speed={0.3} />
         </div>
 
-        {/* Co Phong Cloud wisps */}
-        <div className="absolute top-36 left-8 opacity-25">
-          <CoPhongCloud className="w-56 h-32" />
+        {/* Co Phong Cloud wisps (Hiện rõ bồng bềnh, mờ ảo) */}
+        <div className="absolute top-28 left-6 opacity-60">
+          <CoPhongCloud className="w-72 h-40 drop-shadow-[0_8px_20px_rgba(245,158,11,0.25)]" />
         </div>
-        <div className="absolute top-96 right-12 opacity-25">
-          <CoPhongCloud className="w-64 h-36" flipX />
+        <div className="absolute top-80 right-8 opacity-65">
+          <CoPhongCloud className="w-80 h-44 drop-shadow-[0_8px_20px_rgba(245,158,11,0.25)]" flipX />
+        </div>
+        <div className="absolute bottom-96 left-12 opacity-50">
+          <CoPhongCloud className="w-64 h-36 drop-shadow-[0_8px_20px_rgba(245,158,11,0.2)]" />
+        </div>
+        <div className="absolute bottom-40 right-16 opacity-55">
+          <CoPhongCloud className="w-72 h-40 drop-shadow-[0_8px_20px_rgba(245,158,11,0.2)]" flipX />
         </div>
       </div>
 
@@ -358,7 +371,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-10 flex-1 flex flex-col items-center justify-start px-4 sm:px-6 md:px-8 py-10 md:py-16 text-center max-w-6xl mx-auto w-full"
+        className="relative z-10 flex-1 flex flex-col items-center justify-start px-4 sm:px-6 md:px-8 py-10 md:py-16 text-center max-w-6xl mx-auto w-full will-change-transform"
+        style={{ willChange: 'transform' }}
       >
         {/* 4.1 WELCOME HERO SECTION: BƯỚC VÀO THẾ GIỚI THỜI TRANG */}
         <section className="flex flex-col items-center justify-center max-w-4xl mx-auto w-full mb-16 pt-2">
@@ -456,12 +470,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               whileTap={{ scale: 0.97 }}
               onClick={() => {
                 soundEngine.playPluck(523.25);
-                setIsCloudIntroOpen(true);
+                setCloudIntroOpen(true);
               }}
               className="px-4 py-2 rounded-xl text-xs font-semibold tracking-wide text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 hover:border-amber-400 transition-all flex items-center gap-2 cursor-pointer shadow-md shadow-amber-950/20 group"
             >
               <Wind className="w-3.5 h-3.5 text-amber-400 group-hover:rotate-12 transition-transform" />
-              <span>Vén Mây Chiều Sâu 3D (Cuộn Chuột)</span>
+              <span>Vén Mây Khai Mở Di Sản</span>
             </motion.button>
 
             <motion.button

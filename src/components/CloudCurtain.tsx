@@ -58,11 +58,11 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
   // Framer Motion Value tracking depth traversal from 0.0 to 1.0
   const scrollProgress = useMotionValue(0);
 
-  // Buttery-smooth spring physics for mouse wheel parallax
+  // Snappy, silky-smooth spring physics for mouse wheel parallax (zero lag)
   const smoothProgress = useSpring(scrollProgress, {
-    damping: 24,
-    stiffness: 130,
-    mass: 0.65,
+    damping: 28,
+    stiffness: 200,
+    mass: 0.35,
   });
 
   // Numeric state for UI progress gauge
@@ -99,27 +99,38 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
     }, 450);
   }, [onRevealed, onClose, scrollProgress]);
 
-  // Smooth flythrough triggered via Click / Button
+  const [isParting, setIsParting] = useState(false);
+
+  // Smooth cinematic cloud dissolve animation (chạm / bấm vào màn hình để mây từ từ tan đi)
   const triggerOpenAnimation = useCallback(() => {
-    if (isRevealedRef.current) return;
+    if (isRevealedRef.current || isParting) return;
+    setIsParting(true);
     hasInteractedRef.current = true;
+    try {
+      soundEngine.playCloudPartChime();
+    } catch {
+      // Audio safe
+    }
+    // Mây từ từ tan biến trong 2.0 giây với chuyển động cung đình êm ái
     animate(scrollProgress, 1, {
-      duration: 1.6,
-      ease: [0.16, 1, 0.3, 1],
+      duration: 2.0,
+      ease: [0.22, 1, 0.36, 1],
       onComplete: () => {
         completeEntrance();
       },
     });
-  }, [scrollProgress, completeEntrance]);
+  }, [scrollProgress, completeEntrance, isParting]);
 
   // Mount handling (Do NOT auto-open by default)
   useEffect(() => {
     if (!isOpen) {
       setIsRevealed(true);
+      setIsParting(false);
       return;
     }
 
     setIsRevealed(false);
+    setIsParting(false);
     scrollProgress.set(0);
 
     // Optional timer if caller explicitly enabled autoPart
@@ -136,60 +147,6 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
       if (timerId) clearTimeout(timerId);
     };
   }, [isOpen, autoPart, autoFlyTimeout, scrollProgress, triggerOpenAnimation]);
-
-  // Parallax Scroll Wheel Event Listener
-  useEffect(() => {
-    if (isRevealed) return;
-
-    const handleWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      hasInteractedRef.current = true;
-
-      const delta = e.deltaY;
-      const current = scrollProgress.get();
-      // Scroll down progresses into 3D depth, scroll up allows slight reverse
-      const step = Math.sign(delta) * Math.min(Math.abs(delta) * 0.0016, 0.12);
-      const next = Math.max(0, Math.min(1, current + step));
-      scrollProgress.set(next);
-
-      if (next >= 0.88) {
-        completeEntrance();
-      }
-    };
-
-    const handleTouchStart = (e: TouchEvent) => {
-      touchStartY.current = e.touches[0].clientY;
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (touchStartY.current === null) return;
-      e.preventDefault();
-      hasInteractedRef.current = true;
-
-      const currentY = e.touches[0].clientY;
-      const diffY = touchStartY.current - currentY;
-      touchStartY.current = currentY;
-
-      const step = diffY * 0.0035;
-      const current = scrollProgress.get();
-      const next = Math.max(0, Math.min(1, current + step));
-      scrollProgress.set(next);
-
-      if (next >= 0.88) {
-        completeEntrance();
-      }
-    };
-
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: false });
-
-    return () => {
-      window.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
-    };
-  }, [isRevealed, scrollProgress, completeEntrance]);
 
   // =========================================================================
   // FRAMER MOTION PARALLAX TRANSFORMS (DRIVEN BY MOUSE WHEEL SCROLL EVENT)
@@ -214,21 +171,11 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
   const sealZ = useTransform(smoothProgress, [0, 1], [0, 420]);
   const sealY = useTransform(smoothProgress, [0, 1], [0, -80]);
   const sealOpacity = useTransform(smoothProgress, [0, 0.65, 0.9], [1, 0.8, 0]);
-  const sealBlur = useTransform(
-    smoothProgress,
-    [0, 0.5, 1],
-    ['blur(0px)', 'blur(3px)', 'blur(8px)']
-  );
 
   // 5. FOREGROUND CLOUDS (PARALLAX LAYER 1 - RUSHING PAST VIEWER)
   const foreScale = useTransform(smoothProgress, [0, 1], [1, 2.5]);
   const foreZ = useTransform(smoothProgress, [0, 1], [220, 950]);
   const foreOpacity = useTransform(smoothProgress, [0, 0.7, 1], [0.98, 0.55, 0]);
-  const foreBlur = useTransform(
-    smoothProgress,
-    [0, 0.45, 1],
-    ['blur(0px)', 'blur(3px)', 'blur(7px)']
-  );
 
   // Corner trajectories for Foreground
   const foreTL_X = useTransform(smoothProgress, [0, 1], ['0%', '-165%']);
@@ -286,7 +233,7 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
           triggerOpenAnimation();
         }
       }}
-      className={`fixed inset-0 z-[100] overflow-hidden select-none ${
+      className={`fixed inset-0 z-[200] overflow-hidden select-none ${
         isInteractive ? 'pointer-events-auto cursor-pointer' : 'pointer-events-none'
       }`}
       style={{
@@ -340,11 +287,12 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
         >
           {/* Animated high-fidelity Dong Son Bronze Drum */}
           <DongSonDrumMandala
-            className="w-full h-full drop-shadow-[0_0_50px_rgba(217,119,6,0.45)]"
-            opacity={0.88}
+            className="w-full h-full drop-shadow-[0_0_40px_rgba(245,158,11,0.35)]"
+            opacity={0.85}
             animated={true}
             glow={true}
-            speed={0.8}
+            speed={0.6}
+            crisp={true}
           />
         </motion.div>
       </motion.div>
@@ -559,7 +507,6 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
             z: foreZ,
             rotate: foreTL_Rot,
             opacity: foreOpacity,
-            filter: foreBlur,
           }}
           className="absolute -top-16 -left-20 sm:-top-24 sm:-left-16 pointer-events-none"
         >
@@ -588,7 +535,6 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
             z: foreZ,
             rotate: foreTR_Rot,
             opacity: foreOpacity,
-            filter: foreBlur,
           }}
           className="absolute -top-16 -right-20 sm:-top-24 sm:-right-16 pointer-events-none"
         >
@@ -620,7 +566,6 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
             z: foreZ,
             rotate: foreBL_Rot,
             opacity: foreOpacity,
-            filter: foreBlur,
           }}
           className="absolute -bottom-20 -left-20 sm:-bottom-28 sm:-left-16 pointer-events-none"
         >
@@ -649,7 +594,6 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
             z: foreZ,
             rotate: foreBR_Rot,
             opacity: foreOpacity,
-            filter: foreBlur,
           }}
           className="absolute -bottom-20 -right-20 sm:-bottom-28 sm:-right-16 pointer-events-none"
         >
@@ -682,39 +626,49 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
           scale: sealScale,
           z: sealZ,
           opacity: sealOpacity,
-          filter: sealBlur,
         }}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 text-center flex flex-col items-center justify-center max-w-lg px-6 pointer-events-none"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 text-center flex flex-col items-center justify-center max-w-xl px-4 pointer-events-none"
       >
-        {/* Imperial Seal Golden Drum Emblem Badge */}
+        {/* Imperial Seal Golden Drum Emblem Badge (Trống Đồng Đông Sơn Siêu Chi Tiết & Sắc Nét) */}
         <motion.div
           animate={{
-            scale: [1, 1.05, 1],
-            boxShadow: [
-              '0 0 35px rgba(212,175,55,0.4)',
-              '0 0 55px rgba(212,175,55,0.7)',
-              '0 0 35px rgba(212,175,55,0.4)',
-            ],
+            scale: [1, 1.04, 1],
           }}
           transition={{
-            duration: 3.5,
+            duration: 4.5,
             repeat: Infinity,
             ease: 'easeInOut',
           }}
-          className="relative mb-3.5 group rounded-full"
+          className="relative mb-6 group rounded-full flex flex-col items-center"
         >
-          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-2 border-amber-400 p-2 bg-[#090F1B]/95 backdrop-blur-md flex items-center justify-center shadow-xl">
-            <div className="w-full h-full rounded-full border border-amber-500/50 flex items-center justify-center bg-gradient-to-b from-amber-500/30 to-amber-950/20">
-              <DongSonDrumMandala className="w-16 h-16 sm:w-18 sm:h-18" opacity={0.95} animated={true} speed={1.2} />
+          {/* Luminous Ambient Golden Bloom */}
+          <div className="absolute inset-0 rounded-full bg-radial from-amber-400/40 via-yellow-600/15 to-transparent blur-2xl pointer-events-none" />
+
+          {/* Majestic Royal Gold Medallion Outer Bezel */}
+          <div className="relative w-44 h-44 sm:w-52 sm:h-52 md:w-60 md:h-60 rounded-full border-[3.5px] border-amber-300 p-2 sm:p-2.5 bg-[#080D1A]/95 shadow-[0_0_45px_rgba(245,158,11,0.5),0_20px_45px_rgba(0,0,0,0.85)] flex items-center justify-center">
+            {/* Concentric Engraved Ring with Inner Gold Border */}
+            <div className="w-full h-full rounded-full border-2 border-amber-400/70 p-1 flex items-center justify-center bg-radial from-amber-950/40 via-[#0B1120] to-[#040710] overflow-hidden shadow-inner">
+              <DongSonDrumMandala
+                className="w-full h-full drop-shadow-[0_0_24px_rgba(245,158,11,0.45)]"
+                opacity={1}
+                animated={true}
+                speed={0.85}
+                glow={false}
+                crisp={true}
+              />
             </div>
           </div>
-          <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[11px] font-bold tracking-widest bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 text-slate-950 uppercase shadow-md whitespace-nowrap font-serif-vi">
-            Đại Việt Di Sản
-          </span>
+
+          {/* Royal Plaque Banner: ĐẠI VIỆT DI SẢN */}
+          <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full text-xs sm:text-[13px] font-bold tracking-[0.24em] bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 text-slate-950 uppercase shadow-[0_6px_22px_rgba(0,0,0,0.8)] border border-yellow-100/90 whitespace-nowrap font-serif-vi flex items-center gap-2 z-10">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-950 inline-block" />
+            <span>ĐẠI VIỆT DI SẢN</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-950 inline-block" />
+          </div>
         </motion.div>
 
         {/* Poetic Sub-title & Main Title */}
-        <div className="space-y-1.5 mb-2">
+        <div className="space-y-2 mb-2">
           <p className="text-xs sm:text-sm font-medium tracking-[0.35em] uppercase text-amber-300/90 font-serif-vi">
             Khai Mở Cánh Cổng Triều Đại
           </p>
@@ -722,14 +676,13 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
             Việt Phục Hoàng Triều
           </h1>
           <p className="text-xs sm:text-sm text-slate-300/85 max-w-sm mx-auto font-sans-vi leading-relaxed">
-            Màn mây đang che kín cổng di sản · Hãy cuộn chuột để bước vào
+            Màn mây đang che kín cổng di sản · Chạm hoặc bấm bất kỳ đâu để khai mở
           </p>
         </div>
       </motion.div>
 
       {/* ========================================================================= */}
-      {/* 5. LAYER 4: INTERACTIVE MOUSE WHEEL PARALLAX GUIDE & DEPTH GAUGE          */}
-      {/*    ĐƯỢC THIẾT KẾ RÕ RÀNG NHẮC NGƯỜI DÙNG CUỘN CHUỘT ĐỂ MỞ MÂY             */}
+      {/* 5. LAYER 4: INTERACTIVE CLICK/TAP TO DISSOLVE GUIDE PILL                  */}
       {/* ========================================================================= */}
       <AnimatePresence>
         {isInteractive && (
@@ -740,80 +693,34 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
             transition={{ duration: 0.4 }}
             className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2.5"
           >
-            {/* Interactive Depth Gauge Pill */}
+            {/* Interactive Click / Tap Anywhere Pill */}
             <motion.div
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
               onClick={triggerOpenAnimation}
-              className="px-5 sm:px-6 py-3 rounded-full bg-slate-950/90 hover:bg-slate-900/95 backdrop-blur-lg border border-amber-400/50 hover:border-amber-400 shadow-[0_0_35px_rgba(217,119,6,0.4)] transition-all flex items-center gap-3.5 cursor-pointer group select-none"
+              className="px-6 sm:px-8 py-3.5 rounded-full bg-slate-950/90 hover:bg-slate-900/95 backdrop-blur-lg border border-amber-400/60 hover:border-amber-300 shadow-[0_0_40px_rgba(245,158,11,0.5)] transition-all flex items-center gap-4 cursor-pointer group select-none"
             >
-              {/* Animated Mouse Icon with active bouncing wheel */}
-              <div className="relative w-6 h-8 rounded-full border-2 border-amber-300 flex justify-center pt-1.5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]">
-                <motion.div
-                  animate={{
-                    y: [0, 8, 0],
-                    opacity: [1, 0.3, 1],
-                  }}
-                  transition={{
-                    duration: 1.2,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  }}
-                  className="w-1.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_#F59E0B]"
-                />
+              {/* Luminous Pulsing Touch / Sparkle Emblem */}
+              <div className="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-400/60 flex items-center justify-center shadow-[0_0_12px_rgba(245,158,11,0.4)]">
+                <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
               </div>
 
               {/* Status Message */}
               <div className="flex flex-col text-left">
-                <span className="text-xs sm:text-sm font-bold text-amber-200 group-hover:text-amber-100 flex items-center gap-1.5">
-                  <span>Cuộn con lăn chuột để vén mở làn mây</span>
+                <span className="text-xs sm:text-sm font-bold text-amber-200 group-hover:text-amber-100 flex items-center gap-2 font-serif-vi tracking-wide">
+                  <span>Chạm hoặc bấm vào màn hình để khai mở</span>
                   <motion.span
-                    animate={{ y: [0, 3, 0] }}
-                    transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
+                    animate={{ scale: [1, 1.25, 1] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
                   >
-                    <ChevronDown className="w-4 h-4 text-amber-400" />
+                    ✦
                   </motion.span>
                 </span>
-                <span className="text-[11px] text-amber-400/80 flex items-center gap-1">
-                  <span>Mây đang trôi bồng bềnh · Cuộn xuống để bay xuyên qua (hoặc bấm vào đây)</span>
-                </span>
-              </div>
-
-              {/* Circular Depth Progress Ring */}
-              <div className="relative w-8 h-8 flex items-center justify-center ml-1">
-                <svg className="w-8 h-8 -rotate-90">
-                  <circle
-                    cx="16"
-                    cy="16"
-                    r="13"
-                    className="stroke-amber-950/70"
-                    strokeWidth="3"
-                    fill="none"
-                  />
-                  <circle
-                    cx="16"
-                    cy="16"
-                    r="13"
-                    className="stroke-amber-400"
-                    strokeWidth="3"
-                    strokeDasharray={81.68}
-                    strokeDashoffset={81.68 * (1 - depthPercent / 100)}
-                    strokeLinecap="round"
-                    fill="none"
-                  />
-                </svg>
-                <span className="absolute text-[9px] font-bold text-amber-300">
-                  {depthPercent}%
+                <span className="text-[11px] text-amber-300/80">
+                  Làn mây cổ phong sẽ từ từ tan biến và mở ra Cung điện Việt phục
                 </span>
               </div>
             </motion.div>
-
-            {/* Depth Progress Bar */}
-            <div className="w-56 h-1.5 rounded-full bg-amber-950/70 overflow-hidden border border-amber-500/30">
-              <div
-                className="h-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-300 transition-all duration-75 shadow-[0_0_10px_#F59E0B]"
-                style={{ width: `${depthPercent}%` }}
-              />
-            </div>
           </motion.div>
         )}
       </AnimatePresence>

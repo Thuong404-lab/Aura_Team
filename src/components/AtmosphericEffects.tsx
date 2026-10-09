@@ -12,8 +12,18 @@ interface AtmosphericEffectsProps {
   showHalos?: boolean;
 }
 
+/**
+ * AtmosphericEffects (Không Gian Mờ Ảo & Sương Khói Hoàng Cung)
+ *
+ * Tái hiện trọn vẹn không gian huyền bí, mờ ảo bồng bềnh chốn hoàng triều:
+ * 1. Màn sương khói cung đình nhiều lớp (Multi-layered Volumetric Palace Mist)
+ *    chuyển động trôi dạt êm đềm với độ mờ đục và lan tỏa ánh sáng rực rỡ
+ * 2. Vầng hào quang hoàng kim ấm áp (Celestial Gold Halos) tỏa sáng mềm mại
+ * 3. Hạt bụi vàng lấp lánh (Golden Embers) & Ngôi sao kim cương lấp lánh (Diamond Sparkles)
+ *    bay bổng trên nền Canvas mượt mà 60fps
+ */
 export const AtmosphericEffects: React.FC<AtmosphericEffectsProps> = ({
-  positioning = 'absolute',
+  positioning = 'fixed',
   intensity = 'mystic',
   className = '',
   showHalos = true,
@@ -40,20 +50,20 @@ export const AtmosphericEffects: React.FC<AtmosphericEffectsProps> = ({
 
     // Particle multiplier based on intensity
     const counts = {
-      subtle: { embers: 22, stars: 12 },
-      medium: { embers: 36, stars: 20 },
-      mystic: { embers: 48, stars: 28 },
+      subtle: { embers: 28, stars: 16 },
+      medium: { embers: 45, stars: 26 },
+      mystic: { embers: 65, stars: 38 },
     }[intensity];
 
     // 1. Floating Golden Particle Sparks (Embers)
     const embers = Array.from({ length: counts.embers }).map(() => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      size: Math.random() * 2.4 + 0.8,
-      speedY: Math.random() * 0.38 + 0.12,
-      speedX: (Math.random() - 0.5) * 0.22,
-      opacity: Math.random() * 0.55 + 0.18,
-      pulseSpeed: Math.random() * 0.022 + 0.009,
+      size: Math.random() * 2.8 + 1.0,
+      speedY: Math.random() * 0.45 + 0.15,
+      speedX: (Math.random() - 0.5) * 0.28,
+      opacity: Math.random() * 0.65 + 0.25,
+      pulseSpeed: Math.random() * 0.025 + 0.01,
       pulseOffset: Math.random() * Math.PI * 2,
     }));
 
@@ -61,13 +71,13 @@ export const AtmosphericEffects: React.FC<AtmosphericEffectsProps> = ({
     const sparkleStars = Array.from({ length: counts.stars }).map(() => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      size: Math.random() * 3.2 + 1.6,
-      speedY: Math.random() * 0.22 + 0.06,
-      speedX: (Math.random() - 0.5) * 0.12,
+      size: Math.random() * 3.6 + 1.8,
+      speedY: Math.random() * 0.25 + 0.08,
+      speedX: (Math.random() - 0.5) * 0.16,
       rotation: Math.random() * Math.PI,
-      rotSpeed: (Math.random() - 0.5) * 0.018,
-      opacity: Math.random() * 0.65 + 0.2,
-      twinkleSpeed: Math.random() * 0.035 + 0.012,
+      rotSpeed: (Math.random() - 0.5) * 0.02,
+      opacity: Math.random() * 0.75 + 0.25,
+      twinkleSpeed: Math.random() * 0.04 + 0.015,
       twinkleOffset: Math.random() * Math.PI * 2,
     }));
 
@@ -84,18 +94,18 @@ export const AtmosphericEffects: React.FC<AtmosphericEffectsProps> = ({
       ctx.rotate(rotation);
 
       // Outer golden glow
-      ctx.shadowBlur = radius * 4.5;
-      ctx.shadowColor = 'rgba(250, 204, 21, 0.85)';
+      ctx.shadowBlur = radius * 5;
+      ctx.shadowColor = 'rgba(251, 191, 36, 0.9)';
       ctx.fillStyle = `rgba(254, 240, 138, ${opacity})`;
 
       ctx.beginPath();
       for (let i = 0; i < 4; i++) {
         const angle = (i * Math.PI) / 2;
         const innerAngle = angle + Math.PI / 4;
-        const outerX = Math.cos(angle) * (radius * 2.8);
-        const outerY = Math.sin(angle) * (radius * 2.8);
-        const innerX = Math.cos(innerAngle) * (radius * 0.45);
-        const innerY = Math.sin(innerAngle) * (radius * 0.45);
+        const outerX = Math.cos(angle) * (radius * 3.0);
+        const outerY = Math.sin(angle) * (radius * 3.0);
+        const innerX = Math.cos(innerAngle) * (radius * 0.5);
+        const innerY = Math.sin(innerAngle) * (radius * 0.5);
 
         if (i === 0) ctx.moveTo(outerX, outerY);
         else ctx.lineTo(outerX, outerY);
@@ -106,9 +116,9 @@ export const AtmosphericEffects: React.FC<AtmosphericEffectsProps> = ({
 
       // Gleaming white crystal core
       ctx.beginPath();
-      ctx.arc(0, 0, Math.max(0.7, radius * 0.38), 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, opacity * 1.6)})`;
-      ctx.shadowBlur = 4;
+      ctx.arc(0, 0, Math.max(0.8, radius * 0.4), 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, opacity * 1.8)})`;
+      ctx.shadowBlur = 5;
       ctx.shadowColor = '#FFFFFF';
       ctx.fill();
 
@@ -133,15 +143,15 @@ export const AtmosphericEffects: React.FC<AtmosphericEffectsProps> = ({
         if (p.x > width + 12) p.x = -12;
 
         const currentOpacity = Math.max(
-          0.1,
-          Math.min(0.9, p.opacity + Math.sin(tick * p.pulseSpeed + p.pulseOffset) * 0.25)
+          0.15,
+          Math.min(0.95, p.opacity + Math.sin(tick * p.pulseSpeed + p.pulseOffset) * 0.3)
         );
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(245, 197, 85, ${currentOpacity})`;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = '#D4AF37';
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = '#F59E0B';
         ctx.fill();
         ctx.shadowBlur = 0;
       });
@@ -160,8 +170,8 @@ export const AtmosphericEffects: React.FC<AtmosphericEffectsProps> = ({
         if (star.x > width + 16) star.x = -16;
 
         const currentOpacity = Math.max(
-          0.08,
-          Math.min(0.95, star.opacity + Math.sin(tick * star.twinkleSpeed + star.twinkleOffset) * 0.38)
+          0.12,
+          Math.min(1.0, star.opacity + Math.sin(tick * star.twinkleSpeed + star.twinkleOffset) * 0.42)
         );
 
         drawSparkle(star.x, star.y, star.size, currentOpacity, star.rotation);
@@ -185,32 +195,35 @@ export const AtmosphericEffects: React.FC<AtmosphericEffectsProps> = ({
       className={`pointer-events-none select-none overflow-hidden z-0 ${posClass} ${className}`}
       aria-hidden="true"
     >
-      {/* 1. Slow-Moving Mist Layers (Anchored to Background) */}
+      {/* 1. MÀN SƯƠNG MỜ ẢO HOÀNG CUNG NHIỀU TẦNG (LUMINOUS VOLUMETRIC PALACE MIST) */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 2.2, ease: 'easeOut' }}
-        className="absolute inset-0 overflow-hidden"
+        transition={{ duration: 1.8, ease: 'easeOut' }}
+        className="absolute inset-0 overflow-hidden pointer-events-none"
       >
-        {/* Layer A: Lower rising misty aura with slow drift */}
-        <div className="absolute -bottom-28 -left-[20%] w-[140%] h-[480px] bg-gradient-to-t from-amber-500/[0.09] via-slate-900/[0.22] to-transparent blur-3xl animate-mist-drift-slow" />
+        {/* Layer A: Sương mù hoàng kim dâng lên từ đáy màn hình (Dày dặn, mờ ảo) */}
+        <div className="absolute -bottom-24 -left-[20%] w-[140%] h-[560px] bg-gradient-to-t from-amber-500/25 via-amber-900/15 to-transparent blur-3xl animate-mist-drift-slow" />
 
-        {/* Layer B: Upper palace mist veil moving in reverse */}
-        <div className="absolute -top-24 -right-[20%] w-[140%] h-[500px] bg-gradient-to-b from-amber-400/[0.07] via-amber-950/[0.1] to-transparent blur-3xl animate-mist-drift-reverse" />
+        {/* Layer B: Màn sương mờ ảo cổ phong trôi dạt từ trên xuống */}
+        <div className="absolute -top-20 -right-[20%] w-[140%] h-[560px] bg-gradient-to-b from-amber-400/20 via-yellow-950/15 to-transparent blur-3xl animate-mist-drift-reverse" />
 
-        {/* Layer C: Mid-level soft drifting misty fog band */}
-        <div className="absolute top-1/3 -left-[10%] w-[120%] h-[320px] bg-radial from-amber-200/[0.04] via-emerald-950/[0.04] to-transparent blur-3xl animate-mist-drift-slow" />
+        {/* Layer C: Dải mây sương khói lững lờ trôi ngang thân giữa */}
+        <div className="absolute top-1/4 -left-[15%] w-[130%] h-[420px] bg-radial from-amber-300/15 via-amber-950/10 to-transparent blur-3xl animate-mist-drift-slow" />
 
-        {/* Layer D: Central celestial gold aura glow */}
+        {/* Layer D: Quầng sáng vầng thái dương hoàng cung ấm áp */}
         {showHalos && (
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[850px] max-w-[95vw] h-[450px] bg-radial from-amber-400/[0.14] via-amber-600/[0.05] to-transparent blur-[140px] rounded-full" />
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[950px] max-w-[95vw] h-[520px] bg-radial from-amber-400/25 via-amber-600/10 to-transparent blur-[120px] rounded-full pointer-events-none" />
         )}
+
+        {/* Layer E: Luồng sương tím sẫm hoàng triều tạo chiều sâu không gian */}
+        <div className="absolute bottom-1/4 -right-[10%] w-[800px] h-[380px] bg-radial from-red-900/15 via-amber-950/10 to-transparent blur-3xl animate-mist-drift-reverse" />
       </motion.div>
 
       {/* 2. Floating Golden Particle Sparks & Diamond Sparkles Canvas */}
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 w-full h-full opacity-85"
+        className="absolute inset-0 w-full h-full opacity-90 pointer-events-none"
       />
     </div>
   );

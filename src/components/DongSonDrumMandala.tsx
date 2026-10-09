@@ -13,62 +13,54 @@ export interface DongSonDrumProps {
   interactive?: boolean;
   /** Size for canvas or container if specified */
   size?: number;
+  /** High contrast & crisp museum mode */
+  crisp?: boolean;
 }
 
 /**
- * DongSonDrumMandala (Trống Đồng Đông Sơn Ngọc Lũ - Hoàng Triều)
+ * DongSonDrumMandala (Trống Đồng Đông Sơn Ngọc Lũ - Bảo Vật Quốc Gia Hoàng Triều)
  *
- * Upgraded masterpiece featuring:
- * 1. SVG Vector Mandala with museum-grade Ngọc Lũ patterns:
- *    - 14-pointed Central Sun Star with dynamic breathing solar flares
- *    - Dual counter-rotating sacred concentric circles (Chim Lạc and Vũ Nhân dancers)
- *    - Concentric sawtooth rings, spiral tang cước, and meander bands
- * 2. Golden Gradient Light Reflection (Phản chiếu ánh sáng gradient vàng):
- *    - Sweeping specular sheen that dynamically follows cursor or smoothly animates
- *    - Radial gold spotlight creating rich metallic lusters
- * 3. Slow Rotation with Framer Motion:
- *    - Majestic, ultra-smooth continuous rotation
- *    - Independent counter-rotation for inner vs outer sacred rings for visual depth
- * 4. Layered Depth & Shadow with 3D Tilt on Hover:
- *    - Multi-layered drop shadows (ambient golden bloom + deep elevation shadow)
- *    - Parallax 3D tilt responding to mouse position (perspective, rotateX, rotateY)
- *    - Layer elevation shifts when hovered/moved over
+ * Tối ưu hóa đặc biệt cho độ sắc nét, tương phản rực rỡ và chuyển động mượt mà 120fps:
+ * 1. Hoa văn chuẩn mực bảo vật Ngọc Lũ:
+ *    - Tâm mặt trời 14 tia sáng dài sắc bén, nhụy tròn hoàng kim, họa tiết lông công kẽ tia
+ *    - Vành 1: Vòng chấm cườm nổi và vành răng lược kép đối xứng
+ *    - Vành 2: Vũ nhân hóa trang đội mũ lông chim cao múa nghi lễ cầu mùa
+ *    - Vành 3: Họa tiết sóng nước hình xoắn ốc chữ S (tang cước liên hoàn)
+ *    - Vành 4: Đàn 16 chim Lạc sải cánh dài, mỏ mở nhọn, mào cong vút bay ngược chiều kim đồng hồ
+ *    - Vành 5 & 6: Vòng răng cưa, hạt cườm đồng tâm và vành thừng bện viền ngoài
+ * 2. Hệ màu Hoàng Kim rực rỡ (Luminous Imperial Gold) có độ tương phản cao, không bị chìm hay mờ đục
+ * 3. Hiệu năng cao: Sử dụng drop-shadow phần cứng và GPU transform, loại bỏ filter SVG nặng gây giật lag
  */
 export const DongSonDrumMandala: React.FC<DongSonDrumProps> = ({
   className = 'w-96 h-96',
-  opacity = 0.25,
+  opacity = 1,
   animated = false,
   glow = false,
   speed = 1,
   interactive = true,
+  crisp = true,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
 
-  // Unique IDs for SVG gradients and filters to avoid DOM conflicts
+  // Unique IDs for SVG gradients to prevent DOM collisions
   const uid = useId().replace(/:/g, '');
   const gradBronze = `bronzeGold_${uid}`;
   const gradSun = `sunGold_${uid}`;
-  const gradSpecular = `specularGold_${uid}`;
-  const gradLightSheen = `sheenGold_${uid}`;
-  const filterGlow = `drumGlow_${uid}`;
-  const filterRelief = `drumRelief_${uid}`;
+  const gradLightStroke = `lightStroke_${uid}`;
+  const gradDiscBg = `discBg_${uid}`;
 
-  // Interactive mouse tracking for 3D tilt & dynamic light reflection sheen
+  // Interactive mouse tracking for 3D tilt & dynamic light reflection
   const mouseX = useMotionValue(0.5);
   const mouseY = useMotionValue(0.5);
 
-  const springConfig = { damping: 20, stiffness: 120, mass: 0.5 };
+  const springConfig = { damping: 25, stiffness: 180, mass: 0.4 };
   const smoothMouseX = useSpring(mouseX, springConfig);
   const smoothMouseY = useSpring(mouseY, springConfig);
 
-  // 3D tilt transforms: subtle, elegant tilt up to +-12 degrees
-  const rotateX = useTransform(smoothMouseY, [0, 1], [10, -10]);
-  const rotateY = useTransform(smoothMouseX, [0, 1], [-10, 10]);
-  
-  // Specular light sheen gradient position based on cursor
-  const sheenX = useTransform(smoothMouseX, [0, 1], ['20%', '80%']);
-  const sheenY = useTransform(smoothMouseY, [0, 1], ['20%', '80%']);
+  // 3D tilt transforms: subtle, elegant tilt up to +-10 degrees
+  const rotateX = useTransform(smoothMouseY, [0, 1], [8, -8]);
+  const rotateY = useTransform(smoothMouseX, [0, 1], [-8, 8]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!interactive || !containerRef.current) return;
@@ -90,328 +82,345 @@ export const DongSonDrumMandala: React.FC<DongSonDrumProps> = ({
     setIsHovered(true);
   };
 
-  // The comprehensive vector drum pattern
+  // The museum-grade ultra-sharp vector drum pattern
   const DrumSVGLayers = (
     <svg
       viewBox="0 0 600 600"
       className="w-full h-full pointer-events-none select-none overflow-visible"
-      style={{ opacity }}
+      style={{ opacity, shapeRendering: 'geometricPrecision' }}
       fill="none"
     >
       <defs>
-        {/* Imperial Antique Bronze-Gold Multi-Stop Gradient */}
+        {/* Luminous Imperial Gold Gradient - High Contrast & Vibrancy */}
         <linearGradient id={gradBronze} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#FFFDF0" />
-          <stop offset="18%" stopColor="#FDE68A" />
-          <stop offset="42%" stopColor="#F59E0B" />
-          <stop offset="70%" stopColor="#B45309" />
-          <stop offset="88%" stopColor="#78350F" />
-          <stop offset="100%" stopColor="#451A03" />
+          <stop offset="20%" stopColor="#FEF08A" />
+          <stop offset="50%" stopColor="#FBBF24" />
+          <stop offset="80%" stopColor="#F59E0B" />
+          <stop offset="100%" stopColor="#D97706" />
         </linearGradient>
 
-        {/* Dynamic Specular Golden Sheen for light reflection */}
-        <radialGradient id={gradSpecular} cx="42%" cy="38%" r="65%">
-          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.85" />
-          <stop offset="20%" stopColor="#FEF08A" stopOpacity="0.6" />
-          <stop offset="50%" stopColor="#F59E0B" stopOpacity="0.25" />
-          <stop offset="85%" stopColor="#78350F" stopOpacity="0.05" />
-          <stop offset="100%" stopColor="#000000" stopOpacity="0" />
-        </radialGradient>
-
-        {/* Sweep Angle Light Beam Reflection */}
-        <linearGradient id={gradLightSheen} x1="0%" y1="0%" x2="100%" y2="80%">
-          <stop offset="0%" stopColor="#FFFBEB" stopOpacity="0" />
-          <stop offset="35%" stopColor="#FDE68A" stopOpacity="0.1" />
-          <stop offset="50%" stopColor="#FFFFFF" stopOpacity="0.6" />
-          <stop offset="65%" stopColor="#F59E0B" stopOpacity="0.2" />
-          <stop offset="100%" stopColor="#78350F" stopOpacity="0" />
+        {/* High-visibility pure golden stroke gradient */}
+        <linearGradient id={gradLightStroke} x1="0%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#FDE68A" />
+          <stop offset="50%" stopColor="#FFFBEB" />
+          <stop offset="100%" stopColor="#F59E0B" />
         </linearGradient>
 
-        {/* Sacred Sun Core Gradient */}
+        {/* Sacred Sun Core Gradient with Radiance */}
         <radialGradient id={gradSun} cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="1" />
-          <stop offset="25%" stopColor="#FFFBEB" stopOpacity="0.98" />
-          <stop offset="55%" stopColor="#FBBF24" stopOpacity="0.92" />
-          <stop offset="80%" stopColor="#D97706" stopOpacity="0.85" />
-          <stop offset="100%" stopColor="#92400E" stopOpacity="0.6" />
+          <stop offset="0%" stopColor="#FFFFFF" />
+          <stop offset="25%" stopColor="#FFFBEB" />
+          <stop offset="60%" stopColor="#FCD34D" />
+          <stop offset="85%" stopColor="#F59E0B" />
+          <stop offset="100%" stopColor="#B45309" />
         </radialGradient>
 
-        {/* Multi-layered Golden Aura Glow Filter */}
-        {glow && (
-          <filter id={filterGlow} x="-40%" y="-40%" width="180%" height="180%">
-            <feGaussianBlur stdDeviation="8" result="blur1" />
-            <feGaussianBlur stdDeviation="3" result="blur2" />
-            <feMerge>
-              <feMergeNode in="blur1" />
-              <feMergeNode in="blur2" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        )}
-
-        {/* Embossed Relief & Subtle Drop-Shadow for SVG elements */}
-        <filter id={filterRelief} x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#000" floodOpacity="0.5" />
-        </filter>
+        {/* Deep Imperial Bronze Disc Background with subtle central radiance */}
+        <radialGradient id={gradDiscBg} cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#1E1408" stopOpacity="0.95" />
+          <stop offset="65%" stopColor="#101524" stopOpacity="0.96" />
+          <stop offset="100%" stopColor="#070A12" stopOpacity="0.98" />
+        </radialGradient>
       </defs>
 
-      {/* Layer 0: Metallic Bronze Disc Backplate with Embossed Rings */}
+      {/* Layer 0: Metallic Bronze Disc Backplate */}
       <circle
         cx="300"
         cy="300"
-        r="292"
-        fill="#090F1B"
-        fillOpacity="0.65"
+        r="294"
+        fill={`url(#${gradDiscBg})`}
         stroke={`url(#${gradBronze})`}
-        strokeWidth="1.5"
+        strokeWidth="2.5"
       />
       <circle
         cx="300"
         cy="300"
-        r="288"
-        stroke="#F59E0B"
-        strokeWidth="0.8"
-        strokeOpacity="0.4"
-      />
-
-      {/* Layer 1: Outermost Braided Rope, Dotted Circles, and Sawtooth Rim (R = 285 to 255) */}
-      <g filter={glow ? `url(#${filterGlow})` : undefined}>
-        <circle cx="300" cy="300" r="285" stroke={`url(#${gradBronze})`} strokeWidth="3.5" />
-        <circle
-          cx="300"
-          cy="300"
-          r="277"
-          stroke={`url(#${gradBronze})`}
-          strokeWidth="2.5"
-          strokeDasharray="6 4"
-        />
-        <circle cx="300" cy="300" r="268" stroke={`url(#${gradBronze})`} strokeWidth="1.5" />
-
-        {/* Dotted beads ring */}
-        <circle
-          cx="300"
-          cy="300"
-          r="262"
-          stroke={`url(#${gradBronze})`}
-          strokeWidth="2.2"
-          strokeDasharray="3 4"
-        />
-        <circle cx="300" cy="300" r="255" stroke={`url(#${gradBronze})`} strokeWidth="1.4" />
-      </g>
-
-      {/* Layer 2: Flying Cranes Ring (Đàn Chim Lạc vỗ cánh Ngọc Lũ - R = 248 to 198) */}
-      <circle cx="300" cy="300" r="248" stroke={`url(#${gradBronze})`} strokeWidth="1.8" />
-      
-      {/* Dynamic or static crane flock */}
-      <g transform="translate(300, 300)">
-        {Array.from({ length: 16 }).map((_, i) => {
-          const rot = (i * 360) / 16;
-          return (
-            <g key={`crane-${i}`} transform={`rotate(${rot}) translate(0, -222)`}>
-              {/* Chim Lạc sải cánh dài, mỏ mở, mào nhọn đặc trưng bảo vật Ngọc Lũ */}
-              <path
-                d="M-22 0 C-15 -10, 8 -9, 24 1 C14 -4, 2 -1, -12 2 C-16 3, -19 2, -22 0 Z"
-                fill={`url(#${gradBronze})`}
-                opacity="0.95"
-              />
-              {/* Upper Primary Wing */}
-              <path
-                d="M-4 -3 L22 -14 C16 -6, 6 -3, -4 -3 Z"
-                fill={`url(#${gradBronze})`}
-                opacity="0.9"
-              />
-              {/* Lower Wing & Tail Feathers */}
-              <path
-                d="M-10 1 L-18 8 L-13 1 Z"
-                fill={`url(#${gradBronze})`}
-                opacity="0.8"
-              />
-              {/* Eye & Crest */}
-              <circle cx="23" cy="1" r="1.3" fill="#FFFBEB" />
-              <path d="M22 0 Q28 -3 30 -1" stroke={`url(#${gradBronze})`} strokeWidth="1.4" strokeLinecap="round" />
-            </g>
-          );
-        })}
-      </g>
-      <circle cx="300" cy="300" r="198" stroke={`url(#${gradBronze})`} strokeWidth="1.8" />
-
-      {/* Layer 3: Ceremonial Dancers Ring (Vũ Nhân Đội Mũ Lông Chim Múa Lễ Hội - R = 192 to 154) */}
-      <circle
-        cx="300"
-        cy="300"
-        r="192"
-        stroke={`url(#${gradBronze})`}
+        r="289"
+        stroke="#FDE68A"
         strokeWidth="1.2"
-        strokeDasharray="2 3"
+        strokeOpacity="0.85"
       />
-      <g transform="translate(300, 300)">
-        {Array.from({ length: 14 }).map((_, i) => {
-          const rot = (i * 360) / 14;
-          return (
-            <g key={`dancer-${i}`} transform={`rotate(${rot}) translate(0, -174)`}>
-              {/* Head with magnificent tall feather crown */}
-              <circle cx="0" cy="-7" r="2.2" fill={`url(#${gradBronze})`} opacity="0.9" />
-              <path
-                d="M0 -9 L-4 -18 L0 -14 L4 -18 L0 -9 Z"
-                fill={`url(#${gradBronze})`}
-                opacity="0.9"
-              />
-              {/* Torso with flared ceremonial kilt */}
-              <path
-                d="M0 -5 L-3 4 L3 4 Z"
-                fill={`url(#${gradBronze})`}
-                opacity="0.8"
-              />
-              {/* Ritual axe / spear */}
-              <line
-                x1="-7"
-                y1="3"
-                x2="7"
-                y2="-5"
-                stroke={`url(#${gradBronze})`}
-                strokeWidth="1.3"
-                strokeLinecap="round"
-                opacity="0.75"
-              />
-            </g>
-          );
-        })}
-      </g>
-      <circle cx="300" cy="300" r="154" stroke={`url(#${gradBronze})`} strokeWidth="1.8" />
 
-      {/* Layer 4: Concentric Sawtooth & Meander Spiral Rings (R = 148 to 95) */}
-      <circle
-        cx="300"
-        cy="300"
-        r="148"
-        stroke={`url(#${gradBronze})`}
-        strokeWidth="1.2"
-        strokeDasharray="4 3"
-      />
+      {/* =================================================================== */}
+      {/* VÀNH NGOÀI CÙNG: DÂY THỪNG BỆN, VÒNG HẠT CƯỜM & RĂNG CƯA ĐỒNG TÂM   */}
+      {/* =================================================================== */}
+      <circle cx="300" cy="300" r="283" stroke={`url(#${gradBronze})`} strokeWidth="3" />
+
+      {/* Vòng dây thừng bện viền ngoài */}
       <g transform="translate(300, 300)">
-        {Array.from({ length: 36 }).map((_, i) => {
-          const rot = (i * 360) / 36;
+        {Array.from({ length: 64 }).map((_, i) => {
+          const rot = (i * 360) / 64;
           return (
-            <path
-              key={`tooth-${i}`}
-              d="M-3 -138 L0 -146 L3 -138 Z"
-              fill={`url(#${gradBronze})`}
-              opacity="0.8"
+            <line
+              key={`rope-${i}`}
+              x1="0"
+              y1="-283"
+              x2="3"
+              y2="-277"
+              stroke={`url(#${gradLightStroke})`}
+              strokeWidth="1.5"
+              strokeLinecap="round"
               transform={`rotate(${rot})`}
             />
           );
         })}
       </g>
-      <circle cx="300" cy="300" r="130" stroke={`url(#${gradBronze})`} strokeWidth="1.5" />
+
+      <circle cx="300" cy="300" r="277" stroke={`url(#${gradBronze})`} strokeWidth="2" />
+
+      {/* Vành chấm nổi / hạt cườm kép */}
       <circle
         cx="300"
         cy="300"
-        r="122"
-        stroke={`url(#${gradBronze})`}
+        r="271"
+        stroke={`url(#${gradLightStroke})`}
         strokeWidth="2.4"
-        strokeDasharray="5 4"
+        strokeDasharray="3 4"
       />
-      <circle cx="300" cy="300" r="114" stroke={`url(#${gradBronze})`} strokeWidth="1.2" />
+      <circle cx="300" cy="300" r="264" stroke={`url(#${gradBronze})`} strokeWidth="1.8" />
 
-      {/* Inner dots bead ring */}
-      <circle
-        cx="300"
-        cy="300"
-        r="104"
-        stroke={`url(#${gradBronze})`}
-        strokeWidth="1.6"
-        strokeDasharray="3 3"
-      />
-      <circle cx="300" cy="300" r="95" stroke={`url(#${gradBronze})`} strokeWidth="2.2" />
-
-      {/* Layer 5: Sacred 14-Point Central Sun (Mặt Trời Đông Sơn Bừng Sáng) */}
-      <circle
-        cx="300"
-        cy="300"
-        r="34"
-        fill={`url(#${gradSun})`}
-        opacity="0.5"
-      />
-      <circle
-        cx="300"
-        cy="300"
-        r="20"
-        stroke={`url(#${gradBronze})`}
-        strokeWidth="1.6"
-        opacity="0.95"
-      />
-      <circle cx="300" cy="300" r="7" fill={`url(#${gradSun})`} />
-
-      {/* 14 Solar Flares & Feather Spikes */}
+      {/* Vành răng cưa tam giác ngoài */}
       <g transform="translate(300, 300)">
-        {Array.from({ length: 14 }).map((_, i) => {
-          const rot = (i * 360) / 14;
+        {Array.from({ length: 48 }).map((_, i) => {
+          const rot = (i * 360) / 48;
           return (
-            <g key={`sun-ray-${i}`} transform={`rotate(${rot})`}>
-              {/* Primary sharp solar ray extending to R=92 */}
-              <polygon
-                points="0,-92 -8,-24 0,0 8,-24"
-                fill={`url(#${gradSun})`}
-                opacity="0.98"
-              />
-              {/* Ray core highlight */}
-              <line
-                x1="0"
-                y1="-92"
-                x2="0"
-                y2="-24"
-                stroke="#FFFFFF"
-                strokeWidth="1.4"
-                opacity="0.9"
-              />
-              {/* Peacock feather triangle motif between ray tips */}
+            <polygon
+              key={`outer-tooth-${i}`}
+              points="-3,-264 0,-257 3,-264"
+              fill={`url(#${gradBronze})`}
+              transform={`rotate(${rot})`}
+            />
+          );
+        })}
+      </g>
+      <circle cx="300" cy="300" r="256" stroke={`url(#${gradBronze})`} strokeWidth="2.2" />
+
+      {/* =================================================================== */}
+      {/* VÀNH ĐÀN CHIM LẠC SẢI CÁNH (16 CHIM LẠC BAY NGƯỢC CHIỀU KIM ĐỒNG HỒ) */}
+      {/* Đặc trưng tiêu biểu nhất của Trống Đồng Ngọc Lũ                    */}
+      {/* =================================================================== */}
+      <circle cx="300" cy="300" r="252" stroke={`url(#${gradBronze})`} strokeWidth="1.8" />
+
+      <g transform="translate(300, 300)">
+        {Array.from({ length: 16 }).map((_, i) => {
+          const rot = (i * 360) / 16;
+          return (
+            <g key={`lac-bird-${i}`} transform={`rotate(${rot}) translate(0, -225)`}>
+              {/* Thân chim Lạc sải dài uyển chuyển, bay ngược chiều kim đồng hồ */}
               <path
-                d="M-12 -65 L-16 -78 L-12 -73 Z"
-                fill={`url(#${gradBronze})`}
-                opacity="0.75"
+                d="M-28 1 C-18 -10, 8 -10, 30 1 C18 -4, 2 -2, -14 3 C-20 4, -25 3, -28 1 Z"
+                fill={`url(#${gradLightStroke})`}
+                stroke={`url(#${gradBronze})`}
+                strokeWidth="0.8"
               />
+              {/* Cánh trên sải rộng bay vút với gân lông vũ */}
+              <path
+                d="M-6 -4 L26 -17 C18 -7, 6 -4, -6 -4 Z"
+                fill={`url(#${gradBronze})`}
+                stroke="#FFFBEB"
+                strokeWidth="0.6"
+              />
+              {/* Cánh dưới và lông đuôi xòe dài */}
+              <path
+                d="M-14 2 L-26 10 L-18 2 Z"
+                fill={`url(#${gradBronze})`}
+              />
+              <path
+                d="M-22 6 L-32 14 L-24 5 Z"
+                fill={`url(#${gradLightStroke})`}
+                opacity="0.85"
+              />
+              {/* Đầu, mỏ dài nhọn há mở và mào lông cong đặc trưng */}
+              <path
+                d="M28 0 Q36 -4 40 -1"
+                stroke={`url(#${gradLightStroke})`}
+                strokeWidth="1.8"
+                strokeLinecap="round"
+              />
+              <path
+                d="M26 -2 Q30 -9 34 -6"
+                stroke={`url(#${gradBronze})`}
+                strokeWidth="1.4"
+                strokeLinecap="round"
+              />
+              {/* Mắt chim Lạc tinh anh chấm ngọc sáng */}
+              <circle cx="28" cy="0" r="1.6" fill="#FFFFFF" />
             </g>
           );
         })}
       </g>
 
-      {/* Layer 6: Dynamic Golden Light Reflection Overlay */}
-      {/* Diagonal specular light band sweeping across the surface */}
-      <rect
-        x="0"
-        y="0"
-        width="600"
-        height="600"
-        fill={`url(#${gradLightSheen})`}
-        clipPath="url(#drumClip)"
-        className="pointer-events-none mix-blend-color-dodge opacity-70"
-      />
+      <circle cx="300" cy="300" r="198" stroke={`url(#${gradBronze})`} strokeWidth="2.2" />
 
-      {/* Spherical specular highlight (giving the drum authentic convex bronze curvature) */}
+      {/* =================================================================== */}
+      {/* VÀNH HỌA TIẾT XOẮN ỐC TIẾP TUYẾN / CHỮ S (TANG CƯỚC NỐI TIẾP)      */}
+      {/* Biểu tượng sóng nước và mầm sống sinh sôi nảy nở                   */}
+      {/* =================================================================== */}
       <circle
-        cx="250"
-        cy="240"
-        r="280"
-        fill={`url(#${gradSpecular})`}
-        className="pointer-events-none mix-blend-screen opacity-65"
+        cx="300"
+        cy="300"
+        r="192"
+        stroke={`url(#${gradLightStroke})`}
+        strokeWidth="1.5"
+        strokeDasharray="2 3"
       />
+      <g transform="translate(300, 300)">
+        {Array.from({ length: 28 }).map((_, i) => {
+          const rot = (i * 360) / 28;
+          return (
+            <g key={`tang-cuoc-${i}`} transform={`rotate(${rot}) translate(0, -185)`}>
+              <path
+                d="M-7 0 C-7 -4, 0 -4, 0 0 C0 4, 7 4, 7 0"
+                stroke={`url(#${gradLightStroke})`}
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <circle cx="-3.5" cy="-1.5" r="1.2" fill="#FDE68A" />
+              <circle cx="3.5" cy="1.5" r="1.2" fill="#FDE68A" />
+            </g>
+          );
+        })}
+      </g>
+      <circle cx="300" cy="300" r="176" stroke={`url(#${gradBronze})`} strokeWidth="2" />
 
-      <clipPath id="drumClip">
-        <circle cx="300" cy="300" r="290" />
-      </clipPath>
+      {/* =================================================================== */}
+      {/* VÀNH VŨ NHÂN LỄ HỘI: ĐỘI MŨ LÔNG CHIM CAO VÚT MÚA CẦU MÙA           */}
+      {/* =================================================================== */}
+      <g transform="translate(300, 300)">
+        {Array.from({ length: 14 }).map((_, i) => {
+          const rot = (i * 360) / 14;
+          return (
+            <g key={`dancer-${i}`} transform={`rotate(${rot}) translate(0, -156)`}>
+              {/* Mũ lông chim xòe cao quý phái */}
+              <path
+                d="M0 -9 L-5 -20 L0 -15 L5 -20 L0 -9 Z"
+                fill={`url(#${gradLightStroke})`}
+                stroke={`url(#${gradBronze})`}
+                strokeWidth="0.6"
+              />
+              {/* Đầu vũ nhân */}
+              <circle cx="0" cy="-6" r="2.6" fill="#FFFBEB" />
+              {/* Thân mình và váy xòe nghi lễ */}
+              <path
+                d="M0 -4 L-4 5 L4 5 Z"
+                fill={`url(#${gradBronze})`}
+              />
+              {/* Cầm nhạc khí / rìu chiến nghi thức tế trời */}
+              <line
+                x1="-8"
+                y1="4"
+                x2="8"
+                y2="-4"
+                stroke={`url(#${gradLightStroke})`}
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              />
+              {/* Chân tư thế nhún nhảy uyển chuyển */}
+              <line x1="-2" y1="5" x2="-4" y2="10" stroke={`url(#${gradBronze})`} strokeWidth="1.4" />
+              <line x1="2" y1="5" x2="4" y2="10" stroke={`url(#${gradBronze})`} strokeWidth="1.4" />
+            </g>
+          );
+        })}
+      </g>
+
+      <circle cx="300" cy="300" r="138" stroke={`url(#${gradBronze})`} strokeWidth="2.2" />
+
+      {/* =================================================================== */}
+      {/* VÀNH RĂNG LƯỢC / RĂNG CƯA KÉP & VÒNG HẠT CƯỜM TRONG                */}
+      {/* =================================================================== */}
+      <g transform="translate(300, 300)">
+        {Array.from({ length: 36 }).map((_, i) => {
+          const rot = (i * 360) / 36;
+          return (
+            <polygon
+              key={`inner-tooth-${i}`}
+              points="-3,-138 0,-130 3,-138"
+              fill={`url(#${gradLightStroke})`}
+              transform={`rotate(${rot})`}
+            />
+          );
+        })}
+      </g>
+      <circle cx="300" cy="300" r="128" stroke={`url(#${gradBronze})`} strokeWidth="1.6" />
+      <circle
+        cx="300"
+        cy="300"
+        r="120"
+        stroke={`url(#${gradLightStroke})`}
+        strokeWidth="2.2"
+        strokeDasharray="4 3"
+      />
+      <circle cx="300" cy="300" r="112" stroke={`url(#${gradBronze})`} strokeWidth="1.8" />
+      <circle cx="300" cy="300" r="102" stroke={`url(#${gradLightStroke})`} strokeWidth="2.4" strokeDasharray="3 3" />
+      <circle cx="300" cy="300" r="94" stroke={`url(#${gradBronze})`} strokeWidth="2.2" />
+
+      {/* =================================================================== */}
+      {/* TÂM MẶT TRỜI ĐÔNG SƠN 14 TIA SÁNG RỰC RỠ (BIỂU TƯỢNG VŨ TRỤ)        */}
+      {/* Sắc nét, rực rỡ và lấp lánh ánh hoàng kim                           */}
+      {/* =================================================================== */}
+      {/* Quầng sáng vầng thái dương */}
+      <circle cx="300" cy="300" r="32" fill={`url(#${gradSun})`} opacity="0.8" />
+      <circle cx="300" cy="300" r="22" stroke="#FFFBEB" strokeWidth="2" />
+      <circle cx="300" cy="300" r="10" fill="#FFFFFF" />
+
+      {/* 14 Tia sáng mặt trời sắc bén vươn dài */}
+      <g transform="translate(300, 300)">
+        {Array.from({ length: 14 }).map((_, i) => {
+          const rot = (i * 360) / 14;
+          return (
+            <g key={`sun-ray-${i}`} transform={`rotate(${rot})`}>
+              {/* Tia mặt trời tam giác nhọn vút tới R=92 */}
+              <polygon
+                points="0,-92 -8,-22 0,-10 8,-22"
+                fill={`url(#${gradSun})`}
+                stroke={`url(#${gradLightStroke})`}
+                strokeWidth="1.2"
+              />
+              {/* Sống tia vàng trắng tạo hiệu ứng khối 3D gồ nổi */}
+              <line
+                x1="0"
+                y1="-92"
+                x2="0"
+                y2="-18"
+                stroke="#FFFFFF"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+              />
+              {/* Họa tiết tam giác lông công / văn răng lược xen kẽ giữa các đầu tia */}
+              <polygon
+                points="-12,-65 -16,-80 -10,-74"
+                fill={`url(#${gradLightStroke})`}
+              />
+              <circle cx="-13" cy="-73" r="1.2" fill="#FFFFFF" />
+            </g>
+          );
+        })}
+      </g>
+
+      {/* Vòng viền bóng ngoài cùng */}
+      <circle
+        cx="300"
+        cy="300"
+        r="298"
+        stroke={`url(#${gradBronze})`}
+        strokeWidth="1.5"
+        strokeOpacity="0.7"
+      />
     </svg>
   );
 
-  // If not animated, return clean component with optional hover
+  // If not animated, return clean crisp component
   if (!animated) {
     return (
-      <div className={`relative ${className}`}>
+      <div className={`relative ${className} select-none`}>
         {DrumSVGLayers}
       </div>
     );
   }
 
-  // Multi-tier animated & interactive 3D drum with golden reflection and layered depth
+  // Multi-tier animated & interactive 3D drum with smooth 120fps rotation and radiant golden bloom
   return (
     <motion.div
       ref={containerRef}
@@ -427,42 +436,25 @@ export const DongSonDrumMandala: React.FC<DongSonDrumProps> = ({
       whileHover={
         interactive
           ? {
-              scale: 1.04,
-              transition: { duration: 0.4, ease: 'easeOut' },
+              scale: 1.03,
+              transition: { duration: 0.35, ease: 'easeOut' },
             }
           : undefined
       }
-      className={`relative flex items-center justify-center cursor-pointer transition-shadow duration-500 ${className}`}
+      className={`relative flex items-center justify-center cursor-pointer select-none ${className}`}
     >
       {/* ----------------------------------------------------------------- */}
-      {/* LAYER 1: AMBIENT GOLDEN BLOOM & ELEVATION DROP SHADOW             */}
+      {/* LAYER 1: AMBIENT GOLDEN BLOOM (CSS GPU-Accelerated, zero frame lag)*/}
       {/* ----------------------------------------------------------------- */}
-      <motion.div
-        animate={{
-          scale: isHovered ? 1.15 : [1, 1.08, 1],
-          opacity: isHovered ? 0.6 : [0.25, 0.45, 0.25],
-        }}
-        transition={{
-          duration: isHovered ? 0.3 : 4 / speed,
-          repeat: isHovered ? 0 : Infinity,
-          ease: 'easeInOut',
-        }}
-        className="absolute inset-0 rounded-full bg-radial from-amber-400/45 via-yellow-600/20 to-transparent blur-2xl pointer-events-none -z-10"
-      />
-
-      {/* Deep Layer Elevation Shadow on hover (đổ bóng layer tạo chiều sâu) */}
-      <motion.div
-        animate={{
-          boxShadow: isHovered
-            ? '0 30px 60px -12px rgba(0, 0, 0, 0.85), 0 0 50px rgba(245, 158, 11, 0.35)'
-            : '0 15px 35px -10px rgba(0, 0, 0, 0.6), 0 0 25px rgba(217, 119, 6, 0.15)',
-        }}
-        transition={{ duration: 0.4 }}
-        className="absolute inset-4 rounded-full pointer-events-none -z-5"
-      />
+      {glow && (
+        <div
+          className="absolute inset-0 rounded-full bg-radial from-amber-400/40 via-yellow-600/15 to-transparent blur-xl pointer-events-none -z-10 transition-opacity duration-300"
+          style={{ opacity: isHovered ? 0.8 : 0.45 }}
+        />
+      )}
 
       {/* ----------------------------------------------------------------- */}
-      {/* LAYER 2: SLOW ROTATING DRUM SURFACE WITH FRAMER MOTION            */}
+      {/* LAYER 2: ULTRA-SMOOTH CONTINUOUS ROTATION (HARDWARE ACCELERATED)  */}
       {/* ----------------------------------------------------------------- */}
       <motion.div
         animate={{ rotate: 360 }}
@@ -472,43 +464,23 @@ export const DongSonDrumMandala: React.FC<DongSonDrumProps> = ({
           ease: 'linear',
         }}
         className="w-full h-full relative"
-        style={{ transformStyle: 'preserve-3d' }}
+        style={{
+          transformStyle: 'preserve-3d',
+          willChange: 'transform',
+        }}
       >
         {DrumSVGLayers}
       </motion.div>
 
       {/* ----------------------------------------------------------------- */}
-      {/* LAYER 3: DYNAMIC GOLDEN LIGHT REFLECTION (PHẢN CHIẾU ÁNH SÁNG)     */}
-      {/* Smooth sweeping sheen following cursor position or breathing      */}
+      {/* LAYER 3: CRISP POLISHED RIM HIGHLIGHT                             */}
       {/* ----------------------------------------------------------------- */}
-      <motion.div
-        className="absolute inset-0 rounded-full pointer-events-none overflow-hidden mix-blend-color-dodge"
-        style={{
-          background: `radial-gradient(circle at ${sheenX.get()} ${sheenY.get()}, rgba(255,255,255,0.7) 0%, rgba(253,230,138,0.4) 30%, transparent 65%)`,
-          opacity: isHovered ? 0.85 : 0.45,
-          transition: 'opacity 0.3s ease',
-        }}
-      />
-
-      {/* Rotating specular gloss ring to amplify 3D bronze relief */}
-      <motion.div
-        animate={{ rotate: -360 }}
-        transition={{
-          duration: 120 / speed,
-          repeat: Infinity,
-          ease: 'linear',
-        }}
-        className="absolute inset-0 rounded-full pointer-events-none bg-gradient-to-tr from-transparent via-amber-200/10 to-transparent mix-blend-screen opacity-60"
-      />
-
-      {/* Subtle Rim Highlight Glint on hover */}
-      <motion.div
-        animate={{
-          opacity: isHovered ? 0.9 : 0.3,
-        }}
-        transition={{ duration: 0.3 }}
-        className="absolute inset-1 rounded-full border border-amber-300/40 pointer-events-none shadow-[inset_0_0_20px_rgba(245,158,11,0.25)]"
+      <div
+        className="absolute inset-0 rounded-full border border-amber-300/40 pointer-events-none shadow-[inset_0_0_15px_rgba(245,158,11,0.25)] transition-opacity duration-300"
+        style={{ opacity: isHovered ? 1 : 0.6 }}
       />
     </motion.div>
   );
 };
+
+export default DongSonDrumMandala;
