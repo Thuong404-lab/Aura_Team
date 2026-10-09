@@ -176,10 +176,8 @@ export function evaluateOutfitAuthenticity(
     matchedPeriod = DYNASTIC_PERIODS[1]; // Ly Tran
   } else if (top.id === 'doi-kham' || top.era === 'Thời Lê') {
     matchedPeriod = DYNASTIC_PERIODS[2]; // Le
-  } else if (top.id.startsWith('tu-than') || top.id.startsWith('ao-ba-ba') || top.id === 'ao-yem') {
+  } else if (top.id.startsWith('tu-than') || top.id.startsWith('ao-ba-ba')) {
     matchedPeriod = DYNASTIC_PERIODS[4]; // Dan Gian
-  } else if (top.id === 'cach-tan') {
-    matchedPeriod = DYNASTIC_PERIODS[5]; // Modern
   }
 
   // RULE 1: Áo Ngũ Thân / Áo Tấc phối cùng Váy (như Váy xếp ly / Váy Mã Diện)

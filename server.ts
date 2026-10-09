@@ -42,9 +42,9 @@ app.post('/api/ai/suggest', async (req, res) => {
 Người dùng sẽ đưa ra yêu cầu (ví dụ: bối cảnh đi dạo phố, đám cưới, lễ hội, dự tiệc, thời tiết, phong cách).
 Nhiệm vụ của bạn là phản hồi ĐÚNG ĐỊNH DẠNG JSON sau:
 {
-  "recommendedTopId": "nhat-binh" | "ngu-than" | "ao-tac" | "giao-linh" | "vien-linh" | "cach-tan" | "ao-yem",
-  "recommendedBottomId": "quan-ong-so" | "quan-men-lam" | "vay-xep-ly" | "quan-gam-vang" | "quan-tay-hien-dai",
-  "recommendedAccessoryId": "man-ngu-sac" | "khan-dong" | "ngoc-boi" | "quat-lua" | "hai-theu" | "chuoi-ngoc",
+  "recommendedTopId": "nhat-binh" | "ngu-than" | "ao-tac" | "giao-linh" | "vien-linh" | "tu-than" | "doi-kham" | "ao-ba-ba-nu",
+  "recommendedBottomId": "quan-ong-so" | "quan-men-lam" | "vay-xep-ly" | "quan-gam-vang" | "vay-den-kinh-bac-nu",
+  "recommendedAccessoryId": "man-ngu-sac" | "khan-dong" | "ngoc-boi" | "quat-lua" | "hai-theu" | "chuoi-ngoc" | "non-ba-tam-nu",
   "colorScheme": "string (ví dụ: Đỏ điều phối Trắng ngà, Men lam phối Vàng kim)",
   "conceptTitle": "string (Tên gợi cảm hứng, ví dụ: 'Nét Cố Đô Thanh Lịch', 'Thu Hà Nội Di Sản')",
   "characterPersona": "string (Hình mẫu nhân vật, ví dụ: 'Tiểu thư khuê các tại kinh thành Huế những năm 1920')",
@@ -97,14 +97,14 @@ Nhiệm vụ của bạn là phản hồi ĐÚNG ĐỊNH DẠNG JSON sau:
     persona = 'Trưởng tử gia tộc trong tuần tế lễ tổ tiên';
     advice = 'Áo Tấc với tay áo thụ rộng thênh thang mang tính nghi lễ cao nhất của triều Nguyễn, thể hiện sự kính trọng tuyệt đối.';
     note = 'Khi khoanh tay hành lễ, hai vạt tay thụ phủ kín trước ngực biểu trưng cho lòng thành kính vô lượng.';
-  } else if (lower.includes('cách tân') || lower.includes('hiện đại') || lower.includes('trẻ')) {
-    topId = 'cach-tan';
+  } else if (lower.includes('trẻ') || lower.includes('nữ') || lower.includes('thơ') || lower.includes('dạo phố')) {
+    topId = 'giao-linh-nu';
     bottomId = 'vay-xep-ly';
     accId = 'quat-lua';
-    title = 'Tân Phong Giao Hòa';
-    persona = 'Nhà thiết kế trẻ phong cách Modern Heritage 2026';
-    advice = 'Sự kết hợp giữa phom áo cách tân cùng chân váy dập ly mang lại luồng sinh khí hiện đại nhưng vẫn lưu giữ trọn vẹn hồn cốt cổ phong.';
-    note = 'Đường cắt may tối giản tôn vinh đường nét cơ thể mà vẫn giữ kín đáo ý nhị.';
+    title = 'Thanh Phong Giao Lĩnh';
+    persona = 'Tiểu thư đài các phong thái nhẹ nhàng tao nhã';
+    advice = 'Sự kết hợp giữa phom Áo Giao Lĩnh cổ chéo chữ Y cùng chân váy xếp ly mang lại nét thanh tao, thoát tục chuẩn mực mỹ học Đại Việt.';
+    note = 'Đường cổ chéo chữ Y vạt trái đè vạt phải tượng trưng cho sự giao hòa âm dương, đoan trang mà phóng khoáng.';
   }
 
   return res.json({
@@ -170,7 +170,7 @@ Hãy trả về JSON:
   // High fidelity fallback scoring logic
   let baseScore = 95;
   if (top?.era === 'Triều Nguyễn' && accessory?.id === 'man-ngu-sac') baseScore = 98;
-  if (top?.id === 'cach-tan') baseScore = 93;
+  if (top?.id === 'giao-linh-nu' || top?.id === 'tu-than') baseScore = 96;
 
   return res.json({
     success: true,

@@ -42,10 +42,8 @@ export interface GarmentVisualProfile {
     | 'doi-kham'
     | 'tu-than'
     | 'ao-ba-ba'
-    | 'dong-son'
-    | 'cach-tan'
-    | 'ao-yem';
-  sleeveType: 'tay-thung' | 'tay-chen' | 'dong-son' | 'ao-yem';
+    | 'dong-son';
+  sleeveType: 'tay-thung' | 'tay-chen' | 'dong-son';
   bottomColor: string;
   bottomType: 'quan-bach' | 'quan-men-lam' | 'quan-gam-vang' | 'quan-den' | 'vay-den' | 'vay-xep-ly' | 'dong-son' | 'quan-tay';
   headpieceType: 'khan-dong' | 'man-vang' | 'man-den' | 'non-ba-tam' | 'non-la' | 'khan-ran';
@@ -57,8 +55,7 @@ export interface GarmentVisualProfile {
     | 'dong-son-sun'
     | 'baba-placket'
     | 'lap-linh-buttons'
-    | 'doi-kham-lapels'
-    | 'cach-tan-minimal';
+    | 'doi-kham-lapels';
   hasFiveColorCuffs?: boolean;
   hasThuyBaHem?: boolean;
   hasChestRibbons?: boolean;
@@ -241,28 +238,6 @@ export const GARMENT_VISUAL_PROFILES: Record<string, GarmentVisualProfile> = {
     chestMotif: 'baba-placket',
     hasKhanRan: true,
   },
-  // 16. Áo Dài Cách Tân
-  'cach-tan': {
-    baseColor: '#8B1E1E',
-    accentGold: '#D4AF37',
-    collarType: 'cach-tan',
-    sleeveType: 'tay-chen',
-    bottomColor: '#262423',
-    bottomType: 'quan-tay',
-    headpieceType: 'khan-dong',
-    chestMotif: 'cach-tan-minimal',
-  },
-  // 17. Áo Yếm & Khoác Sa
-  'ao-yem': {
-    baseColor: '#B23A48',
-    accentGold: '#F7E7CE',
-    collarType: 'ao-yem',
-    sleeveType: 'ao-yem',
-    bottomColor: '#8B1E1E',
-    bottomType: 'vay-xep-ly',
-    headpieceType: 'man-den',
-    chestMotif: 'yem-dao',
-  },
 };
 
 export const AvatarModel: React.FC<AvatarModelProps> = ({
@@ -306,7 +281,7 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
 
   // Active bottom color & type determination
   const bottomType = activeBottom
-    ? activeBottom.id === 'vay-xep-ly'
+    ? activeBottom.id === 'vay-xep-ly' || activeBottom.id === 'thuong-dai-viet-nu'
       ? 'vay-xep-ly'
       : activeBottom.id === 'quan-men-lam'
       ? 'quan-men-lam'
@@ -314,9 +289,9 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
       ? 'quan-gam-vang'
       : activeBottom.id === 'quan-tay-hien-dai'
       ? 'quan-tay'
-      : activeBottom.id === 'vay-den'
+      : activeBottom.id === 'vay-den' || activeBottom.id === 'vay-den-kinh-bac-nu'
       ? 'vay-den'
-      : activeBottom.id === 'dong-son'
+      : activeBottom.id === 'dong-son' || activeBottom.id.includes('dong-son')
       ? 'dong-son'
       : profile.bottomType
     : null;
@@ -341,15 +316,15 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
 
   // Active headpiece determination
   const headpieceType = activeAccessory
-    ? activeAccessory.id === 'non-ba-tam' || activeAccessory.svgLayerType === 'non-ba-tam'
+    ? activeAccessory.id === 'non-ba-tam' || activeAccessory.id === 'non-ba-tam-nu' || activeAccessory.id === 'non-la-nam-bo' || activeAccessory.svgLayerType === 'non-ba-tam'
       ? 'non-ba-tam'
-      : activeAccessory.id === 'khan-ran' || activeAccessory.svgLayerType === 'khan-ran'
+      : activeAccessory.id === 'khan-ran' || activeAccessory.id === 'khan-ran-nam-bo' || activeAccessory.svgLayerType === 'khan-ran'
       ? 'khan-ran'
-      : activeAccessory.id === 'man-ngu-sac' || activeAccessory.id === 'man-vang'
+      : activeAccessory.id === 'khan-vanh-day-nu' || activeAccessory.id === 'man-ngu-sac' || activeAccessory.id === 'man-vang'
       ? 'man-vang'
-      : activeAccessory.id === 'khan-dong' || activeAccessory.svgLayerType === 'khan-dong'
+      : activeAccessory.id === 'khan-dong' || activeAccessory.id === 'mu-phoc-dau-nam' || activeAccessory.id === 'mu-long-chim-dong-son' || activeAccessory.svgLayerType === 'khan-dong'
       ? 'khan-dong'
-      : activeAccessory.id === 'man-doi-dau'
+      : activeAccessory.id === 'man-doi-dau' || activeAccessory.id === 'khan-mo-qua-nu'
       ? 'man-tron'
       : profile.headpieceType
     : null;

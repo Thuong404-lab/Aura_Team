@@ -783,6 +783,19 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                                     Đang chọn • Bấm để gỡ
                                   </span>
                                 )}
+                                {item.gender && (
+                                  <span
+                                    className={`text-[9px] px-1.5 py-0.2 rounded font-sans-vi border uppercase font-medium ${
+                                      item.gender === 'nam'
+                                        ? 'bg-sky-950/70 text-sky-300 border-sky-400/40'
+                                        : item.gender === 'nu'
+                                        ? 'bg-rose-950/70 text-rose-300 border-rose-400/40'
+                                        : 'bg-amber-950/70 text-amber-300 border-amber-400/40'
+                                    }`}
+                                  >
+                                    {item.gender === 'nam' ? 'Nam' : item.gender === 'nu' ? 'Nữ' : 'Unisex'}
+                                  </span>
+                                )}
                                 <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-sans-vi border border-amber-400/30">
                                   Nếp rủ
                                 </span>
@@ -883,6 +896,19 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                                     Đang chọn • Bấm để gỡ
                                   </span>
                                 )}
+                                {item.gender && (
+                                  <span
+                                    className={`text-[9px] px-1.5 py-0.2 rounded font-sans-vi border uppercase font-medium ${
+                                      item.gender === 'nam'
+                                        ? 'bg-sky-950/70 text-sky-300 border-sky-400/40'
+                                        : item.gender === 'nu'
+                                        ? 'bg-rose-950/70 text-rose-300 border-rose-400/40'
+                                        : 'bg-amber-950/70 text-amber-300 border-amber-400/40'
+                                    }`}
+                                  >
+                                    {item.gender === 'nam' ? 'Nam' : item.gender === 'nu' ? 'Nữ' : 'Unisex'}
+                                  </span>
+                                )}
                                 <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-sans-vi border border-amber-400/30">
                                   Thêu tơ
                                 </span>
@@ -945,7 +971,7 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                               </div>
                               <div className="min-w-0">
                                 <div className="text-xs font-bold truncate">Đổi màu Áo</div>
-                                <div className="text-[10px] text-slate-400 truncate">{currentTop.name}</div>
+                                <div className="text-[10px] text-slate-400 truncate">{currentTop?.name || 'Chưa chọn'}</div>
                               </div>
                             </div>
                             <div
@@ -974,7 +1000,7 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                               </div>
                               <div className="min-w-0">
                                 <div className="text-xs font-bold truncate">Đổi màu Quần / Váy</div>
-                                <div className="text-[10px] text-slate-400 truncate">{currentBottom.name}</div>
+                                <div className="text-[10px] text-slate-400 truncate">{currentBottom?.name || 'Chưa chọn'}</div>
                               </div>
                             </div>
                             <div
@@ -991,7 +1017,7 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                         <div className="flex items-center gap-2 min-w-0">
                           <span className="text-slate-400 text-[11px] shrink-0">Đang chọn cho:</span>
                           <span className="font-semibold text-amber-300 truncate">
-                            {colorTarget === 'top' ? `Áo (${currentTop.name})` : `Quần / Váy (${currentBottom.name})`}
+                            {colorTarget === 'top' ? `Áo (${currentTop?.name || 'Chưa chọn'})` : `Quần / Váy (${currentBottom?.name || 'Chưa chọn'})`}
                           </span>
                         </div>
 

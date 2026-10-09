@@ -187,7 +187,7 @@ export const HERITAGE_LOCATIONS: HeritageLocationNode[] = [
     regionTitle: 'Tây Bắc — Núi Non Kỳ Vĩ',
     dynasties: ['Thời Lê', 'Dân Gian Bản Địa'],
     mainGarmentName: 'Dệt Lanh Sáp Ong & Áo Chàm Bạc',
-    targetTopId: 'ao-yem',
+    targetTopId: 'tu-than',
     garments: [
       {
         name: 'Váy Xòe Thổ Cẩm Dệt Lanh',
@@ -328,7 +328,7 @@ export const HERITAGE_LOCATIONS: HeritageLocationNode[] = [
     regionTitle: 'Trung Bộ — Thương Cảng Giao Lưu',
     dynasties: ['Triều Nguyễn', 'Cận Đại'],
     mainGarmentName: 'Lụa Tơ Tằm Mã Châu & Áo Cổ Phục Tân Thời',
-    targetTopId: 'cach-tan',
+    targetTopId: 'giao-linh-nu',
     targetPresetId: 'dao-pho-hoi-an',
     garments: [
       {
@@ -364,7 +364,7 @@ export const HERITAGE_LOCATIONS: HeritageLocationNode[] = [
     regionTitle: 'Nam Trung Bộ — Di Sản Chăm',
     dynasties: ['Văn Hóa Chăm Pa Cổ Điển'],
     mainGarmentName: 'Thổ Cẩm Chăm Mỹ Nghiệp & Khăn Mat’ra',
-    targetTopId: 'ao-yem',
+    targetTopId: 'tu-than',
     garments: [
       {
         name: 'Khăn Choàng Mat’ra Thêu Hoa Chăm',
@@ -399,7 +399,7 @@ export const HERITAGE_LOCATIONS: HeritageLocationNode[] = [
     regionTitle: 'Tây Nguyên — Trường Sơn Hùng Vĩ',
     dynasties: ['Thời Lê', 'Dân Gian Bản Địa'],
     mainGarmentName: 'Y Phục Dệt Zèng & Váy Tấm Hoa Văn Sử Thi',
-    targetTopId: 'ao-yem',
+    targetTopId: 'dong-son',
     garments: [
       {
         name: 'Áo Chui Đầu Dệt Hạt Cườm Êđê',
@@ -416,7 +416,7 @@ export const HERITAGE_LOCATIONS: HeritageLocationNode[] = [
     historicalStory:
       'Cao nguyên đất đỏ bazan là nơi cư ngụ của các dân tộc Êđê, Ba-na, Gia-rai, Kơ-tu. Bộ trang phục dệt tay mang đậm triết lý sử thi Đăm Săn, phản ánh sức sống mãnh liệt và tinh thần tự do phóng khoáng của những người con đại ngàn Trường Sơn.',
     philosophicalMeaning:
-      'Tính cộng đồng gắn kết bền chặt, lòng tri ân Mẹ Thiên Nhiên và sức mạnh của thần rừng.',
+      'Tính cộng đồng gắn kết bền chặt, lòng triân Mẹ Thiên Nhiên và sức mạnh của thần rừng.',
     quote: 'Vút lên tiếng hát nhà rông / Dải thổ cẩm dệt cả vòng thời gian.',
     accentColor: '#F472B6',
     icon: '🦅',
@@ -433,8 +433,8 @@ export const HERITAGE_LOCATIONS: HeritageLocationNode[] = [
     regionId: 'nam-bo',
     regionTitle: 'Nam Bộ — Tân Thời Hiện Đại',
     dynasties: ['Cận Đại & Đương Đại', 'Cách Tân'],
-    mainGarmentName: 'Áo Dài Cách Tân Raglan & Lemur Sài Gòn',
-    targetTopId: 'cach-tan',
+    mainGarmentName: 'Áo Dài Năm Thân & Áo Bà Ba Sài Gòn',
+    targetTopId: 'ngu-than-nu',
     garments: [
       {
         name: 'Áo Dài Raglan (Thập Niên 1960)',

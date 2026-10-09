@@ -23,12 +23,14 @@ export default function App() {
   // Navigation state (Default to 'home' for welcoming entrance into the fashion realm)
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('home');
 
-  // Outfit state - Defaults to Áo ngũ thân tay chẽn + Váy xếp ly + Mấn đội đầu
+  // Outfit state - Defaults to Áo ngũ thân tay chẽn + Quần ống sớ + Khăn đóng
   const [currentTop, setCurrentTop] = useState<WardrobeItem | null>(TOPS[0]); // Áo ngũ thân tay chẽn
   const [currentBottom, setCurrentBottom] = useState<WardrobeItem | null>(
-    BOTTOMS.find((b) => b.id === 'vay-xep-ly') || BOTTOMS[0]
-  ); // Váy xếp ly
-  const [currentAccessory, setCurrentAccessory] = useState<WardrobeItem | null>(ACCESSORIES[0]); // Mấn đội đầu
+    BOTTOMS.find((b) => b.id === 'quan-ong-so') || BOTTOMS[0]
+  ); // Quần ống sớ lụa bạch
+  const [currentAccessory, setCurrentAccessory] = useState<WardrobeItem | null>(
+    ACCESSORIES.find((a) => a.id === 'khan-dong') || ACCESSORIES[0]
+  ); // Khăn đóng lụa đen
   const [currentFabric, setCurrentFabric] = useState<FabricOption>(FABRICS[1]); // Gấm Cung Đình
   const [currentColor, setCurrentColor] = useState<ColorOption>(COLOR_PALETTES[0]); // Đỏ Điều / Sắc thắm
   const [topCustomColor, setTopCustomColor] = useState<string | undefined>(undefined);
@@ -36,16 +38,16 @@ export default function App() {
 
   // Harmony analysis data passed between screens
   const [harmonyData, setHarmonyData] = useState<HarmonyResult>({
-    score: 95,
+    score: 96,
     ratingBadge: 'Phối đồ xuất sắc',
-    historicalMatchPercent: 96,
-    colorHarmonyPercent: 95,
+    historicalMatchPercent: 98,
+    colorHarmonyPercent: 96,
     contextAestheticPercent: 95,
-    critiqueTitle: 'Phối đồ xuất sắc (95 điểm)',
+    critiqueTitle: 'Phối đồ chuẩn mực (96 điểm)',
     detailedCritique:
-      'Sự kết hợp hài hòa giữa Áo ngũ thân tay chẽn truyền thống và váy xếp ly hiện đại, giữ được nét thanh lịch nhưng vẫn năng động.',
+      'Sự kết hợp mẫu mực giữa Áo ngũ thân tay chẽn truyền thống, Quần ống sớ lụa bạch và Khăn đóng lụa đen, toát lên cốt cách Nho nhã, mực thước.',
     culturalSecret:
-      'Áo ngũ thân quy chuẩn đi kèm mấn tròn quấn nhiều vòng, tạo nét trang trọng, đài các cho diện mạo.',
+      'Áo ngũ thân quy chuẩn đi kèm khăn đóng 7 nếp chữ Nhân, nhắc nhở người mặc luôn lấy chữ Nhân làm đầu trong xử thế.',
     stylingTip:
       'Khi tạo dáng, hãy đứng thẳng người thanh thoát, tay giữ nhẹ tà áo để tôn trọn phom áo năm thân.',
   });
