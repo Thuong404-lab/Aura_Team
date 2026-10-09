@@ -25,6 +25,7 @@ import {
 } from './VietnameseDecorativeElements';
 import { AtmosphericEffects } from './AtmosphericEffects';
 import { CloudCurtain } from './CloudCurtain';
+import { HeroCloudDepthParallax } from './HeroCloudDepthParallax';
 import { CloudMotifGalleryModal } from './CloudMotifGalleryModal';
 import { CulturalGarmentEncyclopedia } from './CulturalGarmentEncyclopedia';
 import { RegionalFashionDiversityMap } from './RegionalFashionDiversityMap';
@@ -323,6 +324,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       {/* 1. DEDICATED ATMOSPHERIC EFFECTS OVERLAY (GOLD PARTICLES & MIST) */}
       <AtmosphericEffects positioning="fixed" intensity="mystic" />
 
+      {/* 2. HERO 3D CLOUD DEPTH PARALLAX (CUỘN CON LĂN CHUỘT MÂY BAY RA THEO CHIỀU SÂU) */}
+      <HeroCloudDepthParallax />
+
       {/* 3. ATMOSPHERIC GEOMETRY & TRADITIONAL MOTIFS */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         {/* Soft imperial vignette */}
@@ -456,7 +460,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               className="px-4 py-2 rounded-xl text-xs font-semibold tracking-wide text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 hover:border-amber-400 transition-all flex items-center gap-2 cursor-pointer shadow-md shadow-amber-950/20 group"
             >
               <Wind className="w-3.5 h-3.5 text-amber-400 group-hover:rotate-12 transition-transform" />
-              <span>Trình Diễn Lại Hiệu Ứng Vén Mây</span>
+              <span>Vén Mây Chiều Sâu 3D (Cuộn Chuột)</span>
             </motion.button>
 
             <motion.button

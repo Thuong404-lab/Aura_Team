@@ -91,6 +91,10 @@ export const CloudMotifGalleryModal: React.FC<CloudMotifGalleryModalProps> = ({
   onClose,
   onTriggerIntro,
 }) => {
+  const [paletteMode, setPaletteMode] = React.useState<'synchronized-gold' | 'original'>(
+    'synchronized-gold'
+  );
+
   if (!isOpen) return null;
 
   return (
@@ -142,13 +146,38 @@ export const CloudMotifGalleryModal: React.FC<CloudMotifGalleryModalProps> = ({
             </button>
           </div>
 
-          {/* Action Bar (Thử ngay hiệu ứng Vén Mây) */}
+          {/* Action Bar (Thử ngay hiệu ứng Vén Mây & Đổi chế độ màu) */}
           <div className="px-6 py-3 bg-amber-500/10 border-b border-amber-500/20 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-xs text-amber-300">
-              <Sparkles className="w-4 h-4 text-amber-400 animate-spin" />
-              <span>
-                Bạn có thể kích hoạt hiệu ứng <strong>Vén Mây Che Toàn Trang</strong> bất kỳ lúc nào để thưởng thức hoạt cảnh khai mở!
-              </span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-amber-300 font-medium">Bảng màu:</span>
+              <div className="inline-flex rounded-lg bg-slate-900/80 p-0.5 border border-amber-500/30 text-xs">
+                <button
+                  onClick={() => {
+                    soundEngine.playPluck(440);
+                    setPaletteMode('synchronized-gold');
+                  }}
+                  className={`px-3 py-1 rounded-md transition-all cursor-pointer font-medium ${
+                    paletteMode === 'synchronized-gold'
+                      ? 'bg-amber-400 text-slate-950 font-bold shadow-sm'
+                      : 'text-amber-200 hover:text-white'
+                  }`}
+                >
+                  ✨ Đồng Bộ Hoàng Kim (Mặc định)
+                </button>
+                <button
+                  onClick={() => {
+                    soundEngine.playPluck(392);
+                    setPaletteMode('original');
+                  }}
+                  className={`px-3 py-1 rounded-md transition-all cursor-pointer font-medium ${
+                    paletteMode === 'original'
+                      ? 'bg-amber-400 text-slate-950 font-bold shadow-sm'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  🎨 Ngũ Sắc Cổ Truyền
+                </button>
+              </div>
             </div>
 
             <button
@@ -160,7 +189,7 @@ export const CloudMotifGalleryModal: React.FC<CloudMotifGalleryModalProps> = ({
               className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-semibold text-xs tracking-wide shadow-lg shadow-amber-500/30 flex items-center gap-2 transition-all cursor-pointer hover:scale-105 active:scale-95"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
-              <span>Trình Diễn Hiệu Ứng Vén Mây Ngay</span>
+              <span>Vén Mây Chiều Sâu 3D (Cuộn Chuột)</span>
             </button>
           </div>
 
@@ -184,7 +213,10 @@ export const CloudMotifGalleryModal: React.FC<CloudMotifGalleryModalProps> = ({
                       transition={{ duration: 0.3 }}
                       className="w-full flex justify-center items-center"
                     >
-                      <Comp className="w-48 h-24 object-contain" />
+                      <Comp
+                        className="w-48 h-24 object-contain"
+                        palette={paletteMode}
+                      />
                     </motion.div>
                   </div>
 

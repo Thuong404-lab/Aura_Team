@@ -141,10 +141,10 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
               <button
                 onClick={onTriggerCloudIntro}
                 className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-medium transition-all cursor-pointer group"
-                title="Trình diễn hiệu ứng Vén Mây Cung Đình"
+                title="Trình diễn hiệu ứng Vén Mây Chiều Sâu 3D (Cuộn Chuột)"
               >
                 <Wind className="w-3.5 h-3.5 text-amber-400 group-hover:rotate-12 transition-transform" />
-                <span className="hidden xl:inline">Vén Mây</span>
+                <span className="hidden xl:inline">Vén Mây 3D</span>
               </button>
             )}
 

@@ -16,6 +16,7 @@ import { LookbookScreen, SavedLookbookItem } from './components/LookbookScreen';
 import { SavedLibraryModal } from './components/SavedLibraryModal';
 import { LoginModal } from './components/LoginModal';
 import { AppNavbar, ScreenType } from './components/AppNavbar';
+import { SmoothScrollManager } from './components/SmoothScrollManager';
 import { soundEngine } from './utils/audioSynth';
 
 export default function App() {
@@ -215,91 +216,93 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#0A0E17] text-slate-100 font-sans-vi flex flex-col justify-start">
-      {/* Unified Global Navigation Bar across all screens */}
-      <AppNavbar
-        currentScreen={currentScreen}
-        onNavigate={(screen) => {
-          soundEngine.playPluck(440);
-          setCurrentScreen(screen);
-        }}
-        onOpenSavedLibrary={() => setIsLibraryOpen(true)}
-        onOpenLoginModal={() => setIsLoginModalOpen(true)}
-        savedCount={savedLookbooks.length}
-        isPlayingMusic={isPlayingMusic}
-        onToggleMusic={() => {
-          soundEngine.toggleAmbiance((playing) => setIsPlayingMusic(playing));
-        }}
-        onTriggerCloudIntro={() => {
-          soundEngine.playPluck(523.25);
-          setCurrentScreen('home');
-          setCloudIntroCount((prev) => prev + 1);
-        }}
-      />
-
-      {/* Active Screen Rendering */}
-      {currentScreen === 'home' && (
-        <HomeScreen
-          onStartFitting={handleStartFitting}
-          onApplyPreset={handleApplyPreset}
-          onApplyAiSuggestion={handleApplyAiSuggestion}
-          isPlayingMusic={isPlayingMusic}
-          setIsPlayingMusic={setIsPlayingMusic}
+    <SmoothScrollManager>
+      <div className="min-h-screen w-full bg-[#0A0E17] text-slate-100 font-sans-vi flex flex-col justify-start">
+        {/* Unified Global Navigation Bar across all screens */}
+        <AppNavbar
+          currentScreen={currentScreen}
+          onNavigate={(screen) => {
+            soundEngine.playPluck(440);
+            setCurrentScreen(screen);
+          }}
           onOpenSavedLibrary={() => setIsLibraryOpen(true)}
           onOpenLoginModal={() => setIsLoginModalOpen(true)}
           savedCount={savedLookbooks.length}
-          onSelectTopItem={handleSelectTopItemFromEncyclopedia}
-          triggerCloudIntroCount={cloudIntroCount}
+          isPlayingMusic={isPlayingMusic}
+          onToggleMusic={() => {
+            soundEngine.toggleAmbiance((playing) => setIsPlayingMusic(playing));
+          }}
+          onTriggerCloudIntro={() => {
+            soundEngine.playPluck(523.25);
+            setCurrentScreen('home');
+            setCloudIntroCount((prev) => prev + 1);
+          }}
         />
-      )}
 
-      {currentScreen === 'fitting' && (
-        <FittingRoomScreen
-          currentTop={currentTop}
-          currentBottom={currentBottom}
-          currentAccessory={currentAccessory}
-          currentFabric={currentFabric}
-          currentColor={currentColor}
-          onSelectTop={setCurrentTop}
-          onSelectBottom={setCurrentBottom}
-          onSelectAccessory={setCurrentAccessory}
-          onSelectFabric={setCurrentFabric}
-          onSelectColor={setCurrentColor}
-          onGoHome={handleGoHome}
-          onGoLookbook={handleGoLookbook}
-          onOpenLoginModal={() => setIsLoginModalOpen(true)}
+        {/* Active Screen Rendering */}
+        {currentScreen === 'home' && (
+          <HomeScreen
+            onStartFitting={handleStartFitting}
+            onApplyPreset={handleApplyPreset}
+            onApplyAiSuggestion={handleApplyAiSuggestion}
+            isPlayingMusic={isPlayingMusic}
+            setIsPlayingMusic={setIsPlayingMusic}
+            onOpenSavedLibrary={() => setIsLibraryOpen(true)}
+            onOpenLoginModal={() => setIsLoginModalOpen(true)}
+            savedCount={savedLookbooks.length}
+            onSelectTopItem={handleSelectTopItemFromEncyclopedia}
+            triggerCloudIntroCount={cloudIntroCount}
+          />
+        )}
+
+        {currentScreen === 'fitting' && (
+          <FittingRoomScreen
+            currentTop={currentTop}
+            currentBottom={currentBottom}
+            currentAccessory={currentAccessory}
+            currentFabric={currentFabric}
+            currentColor={currentColor}
+            onSelectTop={setCurrentTop}
+            onSelectBottom={setCurrentBottom}
+            onSelectAccessory={setCurrentAccessory}
+            onSelectFabric={setCurrentFabric}
+            onSelectColor={setCurrentColor}
+            onGoHome={handleGoHome}
+            onGoLookbook={handleGoLookbook}
+            onOpenLoginModal={() => setIsLoginModalOpen(true)}
+          />
+        )}
+
+        {currentScreen === 'lookbook' && (
+          <LookbookScreen
+            top={currentTop}
+            bottom={currentBottom}
+            accessory={currentAccessory}
+            fabric={currentFabric}
+            color={currentColor}
+            harmonyData={harmonyData}
+            onBackToFitting={() => setCurrentScreen('fitting')}
+            onSaveLookbook={handleSaveLookbook}
+            savedItems={savedLookbooks}
+            onOpenSavedDrawer={() => setIsLibraryOpen(true)}
+          />
+        )}
+
+        {/* Login Modal */}
+        <LoginModal
+          isOpen={isLoginModalOpen}
+          onClose={() => setIsLoginModalOpen(false)}
         />
-      )}
 
-      {currentScreen === 'lookbook' && (
-        <LookbookScreen
-          top={currentTop}
-          bottom={currentBottom}
-          accessory={currentAccessory}
-          fabric={currentFabric}
-          color={currentColor}
-          harmonyData={harmonyData}
-          onBackToFitting={() => setCurrentScreen('fitting')}
-          onSaveLookbook={handleSaveLookbook}
+        {/* Saved Lookbook Library Modal */}
+        <SavedLibraryModal
+          isOpen={isLibraryOpen}
+          onClose={() => setIsLibraryOpen(false)}
           savedItems={savedLookbooks}
-          onOpenSavedDrawer={() => setIsLibraryOpen(true)}
+          onLoadItem={handleLoadSaved}
+          onDelete={handleDeleteSaved}
         />
-      )}
-
-      {/* Login Modal */}
-      <LoginModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-      />
-
-      {/* Saved Lookbook Library Modal */}
-      <SavedLibraryModal
-        isOpen={isLibraryOpen}
-        onClose={() => setIsLibraryOpen(false)}
-        savedItems={savedLookbooks}
-        onLoadItem={handleLoadSaved}
-        onDelete={handleDeleteSaved}
-      />
-    </div>
+      </div>
+    </SmoothScrollManager>
   );
 }
