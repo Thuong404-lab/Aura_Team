@@ -80,7 +80,20 @@ export const SmoothScrollManager: React.FC<SmoothScrollManagerProps> = ({
       const isCurtainOpen = document.querySelector('[aria-label*="Màn Mây"]');
       if (isCurtainOpen) return;
 
-      // 2. Check if target or any parent is an internal scrollable element (e.g. modal body, wardrobe grid)
+      // 2. Do not intercept if interacting with interactive controls, navbar, canvas, or dialogs
+      const targetEl = e.target as HTMLElement | null;
+      if (
+        targetEl &&
+        (targetEl.closest('header') ||
+          targetEl.closest('nav') ||
+          targetEl.closest('button') ||
+          targetEl.closest('canvas') ||
+          targetEl.closest('[role="dialog"]'))
+      ) {
+        return;
+      }
+
+      // 3. Check if target or any parent is an internal scrollable element (e.g. modal body, wardrobe grid)
       let el = e.target as HTMLElement | null;
       while (el && el !== document.body && el !== document.documentElement) {
         const style = window.getComputedStyle(el);
@@ -100,13 +113,18 @@ export const SmoothScrollManager: React.FC<SmoothScrollManagerProps> = ({
         el = el.parentElement;
       }
 
-      // 3. Smooth momentum scrolling on document body
-      e.preventDefault();
-
       const maxScroll = Math.max(
         0,
         document.documentElement.scrollHeight - window.innerHeight
       );
+
+      // If page doesn't have scrollable overflow (e.g. FittingRoom screen or short views), let native behaviour happen
+      if (maxScroll <= 10) {
+        return;
+      }
+
+      // 4. Smooth momentum scrolling on document body
+      e.preventDefault();
 
       // Dampened delta for silky album browsing
       const delta = e.deltaY;

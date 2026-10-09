@@ -28,6 +28,7 @@ import { CloudCurtain } from './CloudCurtain';
 import { HeroCloudDepthParallax } from './HeroCloudDepthParallax';
 import { CloudMotifGalleryModal } from './CloudMotifGalleryModal';
 import { CulturalGarmentEncyclopedia } from './CulturalGarmentEncyclopedia';
+import { HeritageMapSection } from './HeritageMapSection';
 import { RegionalFashionDiversityMap } from './RegionalFashionDiversityMap';
 import { HeritageCraftsmanshipStory } from './HeritageCraftsmanshipStory';
 import { CulturalInteractiveQuiz } from './CulturalInteractiveQuiz';
@@ -475,6 +476,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
               <span>Bảo Tàng 6 Mẫu Mây Cổ Phong</span>
             </motion.button>
+
+            <motion.a
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              href="#heritage-map-section"
+              onClick={() => soundEngine.playPluck(493.88)}
+              className="px-4 py-2 rounded-xl text-xs font-semibold tracking-wide text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 hover:border-amber-400 transition-all flex items-center gap-2 cursor-pointer shadow-sm"
+            >
+              <Compass className="w-3.5 h-3.5 text-amber-400" />
+              <span>Bản Đồ Di Sản D3.js</span>
+            </motion.a>
           </motion.div>
 
           {/* Cultural Heritage Trust Indicators (Highlighting Diversity, Authenticity, Philosophy) */}
@@ -969,7 +981,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </AnimatePresence>
         </motion.section>
 
-        {/* 4.6 REGIONAL TRADITIONS (BẢN ĐỒ VĂN HÓA 3 MIỀN BẮC - TRUNG - NAM) */}
+        {/* 4.6 INTERACTIVE HERITAGE MAP (BẢN ĐỒ KHỞI NGUYÊN ĐỊA LÝ D3.JS) */}
+        <HeritageMapSection
+          onStartFitting={onStartFitting}
+          onSelectTopItem={onSelectTopItem}
+          onApplyPreset={onApplyPreset}
+        />
+
+        {/* REGIONAL TRADITIONS (BẢN ĐỒ VĂN HÓA 3 MIỀN BẮC - TRUNG - NAM) */}
         <RegionalFashionDiversityMap />
 
         {/* 4.7 TRADITIONAL WEAVING & DYEING CRAFTSMANSHIP (TINH HOA CHẤT LIỆU TƠ TẰM & GẤM VÓC) */}

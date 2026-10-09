@@ -47,7 +47,7 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full transition-all flex flex-col">
+    <header className="sticky top-0 z-[150] w-full transition-all flex flex-col">
       {/* Top Cultural Heritage Ribbon */}
       <div className="w-full bg-gradient-to-r from-amber-950/80 via-amber-900/60 to-amber-950/80 border-b border-amber-500/25 text-amber-200 py-1.5 px-4 text-[11px] font-medium tracking-wide flex items-center justify-between shadow-inner">
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between overflow-hidden">

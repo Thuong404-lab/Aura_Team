@@ -87,6 +87,7 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
   const completeEntrance = useCallback(() => {
     if (isRevealedRef.current) return;
     setIsRevealed(true);
+    scrollProgress.set(1);
     try {
       soundEngine.playCloudPartChime();
     } catch {
@@ -95,8 +96,8 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
     setTimeout(() => {
       onRevealed?.();
       onClose?.();
-    }, 650);
-  }, [onRevealed, onClose]);
+    }, 450);
+  }, [onRevealed, onClose, scrollProgress]);
 
   // Smooth flythrough triggered via Click / Button
   const triggerOpenAnimation = useCallback(() => {
@@ -269,20 +270,29 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
   const backBottom_Y = useTransform(smoothProgress, [0, 1], ['0%', '65%']);
   const backOpacity = useTransform(smoothProgress, [0, 0.85, 1], [0.92, 0.45, 0]);
 
-  if (isRevealed && depthPercent >= 100) {
+  // If not open or already revealed, do NOT render anything
+  if (!isOpen || isRevealed) {
     return null;
   }
 
-  const isInteractive = depthPercent < 88;
+  const isInteractive = isOpen && !isRevealed && depthPercent < 85;
 
   return (
     <div
+      onClick={(e) => {
+        // Clicking backdrop directly or on elements outside specific buttons opens curtain smoothly
+        const target = e.target as HTMLElement;
+        if (!target.closest('button')) {
+          triggerOpenAnimation();
+        }
+      }}
       className={`fixed inset-0 z-[100] overflow-hidden select-none ${
-        isInteractive ? 'pointer-events-auto' : 'pointer-events-none'
+        isInteractive ? 'pointer-events-auto cursor-pointer' : 'pointer-events-none'
       }`}
       style={{
         perspective: '1200px',
         perspectiveOrigin: '50% 50%',
+        pointerEvents: isInteractive ? 'auto' : 'none',
       }}
       role="dialog"
       aria-modal="true"
@@ -292,7 +302,7 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
       {/* 1. LAYER 0: IMPERIAL GOLDEN SILK VEIL (COMPLETE OBSCURATION)             */}
       {/* ========================================================================= */}
       <motion.div
-        className="absolute inset-0 bg-[#060913] pointer-events-auto"
+        className="absolute inset-0 bg-[#060913] pointer-events-none"
         style={{ opacity: veilOpacity }}
       >
         {/* Deep Imperial Silk Gradient (Kín đặc, che phủ toàn bộ website khi mới vào) */}
@@ -340,21 +350,22 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
       </motion.div>
 
       {/* ========================================================================= */}
-      {/* 2. LAYER 1: FAST SKIP & CLOSE BUTTON (TOP RIGHT)                          */}
+      {/* 2. LAYER 1: FAST SKIP & CLOSE BUTTON (BELOW TOP NAVBAR)                   */}
       {/* ========================================================================= */}
       {isInteractive && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="absolute top-5 right-5 sm:top-7 sm:right-7 z-50 flex items-center gap-2"
+          className="absolute top-20 right-5 sm:top-24 sm:right-8 z-50 flex items-center gap-2"
         >
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               scrollProgress.set(1);
               completeEntrance();
             }}
-            className="px-4 py-2 rounded-full bg-slate-900/85 hover:bg-amber-950/85 text-amber-300 hover:text-amber-200 text-xs font-semibold tracking-wider uppercase border border-amber-500/40 hover:border-amber-400 backdrop-blur-md shadow-lg shadow-amber-950/40 transition-all flex items-center gap-2 cursor-pointer active:scale-95"
+            className="px-4 py-2.5 rounded-full bg-slate-900/90 hover:bg-amber-950/90 text-amber-300 hover:text-amber-200 text-xs font-semibold tracking-wider uppercase border border-amber-500/50 hover:border-amber-400 backdrop-blur-md shadow-lg shadow-amber-950/40 transition-all flex items-center gap-2 cursor-pointer active:scale-95"
             title="Khai mở ngay lập tức"
           >
             <span>Khai Mở Nhanh</span>
