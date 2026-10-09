@@ -24,13 +24,15 @@ export default function App() {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('home');
 
   // Outfit state - Defaults to Áo ngũ thân tay chẽn + Váy xếp ly + Mấn đội đầu
-  const [currentTop, setCurrentTop] = useState<WardrobeItem>(TOPS[0]); // Áo ngũ thân tay chẽn
-  const [currentBottom, setCurrentBottom] = useState<WardrobeItem>(
+  const [currentTop, setCurrentTop] = useState<WardrobeItem | null>(TOPS[0]); // Áo ngũ thân tay chẽn
+  const [currentBottom, setCurrentBottom] = useState<WardrobeItem | null>(
     BOTTOMS.find((b) => b.id === 'vay-xep-ly') || BOTTOMS[0]
   ); // Váy xếp ly
-  const [currentAccessory, setCurrentAccessory] = useState<WardrobeItem>(ACCESSORIES[0]); // Mấn đội đầu
+  const [currentAccessory, setCurrentAccessory] = useState<WardrobeItem | null>(ACCESSORIES[0]); // Mấn đội đầu
   const [currentFabric, setCurrentFabric] = useState<FabricOption>(FABRICS[1]); // Gấm Cung Đình
   const [currentColor, setCurrentColor] = useState<ColorOption>(COLOR_PALETTES[0]); // Đỏ Điều / Sắc thắm
+  const [topCustomColor, setTopCustomColor] = useState<string | undefined>(undefined);
+  const [bottomCustomColor, setBottomCustomColor] = useState<string | undefined>(undefined);
 
   // Harmony analysis data passed between screens
   const [harmonyData, setHarmonyData] = useState<HarmonyResult>({
@@ -108,6 +110,8 @@ export default function App() {
     setCurrentAccessory(accessoryItem);
     setCurrentColor(colorItem);
     setCurrentFabric(fabricItem);
+    setTopCustomColor(undefined);
+    setBottomCustomColor(undefined);
 
     setHarmonyData({
       score: preset.presetScore,
@@ -130,6 +134,7 @@ export default function App() {
     const foundTop = TOPS.find((t) => t.id === topId);
     if (foundTop) {
       setCurrentTop(foundTop);
+      setTopCustomColor(undefined);
     }
     setCurrentScreen('fitting');
   };
@@ -150,6 +155,8 @@ export default function App() {
     setCurrentTop(topItem);
     setCurrentBottom(bottomItem);
     setCurrentAccessory(accessoryItem);
+    setTopCustomColor(undefined);
+    setBottomCustomColor(undefined);
 
     setHarmonyData({
       score: 93,
@@ -295,11 +302,21 @@ export default function App() {
             currentAccessory={currentAccessory}
             currentFabric={currentFabric}
             currentColor={currentColor}
-            onSelectTop={setCurrentTop}
-            onSelectBottom={setCurrentBottom}
+            topCustomColor={topCustomColor}
+            bottomCustomColor={bottomCustomColor}
+            onSelectTop={(item) => {
+              setCurrentTop(item);
+              setTopCustomColor(undefined);
+            }}
+            onSelectBottom={(item) => {
+              setCurrentBottom(item);
+              setBottomCustomColor(undefined);
+            }}
             onSelectAccessory={setCurrentAccessory}
             onSelectFabric={setCurrentFabric}
             onSelectColor={setCurrentColor}
+            onSelectTopColor={(hex) => setTopCustomColor(hex || undefined)}
+            onSelectBottomColor={(hex) => setBottomCustomColor(hex || undefined)}
             onGoHome={handleGoHome}
             onGoLookbook={handleGoLookbook}
           />
@@ -307,9 +324,9 @@ export default function App() {
 
         {currentScreen === 'lookbook' && (
           <LookbookScreen
-            top={currentTop}
-            bottom={currentBottom}
-            accessory={currentAccessory}
+            top={currentTop || TOPS[0]}
+            bottom={currentBottom || BOTTOMS[0]}
+            accessory={currentAccessory || ACCESSORIES[0]}
             fabric={currentFabric}
             color={currentColor}
             harmonyData={harmonyData}

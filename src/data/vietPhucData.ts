@@ -792,7 +792,7 @@ export const COLOR_PALETTES: ColorOption[] = [
   {
     id: 'trang-nga',
     name: 'Trắng Ngà Tơ Bạch',
-    hex: '#FDFBF7',
+    hex: '#FAF7F0',
     accentHex: '#8B1E1E',
     meaning: 'Màu của tơ tằm nguyên bản, biểu trưng cho sự thanh cao, lễ nghi và thuần khiết.',
   },
@@ -802,6 +802,48 @@ export const COLOR_PALETTES: ColorOption[] = [
     hex: '#2E6F56',
     accentHex: '#D4AF37',
     meaning: 'Sắc xanh ngọc bích đại diện cho Mộc đức sinh sôi, hiền hòa và trường tồn.',
+  },
+  {
+    id: 'xanh-cham-dan-gian',
+    name: 'Xanh Chàm Mực Thước',
+    hex: '#162544',
+    accentHex: '#D4AF37',
+    meaning: 'Màu chàm nhuộm lá truyền thống, biểu tượng cốt cách nho nhã, mực thước của nam nhân xưa.',
+  },
+  {
+    id: 'do-tia-vuong-trieu',
+    name: 'Đỏ Tía Vương Triều',
+    hex: '#781419',
+    accentHex: '#D4AF37',
+    meaning: 'Sắc đỏ tía sẫm sang trọng của quan lại và đại lễ triều Nguyễn.',
+  },
+  {
+    id: 'hong-dao-khue-cac',
+    name: 'Hồng Đào Khuê Các',
+    hex: '#C84B66',
+    accentHex: '#FAF7F0',
+    meaning: 'Sắc hồng hoa đào trang nhã, ngọt ngào của tiểu thư chốn cung đình xưa.',
+  },
+  {
+    id: 'den-tuyen-nhung',
+    name: 'Đen Tuyền Nhung The',
+    hex: '#1C1A19',
+    accentHex: '#D4AF37',
+    meaning: 'Màu đen vải the huyền bí, tạo phom dáng vững chãi và chiều sâu quyền quý.',
+  },
+  {
+    id: 'vang-mo-hoang-cung',
+    name: 'Vàng Mơ Lụa Tằm',
+    hex: '#E5B842',
+    accentHex: '#781419',
+    meaning: 'Sắc vàng óng ả như kén tằm mới nhả tơ, tươi sáng và quý phái.',
+  },
+  {
+    id: 'xanh-com-ha-thanh',
+    name: 'Xanh Cốm Hà Thành',
+    hex: '#3D7A58',
+    accentHex: '#FAF7F0',
+    meaning: 'Màu xanh non dịu mát của lúa mới, mang lại vẻ tươi trẻ và thanh tao.',
   },
 ];
 

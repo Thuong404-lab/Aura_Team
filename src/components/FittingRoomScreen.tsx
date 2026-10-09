@@ -10,7 +10,7 @@ import {
   FABRICS,
   COLOR_PALETTES,
 } from '../data/vietPhucData';
-import { AvatarModel } from './AvatarModel';
+import { AvatarModel, GARMENT_VISUAL_PROFILES } from './AvatarModel';
 import {
   AuraLogo,
   DongSonDrumMandala,
@@ -57,16 +57,20 @@ export interface HarmonyResult {
 }
 
 interface FittingRoomScreenProps {
-  currentTop: WardrobeItem;
-  currentBottom: WardrobeItem;
-  currentAccessory: WardrobeItem;
-  currentFabric: FabricOption;
+  currentTop: WardrobeItem | null;
+  currentBottom: WardrobeItem | null;
+  currentAccessory: WardrobeItem | null;
+  currentFabric?: FabricOption;
   currentColor: ColorOption;
-  onSelectTop: (item: WardrobeItem) => void;
-  onSelectBottom: (item: WardrobeItem) => void;
-  onSelectAccessory: (item: WardrobeItem) => void;
-  onSelectFabric: (fabric: FabricOption) => void;
+  topCustomColor?: string;
+  bottomCustomColor?: string;
+  onSelectTop: (item: WardrobeItem | null) => void;
+  onSelectBottom: (item: WardrobeItem | null) => void;
+  onSelectAccessory: (item: WardrobeItem | null) => void;
+  onSelectFabric?: (fabric: FabricOption) => void;
   onSelectColor: (color: ColorOption) => void;
+  onSelectTopColor: (colorHex: string) => void;
+  onSelectBottomColor: (colorHex: string) => void;
   onGoHome: () => void;
   onGoLookbook: (harmonyData?: HarmonyResult) => void;
 }
@@ -77,18 +81,47 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
   currentAccessory,
   currentFabric,
   currentColor,
+  topCustomColor,
+  bottomCustomColor,
   onSelectTop,
   onSelectBottom,
   onSelectAccessory,
   onSelectFabric,
   onSelectColor,
+  onSelectTopColor,
+  onSelectBottomColor,
   onGoHome,
   onGoLookbook,
 }) => {
-  // Wardrobe Navigation Tabs
-  const [activeTab, setActiveTab] = useState<'top' | 'bottom' | 'accessory' | 'fabric' | 'color'>('top');
+  // Wardrobe Navigation Tabs (Đã bỏ tab Chất liệu theo yêu cầu)
+  const [activeTab, setActiveTab] = useState<'top' | 'bottom' | 'accessory' | 'color'>('top');
 
-  // Silk Category Tabs configuration
+  // Color Target state: Đổi màu cho Áo hay Quần / Váy
+  const [colorTarget, setColorTarget] = useState<'top' | 'bottom'>('top');
+
+  // Compute active colors for preview and status
+  const defaultTopHex = currentTop
+    ? (GARMENT_VISUAL_PROFILES[currentTop.id]?.baseColor || currentTop.defaultColorHex || '#162544')
+    : '#888888';
+
+  const defaultBottomHex = currentBottom
+    ? (currentBottom.id === 'vay-xep-ly'
+      ? currentBottom.defaultColorHex || '#8B1E1E'
+      : currentBottom.id === 'quan-men-lam'
+      ? '#1F4E5B'
+      : currentBottom.id === 'quan-gam-vang'
+      ? '#D4AF37'
+      : currentBottom.id === 'quan-tay-hien-dai'
+      ? '#262423'
+      : currentBottom.id === 'vay-den'
+      ? '#1D1B1A'
+      : (currentTop ? GARMENT_VISUAL_PROFILES[currentTop.id]?.bottomColor : '#FAF7F0') || '#FAF7F0')
+    : '#888888';
+
+  const activeTopHex = topCustomColor || defaultTopHex;
+  const activeBottomHex = bottomCustomColor || defaultBottomHex;
+
+  // Silk Category Tabs configuration (Chỉ giữ Áo, Quần/Váy, Phụ kiện, Màu sắc)
   const categoryTabs: SilkTabItem[] = [
     {
       id: 'top',
@@ -107,12 +140,6 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
       label: 'Phụ kiện',
       count: ACCESSORIES.length,
       icon: <Crown className="w-4 h-4" />,
-    },
-    {
-      id: 'fabric',
-      label: 'Chất liệu',
-      count: FABRICS.length,
-      icon: <Feather className="w-4 h-4" />,
     },
     {
       id: 'color',
@@ -215,10 +242,10 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
 
     try {
       const evaluation = await checkAiHarmony({
-        top: currentTop,
-        bottom: currentBottom,
-        accessory: currentAccessory,
-        fabricName: currentFabric.name,
+        top: currentTop || TOPS[0],
+        bottom: currentBottom || BOTTOMS[2],
+        accessory: currentAccessory || ACCESSORIES[0],
+        fabricName: currentFabric?.name || 'Gấm Cung Đình',
         colorName: currentColor.name,
       });
 
@@ -275,7 +302,12 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
 
           <div className="flex items-center gap-2">
             <span className="text-xs text-slate-400">
-              Đang phối: <strong className="text-amber-300 font-medium">{currentTop.name}</strong> • {currentBottom.name}
+              Đang phối:{' '}
+              <strong className="text-amber-300 font-medium">
+                {currentTop ? currentTop.name : 'Chưa chọn áo'}
+              </strong>{' '}
+              • {currentBottom ? currentBottom.name : 'Chưa chọn quần/váy'}
+              {currentAccessory ? ` • ${currentAccessory.name}` : ''}
             </span>
           </div>
         </div>
@@ -297,11 +329,11 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
               </div>
             </div>
 
-            {/* Top Silk Drape Badge */}
+            {/* Top 2D Simulation Badge */}
             <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0F172A]/90 backdrop-blur-md border border-amber-500/30 text-amber-300 text-xs shadow-lg">
               <Waves className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-              <span className="font-semibold">{currentFabric.name}</span>
-              <span className="text-slate-400 font-normal hidden sm:inline">• Độ rủ lụa tự nhiên</span>
+              <span className="font-semibold">Bản vẽ 2D Chuẩn Xác</span>
+              <span className="text-slate-400 font-normal hidden sm:inline">• Chuyển động lụa mềm</span>
             </div>
 
             {/* Avatar Component */}
@@ -312,6 +344,8 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                 accessory={currentAccessory}
                 fabric={currentFabric}
                 color={currentColor}
+                topCustomColor={topCustomColor}
+                bottomCustomColor={bottomCustomColor}
                 harmonyScore={harmonyResult.score}
                 harmonyCritique={harmonyResult.detailedCritique}
                 showCulturePins={true}
@@ -321,80 +355,108 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
               />
             </div>
 
-            {/* Garment Quick Badges Bar at Canvas Bottom with Images */}
+            {/* Garment Quick Badges Bar at Canvas Bottom with Images & Active Colors */}
             <div className="w-full p-2 sm:p-2.5 bg-[#0C1220]/95 border-t border-slate-800 flex items-center justify-between gap-2 overflow-x-auto text-[11px] text-slate-300 custom-scrollbar">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 {/* Top preview */}
-                <button
-                  onClick={() => {
-                    soundEngine.playPluck(523.25);
-                    setPreviewImageItem(currentTop);
-                  }}
-                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-900/90 border border-amber-500/40 hover:border-amber-400 transition-all cursor-pointer group/pill shrink-0 shadow-xs"
-                  title="Nhấp để xem chi tiết ảnh Áo"
-                >
-                  <img
-                    src={currentTop.imageUrl}
-                    alt={currentTop.name}
-                    className="w-5 h-5 rounded-md object-cover border border-amber-400/50"
-                  />
-                  <span className="text-amber-300 font-semibold group-hover/pill:text-amber-200 truncate max-w-[120px] sm:max-w-none">
-                    {currentTop.name}
+                {currentTop ? (
+                  <button
+                    onClick={() => {
+                      soundEngine.playPluck(523.25);
+                      setPreviewImageItem(currentTop);
+                    }}
+                    className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-900/90 border border-amber-500/40 hover:border-amber-400 transition-all cursor-pointer group/pill shrink-0 shadow-xs"
+                    title="Nhấp để xem chi tiết ảnh Áo"
+                  >
+                    <img
+                      src={currentTop.imageUrl}
+                      alt={currentTop.name}
+                      className="w-5 h-5 rounded-md object-cover border border-amber-400/50"
+                    />
+                    <span className="text-amber-300 font-semibold group-hover/pill:text-amber-200 truncate max-w-[120px] sm:max-w-none">
+                      {currentTop.name}
+                    </span>
+                  </button>
+                ) : (
+                  <span className="px-2 py-1 rounded-lg bg-slate-900/60 border border-dashed border-slate-700/80 text-slate-500 text-[10.5px]">
+                    Chưa chọn áo
                   </span>
-                </button>
+                )}
 
                 <span className="text-slate-600 font-bold">+</span>
 
                 {/* Bottom preview */}
-                <button
-                  onClick={() => {
-                    soundEngine.playPluck(587.33);
-                    setPreviewImageItem(currentBottom);
-                  }}
-                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-900/90 border border-slate-700 hover:border-amber-400 transition-all cursor-pointer group/pill shrink-0 shadow-xs"
-                  title="Nhấp để xem chi tiết ảnh Quần/Váy"
-                >
-                  <img
-                    src={currentBottom.imageUrl}
-                    alt={currentBottom.name}
-                    className="w-5 h-5 rounded-md object-cover border border-slate-600"
-                  />
-                  <span className="text-slate-200 group-hover/pill:text-amber-200 truncate max-w-[110px] sm:max-w-none">
-                    {currentBottom.name}
+                {currentBottom ? (
+                  <button
+                    onClick={() => {
+                      soundEngine.playPluck(587.33);
+                      setPreviewImageItem(currentBottom);
+                    }}
+                    className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-900/90 border border-slate-700 hover:border-amber-400 transition-all cursor-pointer group/pill shrink-0 shadow-xs"
+                    title="Nhấp để xem chi tiết ảnh Quần/Váy"
+                  >
+                    <img
+                      src={currentBottom.imageUrl}
+                      alt={currentBottom.name}
+                      className="w-5 h-5 rounded-md object-cover border border-slate-600"
+                    />
+                    <span className="text-slate-200 group-hover/pill:text-amber-200 truncate max-w-[110px] sm:max-w-none">
+                      {currentBottom.name}
+                    </span>
+                  </button>
+                ) : (
+                  <span className="px-2 py-1 rounded-lg bg-slate-900/60 border border-dashed border-slate-700/80 text-slate-500 text-[10.5px]">
+                    Chưa chọn quần/váy
                   </span>
-                </button>
+                )}
 
                 <span className="text-slate-600 font-bold">+</span>
 
                 {/* Accessory preview */}
-                <button
-                  onClick={() => {
-                    soundEngine.playPluck(659.25);
-                    setPreviewImageItem(currentAccessory);
-                  }}
-                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-900/90 border border-slate-700 hover:border-amber-400 transition-all cursor-pointer group/pill shrink-0 shadow-xs"
-                  title="Nhấp để xem chi tiết ảnh Phụ kiện"
-                >
-                  <img
-                    src={currentAccessory.imageUrl}
-                    alt={currentAccessory.name}
-                    className="w-5 h-5 rounded-md object-cover border border-slate-600"
-                  />
-                  <span className="text-slate-300 group-hover/pill:text-amber-200 truncate max-w-[100px] sm:max-w-none">
-                    {currentAccessory.name}
+                {currentAccessory ? (
+                  <button
+                    onClick={() => {
+                      soundEngine.playPluck(659.25);
+                      setPreviewImageItem(currentAccessory);
+                    }}
+                    className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-900/90 border border-slate-700 hover:border-amber-400 transition-all cursor-pointer group/pill shrink-0 shadow-xs"
+                    title="Nhấp để xem chi tiết ảnh Phụ kiện"
+                  >
+                    <img
+                      src={currentAccessory.imageUrl}
+                      alt={currentAccessory.name}
+                      className="w-5 h-5 rounded-md object-cover border border-slate-600"
+                    />
+                    <span className="text-slate-300 group-hover/pill:text-amber-200 truncate max-w-[100px] sm:max-w-none">
+                      {currentAccessory.name}
+                    </span>
+                  </button>
+                ) : (
+                  <span className="px-2 py-1 rounded-lg bg-slate-900/60 border border-dashed border-slate-700/80 text-slate-500 text-[10.5px]">
+                    Chưa chọn phụ kiện
                   </span>
-                </button>
+                )}
               </div>
 
+              {/* Active Colors Swatches Bar */}
               <div className="flex items-center gap-2 shrink-0">
-                <span className="px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 text-[10px] font-medium border border-amber-500/30">
-                  {currentFabric.name}
-                </span>
-                <div
-                  className="w-4 h-4 rounded-full border border-white/40 shadow-xs shrink-0"
-                  style={{ backgroundColor: currentColor.hex }}
-                  title={currentColor.name}
-                />
+                <div className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-slate-900/90 border border-slate-700/80 text-[10.5px]">
+                  <div className="flex items-center gap-1.5" title={`Màu Áo: ${activeTopHex}`}>
+                    <span className="text-slate-400 text-[10px]">Màu Áo:</span>
+                    <div
+                      className="w-3.5 h-3.5 rounded-full border border-white/50 shrink-0 shadow-xs"
+                      style={{ backgroundColor: activeTopHex }}
+                    />
+                  </div>
+                  <span className="text-slate-600">|</span>
+                  <div className="flex items-center gap-1.5" title={`Màu Quần/Váy: ${activeBottomHex}`}>
+                    <span className="text-slate-400 text-[10px]">Quần/Váy:</span>
+                    <div
+                      className="w-3.5 h-3.5 rounded-full border border-white/50 shrink-0 shadow-xs"
+                      style={{ backgroundColor: activeBottomHex }}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -447,15 +509,14 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
               <div className="flex items-center gap-1.5 truncate">
                 <Waves className="w-3.5 h-3.5 text-amber-400 shrink-0 animate-pulse" />
                 <span className="font-medium truncate">
-                  {activeTab === 'top' && 'Áo Cổ Phục: Rê chuột để cảm nhận tà áo bay nhẹ & phom dáng rủ mềm.'}
-                  {activeTab === 'bottom' && 'Quần / Váy: Nếp lụa uyển chuyển bồng bềnh theo từng bước chân.'}
-                  {activeTab === 'accessory' && 'Phụ Kiện: Kim hoàn, ngọc bội & dải lụa thêu tơ tằm tinh xảo.'}
-                  {activeTab === 'fabric' && 'Chất Liệu: Cảm nhận độ rủ mềm, độ dệt vân óng & sự thoáng khí.'}
-                  {activeTab === 'color' && 'Màu Sắc Ngũ Hành: Ánh sắc tơ lụa biến đổi tinh tế dưới ánh sáng.'}
+                  {activeTab === 'top' && 'Áo Cổ Phục: Bấm lần 1 để chọn, bấm lần 2 vào áo đang chọn để gỡ bỏ. Rê chuột để xem trước phom dáng.'}
+                  {activeTab === 'bottom' && 'Quần / Váy: Bấm lần 1 để chọn, bấm lần 2 vào quần/váy đang chọn để gỡ bỏ. Rê chuột để xem trước nếp rủ.'}
+                  {activeTab === 'accessory' && 'Phụ Kiện: Bấm lần 1 để chọn, bấm lần 2 vào phụ kiện đang chọn để gỡ bỏ.'}
+                  {activeTab === 'color' && 'Màu Sắc Cổ Phục: Tùy biến đổi màu riêng biệt cho Áo hoặc Quần/Váy, giữ trọn hoa văn.'}
                 </span>
               </div>
               <span className="text-[10px] text-amber-400/80 font-mono shrink-0 pl-2 hidden sm:inline">
-                Chuyển động lụa mềm
+                Bấm 2 lần = Bỏ chọn
               </span>
             </div>
 
@@ -537,13 +598,18 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                   {/* TOPS TAB */}
                   {activeTab === 'top' &&
                     getFilteredItems(TOPS).map((item) => {
-                      const isSelected = currentTop.id === item.id;
+                      const isSelected = currentTop?.id === item.id;
                       return (
                         <motion.div
                           key={item.id}
                           onClick={() => {
-                            soundEngine.playPluck(523.25);
-                            onSelectTop(item);
+                            if (isSelected) {
+                              soundEngine.playPluck(440);
+                              onSelectTop(null);
+                            } else {
+                              soundEngine.playPluck(523.25);
+                              onSelectTop(item);
+                            }
                           }}
                           onMouseEnter={() => {
                             setHoveredItem(item);
@@ -602,6 +668,11 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                                 <h4 className="text-xs sm:text-[13px] font-semibold text-slate-100 font-serif-vi group-hover:text-amber-200 transition-colors truncate">
                                   {item.name}
                                 </h4>
+                                {isSelected && (
+                                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 font-sans-vi border border-amber-400/40 font-medium">
+                                    Đang chọn • Bấm để gỡ
+                                  </span>
+                                )}
                                 {item.gender && (
                                   <span
                                     className={`text-[9px] px-1.5 py-0.2 rounded font-sans-vi border uppercase font-medium ${
@@ -631,6 +702,7 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                                 ? 'bg-amber-400 border-amber-300 text-slate-950 shadow-[0_0_8px_rgba(245,158,11,0.5)]'
                                 : 'border-slate-600 group-hover:border-amber-400/60'
                             }`}
+                            title={isSelected ? 'Đang chọn (Nhấp lần nữa để bỏ chọn)' : 'Nhấp để chọn'}
                           >
                             {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                           </div>
@@ -641,13 +713,18 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                   {/* BOTTOMS TAB */}
                   {activeTab === 'bottom' &&
                     getFilteredItems(BOTTOMS).map((item) => {
-                      const isSelected = currentBottom.id === item.id;
+                      const isSelected = currentBottom?.id === item.id;
                       return (
                         <motion.div
                           key={item.id}
                           onClick={() => {
-                            soundEngine.playPluck(587.33);
-                            onSelectBottom(item);
+                            if (isSelected) {
+                              soundEngine.playPluck(440);
+                              onSelectBottom(null);
+                            } else {
+                              soundEngine.playPluck(587.33);
+                              onSelectBottom(item);
+                            }
                           }}
                           onMouseEnter={() => {
                             setHoveredItem(item);
@@ -701,6 +778,11 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                                 <h4 className="text-xs sm:text-[13px] font-semibold text-slate-100 font-serif-vi group-hover:text-amber-200 transition-colors truncate">
                                   {item.name}
                                 </h4>
+                                {isSelected && (
+                                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 font-sans-vi border border-amber-400/40 font-medium">
+                                    Đang chọn • Bấm để gỡ
+                                  </span>
+                                )}
                                 <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-sans-vi border border-amber-400/30">
                                   Nếp rủ
                                 </span>
@@ -720,6 +802,7 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                                 ? 'bg-amber-400 border-amber-300 text-slate-950 shadow-[0_0_8px_rgba(245,158,11,0.5)]'
                                 : 'border-slate-600 group-hover:border-amber-400/60'
                             }`}
+                            title={isSelected ? 'Đang chọn (Nhấp lần nữa để bỏ chọn)' : 'Nhấp để chọn'}
                           >
                             {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                           </div>
@@ -730,13 +813,18 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                   {/* ACCESSORIES TAB */}
                   {activeTab === 'accessory' &&
                     getFilteredItems(ACCESSORIES).map((item) => {
-                      const isSelected = currentAccessory.id === item.id;
+                      const isSelected = currentAccessory?.id === item.id;
                       return (
                         <motion.div
                           key={item.id}
                           onClick={() => {
-                            soundEngine.playPluck(659.25);
-                            onSelectAccessory(item);
+                            if (isSelected) {
+                              soundEngine.playPluck(440);
+                              onSelectAccessory(null);
+                            } else {
+                              soundEngine.playPluck(659.25);
+                              onSelectAccessory(item);
+                            }
                           }}
                           onMouseEnter={() => {
                             setHoveredItem(item);
@@ -790,6 +878,11 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                                 <h4 className="text-xs sm:text-[13px] font-semibold text-slate-100 font-serif-vi group-hover:text-amber-200 transition-colors truncate">
                                   {item.name}
                                 </h4>
+                                {isSelected && (
+                                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 font-sans-vi border border-amber-400/40 font-medium">
+                                    Đang chọn • Bấm để gỡ
+                                  </span>
+                                )}
                                 <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-sans-vi border border-amber-400/30">
                                   Thêu tơ
                                 </span>
@@ -809,6 +902,7 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                                 ? 'bg-amber-400 border-amber-300 text-slate-950 shadow-[0_0_8px_rgba(245,158,11,0.5)]'
                                 : 'border-slate-600 group-hover:border-amber-400/60'
                             }`}
+                            title={isSelected ? 'Đang chọn (Nhấp lần nữa để bỏ chọn)' : 'Nhấp để chọn'}
                           >
                             {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                           </div>
@@ -816,71 +910,151 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                       );
                     })}
 
-                  {/* FABRICS TAB */}
-                  {activeTab === 'fabric' && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                      {FABRICS.map((fab) => {
-                        const isSelected = currentFabric.id === fab.id;
-                        return (
-                          <motion.div
-                            key={fab.id}
+                  {/* COLORS TAB (Đổi màu độc lập cho Áo hoặc Quần/Váy, giữ trọn vẹn hoa văn & kiểu dáng) */}
+                  {activeTab === 'color' && (
+                    <div className="space-y-3 pt-1">
+                      {/* 1. Target Selector: Áo vs Quần/Váy */}
+                      <div className="space-y-1.5">
+                        <div className="text-[11px] font-semibold text-amber-300 flex items-center justify-between">
+                          <span className="flex items-center gap-1.5">
+                            <Palette className="w-3.5 h-3.5 text-amber-400" />
+                            <span>Chọn phần trang phục muốn đổi màu:</span>
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-normal hidden sm:inline">
+                            Họa tiết & phom dáng giữ nguyên
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 p-1 bg-slate-900/90 rounded-xl border border-slate-700/80">
+                          {/* Button Đổi màu Áo */}
+                          <button
+                            type="button"
                             onClick={() => {
                               soundEngine.playPluck(523.25);
-                              onSelectFabric(fab);
+                              setColorTarget('top');
                             }}
-                            onMouseEnter={() => {
-                              setHoveredItem(fab as any);
-                              soundEngine.playSilkFlutter();
-                            }}
-                            onMouseLeave={() => setHoveredItem(null)}
-                            whileHover={{
-                              y: -3,
-                              scale: 1.02,
-                              boxShadow: '0 8px 24px -4px rgba(245, 158, 11, 0.25)',
-                              transition: { type: 'spring', stiffness: 350, damping: 22 },
-                            }}
-                            whileTap={{ scale: 0.98 }}
-                            className={`group relative p-2.5 rounded-xl border cursor-pointer transition-colors overflow-hidden ${
-                              isSelected
-                                ? 'bg-amber-950/40 border-amber-400 shadow-sm'
-                                : 'bg-[#101728] border-slate-800 hover:border-amber-500/40 hover:bg-[#141C30]'
+                            className={`p-2.5 rounded-lg flex items-center justify-between text-left transition-all cursor-pointer ${
+                              colorTarget === 'top'
+                                ? 'bg-amber-950/70 border border-amber-400 text-amber-200 shadow-md ring-1 ring-amber-400/50'
+                                : 'hover:bg-slate-800/80 text-slate-300 border border-transparent'
                             }`}
                           >
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/10 to-transparent pointer-events-none -translate-x-full group-hover:translate-x-[200%] transition-transform duration-700 ease-in-out" />
-                            <div className="flex items-center justify-between mb-1 relative z-10">
-                              <span className="text-xs font-semibold text-slate-100 font-serif-vi group-hover:text-amber-200 transition-colors">
-                                {fab.name}
-                              </span>
-                              {isSelected ? (
-                                <Check className="w-3.5 h-3.5 text-amber-400" />
-                              ) : (
-                                <Waves className="w-3 h-3 text-slate-500 group-hover:text-amber-400 transition-colors" />
-                              )}
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shrink-0 text-amber-400">
+                                <Shirt className="w-4 h-4" />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="text-xs font-bold truncate">Đổi màu Áo</div>
+                                <div className="text-[10px] text-slate-400 truncate">{currentTop.name}</div>
+                              </div>
                             </div>
-                            <p className="text-[10px] text-slate-400 line-clamp-2 relative z-10 group-hover:text-slate-300">
-                              {fab.description}
-                            </p>
-                          </motion.div>
-                        );
-                      })}
-                    </div>
-                  )}
+                            <div
+                              className="w-5 h-5 rounded-full border-2 border-white/60 shrink-0 shadow-sm ml-1.5"
+                              style={{ backgroundColor: activeTopHex }}
+                              title={`Màu áo: ${activeTopHex}`}
+                            />
+                          </button>
 
-                  {/* COLORS TAB */}
-                  {activeTab === 'color' && (
-                    <div className="space-y-2.5 pt-1">
-                      <div className="text-[11px] font-semibold text-amber-300 flex items-center gap-1.5">
-                        <Palette className="w-3.5 h-3.5 text-amber-400" />
-                        <span>Bảng màu Ngũ Hành truyền thống (Ánh lụa tự nhiên):</span>
+                          {/* Button Đổi màu Quần / Váy */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              soundEngine.playPluck(587.33);
+                              setColorTarget('bottom');
+                            }}
+                            className={`p-2.5 rounded-lg flex items-center justify-between text-left transition-all cursor-pointer ${
+                              colorTarget === 'bottom'
+                                ? 'bg-amber-950/70 border border-amber-400 text-amber-200 shadow-md ring-1 ring-amber-400/50'
+                                : 'hover:bg-slate-800/80 text-slate-300 border border-transparent'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shrink-0 text-amber-400">
+                                <Layers className="w-4 h-4" />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="text-xs font-bold truncate">Đổi màu Quần / Váy</div>
+                                <div className="text-[10px] text-slate-400 truncate">{currentBottom.name}</div>
+                              </div>
+                            </div>
+                            <div
+                              className="w-5 h-5 rounded-full border-2 border-white/60 shrink-0 shadow-sm ml-1.5"
+                              style={{ backgroundColor: activeBottomHex }}
+                              title={`Màu quần/váy: ${activeBottomHex}`}
+                            />
+                          </button>
+                        </div>
                       </div>
+
+                      {/* 2. Target info & quick actions toolbar */}
+                      <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-[#131C2E] border border-amber-500/20 text-xs">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-slate-400 text-[11px] shrink-0">Đang chọn cho:</span>
+                          <span className="font-semibold text-amber-300 truncate">
+                            {colorTarget === 'top' ? `Áo (${currentTop.name})` : `Quần / Váy (${currentBottom.name})`}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {/* Custom Color input */}
+                          <label
+                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[10.5px] text-slate-200 cursor-pointer shadow-xs transition-colors"
+                            title="Chọn mã màu tùy biến bất kỳ"
+                          >
+                            <span>Màu tự do</span>
+                            <input
+                              type="color"
+                              value={colorTarget === 'top' ? activeTopHex : activeBottomHex}
+                              onChange={(e) => {
+                                const newHex = e.target.value;
+                                if (colorTarget === 'top') {
+                                  onSelectTopColor(newHex);
+                                } else {
+                                  onSelectBottomColor(newHex);
+                                }
+                              }}
+                              className="w-4 h-4 p-0 border-0 rounded cursor-pointer bg-transparent"
+                            />
+                          </label>
+
+                          {/* Reset to authentic photo color */}
+                          {((colorTarget === 'top' && topCustomColor) ||
+                            (colorTarget === 'bottom' && bottomCustomColor)) && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                soundEngine.playPluck(440);
+                                if (colorTarget === 'top') {
+                                  onSelectTopColor('');
+                                } else {
+                                  onSelectBottomColor('');
+                                }
+                              }}
+                              className="px-2 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[10.5px] font-medium transition-colors cursor-pointer"
+                              title="Khôi phục màu nguyên bản đối chiếu ảnh gốc"
+                            >
+                              Khôi phục màu gốc
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* 3. Heritage 12-Color Palette Grid */}
                       <div className="grid grid-cols-2 gap-2">
                         {COLOR_PALETTES.map((palette) => {
-                          const isSelected = currentColor.id === palette.id;
+                          const currentTargetHex = colorTarget === 'top' ? activeTopHex : activeBottomHex;
+                          const isSelected = currentTargetHex.toLowerCase() === palette.hex.toLowerCase();
+
                           return (
                             <motion.div
                               key={palette.id}
                               onClick={() => {
                                 soundEngine.playPluck(523.25);
+                                if (colorTarget === 'top') {
+                                  onSelectTopColor(palette.hex);
+                                } else {
+                                  onSelectBottomColor(palette.hex);
+                                }
                                 onSelectColor(palette);
                               }}
                               onMouseEnter={() => {
@@ -890,39 +1064,47 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                               onMouseLeave={() => setHoveredItem(null)}
                               whileHover={{
                                 y: -2.5,
-                                scale: 1.025,
-                                boxShadow: '0 8px 24px -4px rgba(245, 158, 11, 0.2)',
+                                scale: 1.02,
+                                boxShadow: '0 8px 24px -4px rgba(245, 158, 11, 0.25)',
                                 transition: { type: 'spring', stiffness: 350, damping: 22 },
                               }}
                               whileTap={{ scale: 0.98 }}
                               className={`group relative p-2.5 rounded-xl border cursor-pointer flex items-center gap-2.5 transition-colors overflow-hidden ${
                                 isSelected
-                                  ? 'bg-amber-950/40 border-amber-400 shadow-sm'
+                                  ? 'bg-amber-950/50 border-amber-400 shadow-sm ring-1 ring-amber-400/40'
                                   : 'bg-[#101728] border-slate-800 hover:border-amber-500/40 hover:bg-[#141C30]'
                               }`}
                             >
                               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/10 to-transparent pointer-events-none -translate-x-full group-hover:translate-x-[200%] transition-transform duration-700 ease-in-out" />
                               <div
-                                className="w-7 h-7 rounded-full border border-white/30 shrink-0 shadow-sm group-hover:scale-110 transition-transform relative"
+                                className="w-8 h-8 rounded-full border-2 border-white/40 shrink-0 shadow-sm group-hover:scale-110 transition-transform relative"
                                 style={{ backgroundColor: palette.hex }}
                               >
                                 {isSelected && (
                                   <div className="absolute inset-0 rounded-full flex items-center justify-center text-white drop-shadow">
-                                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                    <Check className="w-4 h-4 stroke-[3]" />
                                   </div>
                                 )}
                               </div>
-                              <div className="text-left overflow-hidden relative z-10">
-                                <div className="text-xs font-medium text-slate-100 truncate group-hover:text-amber-200 transition-colors">
+                              <div className="text-left overflow-hidden relative z-10 flex-1 min-w-0">
+                                <div className="text-xs font-semibold text-slate-100 truncate group-hover:text-amber-200 transition-colors">
                                   {palette.name}
                                 </div>
-                                <div className="text-[10px] text-slate-400 truncate">
+                                <div className="text-[10px] text-slate-400 line-clamp-1">
                                   {palette.meaning}
                                 </div>
                               </div>
                             </motion.div>
                           );
                         })}
+                      </div>
+
+                      {/* 4. Heritage Note */}
+                      <div className="p-2 rounded-xl bg-slate-900/60 border border-slate-800 text-[10.5px] text-slate-400 flex items-start gap-1.5 leading-relaxed">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                        <span>
+                          <strong>Quy chuẩn bảo tồn:</strong> Khi đổi màu cho áo hoặc quần/váy, các họa tiết rồng/phụng, cúc ngũ thường, nếp gấp xếp ly và kiểu dáng 2D truyền thống vẫn được giữ nguyên vẹn 100%.
+                        </span>
                       </div>
                     </div>
                   )}

@@ -14,11 +14,13 @@ import {
 import { soundEngine } from '../utils/audioSynth';
 
 interface AvatarModelProps {
-  top: WardrobeItem;
-  bottom: WardrobeItem;
-  accessory: WardrobeItem;
-  fabric: FabricOption;
-  color: ColorOption;
+  top?: WardrobeItem | null;
+  bottom?: WardrobeItem | null;
+  accessory?: WardrobeItem | null;
+  fabric?: FabricOption;
+  color?: ColorOption;
+  topCustomColor?: string;
+  bottomCustomColor?: string;
   harmonyScore?: number;
   harmonyBadge?: string;
   harmonyCritique?: string;
@@ -269,6 +271,8 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
   accessory,
   fabric,
   color,
+  topCustomColor,
+  bottomCustomColor,
   harmonyScore = 95,
   harmonyCritique = 'Sự kết hợp hài hòa giữa Áo ngũ thân tay chẽn truyền thống và váy xếp ly hiện đại, giữ được nét thanh lịch nhưng vẫn năng động.',
   showCulturePins = true,
@@ -276,6 +280,7 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
   hoveredItem = null,
   isHoveringSilk = false,
 }) => {
+  const [hoveredPin, setHoveredPin] = useState<'accessory' | 'garment' | 'bottom' | null>(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState<boolean>(false);
 
   // Active top and bottom items (accounts for real-time hover preview)
@@ -284,24 +289,24 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
   const activeAccessory = hoveredItem && hoveredItem.category === 'accessory' ? hoveredItem : accessory;
 
   // Retrieve exact visual profile matching the photo
-  const profile = GARMENT_VISUAL_PROFILES[activeGarment.id] || {
-    baseColor: activeGarment.defaultColorHex || '#162544',
+  const profile = (activeGarment && GARMENT_VISUAL_PROFILES[activeGarment.id]) || {
+    baseColor: activeGarment?.defaultColorHex || '#162544',
     accentGold: '#D4AF37',
     collarType: 'lap-linh',
     sleeveType: 'tay-chen',
-    bottomColor: activeBottom.defaultColorHex || '#FAF7F0',
+    bottomColor: activeBottom?.defaultColorHex || '#FAF7F0',
     bottomType: 'quan-bach',
     headpieceType: 'khan-dong',
     chestMotif: 'lap-linh-buttons',
   };
 
-  // Garment primary and secondary colors
-  const garmentColor = profile.baseColor;
+  // Garment primary and secondary colors (prioritize custom top color, keep pattern/motifs)
+  const garmentColor = topCustomColor || profile.baseColor;
   const goldColor = profile.accentGold;
 
   // Active bottom color & type determination
-  const bottomType =
-    activeBottom.id === 'vay-xep-ly'
+  const bottomType = activeBottom
+    ? activeBottom.id === 'vay-xep-ly'
       ? 'vay-xep-ly'
       : activeBottom.id === 'quan-men-lam'
       ? 'quan-men-lam'
@@ -309,11 +314,16 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
       ? 'quan-gam-vang'
       : activeBottom.id === 'quan-tay-hien-dai'
       ? 'quan-tay'
-      : profile.bottomType;
+      : activeBottom.id === 'vay-den'
+      ? 'vay-den'
+      : activeBottom.id === 'dong-son'
+      ? 'dong-son'
+      : profile.bottomType
+    : null;
 
-  const trousersColor =
+  const defaultTrousersColor =
     bottomType === 'vay-xep-ly'
-      ? activeBottom.defaultColorHex || '#8B1E1E'
+      ? activeBottom?.defaultColorHex || '#8B1E1E'
       : bottomType === 'quan-men-lam'
       ? '#1F4E5B'
       : bottomType === 'quan-gam-vang'
@@ -324,7 +334,25 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
       ? '#1D1B1A'
       : bottomType === 'dong-son'
       ? '#724122'
-      : profile.bottomColor;
+      : (activeBottom?.defaultColorHex || profile.bottomColor);
+
+  // Trousers / Skirt color (prioritize custom bottom color, keep folds/pleats/motifs)
+  const trousersColor = bottomCustomColor || defaultTrousersColor;
+
+  // Active headpiece determination
+  const headpieceType = activeAccessory
+    ? activeAccessory.id === 'non-ba-tam' || activeAccessory.svgLayerType === 'non-ba-tam'
+      ? 'non-ba-tam'
+      : activeAccessory.id === 'khan-ran' || activeAccessory.svgLayerType === 'khan-ran'
+      ? 'khan-ran'
+      : activeAccessory.id === 'man-ngu-sac' || activeAccessory.id === 'man-vang'
+      ? 'man-vang'
+      : activeAccessory.id === 'khan-dong' || activeAccessory.svgLayerType === 'khan-dong'
+      ? 'khan-dong'
+      : activeAccessory.id === 'man-doi-dau'
+      ? 'man-tron'
+      : profile.headpieceType
+    : null;
 
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center select-none overflow-hidden">
@@ -337,79 +365,146 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
         <div className="absolute w-[360px] h-[360px] rounded-full bg-radial from-amber-500/10 via-amber-900/5 to-transparent blur-3xl" />
       </div>
 
-      {/* 2. Floating Reference Card: Real Photo Thumbnail for instant comparison */}
-      <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-30">
-        <motion.button
-          onClick={() => {
-            soundEngine.playPluck(523.25);
-            setIsLightboxOpen(true);
-          }}
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.96 }}
-          className="group flex items-center gap-2 p-1.5 pr-3 rounded-xl bg-[#090D18]/95 hover:bg-[#121B30] backdrop-blur-md border border-amber-400/50 shadow-2xl transition-all cursor-pointer text-left"
-          title="Nhấp để soi ảnh chụp cổ phục gốc đối chiếu"
-        >
-          <div className="relative w-10 h-12 rounded-lg overflow-hidden bg-black shrink-0 border border-amber-400/60 shadow-md">
-            <img
-              src={activeGarment.imageUrl}
-              alt={activeGarment.name}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-            />
-            <div className="absolute inset-0 bg-black/15 group-hover:bg-transparent transition-colors" />
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-              <span className="text-[11px] font-bold text-amber-300 font-serif-vi tracking-tight">
-                Ảnh Gốc Đối Chiếu
-              </span>
-            </div>
-            <span className="text-[10px] text-slate-300 block truncate max-w-[110px] sm:max-w-[140px] font-medium">
-              {activeGarment.name}
-            </span>
-          </div>
-          <Eye className="w-4 h-4 text-amber-400 ml-1 opacity-80 group-hover:opacity-100 shrink-0" />
-        </motion.button>
-      </div>
-
-      {/* 3. Interactive Callout Pin: Phụ Kiện (Top-Right) */}
+      {/* 2. Interactive Cultural Callout Hotspots (Ẩn mặc định, chỉ hiện khi rê chuột) */}
       {showCulturePins && (
-        <div className="absolute top-12 right-2 md:right-6 z-30 max-w-[210px] hidden sm:block animate-in fade-in duration-500">
-          <div className="relative bg-[#0E1626]/90 backdrop-blur-md border border-amber-400/40 rounded-xl p-2.5 shadow-2xl text-left">
-            <div className="absolute -left-10 top-5 w-10 h-[1.5px] bg-amber-400/70" />
-            <div className="absolute -left-10 top-4 w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_#F59E0B]" />
-            <div className="flex items-center gap-1.5 mb-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-              <h5 className="text-[12px] font-bold text-amber-300 font-serif-vi">
-                {activeAccessory.name || 'Mấn đội đầu'}
-              </h5>
-            </div>
-            <p className="text-[10px] text-slate-300 leading-relaxed font-sans-vi">
-              {activeAccessory.cultureInfo?.origin ||
-                'Mấn tròn quấn nhiều vòng thanh tú, tôn vinh nét đoan trang đài các của phục sức Việt.'}
-            </p>
-          </div>
-        </div>
-      )}
+        <>
+          {/* Phụ Kiện / Mấn Đội Đầu (Top-Right) */}
+          {activeAccessory && (
+            <div
+              className="absolute top-10 right-3 sm:right-8 z-30 flex items-center"
+              onMouseEnter={() => setHoveredPin('accessory')}
+              onMouseLeave={() => setHoveredPin(null)}
+            >
+              <div
+                className="group relative flex items-center gap-1.5 p-1.5 rounded-full cursor-pointer"
+                title="Rê chuột để xem thông tin Phụ kiện"
+              >
+                <span className="relative flex h-3.5 w-3.5 items-center justify-center">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400 shadow-[0_0_8px_#F59E0B] group-hover:scale-125 transition-transform" />
+                </span>
+                <span className="text-[10.5px] font-medium text-amber-300/80 group-hover:text-amber-200 transition-colors hidden sm:inline select-none">
+                  {activeAccessory.name}
+                </span>
+              </div>
 
-      {/* 4. Interactive Callout Pin: Cổ Phục Chuẩn Khớp (Left Side) */}
-      {showCulturePins && (
-        <div className="absolute top-36 left-2 md:left-6 z-30 max-w-[220px] hidden sm:block animate-in fade-in duration-500">
-          <div className="relative bg-[#0E1626]/90 backdrop-blur-md border border-amber-400/40 rounded-xl p-2.5 shadow-2xl text-left">
-            <div className="absolute -right-10 top-6 w-10 h-[1.5px] bg-amber-400/70" />
-            <div className="absolute -right-10 top-5 w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_#F59E0B]" />
-            <div className="flex items-center gap-1.5 mb-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-              <h5 className="text-[12px] font-bold text-amber-300 font-serif-vi">
-                {activeGarment.name}
-              </h5>
+              <AnimatePresence>
+                {hoveredPin === 'accessory' && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.95 }}
+                    transition={{ duration: 0.18 }}
+                    className="absolute top-8 right-0 z-40 w-56 sm:w-64 bg-[#0E1626]/95 backdrop-blur-md border border-amber-400/50 rounded-xl p-3 shadow-2xl text-left pointer-events-auto"
+                  >
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                      <h5 className="text-[12px] font-bold text-amber-300 font-serif-vi">
+                        {activeAccessory.name}
+                      </h5>
+                    </div>
+                    <p className="text-[10.5px] text-slate-300 leading-relaxed font-sans-vi">
+                      {activeAccessory.cultureInfo?.origin ||
+                        activeAccessory.summary ||
+                        'Mấn tròn quấn nhiều vòng thanh tú, tôn vinh nét đoan trang đài các của phục sức Việt.'}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-            <p className="text-[10px] text-slate-300 leading-relaxed font-sans-vi">
-              {activeGarment.cultureInfo?.symbolism ||
-                'Bản vẽ 2D đồng bộ hoàn hảo màu sắc, phom dáng và hoa văn thêu từ ảnh cổ phục thực tế.'}
-            </p>
-          </div>
-        </div>
+          )}
+
+          {/* Cổ Phục Chuẩn Khớp (Left Side) */}
+          {activeGarment && (
+            <div
+              className="absolute top-36 left-3 sm:left-8 z-30 flex items-center"
+              onMouseEnter={() => setHoveredPin('garment')}
+              onMouseLeave={() => setHoveredPin(null)}
+            >
+              <div
+                className="group relative flex items-center gap-1.5 p-1.5 rounded-full cursor-pointer"
+                title="Rê chuột để xem thông tin Cổ phục"
+              >
+                <span className="relative flex h-3.5 w-3.5 items-center justify-center">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400 shadow-[0_0_8px_#F59E0B] group-hover:scale-125 transition-transform" />
+                </span>
+                <span className="text-[10.5px] font-medium text-amber-300/80 group-hover:text-amber-200 transition-colors hidden sm:inline select-none">
+                  {activeGarment.name}
+                </span>
+              </div>
+
+              <AnimatePresence>
+                {hoveredPin === 'garment' && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.95 }}
+                    transition={{ duration: 0.18 }}
+                    className="absolute top-8 left-0 z-40 w-56 sm:w-64 bg-[#0E1626]/95 backdrop-blur-md border border-amber-400/50 rounded-xl p-3 shadow-2xl text-left pointer-events-auto"
+                  >
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                      <h5 className="text-[12px] font-bold text-amber-300 font-serif-vi">
+                        {activeGarment.name}
+                      </h5>
+                    </div>
+                    <p className="text-[10.5px] text-slate-300 leading-relaxed font-sans-vi">
+                      {activeGarment.cultureInfo?.symbolism ||
+                        'Bản vẽ 2D đồng bộ hoàn hảo màu sắc, phom dáng và hoa văn thêu từ ảnh cổ phục thực tế.'}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
+
+          {/* Hạ Y / Quần / Váy (Bottom-Right) */}
+          {activeBottom && (
+            <div
+              className="absolute bottom-24 right-3 sm:right-8 z-30 flex items-center"
+              onMouseEnter={() => setHoveredPin('bottom')}
+              onMouseLeave={() => setHoveredPin(null)}
+            >
+              <div
+                className="group relative flex items-center gap-1.5 p-1.5 rounded-full cursor-pointer"
+                title="Rê chuột để xem thông tin Hạ y"
+              >
+                <span className="relative flex h-3.5 w-3.5 items-center justify-center">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400 shadow-[0_0_8px_#F59E0B] group-hover:scale-125 transition-transform" />
+                </span>
+                <span className="text-[10.5px] font-medium text-amber-300/80 group-hover:text-amber-200 transition-colors hidden sm:inline select-none">
+                  {activeBottom.name}
+                </span>
+              </div>
+
+              <AnimatePresence>
+                {hoveredPin === 'bottom' && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 6, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 6, scale: 0.95 }}
+                    transition={{ duration: 0.18 }}
+                    className="absolute bottom-8 right-0 z-40 w-56 sm:w-64 bg-[#0E1626]/95 backdrop-blur-md border border-amber-400/50 rounded-xl p-3 shadow-2xl text-left pointer-events-auto"
+                  >
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                      <h5 className="text-[12px] font-bold text-amber-300 font-serif-vi">
+                        {activeBottom.name}
+                      </h5>
+                    </div>
+                    <p className="text-[10.5px] text-slate-300 leading-relaxed font-sans-vi">
+                      {activeBottom.summary ||
+                        activeBottom.cultureInfo?.symbolism ||
+                        'Trang phục hạ y phối hợp chuẩn mực theo quy cách di sản truyền thống.'}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
+        </>
       )}
 
       {/* 5. AI Harmony Evaluation Badge (Bottom-Right of Canvas) */}
@@ -497,7 +592,12 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
           </defs>
 
           {/* ===== 1. LOWER GARMENT (QUẦN / VÁY) & GIÀY HÀI ===== */}
-          <g id="lower-garment-layer">
+          <g
+            id="lower-garment-layer"
+            className="cursor-pointer"
+            onMouseEnter={() => setHoveredPin('bottom')}
+            onMouseLeave={() => setHoveredPin(null)}
+          >
             {/* Giày Hài Thêu Mũi Cong (Shoes under trousers/skirts) */}
             <g id="traditional-shoes">
               {/* Left Shoe */}
@@ -519,91 +619,115 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
             </g>
 
             {/* Skirt or Trousers */}
-            {bottomType === 'vay-xep-ly' ? (
-              /* Chân Váy Xếp Ly Thêu Thủy Ba (Giao Lĩnh Nữ, Áo Yếm) */
-              <g id="vay-xep-ly-mesh">
-                <path
-                  d="M158 240 L126 565 Q190 576 254 565 L222 240 Z"
-                  fill={trousersColor}
-                  stroke="#4A1515"
-                  strokeWidth="0.8"
-                />
-                {/* Pleats (nếp gấp xếp ly) */}
-                {[-55, -40, -25, -10, 5, 20, 35, 50].map((offset, i) => (
+            {activeBottom ? (
+              bottomType === 'vay-xep-ly' ? (
+                /* Chân Váy Xếp Ly Thêu Thủy Ba (Giao Lĩnh Nữ, Áo Yếm) */
+                <g id="vay-xep-ly-mesh">
                   <path
-                    key={i}
-                    d={`M${190 + offset * 0.4} 245 L${190 + offset * 1.15} 565`}
-                    stroke="rgba(0, 0, 0, 0.25)"
+                    d="M158 240 L126 565 Q190 576 254 565 L222 240 Z"
+                    fill={trousersColor}
+                    stroke="#4A1515"
+                    strokeWidth="0.8"
+                  />
+                  {/* Pleats (nếp gấp xếp ly) */}
+                  {[-55, -40, -25, -10, 5, 20, 35, 50].map((offset, i) => (
+                    <path
+                      key={i}
+                      d={`M${190 + offset * 0.4} 245 L${190 + offset * 1.15} 565`}
+                      stroke="rgba(0, 0, 0, 0.25)"
+                      strokeWidth="1.2"
+                    />
+                  ))}
+                  {/* Thủy Ba wave border at skirt hem */}
+                  <path
+                    d="M126 558 Q158 566 190 560 Q222 566 254 558"
+                    stroke={goldColor}
+                    strokeWidth="2"
+                    fill="none"
+                  />
+                  <path
+                    d="M127 563 Q158 571 190 565 Q222 571 253 563"
+                    stroke={goldColor}
+                    strokeWidth="1"
+                    fill="none"
+                    opacity="0.7"
+                  />
+                </g>
+              ) : bottomType === 'vay-den' ? (
+                /* Váy The Đen Dân Gian (Tứ Thân) */
+                <g id="vay-den-tu-than">
+                  <path
+                    d="M158 240 L136 565 Q190 574 244 565 L222 240 Z"
+                    fill="#1D1B1A"
+                    stroke="#100F0E"
+                    strokeWidth="1"
+                  />
+                  {/* Folds */}
+                  <path d="M166 250 L160 562" stroke="rgba(255,255,255,0.08)" strokeWidth="1.2" />
+                  <path d="M214 250 L220 562" stroke="rgba(255,255,255,0.08)" strokeWidth="1.2" />
+                </g>
+              ) : bottomType === 'dong-son' ? (
+                /* Khố / Váy Đông Sơn (Văn hóa Trống Đồng) */
+                <g id="dong-son-bottom">
+                  <path
+                    d="M156 240 L140 545 Q190 556 240 545 L224 240 Z"
+                    fill="#663617"
+                    stroke={goldColor}
                     strokeWidth="1.2"
                   />
-                ))}
-                {/* Thủy Ba wave border at skirt hem */}
-                <path
-                  d="M126 558 Q158 566 190 560 Q222 566 254 558"
-                  stroke={goldColor}
-                  strokeWidth="2"
-                  fill="none"
-                />
-                <path
-                  d="M127 563 Q158 571 190 565 Q222 571 253 563"
-                  stroke={goldColor}
-                  strokeWidth="1"
-                  fill="none"
-                  opacity="0.7"
-                />
-              </g>
-            ) : bottomType === 'vay-den' ? (
-              /* Váy The Đen Dân Gian (Tứ Thân) */
-              <g id="vay-den-tu-than">
-                <path
-                  d="M158 240 L136 565 Q190 574 244 565 L222 240 Z"
-                  fill="#1D1B1A"
-                  stroke="#100F0E"
-                  strokeWidth="1"
-                />
-                {/* Folds */}
-                <path d="M166 250 L160 562" stroke="rgba(255,255,255,0.08)" strokeWidth="1.2" />
-                <path d="M214 250 L220 562" stroke="rgba(255,255,255,0.08)" strokeWidth="1.2" />
-              </g>
-            ) : bottomType === 'dong-son' ? (
-              /* Khố / Váy Đông Sơn (Văn hóa Trống Đồng) */
-              <g id="dong-son-bottom">
-                <path
-                  d="M156 240 L140 545 Q190 556 240 545 L224 240 Z"
-                  fill="#663617"
-                  stroke={goldColor}
-                  strokeWidth="1.2"
-                />
-                {/* Vạt khố buông giữa thêu hoa văn kỷ hà */}
-                <rect x="178" y="240" width="24" height="280" fill="#522B13" stroke={goldColor} strokeWidth="1" />
-                <path d="M140 535 L240 535" stroke={goldColor} strokeWidth="2" />
-                {[-36, -18, 0, 18, 36].map((x, i) => (
-                  <circle key={i} cx={190 + x} cy={535} r="2.5" fill={goldColor} />
-                ))}
-              </g>
+                  {/* Vạt khố buông giữa thêu hoa văn kỷ hà */}
+                  <rect x="178" y="240" width="24" height="280" fill="#522B13" stroke={goldColor} strokeWidth="1" />
+                  <path d="M140 535 L240 535" stroke={goldColor} strokeWidth="2" />
+                  {[-36, -18, 0, 18, 36].map((x, i) => (
+                    <circle key={i} cx={190 + x} cy={535} r="2.5" fill={goldColor} />
+                  ))}
+                </g>
+              ) : (
+                /* Quần Ống Sớ Lụa Bạch / Quần Cung Đình / Quần Đen */
+                <g id="quan-ong-so-standard">
+                  {/* Left Leg */}
+                  <path
+                    d="M158 240 L144 565 L188 565 L189 380 Z"
+                    fill={trousersColor}
+                    stroke="rgba(85, 78, 65, 0.4)"
+                    strokeWidth="0.8"
+                  />
+                  {/* Right Leg */}
+                  <path
+                    d="M191 380 L192 565 L236 565 L222 240 Z"
+                    fill={trousersColor}
+                    stroke="rgba(85, 78, 65, 0.4)"
+                    strokeWidth="0.8"
+                  />
+                  {/* Vertical crease lines (đường ly ống sớ) */}
+                  <path d="M166 260 L164 558" stroke="rgba(0,0,0,0.12)" strokeWidth="1" />
+                  <path d="M214 260 L216 558" stroke="rgba(0,0,0,0.12)" strokeWidth="1" />
+                  {/* Ankle Gold Trims */}
+                  <path d="M144 562 L188 562" stroke={goldColor} strokeWidth="1.2" opacity="0.6" />
+                  <path d="M192 562 L236 562" stroke={goldColor} strokeWidth="1.2" opacity="0.6" />
+                </g>
+              )
             ) : (
-              /* Quần Ống Sớ Lụa Bạch / Quần Cung Đình / Quần Đen */
-              <g id="quan-ong-so-standard">
-                {/* Left Leg */}
+              /* Mannequin neutral under-legs when lower garment is not selected */
+              <g id="unselected-legs" opacity={0.65}>
                 <path
-                  d="M158 240 L144 565 L188 565 L189 380 Z"
-                  fill={trousersColor}
-                  stroke="rgba(85, 78, 65, 0.4)"
-                  strokeWidth="0.8"
+                  d="M165 240 L158 565 L186 565 L188 380 Z"
+                  fill="#EDE8DF"
+                  stroke="#C8BEB0"
+                  strokeWidth="1"
+                  strokeDasharray="4 2"
                 />
-                {/* Right Leg */}
                 <path
-                  d="M191 380 L192 565 L236 565 L222 240 Z"
-                  fill={trousersColor}
-                  stroke="rgba(85, 78, 65, 0.4)"
-                  strokeWidth="0.8"
+                  d="M192 380 L194 565 L222 565 L215 240 Z"
+                  fill="#EDE8DF"
+                  stroke="#C8BEB0"
+                  strokeWidth="1"
+                  strokeDasharray="4 2"
                 />
-                {/* Vertical crease lines (đường ly ống sớ) */}
-                <path d="M166 260 L164 558" stroke="rgba(0,0,0,0.12)" strokeWidth="1" />
-                <path d="M214 260 L216 558" stroke="rgba(0,0,0,0.12)" strokeWidth="1" />
-                {/* Ankle Gold Trims */}
-                <path d="M144 562 L188 562" stroke={goldColor} strokeWidth="1.2" opacity="0.6" />
-                <path d="M192 562 L236 562" stroke={goldColor} strokeWidth="1.2" opacity="0.6" />
+                <rect x="145" y="440" width="90" height="20" rx="5" fill="#0F172A" fillOpacity="0.75" stroke="#C4BBAA" strokeWidth="0.6" />
+                <text x="190" y="453" textAnchor="middle" fill="#E2E8F0" fontSize="8.5" fontFamily="sans-serif">
+                  (Chưa chọn quần/váy)
+                </text>
               </g>
             )}
           </g>
@@ -645,8 +769,12 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
           </g>
 
           {/* ===== 3. UPPER GARMENT (ÁO CỔ PHỤC KHỚP TỪNG PHẦN VỚI ẢNH GỐC) ===== */}
-          <motion.g
-            id="authentic-top-garment"
+          {activeGarment ? (
+            <motion.g
+              id="authentic-top-garment"
+              className="cursor-pointer"
+              onMouseEnter={() => setHoveredPin('garment')}
+              onMouseLeave={() => setHoveredPin(null)}
             animate={{
               filter: isHoveringSilk
                 ? 'drop-shadow(0 0 16px rgba(245, 158, 11, 0.5))'
@@ -1011,10 +1139,36 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
               strokeDasharray="4 2"
             />
           </motion.g>
+        ) : (
+          /* Áo lót bạch / Mannequin inner silhouette when top is unselected */
+          <g id="unselected-top-garment" opacity={0.75}>
+            <path
+              d="M182 124 L154 140 L154 260 L146 395 Q190 405 234 395 L226 260 L226 140 L198 124 Z"
+              fill="#F5F3EF"
+              stroke="#D5CEBE"
+              strokeWidth="1.2"
+              strokeDasharray="4 2"
+            />
+            <path d="M180 124 L190 148 L200 124" stroke="#C4BBAA" strokeWidth="1.2" fill="none" />
+            <path d="M190 148 L190 395" stroke="#D5CEBE" strokeWidth="0.8" strokeDasharray="3 3" />
+            <path d="M154 140 L132 260 L142 265 L162 165 Z" fill="#EAE5DC" stroke="#D5CEBE" strokeWidth="0.8" />
+            <path d="M226 140 L248 260 L238 265 L218 165 Z" fill="#EAE5DC" stroke="#D5CEBE" strokeWidth="0.8" />
+            <rect x="150" y="240" width="80" height="20" rx="5" fill="#0F172A" fillOpacity="0.75" stroke="#C4BBAA" strokeWidth="0.6" />
+            <text x="190" y="253" textAnchor="middle" fill="#E2E8F0" fontSize="8.5" fontFamily="sans-serif">
+              (Chưa chọn áo)
+            </text>
+          </g>
+        )}
 
-          {/* ===== 4. HEADPIECE (KHĂN ĐÓNG, MẤN, NÓN BA TẦM, KHĂN RẰN) ===== */}
-          <g id="headpiece-layer">
-            {profile.headpieceType === 'non-ba-tam' ? (
+        {/* ===== 4. HEADPIECE (KHĂN ĐÓNG, MẤN, NÓN BA TẦM, KHĂN RẰN) ===== */}
+        {activeAccessory ? (
+          <g
+            id="headpiece-layer"
+            className="cursor-pointer"
+            onMouseEnter={() => setHoveredPin('accessory')}
+            onMouseLeave={() => setHoveredPin(null)}
+          >
+            {headpieceType === 'non-ba-tam' ? (
               /* Nón Ba Tầm Quai Thao (Áo Tứ Thân) */
               <g id="non-ba-tam">
                 <ellipse cx="190" cy="50" rx="46" ry="14" fill="#CBB693" stroke="#8A734D" strokeWidth="1" />
@@ -1022,7 +1176,7 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
                 <path d="M160 55 Q168 95 166 140" stroke="#D83A56" strokeWidth="2.2" fill="none" />
                 <path d="M220 55 Q212 95 214 140" stroke="#D83A56" strokeWidth="2.2" fill="none" />
               </g>
-            ) : profile.headpieceType === 'khan-ran' ? (
+            ) : headpieceType === 'khan-ran' ? (
               /* Khăn Rằn quấn đầu Nam Bộ */
               <g id="khan-ran-head">
                 <ellipse cx="190" cy="52" rx="27" ry="12" fill="url(#khanRanPattern)" stroke="#1A1A1A" strokeWidth="1" />
@@ -1034,7 +1188,7 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
                 <ellipse cx="190" cy="52" rx="28" ry="12" fill="#1A1816" />
                 <path
                   d="M162 53 Q190 42 218 53 Q190 62 162 53 Z"
-                  fill={profile.headpieceType === 'man-vang' ? '#B8860B' : '#1D2533'}
+                  fill={headpieceType === 'man-vang' ? '#B8860B' : '#1D2533'}
                   stroke={goldColor}
                   strokeWidth="1.4"
                 />
@@ -1049,7 +1203,24 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
                 <circle cx="190" cy="50" r="3" fill="url(#goldButtonGrad)" />
               </g>
             )}
+
+            {/* Ngọc bội thắt lưng nếu phụ kiện là ngọc bội */}
+            {activeAccessory.id === 'ngoc-boi' && (
+              <g id="ngoc-boi-charm">
+                <path d="M208 240 L208 310" stroke="#C82333" strokeWidth="1.4" />
+                <circle cx="208" cy="270" r="6.5" fill="#50C878" stroke="#D4AF37" strokeWidth="1.2" />
+                <circle cx="208" cy="270" r="2.5" fill="#2E7D46" />
+                <path d="M206 278 L204 315 M208 278 L208 318 M210 278 L212 315" stroke="#C82333" strokeWidth="1.2" />
+              </g>
+            )}
           </g>
+        ) : (
+          /* Búi tóc tự nhiên của người mẫu khi không đội phụ kiện */
+          <g id="natural-hair-knot" opacity={0.9}>
+            <ellipse cx="190" cy="48" rx="14" ry="7" fill="#1A1816" />
+            <circle cx="190" cy="44" r="5" fill="#141110" />
+          </g>
+        )}
         </svg>
 
         {/* Celestial Silk Sash Fluttering Around 2D Mannequin */}
@@ -1070,7 +1241,7 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
             >
               <Waves className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
               <span>
-                {hoveredItem ? `Chất liệu: ${hoveredItem.name}` : 'Bản vẽ 2D chuyển động lụa mềm'}
+                {hoveredItem ? `Đang xem: ${hoveredItem.name}` : 'Bản vẽ 2D chuyển động lụa mềm'}
               </span>
             </motion.div>
           )}
@@ -1128,82 +1299,90 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
 
               {/* Left Column: Image in High Detail */}
               <div className="w-full md:w-3/5 bg-black/70 flex items-center justify-center p-4 relative min-h-[350px] md:min-h-[500px]">
-                <img
-                  src={activeGarment.imageUrl}
-                  alt={activeGarment.name}
-                  className="max-h-[75vh] w-auto object-contain rounded-xl shadow-2xl"
-                />
+                {(activeGarment || activeBottom || activeAccessory) ? (
+                  <img
+                    src={(activeGarment || activeBottom || activeAccessory)!.imageUrl}
+                    alt={(activeGarment || activeBottom || activeAccessory)!.name}
+                    className="max-h-[75vh] w-auto object-contain rounded-xl shadow-2xl"
+                  />
+                ) : (
+                  <div className="text-slate-400 text-xs">Chưa có trang phục được chọn</div>
+                )}
               </div>
 
               {/* Right Column: Cultural Details & Historical Analysis */}
               <div className="w-full md:w-2/5 p-5 sm:p-6 flex flex-col justify-between overflow-y-auto max-h-[50vh] md:max-h-[85vh] custom-scrollbar space-y-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                    <span className="px-2 py-0.5 rounded-md bg-amber-400/20 text-amber-300 border border-amber-400/30 text-[10px] font-semibold uppercase">
-                      {activeGarment.era}
-                    </span>
-                    <span className="text-xs text-slate-400">{activeGarment.badge}</span>
-                    {activeGarment.gender && (
-                      <span
-                        className={`text-[9px] px-2 py-0.5 rounded-md font-sans-vi border uppercase font-semibold ${
-                          activeGarment.gender === 'nam'
-                            ? 'bg-sky-950/80 text-sky-300 border-sky-400/50'
-                            : activeGarment.gender === 'nu'
-                            ? 'bg-rose-950/80 text-rose-300 border-rose-400/50'
-                            : 'bg-amber-950/80 text-amber-300 border-amber-400/50'
-                        }`}
-                      >
-                        {activeGarment.gender === 'nam'
-                          ? 'Nam Phục'
-                          : activeGarment.gender === 'nu'
-                          ? 'Nữ Phục'
-                          : 'Unisex'}
-                      </span>
-                    )}
-                  </div>
-
-                  <h2 className="text-xl sm:text-2xl font-bold font-serif-vi text-amber-200">
-                    {activeGarment.name}
-                  </h2>
-
-                  <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                    {activeGarment.summary}
-                  </p>
-
-                  {/* Cultural Specs Box */}
-                  <div className="mt-4 space-y-3 bg-[#131B2F] p-3.5 rounded-2xl border border-slate-700/60 text-xs">
+                {(activeGarment || activeBottom || activeAccessory) && (() => {
+                  const item = (activeGarment || activeBottom || activeAccessory)!;
+                  return (
                     <div>
-                      <strong className="text-amber-300 text-[11px] block">
-                        Cổ Áo & Đường May:
-                      </strong>
-                      <span className="text-slate-300 text-[11px] leading-relaxed">
-                        {activeGarment.cultureInfo?.collarType}
-                      </span>
+                      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                        <span className="px-2 py-0.5 rounded-md bg-amber-400/20 text-amber-300 border border-amber-400/30 text-[10px] font-semibold uppercase">
+                          {item.era}
+                        </span>
+                        <span className="text-xs text-slate-400">{item.badge}</span>
+                        {item.gender && (
+                          <span
+                            className={`text-[9px] px-2 py-0.5 rounded-md font-sans-vi border uppercase font-semibold ${
+                              item.gender === 'nam'
+                                ? 'bg-sky-950/80 text-sky-300 border-sky-400/50'
+                                : item.gender === 'nu'
+                                ? 'bg-rose-950/80 text-rose-300 border-rose-400/50'
+                                : 'bg-amber-950/80 text-amber-300 border-amber-400/50'
+                            }`}
+                          >
+                            {item.gender === 'nam'
+                              ? 'Nam Phục'
+                              : item.gender === 'nu'
+                              ? 'Nữ Phục'
+                              : 'Unisex'}
+                          </span>
+                        )}
+                      </div>
+
+                      <h2 className="text-xl sm:text-2xl font-bold font-serif-vi text-amber-200">
+                        {item.name}
+                      </h2>
+
+                      {item.cultureInfo && (
+                        <div className="mt-4 space-y-3 bg-[#131B2F] p-3.5 rounded-2xl border border-slate-700/60 text-xs">
+                          {item.cultureInfo.collarType && (
+                            <div>
+                              <strong className="text-amber-300 text-[11px] block">
+                                Cổ Áo & Đường May:
+                              </strong>
+                              <span className="text-slate-300 text-[11px] leading-relaxed">
+                                {item.cultureInfo.collarType}
+                              </span>
+                            </div>
+                          )}
+
+                          {item.cultureInfo.symbolism && (
+                            <div>
+                              <strong className="text-amber-300 text-[11px] block">
+                                Ý Nghĩa Biểu Tượng:
+                              </strong>
+                              <span className="text-slate-300 text-[11px] leading-relaxed">
+                                {item.cultureInfo.symbolism}
+                              </span>
+                            </div>
+                          )}
+
+                          {item.cultureInfo.origin && (
+                            <div className="pt-2 border-t border-slate-700/60">
+                              <strong className="text-amber-400 text-[11px] block">
+                                Nguồn Gốc Lịch Sử:
+                              </strong>
+                              <span className="text-slate-300 text-[11px] leading-relaxed">
+                                {item.cultureInfo.origin}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-
-                    {activeGarment.cultureInfo?.symbolism && (
-                      <div>
-                        <strong className="text-amber-300 text-[11px] block">
-                          Ý Nghĩa Biểu Tượng:
-                        </strong>
-                        <span className="text-slate-300 text-[11px] leading-relaxed">
-                          {activeGarment.cultureInfo.symbolism}
-                        </span>
-                      </div>
-                    )}
-
-                    {activeGarment.cultureInfo?.origin && (
-                      <div className="pt-2 border-t border-slate-700/60">
-                        <strong className="text-amber-400 text-[11px] block">
-                          Nguồn Gốc Lịch Sử:
-                        </strong>
-                        <span className="text-slate-300 text-[11px] leading-relaxed">
-                          {activeGarment.cultureInfo.origin}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                  );
+                })()}
 
                 <div className="pt-2">
                   <button
