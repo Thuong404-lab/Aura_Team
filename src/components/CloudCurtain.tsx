@@ -28,24 +28,23 @@ export interface CloudCurtainProps {
 /**
  * CloudCurtain Component (Màn Mây Cổ Phong Khai Mở Di Sản Hoàng Triều):
  * 
- * 1. CHE KÍN TOÀN BỘ WEBSITE VÀ HEADER KHI MỚI VÀO:
- *    - Toàn bộ giao diện web và thanh header được ẩn kín mít, tạo cảm giác bước vào chốn bồng lai.
+ * 1. TẢN MÂY RA BỐN PHƯƠNG TÁM HƯỚNG, KHÔNG GÔM MỘT CỤC:
+ *    - Các cụm mây được phân bổ đều ra 4 góc, mép sườn trái/phải, viền nóc trên và viền chân dưới.
+ *    - Khoảng không gian trung tâm hoàn toàn thoáng đãng, tôn vinh Trống Đồng Đông Sơn uy nghiêm sắc nét.
  * 
- * 2. ĐÁM MÂY CỔ PHONG HIỆN DIỆN PHONG PHÚ & HIỆU ỨNG MỜ ẢO SƯƠNG KHÓI:
- *    - Đầy đủ các cụm mây hoàng kim, mây lửa chu sa, mây cánh én, như ý, thủy ba bao quanh.
- *    - Các lớp sương mờ ảo (ethereal mist wisps), bụi vàng lấp lánh trôi nhẹ nhàng.
- *    - Các đám mây dập dờn thở nhẹ (ambient breathing & drifting motion) sống động như tranh thủy mặc.
+ * 2. ĐA DẠNG HÌNH THÁI MÂY CỔ PHONG ("KIỂU NÀY KIỂU KIA SINH ĐỘNG"):
+ *    - Hoàng Kim Tường Vân (mây cuộn tròn cát tường) ở góc Tây Bắc & Đông Nam.
+ *    - Hỏa Vân Chu Sa (mây ngọn lửa vươn bốc thanh thoát) ở góc Đông Bắc.
+ *    - Mây Cánh Én Cung Đình (dáng phượng dực đối xứng) trang nghiêm ở viền nóc trời.
+ *    - Mây Bạch Ngọc Như Ý (dáng nấm linh chi mềm mại) ở sườn Tây và viền đáy.
+ *    - Huyền Vũ Thủy Ba (mây sóng nước uốn lượn) ở sườn Đông và góc Tây Nam.
+ *    - Dải lụa mây tơ vắt ngang bồng bềnh viễn cảnh (Streamer Wisps) mờ ảo làm nền sâu.
  * 
- * 3. XÓA BỎ HOÀN TOÀN CON LĂN CHUỘT:
- *    - Không dùng con lăn chuột để mở màn mây.
- *    - Người dùng chỉ cần chạm / bấm vào màn hình để bắt đầu màn khai mở.
- * 
- * 4. HOẠT CẢNH KHI MÂY TAN: TRỐNG ĐỒNG TO LÊN VÀ XOAY VÒNG RỒI MỚI HIỆN WEB:
- *    - Khi bấm: Mây từ từ tản mát dạt ra hai bên và tan biến vào làn sương mờ ảo.
- *    - Đồng thời, Trống đồng Đông Sơn ở trung tâm phóng to lên (scale up 2.4x) và xoay vòng (720 độ)
- *      với mặt trời 14 tia sáng tỏa hào quang rực rỡ, đàn chim Lạc và vòng vũ nhân quay tròn uy nghi!
- *    - Sau khi trống đồng hoàn tất xoay vòng và bừng sáng hào quang, toàn bộ trang web và Header
- *      mới được khai mở tráng lệ, mượt mà 120fps.
+ * 3. CHUYỂN ĐỘNG BỒNG BỀNH & TAN MÂY NGOẠN MỤC:
+ *    - Mỗi cụm mây trôi lượn theo chu kỳ thời gian và quỹ đạo khác nhau, không trùng lặp.
+ *    - Khi chạm vào màn hình: Toàn bộ mây tản đều ra 8 hướng (radial outward blast),
+ *      Trống đồng ở tâm điểm phóng to ngoạn mục (scale 1.0 -> 2.45), xoay 720 độ hoàng kim,
+ *      sau đó tan vào ánh sáng bừng rực rỡ và khai mở trang web cùng thanh Header!
  */
 export const CloudCurtain: React.FC<CloudCurtainProps> = ({
   isOpen = true,
@@ -93,7 +92,7 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
       // Audio safe
     }
 
-    // Sau khi trống đồng to lên và xoay vòng tráng lệ (khoảng 2.4s), khai mở trang web
+    // Sau khi trống đồng to lên và xoay vòng tráng lệ (2.4s), khai mở trang web
     window.setTimeout(() => {
       handleCompleteReveal();
     }, 2400);
@@ -117,13 +116,13 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
   return (
     <div
       onClick={triggerRevealAnimation}
-      className="fixed inset-0 z-[250] overflow-hidden select-none bg-[#050811] cursor-pointer"
+      className="fixed inset-0 z-[250] overflow-hidden select-none bg-[#04060E] cursor-pointer"
       role="dialog"
       aria-modal="true"
       aria-label="Màn Mây Cổ Phong Khai Mở Di Sản Việt Phục"
     >
       {/* ========================================================================= */}
-      {/* 1. LỚP NỀN KHÔNG GIAN BỒNG LAI & SƯƠNG MỜ HUYỀN ẢO (ETHEREAL MIST & FOG)   */}
+      {/* 1. NỀN KHÔNG GIAN BỒNG LAI & SƯƠNG MỜ HUYỀN ẢO (MIST & FOG NEBULA)         */}
       {/* ========================================================================= */}
       <motion.div
         className="absolute inset-0 pointer-events-none"
@@ -137,73 +136,36 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
         }}
       >
         {/* Imperial Velvet Dark Backdrop */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#03060E] via-[#080E21] to-[#040713]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#02040A] via-[#070D1D] to-[#03050E]" />
 
-        {/* Lớp sương mờ ảo trung tâm (Dreamy Ethereal Mist Glow) */}
+        {/* Lớp sương mờ ảo trung tâm (Ethereal Mist Glow) */}
         <motion.div
           animate={{
             scale: [1, 1.15, 1],
-            opacity: [0.55, 0.8, 0.55],
+            opacity: [0.45, 0.7, 0.45],
           }}
           transition={{
             duration: 6,
             repeat: Infinity,
             ease: 'easeInOut',
           }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] rounded-full pointer-events-none"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[720px] h-[720px] rounded-full pointer-events-none"
           style={{
             background:
-              'radial-gradient(circle, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.12) 35%, rgba(180, 83, 9, 0.05) 55%, transparent 70%)',
-            filter: 'blur(40px)',
-          }}
-        />
-
-        {/* Lớp sương mù bảng lảng trôi nổi (Drifting Ambient Smoke Mist) */}
-        <motion.div
-          animate={{
-            x: [-60, 60, -60],
-            opacity: [0.25, 0.45, 0.25],
-          }}
-          transition={{
-            duration: 16,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          className="absolute top-1/4 left-0 w-full h-[360px] pointer-events-none"
-          style={{
-            background:
-              'radial-gradient(ellipse at 50% 50%, rgba(254, 243, 199, 0.12) 0%, rgba(217, 119, 6, 0.06) 45%, transparent 75%)',
-            filter: 'blur(50px)',
-          }}
-        />
-
-        <motion.div
-          animate={{
-            x: [60, -60, 60],
-            opacity: [0.25, 0.45, 0.25],
-          }}
-          transition={{
-            duration: 18,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          className="absolute bottom-1/4 left-0 w-full h-[360px] pointer-events-none"
-          style={{
-            background:
-              'radial-gradient(ellipse at 50% 50%, rgba(251, 191, 36, 0.12) 0%, rgba(180, 83, 9, 0.05) 50%, transparent 75%)',
-            filter: 'blur(50px)',
+              'radial-gradient(circle, rgba(217, 119, 6, 0.16) 0%, rgba(180, 83, 9, 0.08) 40%, transparent 70%)',
+            filter: 'blur(60px)',
           }}
         />
 
         {/* Floating golden dust particles / Bụi vàng thần tiên */}
-        <div className="absolute inset-0 bg-[radial-gradient(#F59E0B_1.5px,transparent_1.5px)] [background-size:32px_32px] opacity-25 pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(#F59E0B_1.5px,transparent_1.5px)] [background-size:36px_36px] opacity-20 pointer-events-none" />
 
         {/* Subtle royal pattern vignette */}
-        <div className="absolute inset-0 bg-radial-at-t from-transparent via-[#050811]/50 to-[#03050C]" />
+        <div className="absolute inset-0 bg-radial-at-c from-transparent via-[#03050C]/40 to-[#02040A]" />
       </motion.div>
 
       {/* ========================================================================= */}
-      {/* 2. NÚT KHAI MỞ NHANH (FAST SKIP BUTTON Ở GÓC TRÊN BÊN PHẢI)                */}
+      {/* 2. NÚT KHAI MỞ NHANH (FAST SKIP BUTTON)                                    */}
       {/* ========================================================================= */}
       {!isRevealing && (
         <motion.div
@@ -224,215 +186,265 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* 3. TẦNG VIỄN CẢNH: DẢI LỤA MÂY VẮT NGANG BẦU TRỜI (STREAMER WISPS)         */}
+      {/* 3. TẦNG VIỄN CẢNH: DẢI LỤA MÂY TƠ THOÁNG ĐÃNG (BACKGROUND STREAMER WISPS)  */}
+      {/*    Được làm thanh thoát, mờ nhẹ, không chắn tầm nhìn trống đồng             */}
       {/* ========================================================================= */}
       <motion.div
-        className="absolute top-[12%] left-0 w-full flex justify-center pointer-events-none"
+        className="absolute top-[8%] left-0 w-full flex justify-center pointer-events-none opacity-40"
         animate={
           isRevealing
             ? {
-                y: -140,
+                y: -180,
                 opacity: 0,
-                scale: 1.2,
+                scale: 1.15,
               }
             : {
-                x: [-20, 20, -20],
-                opacity: [0.65, 0.85, 0.65],
+                x: [-25, 25, -25],
+                opacity: [0.35, 0.55, 0.35],
               }
         }
         transition={
           isRevealing
             ? { duration: 1.6, ease: [0.22, 1, 0.36, 1] }
-            : { duration: 14, repeat: Infinity, ease: 'easeInOut' }
+            : { duration: 18, repeat: Infinity, ease: 'easeInOut' }
         }
       >
-        <StreamerWispsCloud className="w-[120vw] max-w-[1400px] h-auto drop-shadow-[0_8px_20px_rgba(245,158,11,0.2)]" />
+        <StreamerWispsCloud className="w-[100vw] max-w-[1200px] h-auto drop-shadow-[0_4px_16px_rgba(245,158,11,0.15)]" />
       </motion.div>
 
       <motion.div
-        className="absolute bottom-[10%] left-0 w-full flex justify-center pointer-events-none"
+        className="absolute bottom-[8%] left-0 w-full flex justify-center pointer-events-none opacity-40"
         animate={
           isRevealing
             ? {
-                y: 140,
-                opacity: 0,
-                scale: 1.2,
-              }
-            : {
-                x: [20, -20, 20],
-                opacity: [0.6, 0.8, 0.6],
-              }
-        }
-        transition={
-          isRevealing
-            ? { duration: 1.6, ease: [0.22, 1, 0.36, 1] }
-            : { duration: 16, repeat: Infinity, ease: 'easeInOut' }
-        }
-      >
-        <StreamerWispsCloud className="w-[120vw] max-w-[1400px] h-auto drop-shadow-[0_8px_20px_rgba(245,158,11,0.2)]" flipX />
-      </motion.div>
-
-      {/* ========================================================================= */}
-      {/* 4. TẦNG TRUNG CẢNH: MÂY CÁNH ÉN CUNG ĐÌNH & MÂY NHƯ Ý (MIDGROUND CLOUDS)    */}
-      {/* ========================================================================= */}
-      {/* Mây Cánh Én Cung Đình ở đỉnh màn hình */}
-      <motion.div
-        className="absolute -top-10 sm:-top-16 left-1/2 -translate-x-1/2 pointer-events-none z-10"
-        animate={
-          isRevealing
-            ? {
-                y: -220,
-                opacity: 0,
-                scale: 1.15,
-              }
-            : {
-                y: [-6, 6, -6],
-                scale: [1, 1.025, 1],
-              }
-        }
-        transition={
-          isRevealing
-            ? { duration: 1.8, ease: [0.22, 1, 0.36, 1] }
-            : { duration: 8, repeat: Infinity, ease: 'easeInOut' }
-        }
-      >
-        <WingedImperialCloud className="w-[520px] sm:w-[720px] md:w-[920px] h-auto drop-shadow-[0_16px_36px_rgba(0,0,0,0.7)]" />
-      </motion.div>
-
-      {/* Mây Như Ý Cổ Điển ở đáy màn hình */}
-      <motion.div
-        className="absolute -bottom-14 sm:-bottom-20 left-1/2 -translate-x-1/2 pointer-events-none z-10"
-        animate={
-          isRevealing
-            ? {
-                y: 220,
-                opacity: 0,
-                scale: 1.15,
-              }
-            : {
-                y: [6, -6, 6],
-                scale: [1, 1.02, 1],
-              }
-        }
-        transition={
-          isRevealing
-            ? { duration: 1.8, ease: [0.22, 1, 0.36, 1] }
-            : { duration: 9, repeat: Infinity, ease: 'easeInOut' }
-        }
-      >
-        <IvoryRuyiCloud className="w-[540px] sm:w-[760px] md:w-[960px] h-auto drop-shadow-[0_16px_36px_rgba(0,0,0,0.7)]" />
-      </motion.div>
-
-      {/* ========================================================================= */}
-      {/* 5. TẦNG CẬN CẢNH: 4 ĐÁM MÂY LỚN BỐN GÓC (FOREGROUND IMPERIAL CORNER CLOUDS) */}
-      {/* ========================================================================= */}
-      {/* Top-Left: Hoàng Kim Tường Vân */}
-      <motion.div
-        className="absolute top-0 -left-12 sm:-left-8 md:left-2 pointer-events-none z-20"
-        animate={
-          isRevealing
-            ? {
-                x: -320,
-                y: -180,
-                opacity: 0,
-                scale: 1.25,
-              }
-            : {
-                x: [-10, 10, -10],
-                y: [-8, 8, -8],
-                rotate: [-1, 1, -1],
-              }
-        }
-        transition={
-          isRevealing
-            ? { duration: 1.9, ease: [0.22, 1, 0.36, 1] }
-            : { duration: 7, repeat: Infinity, ease: 'easeInOut' }
-        }
-      >
-        <RoyalGoldenSwirlCloud className="w-[340px] sm:w-[460px] md:w-[560px] h-auto drop-shadow-[0_20px_40px_rgba(0,0,0,0.8)]" />
-      </motion.div>
-
-      {/* Top-Right: Hỏa Vân Chu Sa */}
-      <motion.div
-        className="absolute top-0 -right-12 sm:-right-8 md:right-2 pointer-events-none z-20"
-        animate={
-          isRevealing
-            ? {
-                x: 320,
-                y: -180,
-                opacity: 0,
-                scale: 1.25,
-              }
-            : {
-                x: [10, -10, 10],
-                y: [-8, 8, -8],
-                rotate: [1, -1, 1],
-              }
-        }
-        transition={
-          isRevealing
-            ? { duration: 1.9, ease: [0.22, 1, 0.36, 1] }
-            : { duration: 8, repeat: Infinity, ease: 'easeInOut' }
-        }
-      >
-        <CinnabarFireCloud className="w-[340px] sm:w-[460px] md:w-[560px] h-auto drop-shadow-[0_20px_40px_rgba(0,0,0,0.8)]" flipX />
-      </motion.div>
-
-      {/* Bottom-Left: Huyền Vũ Thủy Ba */}
-      <motion.div
-        className="absolute bottom-2 -left-12 sm:-left-8 md:left-2 pointer-events-none z-20"
-        animate={
-          isRevealing
-            ? {
-                x: -320,
                 y: 180,
+                opacity: 0,
+                scale: 1.15,
+              }
+            : {
+                x: [25, -25, 25],
+                opacity: [0.35, 0.5, 0.35],
+              }
+        }
+        transition={
+          isRevealing
+            ? { duration: 1.6, ease: [0.22, 1, 0.36, 1] }
+            : { duration: 20, repeat: Infinity, ease: 'easeInOut' }
+        }
+      >
+        <StreamerWispsCloud className="w-[100vw] max-w-[1200px] h-auto drop-shadow-[0_4px_16px_rgba(245,158,11,0.15)]" flipX />
+      </motion.div>
+
+      {/* ========================================================================= */}
+      {/* 4. TẢN MÂY RA CÁC MÉP & GÓC: ĐA DẠNG KIỂU DÁNG (KIỂU NÀY KIỂU KIA)         */}
+      {/*    Tuyệt đối KHÔNG gôm vào 1 cục, mỗi góc 1 dáng mây đặc sắc riêng biệt    */}
+      {/* ========================================================================= */}
+
+      {/* 4.1. GÓC TRÊN BÊN TRÁI: HOÀNG KIM TƯỜNG VÂN (Cuộn xoáy tròn cát tường) */}
+      <motion.div
+        className="absolute top-0 left-0 -translate-x-4 -translate-y-4 sm:translate-x-0 sm:translate-y-0 pointer-events-none z-20"
+        animate={
+          isRevealing
+            ? {
+                x: -420,
+                y: -260,
                 opacity: 0,
                 scale: 1.25,
               }
             : {
                 x: [-8, 8, -8],
-                y: [8, -8, 8],
-                rotate: [1, -1, 1],
+                y: [-6, 6, -6],
+                rotate: [-1.5, 1.5, -1.5],
               }
         }
         transition={
           isRevealing
-            ? { duration: 1.9, ease: [0.22, 1, 0.36, 1] }
-            : { duration: 9, repeat: Infinity, ease: 'easeInOut' }
+            ? { duration: 1.85, ease: [0.22, 1, 0.36, 1] }
+            : { duration: 8, repeat: Infinity, ease: 'easeInOut' }
         }
       >
-        <IndigoWaveCloud className="w-[340px] sm:w-[460px] md:w-[560px] h-auto drop-shadow-[0_20px_40px_rgba(0,0,0,0.8)]" />
+        <RoyalGoldenSwirlCloud className="w-48 sm:w-64 md:w-80 lg:w-96 h-auto drop-shadow-[0_18px_38px_rgba(0,0,0,0.85)]" />
       </motion.div>
 
-      {/* Bottom-Right: Hoàng Kim Tường Vân đối xứng */}
+      {/* 4.2. GÓC TRÊN BÊN PHẢI: HỎA VÂN CHU SA (Dáng ngọn lửa vươn bốc thanh thoát) */}
       <motion.div
-        className="absolute bottom-2 -right-12 sm:-right-8 md:right-2 pointer-events-none z-20"
+        className="absolute top-0 right-0 translate-x-4 -translate-y-4 sm:translate-x-0 sm:translate-y-0 pointer-events-none z-20"
         animate={
           isRevealing
             ? {
-                x: 320,
-                y: 180,
+                x: 420,
+                y: -260,
                 opacity: 0,
                 scale: 1.25,
               }
             : {
                 x: [8, -8, 8],
-                y: [8, -8, 8],
+                y: [-8, 8, -8],
+                rotate: [1.5, -1.5, 1.5],
+              }
+        }
+        transition={
+          isRevealing
+            ? { duration: 1.85, ease: [0.22, 1, 0.36, 1] }
+            : { duration: 9.5, repeat: Infinity, ease: 'easeInOut' }
+        }
+      >
+        <CinnabarFireCloud className="w-48 sm:w-64 md:w-80 lg:w-96 h-auto drop-shadow-[0_18px_38px_rgba(0,0,0,0.85)]" flipX />
+      </motion.div>
+
+      {/* 4.3. ĐỈNH VÒM TRỜI Ở GIỮA: MÂY CÁNH ÉN CUNG ĐÌNH (Dáng phượng dực che nóc) */}
+      <motion.div
+        className="absolute -top-6 sm:-top-8 left-1/2 -translate-x-1/2 pointer-events-none z-15"
+        animate={
+          isRevealing
+            ? {
+                y: -260,
+                opacity: 0,
+                scale: 1.15,
+              }
+            : {
+                y: [-5, 5, -5],
+                scale: [1, 1.025, 1],
+              }
+        }
+        transition={
+          isRevealing
+            ? { duration: 1.75, ease: [0.22, 1, 0.36, 1] }
+            : { duration: 7, repeat: Infinity, ease: 'easeInOut' }
+        }
+      >
+        <WingedImperialCloud className="w-44 sm:w-60 md:w-72 lg:w-80 h-auto drop-shadow-[0_14px_30px_rgba(0,0,0,0.75)]" />
+      </motion.div>
+
+      {/* 4.4. SƯỜN MÉP BÊN TRÁI: BẠCH NGỌC NHƯ Ý (Mềm mại lơ lửng sườn trái) */}
+      <motion.div
+        className="absolute top-1/2 -translate-y-1/2 -left-8 sm:-left-4 pointer-events-none z-20"
+        animate={
+          isRevealing
+            ? {
+                x: -360,
+                opacity: 0,
+                scale: 1.2,
+              }
+            : {
+                x: [-10, 10, -10],
+                y: [6, -6, 6],
                 rotate: [-1, 1, -1],
               }
         }
         transition={
           isRevealing
-            ? { duration: 1.9, ease: [0.22, 1, 0.36, 1] }
+            ? { duration: 1.8, ease: [0.22, 1, 0.36, 1] }
+            : { duration: 11, repeat: Infinity, ease: 'easeInOut' }
+        }
+      >
+        <IvoryRuyiCloud className="w-36 sm:w-48 md:w-56 lg:w-64 h-auto drop-shadow-[0_16px_32px_rgba(0,0,0,0.8)]" />
+      </motion.div>
+
+      {/* 4.5. SƯỜN MÉP BÊN PHẢI: HUYỀN VŨ THỦY BA (Uốn lượn lơ lửng sườn phải) */}
+      <motion.div
+        className="absolute top-1/2 -translate-y-1/2 -right-8 sm:-right-4 pointer-events-none z-20"
+        animate={
+          isRevealing
+            ? {
+                x: 360,
+                opacity: 0,
+                scale: 1.2,
+              }
+            : {
+                x: [10, -10, 10],
+                y: [-6, 6, -6],
+                rotate: [1, -1, 1],
+              }
+        }
+        transition={
+          isRevealing
+            ? { duration: 1.8, ease: [0.22, 1, 0.36, 1] }
+            : { duration: 10.5, repeat: Infinity, ease: 'easeInOut' }
+        }
+      >
+        <IndigoWaveCloud className="w-36 sm:w-48 md:w-56 lg:w-64 h-auto drop-shadow-[0_16px_32px_rgba(0,0,0,0.8)]" flipX />
+      </motion.div>
+
+      {/* 4.6. GÓC DƯỚI BÊN TRÁI: HUYỀN VŨ THỦY BA (Dáng sóng nước nâng đỡ chân trời) */}
+      <motion.div
+        className="absolute bottom-0 left-0 -translate-x-4 translate-y-4 sm:translate-x-0 sm:translate-y-0 pointer-events-none z-20"
+        animate={
+          isRevealing
+            ? {
+                x: -420,
+                y: 260,
+                opacity: 0,
+                scale: 1.25,
+              }
+            : {
+                x: [-7, 7, -7],
+                y: [7, -7, 7],
+                rotate: [1, -1, 1],
+              }
+        }
+        transition={
+          isRevealing
+            ? { duration: 1.85, ease: [0.22, 1, 0.36, 1] }
+            : { duration: 9, repeat: Infinity, ease: 'easeInOut' }
+        }
+      >
+        <IndigoWaveCloud className="w-48 sm:w-64 md:w-80 lg:w-96 h-auto drop-shadow-[0_18px_38px_rgba(0,0,0,0.85)]" />
+      </motion.div>
+
+      {/* 4.7. GÓC DƯỚI BÊN PHẢI: HOÀNG KIM TƯỜNG VÂN (Đối xứng vững chãi) */}
+      <motion.div
+        className="absolute bottom-0 right-0 translate-x-4 translate-y-4 sm:translate-x-0 sm:translate-y-0 pointer-events-none z-20"
+        animate={
+          isRevealing
+            ? {
+                x: 420,
+                y: 260,
+                opacity: 0,
+                scale: 1.25,
+              }
+            : {
+                x: [7, -7, 7],
+                y: [6, -6, 6],
+                rotate: [-1, 1, -1],
+              }
+        }
+        transition={
+          isRevealing
+            ? { duration: 1.85, ease: [0.22, 1, 0.36, 1] }
             : { duration: 8.5, repeat: Infinity, ease: 'easeInOut' }
         }
       >
-        <RoyalGoldenSwirlCloud className="w-[340px] sm:w-[460px] md:w-[560px] h-auto drop-shadow-[0_20px_40px_rgba(0,0,0,0.8)]" flipX />
+        <RoyalGoldenSwirlCloud className="w-48 sm:w-64 md:w-80 lg:w-96 h-auto drop-shadow-[0_18px_38px_rgba(0,0,0,0.85)]" flipX />
+      </motion.div>
+
+      {/* 4.8. VIỀN CHÂN DƯỚI CÙNG: BẠCH NGỌC NHƯ Ý (Mềm mại viền chân trời) */}
+      <motion.div
+        className="absolute -bottom-6 sm:-bottom-8 left-1/2 -translate-x-1/2 pointer-events-none z-15"
+        animate={
+          isRevealing
+            ? {
+                y: 260,
+                opacity: 0,
+                scale: 1.15,
+              }
+            : {
+                y: [5, -5, 5],
+                scale: [1, 1.02, 1],
+              }
+        }
+        transition={
+          isRevealing
+            ? { duration: 1.75, ease: [0.22, 1, 0.36, 1] }
+            : { duration: 8.5, repeat: Infinity, ease: 'easeInOut' }
+        }
+      >
+        <IvoryRuyiCloud className="w-44 sm:w-60 md:w-72 lg:w-80 h-auto drop-shadow-[0_14px_30px_rgba(0,0,0,0.75)]" />
       </motion.div>
 
       {/* ========================================================================= */}
-      {/* 6. TÂM ĐIỂM HOÀNG TRIỀU: TRỐNG ĐỒNG ĐÔNG SƠN "TO LÊN & XOAY VÒNG" TRÁNG LỆ  */}
-      {/*    Theo yêu cầu: khi mây tan thì hiện trống đồng ra to lên xoay vòng         */}
+      {/* 5. TÂM ĐIỂM HOÀNG TRIỀU: TRỐNG ĐỒNG ĐÔNG SƠN "TO LÊN & XOAY VÒNG" TRÁNG LỆ  */}
+      {/*    Được giải phóng không gian, không bị mây che đè hay dồn cục              */}
       {/* ========================================================================= */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center pointer-events-none z-30">
         
@@ -458,10 +470,10 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
               : { duration: 7, repeat: Infinity, ease: 'easeInOut' }
           }
           style={{
-            width: '650px',
-            height: '650px',
+            width: '600px',
+            height: '600px',
             background:
-              'radial-gradient(circle, rgba(251, 191, 36, 0.5) 0%, rgba(217, 119, 6, 0.28) 35%, rgba(180, 83, 9, 0.1) 60%, transparent 75%)',
+              'radial-gradient(circle, rgba(251, 191, 36, 0.45) 0%, rgba(217, 119, 6, 0.25) 35%, rgba(180, 83, 9, 0.08) 60%, transparent 75%)',
           }}
         />
 
@@ -500,8 +512,8 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
                 }
           }
           style={{
-            width: '320px',
-            height: '320px',
+            width: '300px',
+            height: '300px',
             willChange: 'transform, opacity',
           }}
         >
@@ -551,13 +563,13 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
             Việt Phục Hoàng Triều
           </h1>
           <p className="text-xs sm:text-sm text-slate-300/85 max-w-sm mx-auto font-sans-vi leading-relaxed">
-            Làn mây cổ phong đang che kín cổng di sản · Chạm hoặc bấm vào màn hình để khai mở
+            Làn mây cổ phong tản quanh vòm trời · Chạm hoặc bấm vào màn hình để khai mở
           </p>
         </motion.div>
       </div>
 
       {/* ========================================================================= */}
-      {/* 7. HƯỚNG DẪN TƯƠNG TÁC: CHẠM / BẤM VÀO MÀN HÌNH ĐỂ KHAI MỞ                */}
+      {/* 6. HƯỚNG DẪN TƯƠNG TÁC: CHẠM / BẤM VÀO MÀN HÌNH ĐỂ KHAI MỞ                */}
       {/* ========================================================================= */}
       <AnimatePresence>
         {!isRevealing && (
@@ -592,7 +604,7 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
                   </motion.span>
                 </span>
                 <span className="text-[11px] text-amber-300/80">
-                  Mây sẽ từ từ tan đi, Trống đồng xoay vòng khai mở Cung điện Việt phục
+                  Mây tản ra bốn phương, Trống đồng xoay vòng khai mở Cung điện Việt phục
                 </span>
               </div>
             </motion.div>
@@ -601,7 +613,7 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
       </AnimatePresence>
 
       {/* ========================================================================= */}
-      {/* 8. LỚP HÀO QUANG VÀNG KIM BỪNG SÁNG KHI KHAI MỞ THẾ GIỚI (GOLDEN FLASH)     */}
+      {/* 7. LỚP HÀO QUANG VÀNG KIM BỪNG SÁNG KHI KHAI MỞ THẾ GIỚI (GOLDEN FLASH)     */}
       {/* ========================================================================= */}
       <motion.div
         className="absolute inset-0 pointer-events-none z-40 bg-radial from-amber-400/30 via-yellow-600/15 to-transparent"
