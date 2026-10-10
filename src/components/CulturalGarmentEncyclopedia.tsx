@@ -28,7 +28,6 @@ import { soundEngine } from '../utils/audioSynth';
 export interface GarmentShowcaseItem {
   id: string;
   name: string;
-  hanTu: string;
   category: 'Áo Lễ & Thượng Phục' | 'Trang Phục Thường Nhật' | 'Cổ Phong Cách Tân';
   dynasty: string;
   period: string;
@@ -54,7 +53,6 @@ export const CULTURAL_GARMENTS: GarmentShowcaseItem[] = [
   {
     id: 'ngu-than-tay-chen',
     name: 'Áo Ngũ Thân Tay Chẽn',
-    hanTu: '五身手窄',
     category: 'Trang Phục Thường Nhật',
     dynasty: 'Triều Nguyễn (Chúa Võ Vương Nguyễn Phúc Khoát định hình)',
     period: 'Năm 1744 — Thế kỷ XX',
@@ -88,7 +86,6 @@ export const CULTURAL_GARMENTS: GarmentShowcaseItem[] = [
   {
     id: 'nhat-binh-cung-dinh',
     name: 'Áo Nhật Bình Hoàng Gia',
-    hanTu: '日平衣',
     category: 'Áo Lễ & Thượng Phục',
     dynasty: 'Triều Nguyễn (Hoàng Cung Cố Đô Huế)',
     period: 'Năm 1807 — 1945',
@@ -123,7 +120,6 @@ export const CULTURAL_GARMENTS: GarmentShowcaseItem[] = [
   {
     id: 'ao-tac-le-phuc',
     name: 'Áo Tấc (Áo Lễ Tay Thụng)',
-    hanTu: '寸衣 (廣袖)',
     category: 'Áo Lễ & Thượng Phục',
     dynasty: 'Triều Nguyễn',
     period: 'Thế kỷ XIX — XX',
@@ -157,7 +153,6 @@ export const CULTURAL_GARMENTS: GarmentShowcaseItem[] = [
   {
     id: 'ao-giao-linh-co-phong',
     name: 'Áo Giao Lĩnh (Trực Khâm Vạt Chéo)',
-    hanTu: '交領衣',
     category: 'Áo Lễ & Thượng Phục',
     dynasty: 'Thời Lý — Trần — Lê Sơ — Lê Trung Hưng',
     period: 'Thế kỷ XI — XVIII (Hơn 700 năm lịch sử)',
@@ -191,7 +186,6 @@ export const CULTURAL_GARMENTS: GarmentShowcaseItem[] = [
   {
     id: 'ao-tu-than-kinh-bac',
     name: 'Áo Tứ Thân Bắc Bộ',
-    hanTu: '四身衣',
     category: 'Trang Phục Thường Nhật',
     dynasty: 'Vùng Kinh Bắc — Đồng Bằng Sông Hồng',
     period: 'Thế kỷ XVII — XX',
@@ -226,7 +220,6 @@ export const CULTURAL_GARMENTS: GarmentShowcaseItem[] = [
   {
     id: 'ao-vien-linh-trieu-than',
     name: 'Áo Viên Lĩnh (Cổ Tròn Hoàng Triều)',
-    hanTu: '圓領衣 (補子)',
     category: 'Áo Lễ & Thượng Phục',
     dynasty: 'Triều Lý — Trần — Lê — Nguyễn',
     period: 'Thế kỷ XI — XIX',
@@ -260,7 +253,6 @@ export const CULTURAL_GARMENTS: GarmentShowcaseItem[] = [
   {
     id: 'ao-yem-khue-cac',
     name: 'Áo Yếm Khuê Các (Nội Y Cổ Truyền)',
-    hanTu: '掩衣 (春桃)',
     category: 'Trang Phục Thường Nhật',
     dynasty: 'Thời Lý — Trần — Lê — Nguyễn',
     period: 'Thế kỷ XI — Hiện đại',
@@ -294,7 +286,6 @@ export const CULTURAL_GARMENTS: GarmentShowcaseItem[] = [
   {
     id: 'ao-cach-tan-duong-dai',
     name: 'Áo Dài Phom Cổ Cách Tân 2026',
-    hanTu: '新古風衣',
     category: 'Cổ Phong Cách Tân',
     dynasty: 'Kỷ Nguyên Hiện Đại 2026',
     period: 'Thế kỷ XXI (Đương đại)',
@@ -512,13 +503,6 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
                     </span>
                   </div>
 
-                  {/* Han Tu Calligraphy Chip */}
-                  {garment.hanTu && (
-                    <div className="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-md text-xs font-serif-vi bg-slate-950/80 backdrop-blur-md text-amber-200 border border-amber-500/30">
-                      {garment.hanTu}
-                    </div>
-                  )}
-
                   {/* Garment Title on bottom of image */}
                   <div className="absolute bottom-2.5 left-3 right-3 flex items-end justify-between gap-2">
                     <div>
@@ -650,10 +634,6 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
                           <span className="text-[10px] font-mono tracking-wider text-amber-400/90 font-semibold uppercase">
                             {garment.dynasty.split('(')[0].trim()}
                           </span>
-                          <span className="text-slate-500">·</span>
-                          <span className="text-[11px] text-slate-400 font-serif-vi">
-                            {garment.hanTu}
-                          </span>
                         </div>
                         <h4
                           className={`font-serif-vi text-base sm:text-lg font-bold transition-colors ${
@@ -708,11 +688,8 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
                       </span>
                       <span className="text-xs text-slate-400">{selectedGarment.dynasty}</span>
                     </div>
-                    <h3 className="font-serif-vi text-2xl sm:text-3xl font-bold text-amber-100 flex items-center gap-3">
+                    <h3 className="font-serif-vi text-2xl sm:text-3xl font-bold text-amber-100">
                       <span>{selectedGarment.name}</span>
-                      <span className="text-lg font-normal text-amber-400/80 font-serif-vi border-l border-amber-500/40 pl-3">
-                        {selectedGarment.hanTu}
-                      </span>
                     </h3>
                   </div>
 
@@ -1014,13 +991,8 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
                           {modalGarment.period}
                         </span>
                       </div>
-                      <h3 className="font-serif-vi text-2xl sm:text-3xl font-bold text-amber-100 flex items-center gap-3">
+                      <h3 className="font-serif-vi text-2xl sm:text-3xl font-bold text-amber-100">
                         <span>{modalGarment.name}</span>
-                        {modalGarment.hanTu && (
-                          <span className="text-xl font-normal text-amber-400/80 font-serif-vi border-l border-amber-500/40 pl-3">
-                            {modalGarment.hanTu}
-                          </span>
-                        )}
                       </h3>
                     </div>
 
