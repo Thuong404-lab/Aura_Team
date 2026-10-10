@@ -337,7 +337,7 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
           className="absolute top-6 z-30 px-3 py-1.5 rounded-full bg-[#0E1626]/90 border border-amber-400/50 backdrop-blur-md shadow-xl flex items-center gap-2 pointer-events-none"
         >
           <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin" />
-          <span className="text-[11px] font-medium text-amber-200 font-serif-vi">
+          <span className="text-[11px] font-medium text-amber-200 font-sans-vi">
             Khung Ma Nơ Canh Mộc — Chọn y phục bên phải để bắt đầu mặc
           </span>
         </motion.div>
@@ -360,7 +360,7 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
               <span>⚠️ Cảnh Báo Cấm Kỵ</span>
               <span className="text-[9px] text-rose-400 underline font-normal">Sửa ngay</span>
             </div>
-            <div className="text-[11px] text-rose-100 font-serif-vi line-clamp-1 max-w-[190px]">
+            <div className="text-[11px] text-rose-100 font-sans-vi line-clamp-1 max-w-[190px]">
               {culturalEvaluation.violations[0].title}
             </div>
           </div>
@@ -1268,7 +1268,7 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.95 }}
               transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute bottom-16 z-30 px-3.5 py-1.5 rounded-full bg-[#0B1324]/95 backdrop-blur-md border border-amber-400/60 shadow-[0_4px_24px_rgba(245,158,11,0.25)] flex items-center gap-2 text-xs font-serif-vi text-amber-200 pointer-events-none"
+              className="absolute bottom-16 z-30 px-3.5 py-1.5 rounded-full bg-[#0B1324]/95 backdrop-blur-md border border-amber-400/60 shadow-[0_4px_24px_rgba(245,158,11,0.25)] flex items-center gap-2 text-xs font-sans-vi text-amber-200 pointer-events-none"
             >
               <Waves className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
               <span>

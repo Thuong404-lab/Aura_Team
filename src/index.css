@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
 
+@theme {
+  --font-sans: 'Be Vietnam Pro', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'Lora', 'Noto Serif', 'Playfair Display', 'Merriweather', Georgia, serif;
+}
+
 @layer base {
   html {
     scroll-behavior: auto;
@@ -21,8 +26,19 @@
   .will-change-transform {
     will-change: transform;
   }
+  html,
+  body,
+  button,
+  input,
+  optgroup,
+  select,
+  textarea {
+    font-family: 'Be Vietnam Pro', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
   body {
-    font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background-color: #0A0E17;
     color: #F1F5F9;
     overflow-x: hidden;
@@ -30,15 +46,18 @@
 }
 
 .font-serif-vi {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Lora', 'Noto Serif', 'Playfair Display', 'Merriweather', Georgia, serif;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
 }
 
 .font-cinzel {
-  font-family: 'Cinzel', serif;
+  font-family: 'Cinzel', 'Lora', 'Noto Serif', 'Be Vietnam Pro', serif;
+  font-feature-settings: "kern" 1, "liga" 1;
 }
 
 .font-sans-vi {
-  font-family: 'Be Vietnam Pro', sans-serif;
+  font-family: 'Be Vietnam Pro', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
 }
 
 /* Custom sleek gold scrollbars (Cross-browser: Chrome, Edge, Safari, Firefox) */

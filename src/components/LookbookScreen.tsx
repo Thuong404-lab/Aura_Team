@@ -755,7 +755,7 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                       type="text"
                       value={editionTitle}
                       onChange={(e) => setEditionTitle(e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-xl bg-[#101728] border border-slate-700 focus:border-amber-400 text-slate-100 text-xs font-serif-vi focus:outline-none transition-colors"
+                      className="w-full px-3 py-1.5 rounded-xl bg-[#101728] border border-slate-700 focus:border-amber-400 text-slate-100 text-xs font-sans-vi focus:outline-none transition-colors"
                       placeholder="Ví dụ: Dáng Hoa Áo Ngũ Thân..."
                     />
                   </div>
@@ -769,7 +769,7 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                       type="text"
                       value={subHeadline}
                       onChange={(e) => setSubHeadline(e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-xl bg-[#101728] border border-slate-700 focus:border-amber-400 text-slate-100 text-xs focus:outline-none transition-colors"
+                      className="w-full px-3 py-1.5 rounded-xl bg-[#101728] border border-slate-700 focus:border-amber-400 text-slate-100 text-xs font-sans-vi focus:outline-none transition-colors"
                       placeholder="Mô tả ý niệm giao hòa giữa truyền thống & đương đại..."
                     />
                   </div>
@@ -786,7 +786,7 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                       type="text"
                       value={poetryCouple}
                       onChange={(e) => setPoetryCouple(e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-xl bg-[#101728] border border-slate-700 focus:border-amber-400 text-amber-200 text-xs font-serif-vi italic focus:outline-none transition-colors mb-1.5"
+                      className="w-full px-3 py-1.5 rounded-xl bg-[#101728] border border-slate-700 focus:border-amber-400 text-amber-200 text-xs font-sans-vi italic focus:outline-none transition-colors mb-1.5"
                     />
 
                     {/* Quick Poetic suggestions */}
@@ -799,7 +799,7 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                             setPoetryCouple(poem);
                             soundEngine.playPluck(523.25);
                           }}
-                          className={`text-left px-2 py-1 rounded-lg text-[10.5px] transition-all cursor-pointer font-serif-vi truncate ${
+                          className={`text-left px-2 py-1 rounded-lg text-[10.5px] transition-all cursor-pointer font-sans-vi truncate ${
                             poetryCouple === poem
                               ? 'bg-amber-500/25 text-amber-200 border border-amber-400/50'
                               : 'bg-[#101626] text-slate-400 hover:text-slate-200 border border-slate-800'

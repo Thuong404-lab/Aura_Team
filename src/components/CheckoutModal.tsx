@@ -180,7 +180,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     onClose();
                     onGoHome();
                   }}
-                  className="flex-1 py-3 px-5 rounded-xl bg-amber-500 text-slate-950 font-bold text-sm hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20 font-serif-vi"
+                  className="flex-1 py-3 px-5 rounded-xl bg-amber-500 text-slate-950 font-bold text-sm hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20 font-sans-vi"
                 >
                   Về Trang Chủ Boutique
                 </button>
@@ -417,8 +417,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     </div>
 
                     <div className="flex justify-between items-baseline pt-2 border-t border-slate-800 font-bold text-amber-200 text-sm">
-                      <span className="font-serif-vi">Cần thanh toán:</span>
-                      <span className="text-base text-amber-300 font-serif-vi">
+                      <span className="font-sans-vi">Cần thanh toán:</span>
+                      <span className="text-base text-amber-300 font-sans-vi">
                         {finalTotal.toLocaleString('vi-VN')}₫
                       </span>
                     </div>
@@ -436,7 +436,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 flex items-center justify-center gap-2 shadow-xl shadow-amber-500/20 transition-all font-serif-vi disabled:opacity-50"
+                  className="w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 flex items-center justify-center gap-2 shadow-xl shadow-amber-500/20 transition-all font-sans-vi disabled:opacity-50"
                 >
                   {isSubmitting ? (
                     'Đang xử lý đơn hàng...'

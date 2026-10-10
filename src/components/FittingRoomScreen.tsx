@@ -1716,7 +1716,7 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                     {harmonyResult.score}
                     <span className="text-xs text-slate-400 font-normal">/100</span>
                   </div>
-                  <span className="text-[10px] text-amber-300/80 font-medium font-serif-vi">
+                  <span className="text-[10px] text-amber-300/80 font-medium font-sans-vi">
                     {harmonyResult.ratingBadge}
                   </span>
                 </div>

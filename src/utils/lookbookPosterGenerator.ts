@@ -53,6 +53,14 @@ export async function downloadLookbookPosterHD(
 ): Promise<string> {
   if (onProgress) onProgress('Đang chuẩn bị khung hình di sản HD...');
 
+  if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
+    try {
+      await document.fonts.ready;
+    } catch {
+      // Continue drawing if font loading promise errors
+    }
+  }
+
   const width = 1200;
   const height = 1800;
   const canvas = document.createElement('canvas');
@@ -182,7 +190,7 @@ export async function downloadLookbookPosterHD(
   // 4. TIÊU ĐỀ TRANG TRỌNG TRÊN ĐỈNH POSTER
   ctx.textAlign = 'center';
   ctx.fillStyle = '#F59E0B';
-  ctx.font = 'bold 22px "Cinzel", "Playfair Display", Georgia, serif';
+  ctx.font = 'bold 22px "Lora", "Noto Serif", "Playfair Display", "Be Vietnam Pro", serif';
   ctx.fillText('AURA • LOOKBOOK DI SẢN VIỆT PHỤC', 600, 95);
 
   ctx.fillStyle = '#CBD5E1';
@@ -770,7 +778,7 @@ export async function downloadLookbookPosterHD(
   ctx.textAlign = 'left';
   ctx.fillStyle = '#FDE68A';
   const cleanTitle = options.editionTitle || `Dáng Hoa ${options.top.name}`;
-  ctx.font = cleanTitle.length > 25 ? 'bold 28px "Playfair Display", Georgia, serif' : 'bold 34px "Playfair Display", Georgia, serif';
+  ctx.font = cleanTitle.length > 25 ? 'bold 28px "Lora", "Noto Serif", "Playfair Display", "Be Vietnam Pro", serif' : 'bold 34px "Lora", "Noto Serif", "Playfair Display", "Be Vietnam Pro", serif';
   ctx.fillText(cleanTitle, cardX + 40, cardY + 58);
 
   // Phụ đề bối cảnh
@@ -820,10 +828,10 @@ export async function downloadLookbookPosterHD(
 
   // CÂU THƠ ĐỀ TỪ NGHỆ THUẬT
   ctx.fillStyle = '#FBBF24';
-  ctx.font = 'italic bold 21px "Playfair Display", Georgia, serif';
+  ctx.font = 'italic bold 21px "Lora", "Noto Serif", "Playfair Display", "Be Vietnam Pro", serif';
   let poetry = options.poetryCouple || 'Áo xưa khép vạt mây hồng lượn / Bước khẽ nghiêng chào bóng cố đô.';
   if (ctx.measureText(`“ ${poetry} ”`).width > cardW - 80) {
-    ctx.font = 'italic bold 18px "Playfair Display", Georgia, serif';
+    ctx.font = 'italic bold 18px "Lora", "Noto Serif", "Playfair Display", "Be Vietnam Pro", serif';
   }
   ctx.fillText(`“ ${poetry} ”`, cardX + 40, cardY + 258);
 
@@ -877,7 +885,7 @@ export async function downloadLookbookPosterHD(
 
     ctx.textAlign = 'center';
     ctx.fillStyle = '#EF4444';
-    ctx.font = 'bold 15px "Cinzel", "Playfair Display", serif';
+    ctx.font = 'bold 15px "Lora", "Noto Serif", "Be Vietnam Pro", serif';
     ctx.fillText('DI SẢN VIỆT', stampX, stampY - 18);
 
     ctx.font = 'bold 11px "Be Vietnam Pro", sans-serif';

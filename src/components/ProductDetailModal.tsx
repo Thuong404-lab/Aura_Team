@@ -446,7 +446,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
                   <button
                     onClick={handleBuyNow}
-                    className="py-3 px-4 rounded-xl font-semibold text-sm bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 transition-all font-serif-vi"
+                    className="py-3 px-4 rounded-xl font-semibold text-sm bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 transition-all font-sans-vi"
                   >
                     Mua Ngay (Thanh toán)
                   </button>

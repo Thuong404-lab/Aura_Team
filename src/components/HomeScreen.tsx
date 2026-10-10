@@ -400,7 +400,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 soundEngine.playPluck(587.33);
                 onStartFitting();
               }}
-              className="w-full sm:w-auto px-8 py-3.5 rounded-xl text-sm font-bold tracking-[0.1em] uppercase text-slate-950 bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 shadow-[0_10px_36px_rgba(245,158,11,0.4)] hover:shadow-[0_14px_48px_rgba(245,158,11,0.6)] transition-all duration-300 flex items-center justify-center gap-2.5 cursor-pointer border border-amber-200/60 font-serif-vi"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-xl text-sm font-bold tracking-[0.1em] uppercase text-slate-950 bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 shadow-[0_10px_36px_rgba(245,158,11,0.4)] hover:shadow-[0_14px_48px_rgba(245,158,11,0.6)] transition-all duration-300 flex items-center justify-center gap-2.5 cursor-pointer border border-amber-200/60 font-sans-vi"
             >
               <Sparkles className="w-4 h-4 text-slate-950" />
               <span>PHÒNG THỬ PHỤC SỨC 2D</span>

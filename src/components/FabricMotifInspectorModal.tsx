@@ -678,7 +678,7 @@ export const FabricMotifInspectorModal: React.FC<FabricMotifInspectorModalProps>
           <div className="w-full lg:w-[380px] bg-[#0E1524] flex flex-col overflow-y-auto custom-scrollbar p-4 sm:p-5 gap-4 text-left">
             {/* 1. LIGHTING & SHEEN TOGGLE */}
             <div className="flex flex-col gap-2">
-              <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5 font-serif-vi">
+              <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5 font-sans-vi">
                 <Sun className="w-3.5 h-3.5 text-amber-400" />
                 Góc Chiếu Sáng & Độ Bắt Sáng:
               </span>
@@ -713,7 +713,7 @@ export const FabricMotifInspectorModal: React.FC<FabricMotifInspectorModalProps>
             {/* 2. CHỌN NHANH CHẤT LIỆU VẢI ĐỂ SOI SÁNG */}
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5 font-serif-vi">
+                <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5 font-sans-vi">
                   <Layers className="w-3.5 h-3.5 text-amber-400" />
                   Chất Liệu Vải Đang Soi:
                 </span>
