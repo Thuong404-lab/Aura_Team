@@ -556,15 +556,21 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
             y: isRevealing ? 40 : 0,
           }}
           transition={{ duration: 0.8 }}
-          className="mt-8 text-center space-y-2 pointer-events-none"
+          className="mt-8 text-center space-y-3 pointer-events-none px-4 flex flex-col items-center"
         >
-          <p className="text-xs sm:text-sm font-medium tracking-[0.35em] uppercase text-amber-300/90 font-serif-vi">
-            Khai Mở Cánh Cổng Triều Đại
-          </p>
-          <h1 className="text-3xl sm:text-5xl font-serif-vi font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-amber-300 to-amber-500 drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)]">
+          {/* Dòng chữ 'Khai Mở Cánh Cổng Triều Đại' nổi bật với phong cách thẻ bài son vàng kim */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-950/90 via-amber-900/80 to-amber-950/90 border border-amber-300/80 shadow-[0_0_20px_rgba(245,158,11,0.45)] backdrop-blur-md">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+            <p className="text-xs sm:text-sm font-bold tracking-[0.32em] uppercase text-amber-200 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] font-serif-vi">
+              Khai Mở Cánh Cổng Triều Đại
+            </p>
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+          </div>
+
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif-vi font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-amber-300 to-amber-500 drop-shadow-[0_6px_24px_rgba(0,0,0,0.95)] tracking-wide">
             Việt Phục Hoàng Triều
           </h1>
-          <p className="text-xs sm:text-sm text-slate-300/85 max-w-sm mx-auto font-sans-vi leading-relaxed">
+          <p className="text-xs sm:text-sm text-amber-100/90 max-w-md mx-auto font-sans-vi leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] bg-black/40 px-3 py-1 rounded-xl border border-amber-500/20">
             Làn mây cổ phong tản quanh vòm trời · Chạm hoặc bấm vào màn hình để khai mở
           </p>
         </motion.div>
