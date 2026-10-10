@@ -1374,6 +1374,18 @@ export const BACKDROPS: BackdropOption[] = [
 
 export const PRESET_OUTFITS: PresetOutfit[] = [
   {
+    id: 'da-yen-cung-dinh',
+    title: 'Dạ Yến Tiệc Cung Đình',
+    subtitle: 'Nét tôn quý vương triều lộng lẫy với Áo Nhật Bình Chu Sa dạ tiệc',
+    topId: 'nhat-binh',
+    bottomId: 'quan-men-lam',
+    accessoryId: 'man-ngu-sac',
+    fabricId: 'gam-cung-dinh',
+    colorId: 'do-dieu',
+    backdropId: 'hoang-thanh-hue',
+    presetScore: 99,
+  },
+  {
     id: 'tieu-thu-hue',
     title: 'Tiểu Thư Kinh Thành Huế',
     subtitle: 'Nét đài các vương giả với Áo Nhật Bình và Mấn ngũ sắc',

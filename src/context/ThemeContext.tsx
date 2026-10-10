@@ -15,23 +15,25 @@ const ThemeContext = createContext<ThemeContextType>({
 });
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Khởi tạo mặc định là 'cream' (Trắng Kem Ngà) như người dùng yêu cầu
+  // Khởi tạo mặc định là 'dark' (Dạ Yến Tiệc) theo đúng chỉ định của người dùng
   const [theme, setThemeState] = useState<AppTheme>(() => {
     if (typeof window !== 'undefined') {
-      // Clear legacy dark theme from previous versions so user doesn't get trapped in dark mode
+      // Clear legacy storage to ensure new default 'dark' (Dạ Yến Tiệc) takes effect immediately
       localStorage.removeItem('aura_theme');
-      const saved = localStorage.getItem('aura_theme_v3') as AppTheme;
+      localStorage.removeItem('aura_theme_v2');
+      localStorage.removeItem('aura_theme_v3');
+      const saved = localStorage.getItem('aura_theme_v4') as AppTheme;
       if (saved === 'cream' || saved === 'dark') {
         return saved;
       }
-      localStorage.setItem('aura_theme_v3', 'cream');
+      localStorage.setItem('aura_theme_v4', 'dark');
     }
-    return 'cream';
+    return 'dark';
   });
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('aura_theme_v3', theme);
+      localStorage.setItem('aura_theme_v4', theme);
       const root = document.documentElement;
       if (theme === 'cream') {
         root.classList.add('theme-cream');

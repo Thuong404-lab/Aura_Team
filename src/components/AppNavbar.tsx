@@ -131,7 +131,7 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
 
           {/* Right Action Icons: Theme Switcher & Mobile Menu */}
           <div className="flex items-center gap-2 sm:gap-2.5">
-            {/* Tone Switcher Button (Trắng Kem Ngà ⇄ Dạ Yến) */}
+            {/* Tone Switcher Button (Dạ Yến Tiệc ⇄ Trắng Kem Ngà) */}
             <button
               onClick={handleToggleTheme}
               className={`px-3 py-1.5 rounded-xl border flex items-center gap-1.5 text-xs font-semibold cursor-pointer transition-all shadow-xs ${
@@ -139,7 +139,7 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
                   ? 'bg-amber-100/80 hover:bg-amber-200/80 border-amber-300 text-amber-900 shadow-sm'
                   : 'bg-[#121A2D] hover:bg-[#1A2640] border-slate-700/80 text-amber-300'
               }`}
-              title={isCream ? 'Chuyển sang Tone Dạ Yến (Đêm)' : 'Chuyển sang Tone Trắng Kem Ngà (Ấm)'}
+              title={isCream ? 'Đang bật Trắng Kem Ngà. Bấm để chuyển sang Dạ Yến Tiệc (Mặc định)' : 'Đang bật Dạ Yến Tiệc (Mặc định). Bấm để chuyển sang Trắng Kem Ngà'}
             >
               {isCream ? (
                 <>
@@ -149,7 +149,7 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
               ) : (
                 <>
                   <Moon className="w-3.5 h-3.5 text-amber-400" />
-                  <span className="hidden sm:inline">Dạ Yến Đêm</span>
+                  <span className="hidden sm:inline">Dạ Yến Tiệc</span>
                 </>
               )}
             </button>
