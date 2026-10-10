@@ -353,33 +353,14 @@ Trả về JSON:
 });
 
 // Image Proxy Endpoint for CORS-free poster export
-app.all('/api/proxy-image', async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', '*');
-
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-
+app.get('/api/proxy-image', async (req, res) => {
   const imageUrl = req.query.url as string;
   if (!imageUrl) {
     return res.status(400).send('Image URL required');
   }
 
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000);
-
-    const response = await fetch(imageUrl, {
-      signal: controller.signal,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        Accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
-      },
-    });
-    clearTimeout(timeout);
-
+    const response = await fetch(imageUrl);
     if (!response.ok) {
       return res.status(response.status).send('Failed to fetch image');
     }
@@ -387,16 +368,13 @@ app.all('/api/proxy-image', async (req, res) => {
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    res.writeHead(200, {
-      'Content-Type': contentType,
-      'Content-Length': buffer.length,
-      'Access-Control-Allow-Origin': '*',
-      'Cache-Control': 'public, max-age=86400, immutable',
-    });
-    return res.end(buffer);
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    return res.send(buffer);
   } catch (err: any) {
     console.error('Image proxy error:', err?.message || err);
-    return res.status(500).send('Image proxy error: ' + (err?.message || 'unknown'));
+    return res.status(500).send('Image proxy error');
   }
 });
 

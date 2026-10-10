@@ -53,7 +53,7 @@ import {
   CULTURAL_CORE_HALLMARKS,
   DYNASTIC_PERIODS,
 } from '../data/culturalRulesData';
-import { downloadLookbookPosterHD, convertImageToBase64 } from '../utils/lookbookPosterGenerator';
+import { downloadLookbookPosterHD } from '../utils/lookbookPosterGenerator';
 import { AvatarModel } from './AvatarModel';
 import { useAppTheme } from '../context/ThemeContext';
 
@@ -99,23 +99,7 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
   const { theme } = useAppTheme();
   const isCream = theme === 'cream';
   const [selectedBackdrop, setSelectedBackdrop] = useState<BackdropOption>(BACKDROPS[0]);
-  const [backdropBase64, setBackdropBase64] = useState<string>('');
   const posterRef = useRef<HTMLDivElement>(null);
-
-  // Tự động tải trước và chuyển đổi Base64 cho ảnh bối cảnh ngay khi chọn để đảm bảo 100% không bị mất background khi xuất poster
-  useEffect(() => {
-    let isMounted = true;
-    if (selectedBackdrop?.imageUrl) {
-      convertImageToBase64(selectedBackdrop.imageUrl).then((b64) => {
-        if (isMounted && b64 && b64.startsWith('data:')) {
-          setBackdropBase64(b64);
-        }
-      });
-    }
-    return () => {
-      isMounted = false;
-    };
-  }, [selectedBackdrop]);
   const [showShareModal, setShowShareModal] = useState<boolean>(false);
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
@@ -228,10 +212,7 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
           color,
           topCustomColor,
           bottomCustomColor,
-          backdrop: {
-            ...selectedBackdrop,
-            imageUrl: backdropBase64 || selectedBackdrop.imageUrl,
-          },
+          backdrop: selectedBackdrop,
           harmonyScore: harmonyData?.score || 95,
           isAuthentic: evaluation.isAuthentic,
           editionTitle,
@@ -443,7 +424,7 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
               <div className="absolute inset-0 pointer-events-none">
                 <img
                   crossOrigin="anonymous"
-                  src={backdropBase64 || selectedBackdrop.imageUrl}
+                  src={selectedBackdrop.imageUrl}
                   alt={selectedBackdrop.name}
                   className="w-full h-full object-cover object-center filter brightness-[0.78] contrast-[1.05] transition-transform duration-700 group-hover:scale-102"
                 />
@@ -1324,7 +1305,7 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
               <div className="absolute inset-0 pointer-events-none">
                 <img
                   crossOrigin="anonymous"
-                  src={backdropBase64 || selectedBackdrop.imageUrl}
+                  src={selectedBackdrop.imageUrl}
                   alt={selectedBackdrop.name}
                   className="w-full h-full object-cover"
                 />

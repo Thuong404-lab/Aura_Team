@@ -41,31 +41,24 @@ function blobToBase64(blob: Blob): Promise<string> {
  * Bằng cách fetch trực tiếp hoặc thông qua proxy server /api/proxy-image
  */
 export async function convertImageToBase64(url: string): Promise<string> {
-  if (!url) return '';
-  if (url.startsWith('data:')) return url;
+  if (!url || url.startsWith('data:')) return url;
 
   // 1. Thử fetch qua proxy server của applet để đảm bảo 100% không bị chặn CORS
   try {
     const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(url)}`;
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 6000);
-    const res = await fetch(proxyUrl, { signal: controller.signal });
-    clearTimeout(timeout);
+    const res = await fetch(proxyUrl);
     if (res.ok) {
       const blob = await res.blob();
       const b64 = await blobToBase64(blob);
       if (b64 && b64.startsWith('data:')) return b64;
     }
   } catch (err) {
-    // Proxy fallback
+    console.warn('Proxy fetch warning, trying direct fetch:', err);
   }
 
   // 2. Thử fetch trực tiếp
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 4000);
-    const res = await fetch(url, { mode: 'cors', signal: controller.signal });
-    clearTimeout(timeout);
+    const res = await fetch(url, { mode: 'cors' });
     if (res.ok) {
       const blob = await res.blob();
       const b64 = await blobToBase64(blob);
@@ -79,9 +72,7 @@ export async function convertImageToBase64(url: string): Promise<string> {
   return new Promise((resolve) => {
     const img = new Image();
     img.crossOrigin = 'anonymous';
-    const timer = setTimeout(() => resolve(url), 4000);
     img.onload = () => {
-      clearTimeout(timer);
       try {
         const c = document.createElement('canvas');
         c.width = img.naturalWidth || 800;
@@ -97,62 +88,27 @@ export async function convertImageToBase64(url: string): Promise<string> {
       }
       resolve(url);
     };
-    img.onerror = () => {
-      clearTimeout(timer);
-      resolve(url);
-    };
+    img.onerror = () => resolve(url);
     img.src = url;
   });
 }
 
 /**
- * Tải ảnh an toàn để vẽ lên canvas (Hỗ trợ 100% data URL và remote URL không bị tainted)
+ * Tải ảnh an toàn để vẽ lên canvas
  */
-export function loadImageWithFallback(src: string): Promise<HTMLImageElement | null> {
+function loadImageWithFallback(src: string): Promise<HTMLImageElement | null> {
   return new Promise(async (resolve) => {
-    try {
-      const safeSrc = await convertImageToBase64(src);
-      const isDataOrBlob = safeSrc.startsWith('data:') || safeSrc.startsWith('blob:');
-
-      const img = new Image();
-      // QUAN TRỌNG: Tuyệt đối KHÔNG set crossOrigin trên data: URL (sẽ bị Chromium/Safari chặn CORS)
-      if (!isDataOrBlob) {
-        img.crossOrigin = 'anonymous';
-      }
-
-      const timer = setTimeout(() => {
-        resolve(null);
-      }, 8000);
-
-      img.onload = () => {
-        clearTimeout(timer);
-        resolve(img);
-      };
-
-      img.onerror = () => {
-        clearTimeout(timer);
-        if (!isDataOrBlob) {
-          // Thử tải lại không kèm crossOrigin
-          const retryImg = new Image();
-          const retryTimer = setTimeout(() => resolve(null), 4000);
-          retryImg.onload = () => {
-            clearTimeout(retryTimer);
-            resolve(retryImg);
-          };
-          retryImg.onerror = () => {
-            clearTimeout(retryTimer);
-            resolve(null);
-          };
-          retryImg.src = safeSrc;
-        } else {
-          resolve(null);
-        }
-      };
-
-      img.src = safeSrc;
-    } catch {
-      resolve(null);
-    }
+    const safeSrc = await convertImageToBase64(src);
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => {
+      const fallbackImg = new Image();
+      fallbackImg.onload = () => resolve(fallbackImg);
+      fallbackImg.onerror = () => resolve(null);
+      fallbackImg.src = safeSrc;
+    };
+    img.src = safeSrc;
   });
 }
 
@@ -285,7 +241,6 @@ export async function downloadLookbookPosterHD(
         pixelRatio: 2.5, // 480px * 2.5 = 1200px (HD 1200x1800)
         quality: 1.0,
         skipFonts: true, // Tránh lỗi CORS fonts ngoài mạng
-        fontEmbedCSS: '', // Ngăn chặn html-to-image đọc stylesheet Google Fonts gây SecurityError
         cacheBust: false,
         filter: (node) => {
           // Bỏ qua các nút điều hướng không thuộc poster nếu có
@@ -333,49 +288,16 @@ export async function downloadLookbookPosterHD(
     throw new Error('Canvas 2D context not supported');
   }
 
-  // 1. NỀN BỐI CẢNH (DANH THẮNG HOẶC HOÀNG THÀNH) - ĐẢM BẢO 100% KHÔNG MẤT BACKGROUND
+  // 1. NỀN BỐI CẢNH (DANH THẮNG HOẶC HOÀNG THÀNH)
   let backdropDrawn = false;
-
-  // Ưu tiên 1: Tận dụng trực tiếp thẻ img bối cảnh đang hiển thị trên DOM
-  if (options.element) {
-    const domImg = options.element.querySelector('img') as HTMLImageElement;
-    if (domImg && domImg.complete && domImg.naturalWidth > 0) {
-      try {
-        ctx.save();
-        try {
-          if ('filter' in ctx) {
-            ctx.filter = 'brightness(0.85) contrast(1.05)';
-          }
-        } catch {
-          // Bỏ qua nếu trình duyệt không hỗ trợ ctx.filter
-        }
-        ctx.drawImage(domImg, 0, 0, width, height);
-        ctx.restore();
-        // Kiểm tra an toàn: thử toDataURL xem canvas có bị tainted không
-        canvas.toDataURL('image/png', 0.05);
-        backdropDrawn = true;
-      } catch {
-        // Nếu tainted (do cross-origin DOM img), xóa và tải qua Base64 an toàn bên dưới
-        ctx.clearRect(0, 0, width, height);
-        backdropDrawn = false;
-      }
-    }
-  }
-
-  // Ưu tiên 2: Tải ảnh qua Base64 proxy an toàn tuyệt đối (không tainted)
-  if (!backdropDrawn && options.backdrop?.imageUrl) {
+  if (options.backdrop.imageUrl) {
     if (onProgress) onProgress('Đang hòa sắc cảnh quan danh thắng...');
     try {
       const backdropImg = await loadImageWithFallback(options.backdrop.imageUrl);
       if (backdropImg) {
         ctx.save();
-        try {
-          if ('filter' in ctx) {
-            ctx.filter = 'brightness(0.85) contrast(1.05)';
-          }
-        } catch {
-          // Bỏ qua nếu lỗi filter
-        }
+        // Áp dụng độ sáng & tương phản giống hệt preview (brightness-[0.78] contrast-[1.05])
+        ctx.filter = 'brightness(0.8) contrast(1.05)';
         ctx.drawImage(backdropImg, 0, 0, width, height);
         ctx.restore();
         backdropDrawn = true;
@@ -385,58 +307,15 @@ export async function downloadLookbookPosterHD(
     }
   }
 
-  // Dự phòng 3: Nếu hoàn toàn không thể tải ảnh mạng (mất mạng/offline), vẽ cảnh quan nghệ thuật cổ phong đặc trưng
   if (!backdropDrawn) {
-    ctx.save();
-    // Gradient cảnh quan hoàng gia sâu thẳm
+    // Nền Dạ Lam Hoàng Triều sâu thẳm
     const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
-    if (options.backdrop.id === 'hoi-an') {
-      bgGrad.addColorStop(0, '#1E120A');
-      bgGrad.addColorStop(0.4, '#381E10');
-      bgGrad.addColorStop(0.7, '#24141E');
-      bgGrad.addColorStop(1, '#0F0906');
-    } else if (options.backdrop.id === 'hoang-thanh-hue') {
-      bgGrad.addColorStop(0, '#2D1612');
-      bgGrad.addColorStop(0.4, '#441F18');
-      bgGrad.addColorStop(0.7, '#1F1A24');
-      bgGrad.addColorStop(1, '#0C0A10');
-    } else if (options.backdrop.id === 'van-mieu') {
-      bgGrad.addColorStop(0, '#15241D');
-      bgGrad.addColorStop(0.4, '#1F3A2B');
-      bgGrad.addColorStop(0.7, '#141E28');
-      bgGrad.addColorStop(1, '#080E14');
-    } else {
-      bgGrad.addColorStop(0, '#0F1829');
-      bgGrad.addColorStop(0.4, '#142036');
-      bgGrad.addColorStop(0.7, '#0B111E');
-      bgGrad.addColorStop(1, '#04070D');
-    }
+    bgGrad.addColorStop(0, '#0F1829');
+    bgGrad.addColorStop(0.35, '#0A0E1A');
+    bgGrad.addColorStop(0.7, '#070A12');
+    bgGrad.addColorStop(1, '#04060A');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, width, height);
-
-    // Vẽ vầng trăng / vầng thái dương hoàng cung huyền ảo
-    const moonGrad = ctx.createRadialGradient(width / 2, 450, 40, width / 2, 450, 320);
-    moonGrad.addColorStop(0, 'rgba(251, 191, 36, 0.35)');
-    moonGrad.addColorStop(0.4, 'rgba(245, 158, 11, 0.15)');
-    moonGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    ctx.fillStyle = moonGrad;
-    ctx.beginPath();
-    ctx.arc(width / 2, 450, 320, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Họa tiết hoa văn thủy ba / sóng triều dâng hoàng cung ở chân ảnh
-    ctx.strokeStyle = 'rgba(212, 175, 55, 0.18)';
-    ctx.lineWidth = 1.5;
-    for (let r = 0; r < 5; r++) {
-      ctx.beginPath();
-      const waveY = height - 520 + r * 28;
-      ctx.moveTo(0, waveY);
-      for (let x = 0; x < width; x += 60) {
-        ctx.quadraticCurveTo(x + 30, waveY - 14, x + 60, waveY);
-      }
-      ctx.stroke();
-    }
-    ctx.restore();
   }
 
   // 2. BỘ LỌC ÁNH SÁNG NHIẾP ẢNH NGHỆ THUẬT (ĐỒNG BỘ VỚI PREVIEW)
@@ -453,13 +332,12 @@ export async function downloadLookbookPosterHD(
   ctx.fillRect(0, 0, width, height);
   ctx.restore();
 
-  // 3. LỚP VIGNETTE ĐEN MỊN (GIỮ BỐI CẢNH Ở GIỮA SÁNG RÕ, CHỈ LÀM DỊU ĐỈNH VÀ ĐÁY ĐỂ CHỮ NỔI RÕ)
+  // 3. LỚP VIGNETTE ĐEN MỊN (TOP VÀ BOTTOM ĐỂ NỔI BẬT CHỮ)
   const vignetteGrad = ctx.createLinearGradient(0, 0, 0, height);
-  vignetteGrad.addColorStop(0, 'rgba(0, 0, 0, 0.55)');
-  vignetteGrad.addColorStop(0.12, 'rgba(0, 0, 0, 0.20)');
-  vignetteGrad.addColorStop(0.45, 'rgba(0, 0, 0, 0.08)');
-  vignetteGrad.addColorStop(0.70, 'rgba(0, 0, 0, 0.40)');
-  vignetteGrad.addColorStop(0.88, 'rgba(0, 0, 0, 0.88)');
+  vignetteGrad.addColorStop(0, 'rgba(0, 0, 0, 0.65)');
+  vignetteGrad.addColorStop(0.18, 'rgba(0, 0, 0, 0.25)');
+  vignetteGrad.addColorStop(0.65, 'rgba(0, 0, 0, 0.45)');
+  vignetteGrad.addColorStop(0.85, 'rgba(0, 0, 0, 0.92)');
   vignetteGrad.addColorStop(1, 'rgba(0, 0, 0, 0.98)');
   ctx.fillStyle = vignetteGrad;
   ctx.fillRect(0, 0, width, height);
