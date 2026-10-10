@@ -24,7 +24,7 @@ if (apiKey && apiKey !== 'MY_GEMINI_API_KEY' && !apiKey.startsWith('MY_')) {
   ai = new GoogleGenAI({
     apiKey,
     httpOptions: {
-      timeout: 5000,
+      timeout: 30000,
       headers: {
         'User-Agent': 'aistudio-build',
       },
