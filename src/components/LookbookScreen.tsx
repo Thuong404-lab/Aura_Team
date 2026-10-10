@@ -12,7 +12,6 @@ import {
 import {
   Download,
   Share2,
-  ArrowLeft,
   Sparkles,
   MapPin,
   Camera,
@@ -133,12 +132,27 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
     `Bản giao hưởng giữa ngàn năm di sản và nhịp thở đương đại tại ${selectedBackdrop.name}`
   );
   const [poetryCouple, setPoetryCouple] = useState<string>(HISTORIC_POEMS[0]);
-  const [personalNote, setPersonalNote] = useState<string>(
-    harmonyData?.detailedCritique ||
-      `Dưới bóng tường thành rêu phong tại ${selectedBackdrop.name}, tà ${top.name} buông suông dáng chữ A thanh thoát, giữ trọn đường sống áo mũi gáy trung chính và năm cúc ngũ thường mẫu mực.`
-  );
+
+  const defaultCritique = useMemo(() => {
+    if (harmonyData?.detailedCritique && !harmonyData.detailedCritique.includes('Khung ma nơ canh') && !harmonyData.detailedCritique.includes('đang để mộc')) {
+      return harmonyData.detailedCritique;
+    }
+    return `Dưới bóng thắng cảnh tại ${selectedBackdrop.name}, phục sắc ${top.name} phối hòa cùng ${bottom.name} buông tà đoan trang, tôn vinh nét đài các thanh lịch của trang phục cổ truyền Việt Nam.`;
+  }, [harmonyData, selectedBackdrop, top, bottom]);
+
+  const [personalNote, setPersonalNote] = useState<string>(defaultCritique);
 
   const [isGeneratingStory, setIsGeneratingStory] = useState<boolean>(false);
+
+  // Sync personalNote if it contained the mannequin placeholder or when outfit/backdrop changes
+  useEffect(() => {
+    setPersonalNote((prev) => {
+      if (!prev || prev.includes('Khung ma nơ canh') || prev.includes('đang để mộc')) {
+        return defaultCritique;
+      }
+      return prev;
+    });
+  }, [defaultCritique]);
 
   // Update subtitle when backdrop changes only if it still contains the template location phrase
   useEffect(() => {
@@ -266,88 +280,31 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
         </div>
       </div>
 
-      {/* Top Navigation Bar */}
-      <header
-        className={`relative z-20 w-full border-b backdrop-blur-md sticky top-0 transition-colors ${
-          isCream
-            ? 'border-amber-200/90 bg-[#FAF7F0]/95 text-stone-900 shadow-xs'
-            : 'border-slate-800/80 bg-[#0C1220]/90 text-slate-100'
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-3">
-          <button
-            onClick={onBackToFitting}
-            className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 text-xs font-semibold cursor-pointer shrink-0 ${
-              isCream
-                ? 'text-stone-700 hover:text-amber-950 hover:bg-amber-100/70 border border-amber-200/60'
-                : 'text-slate-300 hover:text-amber-300 hover:bg-slate-800/80'
-            }`}
-          >
-            <ArrowLeft className="w-4 h-4 text-amber-600" />
-            <span>← Quay lại Phòng Thử Đồ</span>
-          </button>
-
-          <div className="flex items-center gap-2">
-            <span
-              className={`text-[11px] font-serif-vi hidden md:inline font-medium ${
-                isCream ? 'text-amber-950' : 'text-amber-300/80'
-              }`}
-            >
-              📖 Xưởng Biên Tập & Xuất Bản Poster Lookbook
-            </span>
-
-            {/* Quick Export Button in Navbar */}
-            <button
-              onClick={handleDownloadPoster}
-              disabled={isDownloading}
-              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white text-xs font-bold shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-60 transition-all active:scale-95"
-            >
-              {isDownloading ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                  <span>Đang xuất HD...</span>
-                </>
-              ) : downloadSuccess ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-white stroke-[3]" />
-                  <span>Đã tải Poster HD!</span>
-                </>
-              ) : (
-                <>
-                  <Camera className="w-3.5 h-3.5 text-white" />
-                  <span>Tải Poster HD (PNG)</span>
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      </header>
-
       {/* MAIN CONTENT AREA */}
       <main className="relative z-10 flex-1 flex flex-col items-center justify-start p-3 sm:p-5 md:p-6 max-w-7xl mx-auto w-full">
-        {/* Workspace Title & Clarity Explanation Banner */}
+        {/* Workspace Title & Stats Bar */}
         <div className="w-full mb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                <span className={`text-[11px] font-bold tracking-widest uppercase ${
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                <span className={`text-[11px] font-bold tracking-widest uppercase font-serif-vi ${
                   isCream ? 'text-amber-900' : 'text-amber-400'
                 }`}>
-                  XƯỞNG BIÊN TẬP POSTER LOOKBOOK DI SẢN
+                  XƯỞNG BIÊN TẬP LOOKBOOK DI SẢN
                 </span>
               </div>
-              <h1 className={`text-xl sm:text-2xl lg:text-3xl font-bold font-serif-vi mt-0.5 ${
+              <h1 className={`text-xl sm:text-2xl lg:text-3xl font-bold font-serif-vi tracking-wide mt-0.5 ${
                 isCream ? 'text-amber-950' : 'text-amber-100'
               }`}>
-                Soạn Thảo & Xuất Bản Poster Di Sản
+                Biên Tập & Xuất Bản Poster Di Sản
               </h1>
             </div>
 
-            {/* Quick Stats, Authenticity Pill & Guide Icon Button */}
+            {/* Quick Stats, Authenticity Pill & Guide Button */}
             <div className="flex items-center gap-2 shrink-0 flex-wrap">
-              <div className={`px-3 py-1.5 rounded-xl border text-xs flex items-center gap-2 shadow-xs ${
-                isCream ? 'bg-amber-100/70 border-amber-200/90 text-stone-800' : 'bg-[#121A2C] border-slate-700/80 text-slate-100'
+              <div className={`px-3 py-1.5 rounded-xl border text-xs flex items-center gap-2 backdrop-blur-md shadow-xs ${
+                isCream ? 'bg-amber-100/70 border-amber-300 text-stone-800' : 'bg-[#121A2C]/90 border-amber-500/30 text-slate-100'
               }`}>
                 <span className={`${isCream ? 'text-stone-600' : 'text-slate-400'} text-[11px]`}>Điểm Di Sản:</span>
                 <span className={`font-bold font-serif-vi ${isCream ? 'text-amber-900' : 'text-amber-300'}`}>
@@ -373,7 +330,6 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                 <span>{evaluation.isAuthentic ? 'Đạt Quy Chuẩn' : 'Cần Lưu Ý'}</span>
               </div>
 
-              {/* Icon hướng dẫn gọn gàng tinh tế */}
               <button
                 type="button"
                 onClick={() => {
@@ -682,57 +638,63 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
             <div data-lenis-prevent="true" className="flex-1 overflow-y-auto overscroll-contain pr-1.5 custom-scrollbar space-y-3.5">
               {/* Authenticity Assessment Notification Card */}
               <div
-                className={`p-3 rounded-2xl border flex items-start gap-2.5 shadow-2xs transition-all ${
+                className={`p-2.5 rounded-2xl border flex items-center justify-between gap-2.5 shadow-2xs transition-all ${
                   evaluation.isAuthentic
                     ? isCream
                       ? 'bg-emerald-50/90 border-emerald-300 text-emerald-950'
-                      : 'bg-emerald-950/35 border-emerald-500/40 text-emerald-200'
+                      : 'bg-emerald-950/40 border-emerald-500/40 text-emerald-200'
                     : isCream
                     ? 'bg-amber-50/90 border-amber-300 text-amber-950'
                     : 'bg-amber-950/40 border-amber-500/50 text-amber-200'
                 }`}
               >
-                {evaluation.isAuthentic ? (
-                  <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ${isCream ? 'text-emerald-700' : 'text-emerald-400'}`} />
-                ) : (
-                  <AlertCircle className={`w-4 h-4 shrink-0 mt-0.5 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
-                )}
-                <div className="flex-1 text-xs">
-                  <div className="flex items-center justify-between">
-                    <strong className={`text-xs font-serif-vi font-bold ${isCream ? 'text-stone-900' : ''}`}>
-                      {evaluation.isAuthentic
-                        ? 'Đạt Quy Chuẩn Di Sản Việt Phục'
-                        : 'Lưu Ý Quy Thức Việt Phục'}
-                    </strong>
-                    <span
-                      className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md font-bold ${
-                        isCream ? 'bg-amber-100 text-amber-950 border border-amber-200' : 'bg-black/40 text-amber-300'
-                      }`}
-                    >
-                      {evaluation.matchedPeriod.periodText}
-                    </span>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 border ${
+                    evaluation.isAuthentic
+                      ? isCream ? 'bg-emerald-100 border-emerald-300' : 'bg-emerald-500/20 border-emerald-500/50'
+                      : isCream ? 'bg-amber-100 border-amber-300' : 'bg-amber-500/20 border-amber-500/50'
+                  }`}>
+                    {evaluation.isAuthentic ? (
+                      <CheckCircle2 className={`w-4 h-4 ${isCream ? 'text-emerald-700' : 'text-emerald-400'}`} />
+                    ) : (
+                      <AlertCircle className={`w-4 h-4 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
+                    )}
                   </div>
-                  <p className={`mt-0.5 leading-relaxed text-[11px] ${isCream ? 'text-stone-700' : 'text-slate-300'}`}>
-                    {evaluation.keyAdvice}
-                  </p>
-
-                  {!evaluation.isAuthentic && onSelectBottom && (
-                    <button
-                      type="button"
-                      onClick={handleQuickFixPants}
-                      className="mt-2 px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[10.5px] flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
-                    >
-                      <Layers className="w-3.5 h-3.5" />
-                      <span>Đổi sang Quần Ống Sớ Lụa Bạch (Chuẩn 2 ống)</span>
-                    </button>
-                  )}
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs font-serif-vi font-bold ${isCream ? 'text-stone-900' : 'text-slate-100'}`}>
+                        {evaluation.isAuthentic ? 'Đạt Quy Chuẩn Di Sản' : 'Lưu Ý Quy Thức Cổ Phục'}
+                      </span>
+                      <span
+                        className={`text-[9.5px] uppercase tracking-wider px-2 py-0.5 rounded-md font-bold font-mono ${
+                          isCream ? 'bg-amber-100 text-amber-950 border border-amber-200' : 'bg-black/50 text-amber-300 border border-amber-500/30'
+                        }`}
+                      >
+                        {evaluation.matchedPeriod.periodText}
+                      </span>
+                    </div>
+                    <p className={`text-[10.5px] truncate max-w-sm ${isCream ? 'text-stone-600' : 'text-slate-300'}`}>
+                      {evaluation.keyAdvice}
+                    </p>
+                  </div>
                 </div>
+
+                {!evaluation.isAuthentic && onSelectBottom && (
+                  <button
+                    type="button"
+                    onClick={handleQuickFixPants}
+                    className="px-2.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-[10.5px] flex items-center gap-1 transition-all shadow-xs cursor-pointer shrink-0"
+                  >
+                    <Layers className="w-3.5 h-3.5" />
+                    <span>Đổi Quần 2 Ống</span>
+                  </button>
+                )}
               </div>
 
               {/* Editorial Workspace Tabs - 4 Distinct Panels */}
               <div
                 className={`grid grid-cols-4 gap-1 p-1 rounded-2xl text-center border transition-colors ${
-                  isCream ? 'bg-amber-100/60 border-amber-200/90' : 'bg-[#131C2E] border-slate-700/60'
+                  isCream ? 'bg-amber-100/60 border-amber-200/90' : 'bg-[#090F1E]/90 border-slate-800'
                 }`}
               >
                 <button
@@ -741,11 +703,11 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                     setActiveTab('editor');
                     soundEngine.playPluck(440);
                   }}
-                  className={`py-2 px-1 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                  className={`py-2 px-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                     activeTab === 'editor'
                       ? isCream
                         ? 'bg-amber-700 text-white shadow-xs font-bold'
-                        : 'bg-amber-500/25 text-amber-300 border border-amber-400/50 shadow-xs'
+                        : 'bg-gradient-to-r from-amber-500/25 to-amber-600/25 text-amber-200 border border-amber-400/60 shadow-xs font-bold'
                       : isCream
                       ? 'text-stone-600 hover:text-stone-900 hover:bg-amber-200/50'
                       : 'text-slate-400 hover:text-slate-200'
@@ -761,11 +723,11 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                     setActiveTab('backdrop');
                     soundEngine.playPluck(493.88);
                   }}
-                  className={`py-2 px-1 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                  className={`py-2 px-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                     activeTab === 'backdrop'
                       ? isCream
                         ? 'bg-amber-700 text-white shadow-xs font-bold'
-                        : 'bg-amber-500/25 text-amber-300 border border-amber-400/50 shadow-xs'
+                        : 'bg-gradient-to-r from-amber-500/25 to-amber-600/25 text-amber-200 border border-amber-400/60 shadow-xs font-bold'
                       : isCream
                       ? 'text-stone-600 hover:text-stone-900 hover:bg-amber-200/50'
                       : 'text-slate-400 hover:text-slate-200'
@@ -781,11 +743,11 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                     setActiveTab('hallmarks');
                     soundEngine.playPluck(523.25);
                   }}
-                  className={`py-2 px-1 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                  className={`py-2 px-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                     activeTab === 'hallmarks'
                       ? isCream
                         ? 'bg-amber-700 text-white shadow-xs font-bold'
-                        : 'bg-amber-500/25 text-amber-300 border border-amber-400/50 shadow-xs'
+                        : 'bg-gradient-to-r from-amber-500/25 to-amber-600/25 text-amber-200 border border-amber-400/60 shadow-xs font-bold'
                       : isCream
                       ? 'text-stone-600 hover:text-stone-900 hover:bg-amber-200/50'
                       : 'text-slate-400 hover:text-slate-200'
@@ -801,11 +763,11 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                     setActiveTab('rules');
                     soundEngine.playPluck(587.33);
                   }}
-                  className={`py-2 px-1 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                  className={`py-2 px-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                     activeTab === 'rules'
                       ? isCream
                         ? 'bg-amber-700 text-white shadow-xs font-bold'
-                        : 'bg-amber-500/25 text-amber-300 border border-amber-400/50 shadow-xs'
+                        : 'bg-gradient-to-r from-amber-500/25 to-amber-600/25 text-amber-200 border border-amber-400/60 shadow-xs font-bold'
                       : isCream
                       ? 'text-stone-600 hover:text-stone-900 hover:bg-amber-200/50'
                       : 'text-slate-400 hover:text-slate-200'
@@ -823,24 +785,26 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                 <div className="space-y-3 animate-in fade-in duration-300 text-xs">
                   {/* AI Quick Generator Banner with Notification */}
                   <div
-                    className={`flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-xl border ${
+                    className={`flex items-center justify-between gap-3 p-3 rounded-2xl border transition-all ${
                       isCream
-                        ? 'bg-gradient-to-r from-amber-100/90 via-amber-50 to-amber-100/40 border-amber-300/80 text-stone-900'
-                        : 'bg-gradient-to-r from-amber-500/15 via-amber-600/10 to-transparent border-amber-400/40'
+                        ? 'bg-gradient-to-r from-amber-100/90 via-amber-50 to-amber-100/40 border-amber-300/80 text-stone-900 shadow-xs'
+                        : 'bg-gradient-to-r from-amber-500/15 via-[#161F33] to-amber-500/10 border-amber-400/40 shadow-sm'
                     }`}
                   >
-                    <div className="flex items-center gap-2">
-                      <Sparkles className={`w-4 h-4 shrink-0 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
-                      <div>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center shrink-0">
+                        <Sparkles className={`w-4 h-4 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
+                      </div>
+                      <div className="truncate">
                         <span
-                          className={`text-[11px] font-bold block leading-tight ${
+                          className={`text-xs font-bold block leading-tight font-serif-vi ${
                             isCream ? 'text-amber-950' : 'text-amber-200'
                           }`}
                         >
                           Trợ Lý AI Sáng Tác Thơ & Lời Bình
                         </span>
-                        <span className={`text-[10px] block ${isCream ? 'text-stone-600' : 'text-slate-400'}`}>
-                          Tự động sinh tiêu đề, thơ đề từ và lời bình văn hóa
+                        <span className={`text-[10.5px] block truncate ${isCream ? 'text-stone-600' : 'text-slate-400'}`}>
+                          Tự động sinh tiêu đề, thơ đề từ và ý niệm di sản
                         </span>
                       </div>
                     </div>
@@ -848,7 +812,7 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                       type="button"
                       onClick={handleGenerateAiStory}
                       disabled={isGeneratingStory}
-                      className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-60 shrink-0"
+                      className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95 disabled:opacity-60 shrink-0 font-serif-vi"
                     >
                       {isGeneratingStory ? (
                         <>
@@ -857,7 +821,7 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                         </>
                       ) : (
                         <>
-                          <Sparkles className="w-3.5 h-3.5" />
+                          <Sparkles className="w-3.5 h-3.5 fill-slate-950" />
                           <span>AI Sáng Tác</span>
                         </>
                       )}
@@ -866,10 +830,10 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
 
                   {aiSuccessBadge && (
                     <div
-                      className={`p-2 rounded-xl border text-[11px] flex items-center gap-2 animate-in fade-in ${
+                      className={`p-2.5 rounded-xl border text-[11px] flex items-center gap-2 animate-in fade-in ${
                         isCream
-                          ? 'bg-emerald-100 border-emerald-300 text-emerald-950'
-                          : 'bg-emerald-950/60 border-emerald-500/40 text-emerald-300'
+                          ? 'bg-emerald-100 border-emerald-300 text-emerald-950 font-medium'
+                          : 'bg-emerald-950/70 border-emerald-500/50 text-emerald-300'
                       }`}
                     >
                       <Check className={`w-3.5 h-3.5 ${isCream ? 'text-emerald-700' : 'text-emerald-400'}`} />
@@ -879,17 +843,17 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
 
                   {/* Tiêu đề ấn bản */}
                   <div>
-                    <label className={`block text-[11px] font-bold mb-1 ${isCream ? 'text-amber-950' : 'text-amber-400'}`}>
+                    <label className={`block text-xs font-bold mb-1.5 font-serif-vi ${isCream ? 'text-amber-950' : 'text-amber-300'}`}>
                       Tên ấn bản Lookbook:
                     </label>
                     <input
                       type="text"
                       value={editionTitle}
                       onChange={(e) => setEditionTitle(e.target.value)}
-                      className={`w-full px-3 py-1.5 rounded-xl text-xs font-sans-vi focus:outline-none transition-colors border ${
+                      className={`w-full px-3.5 py-2 rounded-xl text-xs font-sans-vi focus:outline-none transition-all border ${
                         isCream
-                          ? 'bg-white border-amber-200/90 focus:border-amber-600 text-stone-900 placeholder:text-stone-400 shadow-2xs'
-                          : 'bg-[#101728] border-slate-700 focus:border-amber-400 text-slate-100'
+                          ? 'bg-white border-amber-200/90 focus:border-amber-600 text-stone-900 placeholder:text-stone-400 shadow-2xs focus:ring-1 focus:ring-amber-500/20'
+                          : 'bg-[#090F1E] border-slate-700/80 focus:border-amber-400 text-slate-100 shadow-inner focus:ring-1 focus:ring-amber-400/30'
                       }`}
                       placeholder="Ví dụ: Dáng Hoa Áo Ngũ Thân..."
                     />
@@ -897,17 +861,17 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
 
                   {/* Phụ đề & Bối cảnh */}
                   <div>
-                    <label className={`block text-[11px] font-bold mb-1 ${isCream ? 'text-amber-950' : 'text-amber-400'}`}>
+                    <label className={`block text-xs font-bold mb-1.5 font-serif-vi ${isCream ? 'text-amber-950' : 'text-amber-300'}`}>
                       Phụ đề tác phẩm & Ý niệm:
                     </label>
                     <input
                       type="text"
                       value={subHeadline}
                       onChange={(e) => setSubHeadline(e.target.value)}
-                      className={`w-full px-3 py-1.5 rounded-xl text-xs font-sans-vi focus:outline-none transition-colors border ${
+                      className={`w-full px-3.5 py-2 rounded-xl text-xs font-sans-vi focus:outline-none transition-all border ${
                         isCream
-                          ? 'bg-white border-amber-200/90 focus:border-amber-600 text-stone-900 placeholder:text-stone-400 shadow-2xs'
-                          : 'bg-[#101728] border-slate-700 focus:border-amber-400 text-slate-100'
+                          ? 'bg-white border-amber-200/90 focus:border-amber-600 text-stone-900 placeholder:text-stone-400 shadow-2xs focus:ring-1 focus:ring-amber-500/20'
+                          : 'bg-[#090F1E] border-slate-700/80 focus:border-amber-400 text-slate-100 shadow-inner focus:ring-1 focus:ring-amber-400/30'
                       }`}
                       placeholder="Mô tả ý niệm giao hòa giữa truyền thống & đương đại..."
                     />
@@ -915,22 +879,22 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
 
                   {/* Câu thơ đề từ */}
                   <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className={`text-[11px] font-bold ${isCream ? 'text-amber-950' : 'text-amber-400'}`}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className={`text-xs font-bold font-serif-vi ${isCream ? 'text-amber-950' : 'text-amber-300'}`}>
                         Câu thơ đề từ (In trên Poster):
                       </label>
                       <span className={`text-[10px] ${isCream ? 'text-stone-500' : 'text-slate-400'}`}>
-                        Chọn nhanh bên dưới
+                        Chọn nhanh câu thơ dưới:
                       </span>
                     </div>
                     <input
                       type="text"
                       value={poetryCouple}
                       onChange={(e) => setPoetryCouple(e.target.value)}
-                      className={`w-full px-3 py-1.5 rounded-xl text-xs font-sans-vi italic focus:outline-none transition-colors mb-1.5 border ${
+                      className={`w-full px-3.5 py-2 rounded-xl text-xs font-sans-vi italic focus:outline-none transition-all mb-2 border ${
                         isCream
-                          ? 'bg-white border-amber-200/90 focus:border-amber-600 text-amber-900 font-semibold shadow-2xs'
-                          : 'bg-[#101728] border-slate-700 focus:border-amber-400 text-amber-200'
+                          ? 'bg-white border-amber-200/90 focus:border-amber-600 text-amber-900 font-semibold shadow-2xs focus:ring-1 focus:ring-amber-500/20'
+                          : 'bg-[#090F1E] border-slate-700/80 focus:border-amber-400 text-amber-200 shadow-inner focus:ring-1 focus:ring-amber-400/30'
                       }`}
                     />
 
@@ -944,14 +908,14 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                             setPoetryCouple(poem);
                             soundEngine.playPluck(523.25);
                           }}
-                          className={`text-left px-2.5 py-1.5 rounded-lg text-[10.5px] transition-all cursor-pointer font-sans-vi leading-snug border ${
+                          className={`text-left px-2.5 py-1.5 rounded-xl text-[10.5px] transition-all cursor-pointer font-serif-vi leading-snug border ${
                             poetryCouple === poem
                               ? isCream
-                                ? 'bg-amber-200/90 text-amber-950 border-amber-300 font-semibold shadow-2xs'
-                                : 'bg-amber-500/25 text-amber-200 border-amber-400/50'
+                                ? 'bg-amber-200/90 text-amber-950 border-amber-400 font-semibold shadow-2xs'
+                                : 'bg-amber-500/20 text-amber-200 border-amber-400/60 shadow-xs'
                               : isCream
-                              ? 'bg-white text-stone-700 hover:bg-amber-50/70 border-amber-200/70'
-                              : 'bg-[#101626] text-slate-400 hover:text-slate-200 border-slate-800'
+                              ? 'bg-white text-stone-700 hover:bg-amber-50/70 border-amber-200/70 hover:border-amber-300'
+                              : 'bg-[#090F1E]/80 text-slate-400 hover:text-slate-200 border-slate-800 hover:border-slate-700'
                           }`}
                         >
                           “{poem}”
@@ -962,8 +926,8 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
 
                   {/* Lời bình & Cảm nghĩ cá nhân */}
                   <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className={`text-[11px] font-bold ${isCream ? 'text-amber-950' : 'text-amber-400'}`}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className={`text-xs font-bold font-serif-vi ${isCream ? 'text-amber-950' : 'text-amber-300'}`}>
                         Lời bình & Bút ký di sản (In chân poster):
                       </label>
                       <span className={`text-[10px] ${isCream ? 'text-stone-500' : 'text-slate-400'}`}>
@@ -975,10 +939,10 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                       maxLength={180}
                       value={personalNote}
                       onChange={(e) => setPersonalNote(e.target.value)}
-                      className={`w-full px-3 py-1.5 rounded-xl text-xs leading-relaxed focus:outline-none transition-colors border ${
+                      className={`w-full px-3.5 py-2 rounded-xl text-xs leading-relaxed focus:outline-none transition-all border ${
                         isCream
-                          ? 'bg-white border-amber-200/90 focus:border-amber-600 text-stone-900 placeholder:text-stone-400 shadow-2xs'
-                          : 'bg-[#101728] border-slate-700 focus:border-amber-400 text-slate-200'
+                          ? 'bg-white border-amber-200/90 focus:border-amber-600 text-stone-900 placeholder:text-stone-400 shadow-2xs focus:ring-1 focus:ring-amber-500/20'
+                          : 'bg-[#090F1E] border-slate-700/80 focus:border-amber-400 text-slate-200 shadow-inner focus:ring-1 focus:ring-amber-400/30'
                       }`}
                       placeholder="Nhập cảm nghĩ về bản phối cổ phục..."
                     />
@@ -986,14 +950,16 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
 
                   {/* Con dấu quy chuẩn */}
                   <div
-                    className={`flex items-center justify-between p-2.5 rounded-xl border ${
-                      isCream ? 'bg-white border-amber-200/80 text-stone-900 shadow-2xs' : 'bg-[#101728] border-slate-700/80 text-slate-200'
+                    className={`flex items-center justify-between p-3 rounded-2xl border transition-all ${
+                      isCream ? 'bg-white border-amber-200/80 text-stone-900 shadow-2xs' : 'bg-[#090F1E] border-slate-800 text-slate-200'
                     }`}
                   >
-                    <div className="flex items-center gap-2">
-                      <ShieldCheck className={`w-4 h-4 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-400/40 flex items-center justify-center shrink-0">
+                        <ShieldCheck className={`w-4 h-4 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
+                      </div>
                       <div>
-                        <div className={`text-[11px] font-bold ${isCream ? 'text-stone-900' : 'text-slate-200'}`}>
+                        <div className={`text-xs font-bold font-serif-vi ${isCream ? 'text-stone-900' : 'text-slate-100'}`}>
                           Con Dấu Triện Đỏ Di Sản Việt
                         </div>
                         <div className={`text-[10px] ${isCream ? 'text-stone-500' : 'text-slate-400'}`}>
@@ -1008,7 +974,7 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                         onChange={(e) => setShowSeal(e.target.checked)}
                         className="sr-only peer"
                       />
-                      <div className="w-9 h-5 bg-stone-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-600" />
+                      <div className="w-9 h-5 bg-stone-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500" />
                     </label>
                   </div>
                 </div>
@@ -1260,32 +1226,32 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
             </div>
 
             {/* Quick Action Buttons Bar */}
-            <div className={`pt-2 border-t flex flex-col gap-2 ${
-              isCream ? 'border-amber-200/80' : 'border-slate-700/60'
+            <div className={`pt-3 border-t flex flex-col gap-2 ${
+              isCream ? 'border-amber-200/80' : 'border-slate-800'
             }`}>
-              <div className="flex flex-col sm:flex-row items-center gap-2">
+              <div className="flex flex-col sm:flex-row items-center gap-2.5">
                 {/* Nút chính: Tải Poster Lookbook Di Sản (HD PNG) */}
                 <button
                   type="button"
                   onClick={handleDownloadPoster}
                   disabled={isDownloading}
-                  className="w-full sm:flex-1 py-3 px-4 rounded-2xl text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-98 disabled:opacity-60"
+                  className="w-full sm:flex-1 py-3 px-5 rounded-2xl text-xs sm:text-sm font-bold uppercase tracking-wider bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-[0_4px_20px_rgba(245,158,11,0.25)] hover:shadow-[0_4px_25px_rgba(245,158,11,0.4)] active:scale-98 disabled:opacity-60 font-serif-vi"
                   title="Tải Poster Lookbook Di Sản chất lượng cao (HD 1200x1800 PNG) về máy"
                 >
                   {isDownloading ? (
                     <>
-                      <Loader2 className="w-4 h-4 text-white animate-spin" />
+                      <Loader2 className="w-4 h-4 text-slate-950 animate-spin" />
                       <span>{downloadStatus || 'Đang kết xuất Poster HD...'}</span>
                     </>
                   ) : downloadSuccess ? (
                     <>
-                      <Check className="w-4 h-4 text-white stroke-[3]" />
+                      <Check className="w-4 h-4 text-slate-950 stroke-[3]" />
                       <span>Đã tải Poster HD thành công!</span>
                     </>
                   ) : (
                     <>
-                      <Camera className="w-4 h-4 text-white" />
-                      <span>Tải Poster Lookbook (HD PNG)</span>
+                      <Camera className="w-4 h-4 text-slate-950" />
+                      <span>TẢI POSTER LOOKBOOK (HD PNG)</span>
                     </>
                   )}
                 </button>
@@ -1294,10 +1260,10 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                 <button
                   type="button"
                   onClick={handleShare}
-                  className={`w-full sm:w-auto py-3 px-4 rounded-2xl text-xs font-bold uppercase tracking-wider border transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs shrink-0 ${
+                  className={`w-full sm:w-auto py-3 px-5 rounded-2xl text-xs sm:text-sm font-bold uppercase tracking-wider border transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm shrink-0 font-serif-vi ${
                     isCream
-                      ? 'bg-white hover:bg-amber-50 text-stone-800 border-amber-200 hover:border-amber-400'
-                      : 'bg-[#131C2E] hover:bg-[#1A2640] text-slate-100 border-slate-700 hover:border-amber-400/60'
+                      ? 'bg-white hover:bg-amber-50 text-stone-800 border-amber-300 hover:border-amber-400'
+                      : 'bg-[#121A2C]/90 hover:bg-[#1A2640] text-amber-200 border-amber-500/40 hover:border-amber-400 hover:text-amber-100'
                   }`}
                 >
                   <Share2 className={`w-4 h-4 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />

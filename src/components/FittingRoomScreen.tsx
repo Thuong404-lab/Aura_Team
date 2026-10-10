@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   WardrobeItem,
@@ -138,6 +138,8 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
 }) => {
   const { theme } = useAppTheme();
   const isCream = theme === 'cream';
+
+  const rightColumnRef = useRef<HTMLDivElement>(null);
 
   // Navigation Tabs for Wardrobe
   const [activeTab, setActiveTab] = useState<'top' | 'bottom' | 'accessory' | 'color' | 'fabric'>('top');
@@ -581,7 +583,7 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
   const hasCriticalViolations = culturalRulesData.violations.some((v) => v.severity === 'critical');
 
   return (
-    <div className={`min-h-screen w-full flex flex-col relative overflow-x-hidden font-sans-vi transition-colors duration-300 ${
+    <div className={`min-h-screen md:h-[calc(100vh-4.25rem)] md:max-h-[calc(100vh-4.25rem)] w-full flex flex-col relative overflow-x-clip font-sans-vi transition-colors duration-300 ${
       isCream ? 'bg-[#FAF7F0] text-stone-900' : 'bg-[#0A0E17] text-slate-100'
     }`}>
       {/* Toast Notification upon Auto-Fix */}
@@ -620,9 +622,9 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
       </div>
 
       {/* Main Workspace */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-start p-3 sm:p-5 md:p-8 max-w-7xl mx-auto w-full">
+      <main className="relative z-10 flex-1 min-h-0 flex flex-col items-center justify-start p-3 sm:p-4 md:p-5 max-w-7xl mx-auto w-full md:overflow-hidden">
         {/* Header Breadcrumbs & Action Bar */}
-        <div className="w-full mb-3 md:mb-5 text-left flex flex-col sm:flex-row sm:items-end justify-between gap-2.5">
+        <div className="w-full shrink-0 mb-2 md:mb-3 text-left flex flex-col sm:flex-row sm:items-end justify-between gap-2.5">
           <div>
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-amber-400" />
@@ -658,26 +660,25 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
               <RotateCcw className="w-3.5 h-3.5 text-slate-400 group-hover:rotate-180 transition-transform" />
               <span>Cởi Hết (Khung Mộc)</span>
             </button>
-
-            {/* Back Home */}
-            <button
-              onClick={onGoHome}
-              className="px-3 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-400 hover:text-slate-200 text-xs transition-colors cursor-pointer"
-            >
-              Về Trang Chủ
-            </button>
           </div>
         </div>
 
         {/* Workspace 2-Column Grid */}
-        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-8 items-start">
+        <div className="w-full flex-1 min-h-0 grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-8 items-stretch md:overflow-hidden">
           {/* ==========================================================
-              LEFT COLUMN: Live 2D Mannequin Visualizer & Quick Wardrobe Bar
+              LEFT COLUMN: Live 2D Mannequin Visualizer (CỐ ĐỊNH HOÀN TOÀN)
              ========================================================== */}
-          <div className="w-full md:sticky md:top-20 flex flex-col gap-3 self-start z-10">
+          <div
+            onWheel={(e) => {
+              if (rightColumnRef.current) {
+                rightColumnRef.current.scrollTop += e.deltaY;
+              }
+            }}
+            className="w-full h-full flex flex-col gap-2.5 self-stretch z-10 shrink-0 md:overflow-hidden select-none"
+          >
             {/* Dedicated Cultural Taboo Alert Banner (Nằm phía trên khung ma nơ canh, KHÔNG che nhân vật) */}
             {hasCriticalViolations && (
-              <div className="w-full px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-rose-950/95 via-[#220B14] to-rose-950/95 border border-rose-500/70 shadow-lg flex items-center justify-between gap-2.5 text-xs animate-in slide-in-from-top duration-200">
+              <div className="w-full px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-rose-950/95 via-[#220B14] to-rose-950/95 border border-rose-500/70 shadow-lg flex items-center justify-between gap-2.5 text-xs animate-in slide-in-from-top duration-200 shrink-0">
                 <div className="flex items-center gap-2 min-w-0">
                   <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0 animate-pulse" />
                   <div className="truncate text-left">
@@ -708,7 +709,7 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
               </div>
             )}
 
-            <div className={`relative w-full aspect-4/5 sm:aspect-3/4 max-h-[560px] rounded-3xl border p-2 sm:p-4 flex items-center justify-center shadow-2xl overflow-hidden group transition-all duration-300 ${
+            <div className={`relative w-full flex-1 min-h-[380px] md:min-h-0 rounded-3xl border p-2 sm:p-4 flex items-center justify-center shadow-2xl overflow-hidden group transition-all duration-300 ${
               isCream
                 ? 'bg-radial from-[#FFFDF9] via-[#F8F3E8] to-[#EFE5D0] border-amber-400/50 shadow-[0_16px_45px_rgba(180,130,60,0.12)]'
                 : 'bg-radial from-[#121A2C] via-[#0D1322] to-[#080C16] border-amber-500/30'
@@ -751,114 +752,15 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                 </div>
               </div>
             </div>
-
-            {/* Currently Equipped Slots Summary */}
-            <div className={`w-full p-2.5 rounded-2xl border flex items-center justify-between gap-2 flex-wrap text-xs transition-colors ${
-              isCream ? 'bg-white border-amber-200/90 shadow-sm' : 'bg-[#0F1626]/90 border border-slate-800'
-            }`}>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className={`text-[11px] font-medium ${isCream ? 'text-stone-600' : 'text-slate-400'}`}>Đang mặc:</span>
-                {/* Top slot */}
-                {currentTop ? (
-                  <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl border ${
-                    isCream
-                      ? 'bg-amber-100/90 border-amber-300 text-amber-950'
-                      : 'bg-amber-950/40 border-amber-500/40 text-amber-200'
-                  }`}>
-                    <span className="font-serif-vi font-semibold text-xs leading-tight">{currentTop.name}</span>
-                    <button
-                      onClick={() => onSelectTop(null)}
-                      className={`cursor-pointer p-0.5 rounded-full ${
-                        isCream ? 'text-amber-800 hover:bg-amber-200' : 'text-amber-400/70 hover:text-amber-200 hover:bg-amber-400/20'
-                      }`}
-                      title="Cởi áo này"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ) : (
-                  <span className={`px-2 py-1 rounded-lg border border-dashed text-[11px] ${
-                    isCream ? 'bg-stone-100/70 border-stone-300 text-stone-500' : 'bg-slate-900/60 border-slate-700 text-slate-500'
-                  }`}>
-                    Chưa mặc áo
-                  </span>
-                )}
-
-                {/* Bottom slot */}
-                {currentBottom ? (
-                  <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl border ${
-                    isCream
-                      ? 'bg-amber-100/90 border-amber-300 text-amber-950'
-                      : 'bg-amber-950/40 border-amber-500/40 text-amber-200'
-                  }`}>
-                    <span className="font-serif-vi font-semibold text-xs leading-tight">{currentBottom.name}</span>
-                    <button
-                      onClick={() => onSelectBottom(null)}
-                      className={`cursor-pointer p-0.5 rounded-full ${
-                        isCream ? 'text-amber-800 hover:bg-amber-200' : 'text-amber-400/70 hover:text-amber-200 hover:bg-amber-400/20'
-                      }`}
-                      title="Cởi quần/váy này"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ) : (
-                  <span className={`px-2 py-1 rounded-lg border border-dashed text-[11px] ${
-                    isCream ? 'bg-stone-100/70 border-stone-300 text-stone-500' : 'bg-slate-900/60 border-slate-700 text-slate-500'
-                  }`}>
-                    Chưa mặc hạ y
-                  </span>
-                )}
-
-                {/* Accessory slot */}
-                {currentAccessory ? (
-                  <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl border ${
-                    isCream
-                      ? 'bg-amber-100/90 border-amber-300 text-amber-950'
-                      : 'bg-amber-950/40 border-amber-500/40 text-amber-200'
-                  }`}>
-                    <span className="font-serif-vi font-semibold text-xs leading-tight">{currentAccessory.name}</span>
-                    <button
-                      onClick={() => onSelectAccessory(null)}
-                      className={`cursor-pointer p-0.5 rounded-full ${
-                        isCream ? 'text-amber-800 hover:bg-amber-200' : 'text-amber-400/70 hover:text-amber-200 hover:bg-amber-400/20'
-                      }`}
-                      title="Gỡ phụ kiện này"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ) : (
-                  <span className={`px-2 py-1 rounded-lg border border-dashed text-[11px] ${
-                    isCream ? 'bg-stone-100/70 border-stone-300 text-stone-500' : 'bg-slate-900/60 border-slate-700 text-slate-500'
-                  }`}>
-                    Chưa đeo phụ kiện
-                  </span>
-                )}
-              </div>
-
-              {/* Color Indicators */}
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-4 h-4 rounded-full border border-white/60 shadow-xs"
-                  style={{ backgroundColor: activeTopHex }}
-                  title={`Màu áo: ${activeTopHex}`}
-                />
-                <div
-                  className="w-4 h-4 rounded-full border border-white/60 shadow-xs"
-                  style={{ backgroundColor: activeBottomHex }}
-                  title={`Màu hạ y: ${activeBottomHex}`}
-                />
-              </div>
-            </div>
           </div>
 
           {/* ==========================================================
-              RIGHT COLUMN: Controls, AI Real-World Suggester, Rules & Wardrobe
+              RIGHT COLUMN: Controls, AI Real-World Suggester, Rules & Wardrobe (CUỘN ĐỘC LẬP)
              ========================================================== */}
           <div
+            ref={rightColumnRef}
             data-lenis-prevent="true"
-            className="w-full flex flex-col gap-3.5 text-left md:max-h-[calc(100vh-6.5rem)] md:overflow-y-auto md:pr-2.5 custom-scrollbar overscroll-contain"
+            className="w-full h-full min-h-0 flex flex-col gap-3.5 text-left md:overflow-y-auto md:pr-2.5 custom-scrollbar overscroll-contain"
           >
             {/* 1. WORKSPACE VIEW SWITCHER TABS: Tủ Đồ vs Trợ Lý AI */}
             <div className={`flex items-center justify-between p-1.5 rounded-2xl gap-1.5 shadow-md shrink-0 border ${

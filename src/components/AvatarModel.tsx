@@ -329,19 +329,7 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
         </div>
       )}
 
-      {/* 2. Bare Mannequin Status Guidance Badge */}
-      {!hideOverlays && isCompletelyBare && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="absolute top-6 z-30 px-3 py-1.5 rounded-full bg-[#0E1626]/90 border border-amber-400/50 backdrop-blur-md shadow-xl flex items-center gap-2 pointer-events-none"
-        >
-          <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin" />
-          <span className="text-[11px] font-medium text-amber-200 font-sans-vi">
-            Khung Ma Nơ Canh Mộc — Chọn y phục bên phải để bắt đầu mặc
-          </span>
-        </motion.div>
-      )}
+
 
 
 
