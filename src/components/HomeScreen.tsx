@@ -441,6 +441,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </motion.a>
           </motion.div>
 
+          {/* Quick feature pill linking to the 2 primary actions */}
+          <motion.div
+            variants={slideUpFadeVariants}
+            className={`flex items-center gap-2 mb-8 text-xs px-4 py-1.5 rounded-full border shadow-xs ${
+              isCream
+                ? 'bg-amber-100/80 border-amber-300 text-amber-950'
+                : 'bg-amber-500/10 border-amber-500/30 text-amber-300/90'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span>Không gian 2D: Chấm điểm & Đánh giá (AI) • Soạn thảo & Tải Poster Lookbook HD</span>
+          </motion.div>
           {/* Cultural Heritage Trust Indicators (Highlighting Diversity, Authenticity, Philosophy) */}
           <motion.div
             variants={slideUpFadeVariants}

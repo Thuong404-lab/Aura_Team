@@ -150,8 +150,9 @@ html.theme-cream button[class*="from-amber-400"],
 html.theme-cream button[class*="from-amber-300"],
 html.theme-cream a[class*="from-amber-400"],
 html.theme-cream a[class*="from-amber-300"] {
-  background-image: linear-gradient(to right, var(--tw-gradient-stops)) !important;
-  border-color: rgba(254, 240, 138, 0.6) !important;
+  background-image: linear-gradient(to right, #fbbf24, #f59e0b, #d97706) !important;
+  background-color: #f59e0b !important;
+  border-color: rgba(217, 119, 6, 0.6) !important;
 }
 html.theme-cream button[class*="from-amber-400"] *,
 html.theme-cream button[class*="from-amber-300"] *,

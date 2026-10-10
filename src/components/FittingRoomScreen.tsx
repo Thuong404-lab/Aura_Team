@@ -585,7 +585,7 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
   return (
     <div
       data-lenis-prevent="true"
-      className={`min-h-screen md:h-[calc(100vh-4.25rem)] md:max-h-[calc(100vh-4.25rem)] w-full flex flex-col relative overflow-x-clip font-sans-vi transition-colors duration-300 ${
+      className={`min-h-screen w-full flex flex-col relative overflow-x-clip font-sans-vi transition-colors duration-300 pb-16 ${
         isCream ? 'bg-[#FAF7F0] text-stone-900' : 'bg-[#0A0E17] text-slate-100'
       }`}
     >
@@ -625,9 +625,9 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
       </div>
 
       {/* Main Workspace */}
-      <main className="relative z-10 flex-1 min-h-0 flex flex-col items-center justify-start p-3 sm:p-4 md:p-5 max-w-7xl mx-auto w-full md:overflow-hidden">
+      <main className="relative z-10 flex-1 min-h-0 flex flex-col items-center justify-start p-3 sm:p-4 md:p-5 max-w-7xl mx-auto w-full">
         {/* Header Breadcrumbs & Action Bar */}
-        <div className="w-full shrink-0 mb-2 md:mb-3 text-left flex flex-col sm:flex-row sm:items-end justify-between gap-2.5">
+        <div className="w-full shrink-0 mb-3 text-left flex flex-col sm:flex-row sm:items-end justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-amber-400" />
@@ -658,17 +658,54 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
               </div>
             )}
 
+            {/* PRIMARY ACTION 1: CHẤM ĐIỂM & ĐÁNH GIÁ (AI) TRONG HEADER */}
+            <button
+              type="button"
+              onClick={handleCheckHarmony}
+              disabled={isCheckingHarmony}
+              className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-bold text-xs sm:text-[13px] tracking-wide shadow-[0_4px_16px_rgba(245,158,11,0.35)] hover:brightness-110 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer border border-amber-300/60 shrink-0"
+              title="Đánh giá quy chuẩn văn hóa, ngũ hành và sự ăn khớp di sản bằng AI"
+            >
+              {isCheckingHarmony ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-950 shrink-0" />
+                  <span className="whitespace-nowrap font-bold">Đang chấm điểm...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0 fill-slate-950" />
+                  <span className="whitespace-nowrap font-bold">CHẤM ĐIỂM & ĐÁNH GIÁ (AI)</span>
+                </>
+              )}
+            </button>
+
+            {/* PRIMARY ACTION 2: SOẠN THẢO & TẢI POSTER TRONG HEADER */}
+            <button
+              type="button"
+              onClick={handleSaveToLookbook}
+              className={`px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-[13px] font-bold shadow-md active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer shrink-0 group ${
+                isCream
+                  ? 'bg-[#FFF3D6] hover:bg-[#FFE8B3] text-amber-950 border border-amber-500/80 shadow-xs'
+                  : 'bg-gradient-to-r from-[#121A2C] via-[#1A2640] to-[#121A2C] hover:from-[#18233C] hover:to-[#223254] text-amber-200 hover:text-amber-100 border border-amber-400/60 hover:border-amber-300'
+              }`}
+              title="Mở Trang Soạn Thảo Lookbook để tùy biến bối cảnh, tiêu đề, thơ đề từ và tải Poster HD"
+            >
+              <BookOpen className={`w-3.5 h-3.5 ${isCream ? 'text-amber-900' : 'text-amber-400'} group-hover:scale-110 transition-transform shrink-0`} />
+              <span className="whitespace-nowrap font-bold">Soạn Thảo & Tải Poster</span>
+              <ArrowRight className={`w-3.5 h-3.5 ${isCream ? 'text-amber-900' : 'text-amber-400'} group-hover:translate-x-1 transition-transform shrink-0`} />
+            </button>
+
             {/* Taboo Database Modal Trigger Button */}
             <button
               onClick={() => {
                 soundEngine.playPluck(440);
                 setShowTabooDatabaseModal(true);
               }}
-              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-950/70 via-[#1C1625] to-amber-950/70 hover:from-amber-900/90 hover:to-amber-950/90 text-amber-300 hover:text-amber-100 border border-amber-400/50 hover:border-amber-300 text-xs font-semibold shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-950/70 via-[#1C1625] to-amber-950/70 hover:from-amber-900/90 hover:to-amber-950/90 text-amber-300 hover:text-amber-100 border border-amber-400/50 hover:border-amber-300 text-xs font-semibold shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
               title="Mở Đại Điển Cấm Kỵ Cổ Phục để xem toàn bộ 13 quy chuẩn lịch sử"
             >
               <Scroll className="w-3.5 h-3.5 text-amber-400" />
-              <span>Đại Điển Cấm Kỵ (13 Quy Tắc)</span>
+              <span>Đại Điển (13 Quy Tắc)</span>
             </button>
 
             {/* Clear All / Bare Mannequin Button */}
@@ -678,13 +715,13 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
               title="Tháo hết y phục về trạng thái ma nơ canh mộc để mặc lại từ đầu"
             >
               <RotateCcw className="w-3.5 h-3.5 text-slate-400 group-hover:rotate-180 transition-transform" />
-              <span>Cởi Hết (Khung Mộc)</span>
+              <span>Cởi Hết</span>
             </button>
           </div>
         </div>
 
         {/* Workspace 2-Column Grid */}
-        <div className="w-full flex-1 min-h-0 grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-8 items-stretch md:overflow-hidden">
+        <div className="w-full flex-1 min-h-0 grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-8 items-start">
           {/* ==========================================================
               LEFT COLUMN: Live 2D Mannequin Visualizer (CỐ ĐỊNH HOÀN TOÀN)
              ========================================================== */}
@@ -695,9 +732,9 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                 rightColumnRef.current.scrollTop += e.deltaY;
               }
             }}
-            className="w-full h-full flex flex-col self-stretch z-10 shrink-0 md:overflow-hidden select-none"
+            className="w-full flex flex-col md:sticky md:top-20 z-10 shrink-0 select-none gap-3 self-start"
           >
-            <div className={`relative w-full h-full flex-1 min-h-[380px] md:min-h-0 rounded-3xl border p-2 sm:p-4 flex items-center justify-center shadow-2xl overflow-hidden group transition-all duration-300 ${
+            <div className={`relative w-full flex-1 min-h-[380px] md:min-h-[440px] rounded-3xl border p-2 sm:p-4 flex items-center justify-center shadow-2xl overflow-hidden group transition-all duration-300 ${
               isCream
                 ? 'bg-radial from-[#FFFDF9] via-[#F8F3E8] to-[#EFE5D0] border-amber-400/50 shadow-[0_16px_45px_rgba(180,130,60,0.12)]'
                 : 'bg-radial from-[#121A2C] via-[#0D1322] to-[#080C16] border-amber-500/30'
@@ -740,16 +777,55 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                 </div>
               </div>
             </div>
+
+            {/* Quick Action Dock directly under Mannequin Avatar */}
+            <div className="w-full flex items-center gap-2.5 sm:gap-3 shrink-0">
+              <button
+                type="button"
+                onClick={handleCheckHarmony}
+                disabled={isCheckingHarmony}
+                className="flex-1 py-3 px-3.5 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-bold text-xs sm:text-[13px] tracking-wide shadow-[0_4px_20px_rgba(245,158,11,0.35)] hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer border border-amber-300/60"
+              >
+                {isCheckingHarmony ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-slate-950 shrink-0" />
+                    <span className="whitespace-nowrap font-bold">ĐANG CHẤM ĐIỂM...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 text-slate-950 shrink-0 fill-slate-950" />
+                    <span className="whitespace-nowrap font-bold">CHẤM ĐIỂM & ĐÁNH GIÁ (AI)</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSaveToLookbook}
+                className={`flex-1 py-3 px-3.5 rounded-2xl text-xs sm:text-[13px] font-bold shadow-md active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer group ${
+                  isCream
+                    ? 'bg-[#FFF3D6] hover:bg-[#FFE8B3] text-amber-950 border border-amber-500/80 shadow-xs'
+                    : 'bg-gradient-to-r from-[#121A2C] via-[#1A2640] to-[#121A2C] hover:from-[#18233C] hover:to-[#223254] text-amber-200 hover:text-amber-100 border border-amber-400/60 hover:border-amber-300'
+                }`}
+                title="Mở Trang Soạn Thảo Lookbook để tùy biến bối cảnh, tiêu đề, thơ đề từ và tải Poster HD"
+              >
+                <BookOpen className={`w-4 h-4 ${isCream ? 'text-amber-900' : 'text-amber-400'} group-hover:scale-110 transition-transform shrink-0`} />
+                <span className="whitespace-nowrap font-bold">Soạn Thảo & Tải Poster</span>
+                <ArrowRight className={`w-4 h-4 ${isCream ? 'text-amber-900' : 'text-amber-400'} group-hover:translate-x-1 transition-transform shrink-0`} />
+              </button>
+            </div>
           </div>
 
           {/* ==========================================================
               RIGHT COLUMN: Controls, AI Real-World Suggester, Rules & Wardrobe (CUỘN ĐỘC LẬP)
              ========================================================== */}
-          <div
-            ref={rightColumnRef}
-            data-lenis-prevent="true"
-            className="w-full h-full min-h-0 flex flex-col gap-3 text-left overflow-y-auto md:pr-2.5 custom-scrollbar overscroll-contain pb-16"
-          >
+          <div className="w-full h-full min-h-0 flex flex-col text-left relative">
+            {/* Scrollable Content Container (Cuộn Độc Lập cho Tủ Đồ & Phân Tích) */}
+            <div
+              ref={rightColumnRef}
+              data-lenis-prevent="true"
+              className="flex-1 min-h-0 overflow-y-auto pr-1 md:pr-2.5 flex flex-col gap-3 custom-scrollbar overscroll-contain pb-4"
+            >
             {/* Cultural Taboo Alert Banner placed cleanly in Right Column so it NEVER covers mannequin */}
             {hasCriticalViolations && (
               <div className="w-full px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-rose-950/95 via-[#220B14] to-rose-950/95 border border-rose-500/70 shadow-lg flex items-center justify-between gap-2.5 text-xs animate-in slide-in-from-top duration-200 shrink-0">
@@ -2045,44 +2121,48 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                 </div>
               </div>
             )}
-
-            {/* 8. Bottom Action Buttons: Dedicated Dock with Clear Spacing & No Overlap */}
-            <div className={`mt-6 pt-4 pb-3 border-t flex flex-col sm:flex-row gap-3 shrink-0 ${
-              isCream ? 'border-amber-300/80 bg-[#FAF7F0]' : 'border-amber-500/25 bg-[#0A0E17]'
-            }`}>
-              <button
-                onClick={handleCheckHarmony}
-                disabled={isCheckingHarmony}
-                className="flex-1 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-bold text-xs sm:text-sm tracking-wide shadow-[0_4px_24px_rgba(245,158,11,0.35)] hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer border border-amber-300/60"
-              >
-                {isCheckingHarmony ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
-                    <span>ĐANG CHẤM ĐIỂM QUY CHUẨN...</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4 text-slate-950" />
-                    <span>CHẤM ĐIỂM & ĐÁNH GIÁ (AI)</span>
-                  </>
-                )}
-              </button>
-
-              <button
-                onClick={handleSaveToLookbook}
-                className={`flex-1 py-3.5 px-4 rounded-2xl text-xs sm:text-sm font-bold shadow-lg active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer group ${
-                  isCream
-                    ? 'bg-amber-200/90 hover:bg-amber-300 text-amber-950 border border-amber-500/80 shadow-sm'
-                    : 'bg-gradient-to-r from-[#121A2C] via-[#1A2640] to-[#121A2C] hover:from-[#18233C] hover:to-[#223254] text-amber-200 hover:text-amber-100 border border-amber-400/60 hover:border-amber-300'
-                }`}
-                title="Mở Trang Soạn Thảo Lookbook để tùy biến bối cảnh, tiêu đề, thơ đề từ và tải Poster HD"
-              >
-                <BookOpen className={`w-4 h-4 ${isCream ? 'text-amber-800' : 'text-amber-400'} group-hover:scale-110 transition-transform shrink-0`} />
-                <span>Soạn Thảo & Tải Poster</span>
-                <ArrowRight className={`w-4 h-4 ${isCream ? 'text-amber-800' : 'text-amber-400'} group-hover:translate-x-1 transition-transform shrink-0`} />
-              </button>
             </div>
           </div>
+        </div>
+
+        {/* Mobile Sticky Floating Action Dock (Chỉ hiển thị trên điện thoại khi cuộn qua ma nơ canh) */}
+        <div className={`md:hidden fixed bottom-0 left-0 right-0 z-40 p-2.5 px-3 border-t flex items-center gap-2 backdrop-blur-xl shadow-[0_-8px_24px_rgba(0,0,0,0.5)] ${
+          isCream
+            ? 'bg-[#FAF7F0]/95 border-amber-300'
+            : 'bg-[#0A0E17]/95 border-amber-500/30'
+        }`}>
+          <button
+            type="button"
+            onClick={handleCheckHarmony}
+            disabled={isCheckingHarmony}
+            className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-slate-950 font-bold text-xs tracking-wide shadow-md active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-amber-300/60"
+          >
+            {isCheckingHarmony ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-950 shrink-0" />
+                <span className="whitespace-nowrap font-bold">Đang chấm...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0 fill-slate-950" />
+                <span className="whitespace-nowrap font-bold">CHẤM ĐIỂM (AI)</span>
+              </>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleSaveToLookbook}
+            className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold shadow-md active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              isCream
+                ? 'bg-[#FFF3D6] text-amber-950 border border-amber-500/80 shadow-xs'
+                : 'bg-gradient-to-r from-[#121A2C] via-[#1A2640] to-[#121A2C] text-amber-200 border border-amber-400/60'
+            }`}
+          >
+            <BookOpen className={`w-3.5 h-3.5 ${isCream ? 'text-amber-900' : 'text-amber-400'} shrink-0`} />
+            <span className="whitespace-nowrap font-bold">Soạn Poster</span>
+            <ArrowRight className={`w-3.5 h-3.5 ${isCream ? 'text-amber-900' : 'text-amber-400'} shrink-0`} />
+          </button>
         </div>
       </main>
 
