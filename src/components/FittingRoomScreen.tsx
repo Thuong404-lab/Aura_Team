@@ -502,6 +502,7 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
   const handleCheckHarmony = async () => {
     soundEngine.playPluck(783.99);
     setIsCheckingHarmony(true);
+    setWorkspaceView('ai_stylist');
 
     try {
       const evaluation = await checkAiHarmony({
@@ -514,6 +515,8 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
       });
 
       setHarmonyResult(evaluation);
+      setFixToastMessage(`✨ Đã chấm điểm AI: ${evaluation.score}/100 - ${evaluation.ratingBadge}`);
+      setTimeout(() => setFixToastMessage(null), 3000);
     } finally {
       setIsCheckingHarmony(false);
     }
@@ -2059,20 +2062,26 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                 </div>
 
                 {/* 7. Comprehensive Cultural & Aesthetic Harmony Analysis Report */}
-                <div className="p-3.5 rounded-2xl bg-[#0F1626]/90 border border-slate-800 text-left space-y-2.5 shadow-md">
+                <div className={`p-3.5 rounded-2xl border text-left space-y-2.5 shadow-md ${
+                  isCream
+                    ? 'bg-white border-amber-300 shadow-[0_4px_20px_rgba(180,130,60,0.08)]'
+                    : 'bg-[#0F1626]/90 border-slate-800'
+                }`}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-[11px] text-slate-400 font-medium">BÁO CÁO ĐÁNH GIÁ ĐA TIÊU CHÍ (AI)</div>
-                      <h3 className="text-sm font-bold font-serif-vi text-amber-200">
+                      <div className={`text-[11px] font-medium ${isCream ? 'text-stone-600' : 'text-slate-400'}`}>
+                        BÁO CÁO ĐÁNH GIÁ ĐA TIÊU CHÍ (AI)
+                      </div>
+                      <h3 className={`text-sm font-bold font-serif-vi ${isCream ? 'text-amber-950' : 'text-amber-200'}`}>
                         {harmonyResult.critiqueTitle}
                       </h3>
                     </div>
                     <div className="text-right">
-                      <div className="text-xl font-bold font-mono text-amber-400 leading-none">
+                      <div className={`text-xl font-bold font-mono leading-none ${isCream ? 'text-amber-800' : 'text-amber-400'}`}>
                         {harmonyResult.score}
-                        <span className="text-xs text-slate-400 font-normal">/100</span>
+                        <span className={`text-xs font-normal ${isCream ? 'text-stone-500' : 'text-slate-400'}`}>/100</span>
                       </div>
-                      <span className="text-[10px] text-amber-300/80 font-medium font-sans-vi">
+                      <span className={`text-[10px] font-medium font-sans-vi ${isCream ? 'text-amber-900' : 'text-amber-300/80'}`}>
                         {harmonyResult.ratingBadge}
                       </span>
                     </div>
@@ -2080,40 +2089,40 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
 
                   {/* Progress bars for 3 Pillars */}
                   <div className="grid grid-cols-3 gap-2 pt-1 text-[10.5px]">
-                    <div className="bg-[#090E1A] p-2 rounded-xl border border-slate-800">
-                      <div className="text-slate-400 flex justify-between">
+                    <div className={`p-2 rounded-xl border ${isCream ? 'bg-amber-50/70 border-amber-200' : 'bg-[#090E1A] border-slate-800'}`}>
+                      <div className={`flex justify-between ${isCream ? 'text-stone-700 font-medium' : 'text-slate-400'}`}>
                         <span>Niên đại</span>
-                        <span className="text-amber-300 font-bold">{harmonyResult.historicalMatchPercent}%</span>
+                        <span className={`font-bold ${isCream ? 'text-amber-900' : 'text-amber-300'}`}>{harmonyResult.historicalMatchPercent}%</span>
                       </div>
-                      <div className="w-full bg-slate-800 h-1 rounded-full mt-1 overflow-hidden">
+                      <div className={`w-full h-1 rounded-full mt-1 overflow-hidden ${isCream ? 'bg-stone-200' : 'bg-slate-800'}`}>
                         <div
-                          className="bg-amber-400 h-full rounded-full transition-all duration-500"
+                          className="bg-amber-500 h-full rounded-full transition-all duration-500"
                           style={{ width: `${harmonyResult.historicalMatchPercent}%` }}
                         />
                       </div>
                     </div>
 
-                    <div className="bg-[#090E1A] p-2 rounded-xl border border-slate-800">
-                      <div className="text-slate-400 flex justify-between">
+                    <div className={`p-2 rounded-xl border ${isCream ? 'bg-amber-50/70 border-amber-200' : 'bg-[#090E1A] border-slate-800'}`}>
+                      <div className={`flex justify-between ${isCream ? 'text-stone-700 font-medium' : 'text-slate-400'}`}>
                         <span>Ngũ hành</span>
-                        <span className="text-amber-300 font-bold">{harmonyResult.colorHarmonyPercent}%</span>
+                        <span className={`font-bold ${isCream ? 'text-amber-900' : 'text-amber-300'}`}>{harmonyResult.colorHarmonyPercent}%</span>
                       </div>
-                      <div className="w-full bg-slate-800 h-1 rounded-full mt-1 overflow-hidden">
+                      <div className={`w-full h-1 rounded-full mt-1 overflow-hidden ${isCream ? 'bg-stone-200' : 'bg-slate-800'}`}>
                         <div
-                          className="bg-amber-400 h-full rounded-full transition-all duration-500"
+                          className="bg-amber-500 h-full rounded-full transition-all duration-500"
                           style={{ width: `${harmonyResult.colorHarmonyPercent}%` }}
                         />
                       </div>
                     </div>
 
-                    <div className="bg-[#090E1A] p-2 rounded-xl border border-slate-800">
-                      <div className="text-slate-400 flex justify-between">
+                    <div className={`p-2 rounded-xl border ${isCream ? 'bg-amber-50/70 border-amber-200' : 'bg-[#090E1A] border-slate-800'}`}>
+                      <div className={`flex justify-between ${isCream ? 'text-stone-700 font-medium' : 'text-slate-400'}`}>
                         <span>Mỹ cảm</span>
-                        <span className="text-amber-300 font-bold">{harmonyResult.contextAestheticPercent}%</span>
+                        <span className={`font-bold ${isCream ? 'text-amber-900' : 'text-amber-300'}`}>{harmonyResult.contextAestheticPercent}%</span>
                       </div>
-                      <div className="w-full bg-slate-800 h-1 rounded-full mt-1 overflow-hidden">
+                      <div className={`w-full h-1 rounded-full mt-1 overflow-hidden ${isCream ? 'bg-stone-200' : 'bg-slate-800'}`}>
                         <div
-                          className="bg-amber-400 h-full rounded-full transition-all duration-500"
+                          className="bg-amber-500 h-full rounded-full transition-all duration-500"
                           style={{ width: `${harmonyResult.contextAestheticPercent}%` }}
                         />
                       </div>
@@ -2121,16 +2130,20 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                   </div>
 
                   {/* Detailed AI Critique Text */}
-                  <p className="text-xs text-slate-300 leading-relaxed pt-1">
+                  <p className={`text-xs leading-relaxed pt-1 ${isCream ? 'text-stone-800 font-normal' : 'text-slate-300'}`}>
                     {harmonyResult.detailedCritique}
                   </p>
 
                   {/* Styling Tip */}
                   {harmonyResult.stylingTip && (
-                    <div className="text-[11px] text-amber-300 bg-amber-950/30 p-2 rounded-xl border border-amber-500/20 flex items-start gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                    <div className={`text-[11px] p-2 rounded-xl border flex items-start gap-1.5 ${
+                      isCream
+                        ? 'bg-amber-50 border-amber-300 text-stone-900'
+                        : 'text-amber-300 bg-amber-950/30 border-amber-500/20'
+                    }`}>
+                      <Sparkles className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
                       <span>
-                        <strong>Mẹo tạo dáng & phối đồ:</strong> {harmonyResult.stylingTip}
+                        <strong className={isCream ? 'text-amber-950' : 'text-amber-200'}>Mẹo tạo dáng & phối đồ:</strong> {harmonyResult.stylingTip}
                       </span>
                     </div>
                   )}
