@@ -51,14 +51,31 @@ export const SmoothScrollManager: React.FC<SmoothScrollManagerProps> = ({ childr
       infinite: false,
       prevent: (node) => {
         if (!node || !(node instanceof HTMLElement)) return false;
-        return Boolean(
-          node.hasAttribute('data-lenis-prevent') ||
-          node.classList.contains('custom-scrollbar') ||
-          node.classList.contains('scrollbar-heritage') ||
-          node.closest('[data-lenis-prevent]') ||
-          node.closest('.custom-scrollbar') ||
-          node.closest('.scrollbar-heritage')
-        );
+        let el: HTMLElement | null = node;
+        while (el && el !== document.body && el !== document.documentElement) {
+          if (
+            el.hasAttribute('data-lenis-prevent') ||
+            el.classList.contains('custom-scrollbar') ||
+            el.classList.contains('scrollbar-heritage') ||
+            el.tagName === 'TEXTAREA' ||
+            el.tagName === 'INPUT' ||
+            el.tagName === 'SELECT'
+          ) {
+            return true;
+          }
+          const style = window.getComputedStyle(el);
+          const isScrollableY =
+            (style.overflowY === 'auto' || style.overflowY === 'scroll') &&
+            el.scrollHeight > el.clientHeight;
+          const isScrollableX =
+            (style.overflowX === 'auto' || style.overflowX === 'scroll') &&
+            el.scrollWidth > el.clientWidth;
+          if (isScrollableY || isScrollableX) {
+            return true;
+          }
+          el = el.parentElement;
+        }
+        return false;
       },
     });
 
@@ -91,12 +108,12 @@ export const SmoothScrollManager: React.FC<SmoothScrollManagerProps> = ({ childr
     };
     animId = requestAnimationFrame(raf);
 
-    // 4. Chỉ tạm dừng Lenis cho các modal/drawer phụ (không chặn màn mây mở đầu)
+    // 4. Chỉ tạm dừng Lenis khi có modal nổi đang hiển thị thực sự
     const observer = new MutationObserver(() => {
-      const hasModalOpen = document.querySelector(
-        '[role="dialog"]:not([aria-label*="Màn Mây"]):not([aria-label*="Curtain"]), [aria-modal="true"]:not([aria-label*="Màn Mây"])'
+      const activeModal = document.querySelector(
+        '[role="dialog"]:not([aria-label*="Màn Mây"]):not([aria-label*="Curtain"]), [aria-modal="true"]:not([aria-label*="Màn Mây"]):not([aria-label*="Curtain"])'
       );
-      if (hasModalOpen) {
+      if (activeModal && (activeModal as HTMLElement).offsetParent !== null) {
         lenis.stop();
       } else {
         lenis.start();

@@ -97,13 +97,14 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
   onSelectBottom,
 }) => {
   const [selectedBackdrop, setSelectedBackdrop] = useState<BackdropOption>(BACKDROPS[0]);
+  const posterRef = useRef<HTMLDivElement>(null);
   const [showShareModal, setShowShareModal] = useState<boolean>(false);
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
   const [downloadSuccess, setDownloadSuccess] = useState<boolean>(false);
   const [downloadStatus, setDownloadStatus] = useState<string>('');
   const [showFullscreenModal, setShowFullscreenModal] = useState<boolean>(false);
-  const [showGuideBanner, setShowGuideBanner] = useState<boolean>(true);
+  const [showGuideModal, setShowGuideModal] = useState<boolean>(false);
   const [aiSuccessBadge, setAiSuccessBadge] = useState<boolean>(false);
 
   // Chế độ hiển thị cột trái: 'poster' (Khung poster hoàn chỉnh) hoặc 'details' (Thông số phục sắc)
@@ -172,13 +173,19 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
     }
   };
 
-  // Tải Poster Lookbook Di Sản (HD PNG)
+  // Tải Poster Lookbook Di Sản (HD PNG) - Đảm bảo WYSWYG 100% giống hệt ảnh xem trước
   const handleDownloadPoster = async () => {
     soundEngine.playPluck(783.99);
     setIsDownloading(true);
     setDownloadSuccess(false);
 
     try {
+      // Nếu người dùng đang bật tab chi tiết thông số, chuyển nhanh về 'poster' để ảnh tải về có đầy đủ phục sắc & bối cảnh
+      if (previewMode !== 'poster') {
+        setPreviewMode('poster');
+        await new Promise((resolve) => setTimeout(resolve, 150));
+      }
+
       await downloadLookbookPosterHD(
         {
           top,
@@ -197,6 +204,7 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
           personalNote,
           lightingFilter,
           showSeal,
+          element: posterRef.current,
         },
         (status) => setDownloadStatus(status)
       );
@@ -309,8 +317,8 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
               </h1>
             </div>
 
-            {/* Quick Stats & Authenticity Pill */}
-            <div className="flex items-center gap-2 shrink-0">
+            {/* Quick Stats, Authenticity Pill & Guide Icon Button */}
+            <div className="flex items-center gap-2 shrink-0 flex-wrap">
               <div className="px-3 py-1.5 rounded-xl bg-[#121A2C] border border-slate-700/80 text-xs flex items-center gap-2 shadow-xs">
                 <span className="text-slate-400 text-[11px]">Điểm Di Sản:</span>
                 <span className="font-bold text-amber-300 font-serif-vi">
@@ -331,52 +339,22 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                 )}
                 <span>{evaluation.isAuthentic ? 'Đạt Quy Chuẩn' : 'Cần Lưu Ý'}</span>
               </div>
+
+              {/* Icon hướng dẫn gọn gàng tinh tế */}
+              <button
+                type="button"
+                onClick={() => {
+                  soundEngine.playPluck(523.25);
+                  setShowGuideModal(true);
+                }}
+                className="px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 hover:border-amber-400 text-amber-300 hover:text-amber-200 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
+                title="Xem hướng dẫn sử dụng tính năng Lookbook"
+              >
+                <HelpCircle className="w-4 h-4 text-amber-400" />
+                <span>Hướng Dẫn</span>
+              </button>
             </div>
           </div>
-
-          {/* Guide Banner: Giải thích rõ ràng trang này làm gì & tính năng */}
-          {showGuideBanner && (
-            <div className="mt-3 p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-600/5 to-slate-900/60 border border-amber-500/30 text-xs relative animate-in fade-in">
-              <button
-                onClick={() => setShowGuideBanner(false)}
-                className="absolute top-2.5 right-2.5 text-slate-400 hover:text-white p-1 rounded-md"
-                title="Đóng hướng dẫn"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-              <div className="flex items-start gap-2.5 pr-6">
-                <div className="p-1.5 rounded-lg bg-amber-500/20 text-amber-300 shrink-0 mt-0.5">
-                  <BookOpen className="w-4 h-4" />
-                </div>
-                <div>
-                  <h4 className="font-serif-vi font-bold text-amber-200 text-xs">
-                    Tính năng trang Soạn Thảo Lookbook là gì?
-                  </h4>
-                  <p className="text-slate-300 mt-1 leading-relaxed text-[11.5px]">
-                    Đây là nơi bạn tự tay thiết kế một tấm <strong>Poster Lookbook Nghệ Thuật (HD PNG 1200x1800)</strong> từ trang phục bạn vừa chọn:
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 mt-2 pt-2 border-t border-amber-500/20 text-[11px] text-amber-100/90 font-medium">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-4 h-4 rounded-full bg-amber-500/30 text-amber-300 flex items-center justify-center text-[10px] font-bold">1</span>
-                      <span>Chọn Thắng Cảnh & Ánh Sáng</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-4 h-4 rounded-full bg-amber-500/30 text-amber-300 flex items-center justify-center text-[10px] font-bold">2</span>
-                      <span>Đổi Tên, Đề Thơ & Lời Bình (hoặc dùng AI)</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-4 h-4 rounded-full bg-amber-500/30 text-amber-300 flex items-center justify-center text-[10px] font-bold">3</span>
-                      <span>Khắc Dấu Triện Son Di Sản</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-4 h-4 rounded-full bg-amber-500/30 text-amber-300 flex items-center justify-center text-[10px] font-bold">4</span>
-                      <span>Tải Poster HD 1200x1800 về máy</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* WORKSPACE: 2-Column Responsive Grid */}
@@ -428,11 +406,14 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
 
             {/* Poster Card Container with Strict Aspect Ratio - NO OVERFLOW! */}
             <div
+              ref={posterRef}
+              id="lookbook-poster-preview-card"
               className="relative w-full max-w-[480px] rounded-3xl overflow-hidden border-2 border-amber-500/35 bg-[#090D18] shadow-[0_20px_50px_rgba(0,0,0,0.85)] flex flex-col justify-between group h-[600px] sm:h-[650px] lg:h-[680px]"
             >
               {/* Background Photo & Ambient Lighting Filter */}
               <div className="absolute inset-0 pointer-events-none">
                 <img
+                  crossOrigin="anonymous"
                   src={selectedBackdrop.imageUrl}
                   alt={selectedBackdrop.name}
                   className="w-full h-full object-cover object-center filter brightness-[0.78] contrast-[1.05] transition-transform duration-700 group-hover:scale-102"
@@ -591,11 +572,12 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
           {/* ==========================================================
               RIGHT COLUMN: Lookbook Editor & Styling Workspace
              ========================================================== */}
-          <div className="lg:col-span-6 flex flex-col justify-between text-left space-y-3.5 bg-[#0E1526]/90 border border-amber-500/20 rounded-3xl p-4 sm:p-5 shadow-xl">
-            <div>
+          <div className="lg:col-span-6 flex flex-col justify-between text-left bg-[#0E1526]/95 border border-amber-500/25 rounded-3xl p-4 sm:p-5 shadow-2xl relative overflow-hidden h-[600px] sm:h-[650px] lg:h-[680px]">
+            {/* Scrollable Tab Controls & Content Panel */}
+            <div data-lenis-prevent="true" className="flex-1 overflow-y-auto overscroll-contain pr-1.5 custom-scrollbar space-y-3.5">
               {/* Authenticity Assessment Notification Card */}
               <div
-                className={`p-3 rounded-2xl border flex items-start gap-2.5 shadow-sm mb-3.5 transition-all ${
+                className={`p-3 rounded-2xl border flex items-start gap-2.5 shadow-sm transition-all ${
                   evaluation.isAuthentic
                     ? 'bg-emerald-950/35 border-emerald-500/40 text-emerald-200'
                     : 'bg-amber-950/40 border-amber-500/50 text-amber-200'
@@ -635,7 +617,7 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
               </div>
 
               {/* Editorial Workspace Tabs - 4 Distinct Panels */}
-              <div className="grid grid-cols-4 gap-1 p-1 bg-[#131C2E] border border-slate-700/60 rounded-2xl mb-3.5 text-center">
+              <div className="grid grid-cols-4 gap-1 p-1 bg-[#131C2E] border border-slate-700/60 rounded-2xl text-center">
                 <button
                   type="button"
                   onClick={() => {
@@ -866,7 +848,10 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                     <label className="block text-[11px] font-bold text-amber-400 mb-1.5">
                       Chọn bối cảnh danh thắng di sản:
                     </label>
-                    <div className="grid grid-cols-2 gap-2 max-h-[300px] overflow-y-auto custom-scrollbar pr-1">
+                    <div
+                      data-lenis-prevent="true"
+                      className="grid grid-cols-2 gap-2 max-h-[290px] overflow-y-auto overscroll-contain custom-scrollbar pr-1.5"
+                    >
                       {BACKDROPS.map((bd) => (
                         <button
                           key={bd.id}
@@ -1098,6 +1083,7 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
               {/* Photo background */}
               <div className="absolute inset-0 pointer-events-none">
                 <img
+                  crossOrigin="anonymous"
                   src={selectedBackdrop.imageUrl}
                   alt={selectedBackdrop.name}
                   className="w-full h-full object-cover"
@@ -1229,6 +1215,98 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
             >
               Đóng
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* GUIDE MODAL DIALOG (HƯỚNG DẪN BIÊN TẬP LOOKBOOK) */}
+      {showGuideModal && (
+        <div
+          data-lenis-prevent="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+          onClick={() => setShowGuideModal(false)}
+        >
+          <div
+            className="w-full max-w-lg rounded-3xl bg-[#0E1526] text-slate-100 p-5 sm:p-6 shadow-2xl border border-amber-500/40 text-left relative overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-amber-500/20">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-amber-500/20 text-amber-300">
+                  <BookOpen className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-serif-vi text-base sm:text-lg font-bold text-amber-200">
+                    Hướng Dẫn Biên Tập Lookbook
+                  </h3>
+                  <p className="text-[11px] text-slate-400">
+                    4 bước xuất bản Poster Lookbook Nghệ Thuật (HD 1200x1800)
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowGuideModal(false)}
+                className="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
+                title="Đóng"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Steps list */}
+            <div className="space-y-3 text-xs max-h-[60vh] overflow-y-auto custom-scrollbar pr-1" data-lenis-prevent="true">
+              <div className="p-3 rounded-2xl bg-[#131C2E] border border-slate-700/60 flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-amber-500/25 text-amber-300 font-bold flex items-center justify-center text-xs shrink-0 mt-0.5 border border-amber-400/40">1</span>
+                <div>
+                  <h4 className="font-bold text-amber-300 text-xs">Chọn Thắng Cảnh & Ánh Sáng</h4>
+                  <p className="text-slate-300 text-[11.5px] mt-0.5 leading-relaxed">
+                    Khám phá các danh thắng nổi tiếng (Hoàng thành Thăng Long, Cố đô Huế, Phố cổ Hội An...) và phối 4 bộ lọc ánh sáng hoàng kim.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-[#131C2E] border border-slate-700/60 flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-amber-500/25 text-amber-300 font-bold flex items-center justify-center text-xs shrink-0 mt-0.5 border border-amber-400/40">2</span>
+                <div>
+                  <h4 className="font-bold text-amber-300 text-xs">Đổi Tên, Đề Thơ & AI Sáng Tác</h4>
+                  <p className="text-slate-300 text-[11.5px] mt-0.5 leading-relaxed">
+                    Tùy chỉnh tiêu đề ấn bản, chọn câu thơ cổ hoặc bấm <strong>✨ AI Sáng Tác</strong> để tự động tạo thơ và bút ký văn hóa.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-[#131C2E] border border-slate-700/60 flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-amber-500/25 text-amber-300 font-bold flex items-center justify-center text-xs shrink-0 mt-0.5 border border-amber-400/40">3</span>
+                <div>
+                  <h4 className="font-bold text-amber-300 text-xs">Khắc Triện Son Di Sản Chuẩn Mực</h4>
+                  <p className="text-slate-300 text-[11.5px] mt-0.5 leading-relaxed">
+                    Bật con dấu triện son đỏ để chứng thực quy chuẩn phục chế cổ phục trên poster theo đúng quy chế lịch sử.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-[#131C2E] border border-slate-700/60 flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-amber-500/25 text-amber-300 font-bold flex items-center justify-center text-xs shrink-0 mt-0.5 border border-amber-400/40">4</span>
+                <div>
+                  <h4 className="font-bold text-amber-300 text-xs">Tải Poster HD (PNG 1200x1800)</h4>
+                  <p className="text-slate-300 text-[11.5px] mt-0.5 leading-relaxed">
+                    Bấm <strong>Tải Poster Lookbook</strong> để kết xuất tệp ảnh chất lượng cao sắc nét, có thể in ấn hoặc chia sẻ lên mạng xã hội.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="mt-4 pt-3 border-t border-slate-700/60 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowGuideModal(false)}
+                className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all cursor-pointer shadow-sm active:scale-95"
+              >
+                Đã hiểu
+              </button>
+            </div>
           </div>
         </div>
       )}

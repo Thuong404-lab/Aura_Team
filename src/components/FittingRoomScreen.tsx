@@ -1220,7 +1220,10 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                 </div>
 
                 {/* 6. Wardrobe Cards Grid */}
-                <div className="min-h-[380px] max-h-[520px] overflow-y-auto pr-1 space-y-2 custom-scrollbar">
+                <div
+                  data-lenis-prevent="true"
+                  className="min-h-[380px] max-h-[520px] overflow-y-auto overscroll-contain pr-1 space-y-2 custom-scrollbar"
+                >
                   {/* TAB 1: Áo Cổ Phục (TOPS) */}
                   {activeTab === 'top' && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

@@ -5,6 +5,7 @@
  */
 
 import { WardrobeItem, FabricOption, ColorOption, BackdropOption } from '../data/vietPhucData';
+import { toPng } from 'html-to-image';
 
 export interface LookbookPosterOptions {
   top: WardrobeItem;
@@ -23,6 +24,7 @@ export interface LookbookPosterOptions {
   personalNote?: string;
   lightingFilter?: 'sunset' | 'moonlight' | 'royal' | 'vintage';
   showSeal?: boolean;
+  element?: HTMLElement | null;
 }
 
 /**
@@ -46,18 +48,66 @@ function loadImageWithFallback(src: string): Promise<HTMLImageElement | null> {
 
 /**
  * Sinh và tải trực tiếp file Poster HD PNG về máy người dùng
+ * Đảm bảo 100% hình ảnh tải về giống hệt hình ảnh người dùng nhìn thấy trên màn hình xem trước
  */
 export async function downloadLookbookPosterHD(
   options: LookbookPosterOptions,
   onProgress?: (status: string) => void
 ): Promise<string> {
-  if (onProgress) onProgress('Đang chuẩn bị khung hình di sản HD...');
+  const sanitizeFilename = (name: string) =>
+    name
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9_-]/g, '_')
+      .replace(/_+/g, '_')
+      .substring(0, 50);
 
-  if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
+  const editionName = options.editionTitle || `Dang_Hoa_${options.top.name}`;
+  const filename = `Lookbook_${sanitizeFilename(editionName)}_1200x1800.png`;
+
+  // 1. CHỤP TRỰC TIẾP KHUNG POSTER XEM TRƯỚC (WYSWYG - Chuẩn xác 100% với ảnh xem trước)
+  if (options.element) {
     try {
-      await document.fonts.ready;
-    } catch {
-      // Continue drawing if font loading promise errors
+      if (onProgress) onProgress('Đang chuẩn bị khung hình di sản HD...');
+
+      if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch {
+          // Bỏ qua lỗi phông nếu có
+        }
+      }
+
+      if (onProgress) onProgress('Đang kết xuất Poster HD giống hệt ảnh xem trước...');
+
+      const dataUrl = await toPng(options.element, {
+        pixelRatio: 2.5, // 480px * 2.5 = 1200px (độ nét cao chuẩn HD 1200x1800)
+        quality: 0.98,
+        cacheBust: true,
+        style: {
+          transform: 'none',
+          boxShadow: 'none',
+          margin: '0',
+        },
+        fetchRequestInit: {
+          mode: 'cors',
+          cache: 'force-cache',
+        },
+      });
+
+      if (onProgress) onProgress('Đang tải tệp ảnh Poster HD về máy...');
+
+      const downloadLink = document.createElement('a');
+      downloadLink.download = filename;
+      downloadLink.href = dataUrl;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+
+      return dataUrl;
+    } catch (err) {
+      console.warn('html-to-image capture fallback to canvas:', err);
+      // Tiếp tục xuống canvas fallback nếu có lỗi
     }
   }
 
