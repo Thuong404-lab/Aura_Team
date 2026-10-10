@@ -32,6 +32,31 @@ if (apiKey && apiKey !== 'MY_GEMINI_API_KEY' && !apiKey.startsWith('MY_')) {
   });
 }
 
+// Resilient helper to query Gemini across available models (handles 503 high-demand automatically)
+async function callGemini(contents: string, systemInstruction?: string): Promise<string | null> {
+  if (!ai) return null;
+  const models = ['gemini-3.8-flash', 'gemini-3.1-flash-lite'];
+  for (const model of models) {
+    try {
+      const response = await ai.models.generateContent({
+        model,
+        contents,
+        config: {
+          systemInstruction,
+          responseMimeType: 'application/json',
+          temperature: 0.65,
+        },
+      });
+      if (response.text) {
+        return response.text;
+      }
+    } catch (err: any) {
+      console.warn(`Model ${model} call encountered issue, checking next candidate:`, err?.message || err);
+    }
+  }
+  return null;
+}
+
 // 1. Suggest Outfit API
 app.post('/api/ai/suggest', async (req, res) => {
   const {
@@ -114,19 +139,12 @@ Phản hồi ĐÚNG ĐỊNH DẠNG JSON sau:
 - Hành động mong muốn: ${targetAction}
 Hãy phân tích sự kết hợp giữa các item cụ thể dựa trên ý nghĩa văn hóa và xu hướng phối đồ hiện đại.`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.8-flash',
-        contents,
-        config: {
-          systemInstruction,
-          responseMimeType: 'application/json',
-          temperature: 0.7,
-        },
-      });
-
-      const parsed = JSON.parse(response.text || '{}');
-      if (parsed.recommendedTopId) {
-        return res.json({ success: true, data: parsed });
+      const rawText = await callGemini(contents, systemInstruction);
+      if (rawText) {
+        const parsed = JSON.parse(rawText);
+        if (parsed.recommendedTopId) {
+          return res.json({ success: true, data: parsed });
+        }
       }
     } catch (err) {
       console.warn('Gemini Suggest call failed or key inactive, using rich cultural fallback:', err);
@@ -234,18 +252,12 @@ Hãy trả về JSON:
   "stylingTip": "string (1 gợi ý nhỏ để bộ trang phục hoàn hảo hơn nữa khi chụp ảnh)"
 }`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.8-flash',
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json',
-          temperature: 0.6,
-        },
-      });
-
-      const parsed = JSON.parse(response.text || '{}');
-      if (parsed.score) {
-        return res.json({ success: true, data: parsed });
+      const rawText = await callGemini(prompt);
+      if (rawText) {
+        const parsed = JSON.parse(rawText);
+        if (parsed.score) {
+          return res.json({ success: true, data: parsed });
+        }
       }
     } catch (err) {
       console.warn('Gemini Harmony call failed or key inactive, using rich fallback:', err);
@@ -279,10 +291,8 @@ app.post('/api/ai/lookbook-story', async (req, res) => {
 
   if (ai) {
     try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.8-flash',
-        contents: `Hãy viết lời bình Lookbook nghệ thuật phong cách tạp chí thời trang di sản cao cấp cho bức ảnh:
-- Trang phục: ${top?.name} phối cùng ${bottom?.name} và ${accessory?.name}.
+      const contents = `Hãy viết lời bình Lookbook nghệ thuật phong cách tạp chí thời trang di sản cao cấp cho bức ảnh:
+- Trang phục: ${top?.name || 'Áo Ngũ Thân'} phối cùng ${bottom?.name || 'Quần Ống Sớ'} và ${accessory?.name || 'Mấn/Khăn Đóng'}.
 - Bối cảnh: ${backdropTitle || 'Hoàng Thành Huế'}.
 LƯU Ý QUY CHUẨN VĂN HÓA VIỆT PHỤC:
 - Tôn vinh cấu trúc 5 thân, tà áo lượn cong dáng chữ A (đáy thúng), đường sống áo "mũi gáy" trung chính giữa lưng và đường may nối ngang ống tay do khổ vải dệt xưa 35-40cm.
@@ -297,16 +307,14 @@ Trả về JSON:
   "editorialStory": "string (Đoạn văn phân tích văn hóa và thời trang 3-4 câu)",
   "poetryCouple": "string (Hai câu thơ hoặc câu đối mang phong vị cổ điển)",
   "photographerNote": "string (Gợi ý góc chụp và ánh sáng)"
-}`,
-        config: {
-          responseMimeType: 'application/json',
-          temperature: 0.7,
-        },
-      });
+}`;
 
-      const parsed = JSON.parse(response.text || '{}');
-      if (parsed.editionTitle) {
-        return res.json({ success: true, data: parsed });
+      const rawText = await callGemini(contents);
+      if (rawText) {
+        const parsed = JSON.parse(rawText);
+        if (parsed.editionTitle) {
+          return res.json({ success: true, data: parsed });
+        }
       }
     } catch (err) {
       console.warn('Gemini Story call failed, using rich fallback:', err);
