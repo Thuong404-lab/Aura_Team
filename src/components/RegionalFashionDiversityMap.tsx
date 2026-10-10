@@ -11,6 +11,7 @@ import {
   Layers,
 } from 'lucide-react';
 import { soundEngine } from '../utils/audioSynth';
+import { useAppTheme } from '../context/ThemeContext';
 
 interface RegionTradition {
   id: string;
@@ -94,6 +95,9 @@ const REGION_TRADITIONS: RegionTradition[] = [
 ];
 
 export const RegionalFashionDiversityMap: React.FC = () => {
+  const { theme } = useAppTheme();
+  const isCream = theme === 'cream';
+
   const [selectedRegionId, setSelectedRegionId] = useState<string>(REGION_TRADITIONS[1].id); // Default Hue / Trung Bo
 
   const currentRegion =
@@ -102,25 +106,35 @@ export const RegionalFashionDiversityMap: React.FC = () => {
   return (
     <section className="w-full my-16 text-left relative z-10">
       {/* Section Header */}
-      <div className="border-b border-amber-500/20 pb-6 mb-8">
+      <div className={`border-b pb-6 mb-8 ${isCream ? 'border-amber-900/15' : 'border-amber-500/20'}`}>
         <div>
           <div className="flex items-center gap-2 mb-2">
             <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-            <span className="text-xs font-bold tracking-[0.25em] uppercase text-amber-400 font-serif-vi">
+            <span className={`text-xs font-bold tracking-[0.25em] uppercase font-serif-vi ${
+              isCream ? 'text-amber-800' : 'text-amber-400'
+            }`}>
               BẢN ĐỒ VĂN HÓA 3 MIỀN
             </span>
           </div>
-          <h2 className="font-serif-vi text-2xl sm:text-3xl md:text-4xl font-bold text-amber-100 tracking-tight">
+          <h2 className={`font-serif-vi text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight ${
+            isCream ? 'text-stone-900' : 'text-amber-100'
+          }`}>
             Sắc Thái Trang Phục Bắc — Trung — Nam
           </h2>
-          <p className="text-xs sm:text-sm text-slate-300 mt-2 max-w-2xl font-light font-sans-vi leading-relaxed">
+          <p className={`text-xs sm:text-sm mt-2 max-w-2xl font-light font-sans-vi leading-relaxed ${
+            isCream ? 'text-stone-700' : 'text-slate-300'
+          }`}>
             Mỗi vùng đất trên dải non sông hình chữ S lại ươm mầm một phong cách phục sức độc đáo, phản chiếu địa lý, khí hậu và tâm hồn con người nơi ấy.
           </p>
         </div>
 
         {/* 3 Region Selection Tabs: Single clean row, no word breaking, cohesive pill design */}
-        <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-2 p-1 bg-[#0A0F1E]/90 rounded-xl border border-slate-800 overflow-x-auto scrollbar-none max-w-full">
+        <div className={`mt-6 pt-4 border-t flex items-center justify-between gap-4 flex-wrap ${
+          isCream ? 'border-amber-900/10' : 'border-slate-800/80'
+        }`}>
+          <div className={`flex items-center gap-2 p-1 rounded-xl border overflow-x-auto scrollbar-none max-w-full ${
+            isCream ? 'bg-stone-100 border-stone-200' : 'bg-[#0A0F1E]/90 border-slate-800'
+          }`}>
             {REGION_TRADITIONS.map((reg) => (
               <button
                 key={reg.id}
@@ -131,7 +145,11 @@ export const RegionalFashionDiversityMap: React.FC = () => {
                 }}
                 className={`px-4 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 flex-shrink-0 ${
                   selectedRegionId === reg.id
-                    ? 'bg-amber-400 text-slate-950 font-bold shadow-sm shadow-amber-500/20'
+                    ? isCream
+                      ? 'bg-amber-400 text-stone-950 font-bold shadow-xs'
+                      : 'bg-amber-400 text-slate-950 font-bold shadow-sm shadow-amber-500/20'
+                    : isCream
+                    ? 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
                     : 'text-slate-400 hover:text-amber-200 hover:bg-slate-800/60'
                 }`}
               >
@@ -141,7 +159,11 @@ export const RegionalFashionDiversityMap: React.FC = () => {
             ))}
           </div>
 
-          <div className="text-xs text-amber-300/80 font-mono hidden sm:flex items-center gap-1.5 bg-amber-500/10 px-3 py-1.5 rounded-lg border border-amber-500/20">
+          <div className={`text-xs font-mono hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border ${
+            isCream
+              ? 'bg-amber-50 border-amber-200 text-amber-900 font-medium'
+              : 'text-amber-300/80 bg-amber-500/10 border-amber-500/20'
+          }`}>
             <span>{currentRegion.iconSymbol}</span>
             <span className="font-medium">{currentRegion.subTitle}</span>
           </div>
@@ -156,20 +178,30 @@ export const RegionalFashionDiversityMap: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.3 }}
-          className="p-6 sm:p-8 rounded-3xl bg-[#0E1526]/90 border border-amber-500/30 backdrop-blur-xl shadow-2xl relative overflow-hidden"
+          className={`p-6 sm:p-8 rounded-3xl border shadow-2xl relative overflow-hidden backdrop-blur-xl ${
+            isCream
+              ? 'bg-white border-amber-200/90 shadow-[0_8px_30px_rgba(180,130,60,0.08)] text-stone-900'
+              : 'bg-[#0E1526]/90 border-amber-500/30 text-slate-100'
+          }`}
         >
           {/* Top Banner with Region Info */}
-          <div className="border-b border-slate-700/70 pb-6 mb-6">
+          <div className={`border-b pb-6 mb-6 ${isCream ? 'border-stone-200' : 'border-slate-700/70'}`}>
             <div className="flex flex-wrap items-baseline gap-3 mb-2">
               <span className="text-2xl">{currentRegion.iconSymbol}</span>
-              <h3 className="font-serif-vi text-2xl sm:text-3xl font-bold text-amber-200">
+              <h3 className={`font-serif-vi text-2xl sm:text-3xl font-bold ${
+                isCream ? 'text-amber-900' : 'text-amber-200'
+              }`}>
                 {currentRegion.regionName}
               </h3>
             </div>
-            <p className="text-sm font-medium text-amber-300/90 mb-1">
+            <p className={`text-sm font-semibold mb-1 ${
+              isCream ? 'text-stone-800' : 'text-amber-300/90'
+            }`}>
               {currentRegion.subTitle}
             </p>
-            <p className="text-xs text-slate-400 font-light italic">
+            <p className={`text-xs font-light italic ${
+              isCream ? 'text-stone-600' : 'text-slate-400'
+            }`}>
               "{currentRegion.tagline}"
             </p>
           </div>
@@ -180,17 +212,23 @@ export const RegionalFashionDiversityMap: React.FC = () => {
             <div className="lg:col-span-6 space-y-6">
               {/* Distinctive Features */}
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-3 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-amber-400" />
+                <h4 className={`text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-2 ${
+                  isCream ? 'text-amber-900 font-bold' : 'text-amber-400'
+                }`}>
+                  <Sparkles className={`w-4 h-4 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
                   <span>Dấu Ấn Nhận Diện Nổi Bật</span>
                 </h4>
                 <div className="space-y-2.5">
                   {currentRegion.distinctiveFeatures.map((feat, fIdx) => (
                     <div
                       key={fIdx}
-                      className="flex items-start gap-3 p-3 rounded-xl bg-[#121B30] border border-slate-800 text-xs text-slate-200"
+                      className={`flex items-start gap-3 p-3 rounded-xl border text-xs ${
+                        isCream
+                          ? 'bg-[#FFFDF9] border-stone-200 text-stone-800'
+                          : 'bg-[#121B30] border-slate-800 text-slate-200'
+                      }`}
                     >
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0 mt-1.5" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 flex-shrink-0 mt-1.5" />
                       <span className="leading-relaxed">{feat}</span>
                     </div>
                   ))}
@@ -198,8 +236,12 @@ export const RegionalFashionDiversityMap: React.FC = () => {
               </div>
 
               {/* Climate & Nature impact */}
-              <div className="p-4 rounded-2xl bg-[#0B101E] border border-slate-800 text-xs text-slate-300 space-y-2">
-                <span className="font-bold text-amber-300 block">
+              <div className={`p-4 rounded-2xl border text-xs space-y-2 ${
+                isCream
+                  ? 'bg-amber-50/70 border-amber-200 text-stone-800'
+                  : 'bg-[#0B101E] border-slate-800 text-slate-300'
+              }`}>
+                <span className={`font-bold block ${isCream ? 'text-amber-900' : 'text-amber-300'}`}>
                   🌤️ Ảnh Hưởng Của Đất Trời & Khí Hậu:
                 </span>
                 <p className="leading-relaxed font-light font-sans-vi">
@@ -208,8 +250,12 @@ export const RegionalFashionDiversityMap: React.FC = () => {
               </div>
 
               {/* Cultural spirit */}
-              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200 space-y-2">
-                <span className="font-bold text-amber-300 block">
+              <div className={`p-4 rounded-2xl border text-xs space-y-2 ${
+                isCream
+                  ? 'bg-amber-100/60 border-amber-300 text-stone-800'
+                  : 'bg-amber-500/10 border-amber-500/20 text-amber-200'
+              }`}>
+                <span className={`font-bold block ${isCream ? 'text-amber-900' : 'text-amber-300'}`}>
                   🕊️ Cốt Cách & Triết Lý Vùng Miền:
                 </span>
                 <p className="leading-relaxed font-light font-sans-vi">
@@ -220,8 +266,10 @@ export const RegionalFashionDiversityMap: React.FC = () => {
 
             {/* Right 6 Cols: Key Garment Showcase Cards */}
             <div className="lg:col-span-6 space-y-4">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-3 flex items-center gap-2">
-                <Layers className="w-4 h-4 text-amber-400" />
+              <h4 className={`text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-2 ${
+                isCream ? 'text-amber-900 font-bold' : 'text-amber-400'
+              }`}>
+                <Layers className={`w-4 h-4 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
                 <span>Thức Phục Tiêu Biểu Cho Vùng Đất</span>
               </h4>
 
@@ -229,17 +277,27 @@ export const RegionalFashionDiversityMap: React.FC = () => {
                 {currentRegion.keyOutfits.map((outfit, oIdx) => (
                   <div
                     key={oIdx}
-                    className="p-4 rounded-2xl bg-[#121B30] hover:bg-[#15213D] border border-slate-700/80 transition-all text-xs"
+                    className={`p-4 rounded-2xl border transition-all text-xs ${
+                      isCream
+                        ? 'bg-[#FFFDF9] hover:bg-amber-50/50 border-stone-200 hover:border-amber-300 text-stone-800 shadow-xs'
+                        : 'bg-[#121B30] hover:bg-[#15213D] border-slate-700/80 text-slate-300'
+                    }`}
                   >
                     <div className="flex items-center justify-between mb-1.5">
-                      <span className="font-serif-vi text-base font-bold text-amber-100">
+                      <span className={`font-serif-vi text-base font-bold ${
+                        isCream ? 'text-amber-900' : 'text-amber-100'
+                      }`}>
                         {outfit.name}
                       </span>
-                      <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-md bg-[#0B101E] text-amber-400 border border-amber-500/30">
+                      <span className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded-md border ${
+                        isCream
+                          ? 'bg-amber-100 text-amber-900 border-amber-300 font-medium'
+                          : 'bg-[#0B101E] text-amber-400 border-amber-500/30'
+                      }`}>
                         {outfit.eraOrPlace}
                       </span>
                     </div>
-                    <p className="text-slate-300 font-light leading-relaxed">
+                    <p className={`font-light leading-relaxed ${isCream ? 'text-stone-700' : 'text-slate-300'}`}>
                       {outfit.highlight}
                     </p>
                   </div>
@@ -247,11 +305,15 @@ export const RegionalFashionDiversityMap: React.FC = () => {
               </div>
 
               {/* Cultural Quote Callout */}
-              <div className="mt-6 p-4 rounded-2xl bg-gradient-to-r from-[#141F36] to-[#0E1526] border border-amber-500/30 text-xs text-slate-300 text-center">
-                <p className="italic font-serif-vi text-sm text-amber-200">
+              <div className={`mt-6 p-4 rounded-2xl border text-xs text-center ${
+                isCream
+                  ? 'bg-gradient-to-r from-amber-50 via-white to-amber-50 border-amber-300 text-stone-800 shadow-xs'
+                  : 'bg-gradient-to-r from-[#141F36] to-[#0E1526] border-amber-500/30 text-slate-300'
+              }`}>
+                <p className={`italic font-serif-vi text-sm ${isCream ? 'text-amber-950 font-bold' : 'text-amber-200'}`}>
                   "Ăn Bắc mặc Kinh — Dáng hình non sông đúc kết trong từng vạt áo"
                 </p>
-                <span className="text-[10px] text-slate-400 mt-1 block">
+                <span className={`text-[10px] mt-1 block ${isCream ? 'text-stone-500' : 'text-slate-400'}`}>
                   Ca dao tục ngữ lưu truyền nét đẹp phục sức người Việt
                 </span>
               </div>

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { CartItem, PROMO_VOUCHERS, PromoVoucher } from '../data/fashionShopData';
 import { soundEngine } from '../utils/audioSynth';
+import { useAppTheme } from '../context/ThemeContext';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -39,6 +40,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onTryCartInFittingRoom,
   onExploreShop,
 }) => {
+  const { theme } = useAppTheme();
+  const isCream = theme === 'cream';
+
   const [promoCodeInput, setPromoCodeInput] = useState('');
   const [appliedVoucher, setAppliedVoucher] = useState<PromoVoucher | null>(null);
   const [promoError, setPromoError] = useState<string | null>(null);
@@ -112,19 +116,33 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 260 }}
-            className="w-screen max-w-md bg-[#0C1220] border-l border-amber-500/20 text-slate-100 flex flex-col shadow-2xl"
+            className={`w-screen max-w-md flex flex-col shadow-2xl border-l ${
+              isCream
+                ? 'bg-white border-amber-200 text-stone-900 shadow-[0_8px_30px_rgba(180,130,60,0.12)]'
+                : 'bg-[#0C1220] border-amber-500/20 text-slate-100'
+            }`}
           >
             {/* Header */}
-            <div className="p-4 sm:p-5 border-b border-amber-500/20 flex items-center justify-between bg-[#0A0E17]/80">
+            <div className={`p-4 sm:p-5 border-b flex items-center justify-between ${
+              isCream
+                ? 'bg-amber-50/80 border-amber-200'
+                : 'border-amber-500/20 bg-[#0A0E17]/80'
+            }`}>
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
+                <div className={`p-2 rounded-xl border ${
+                  isCream
+                    ? 'bg-amber-100 border-amber-300 text-amber-900'
+                    : 'bg-amber-500/10 border-amber-500/30 text-amber-400'
+                }`}>
                   <ShoppingBag className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="font-serif-vi font-bold text-lg text-amber-200">
+                  <h2 className={`font-serif-vi font-bold text-lg ${
+                    isCream ? 'text-amber-950 font-bold' : 'text-amber-200'
+                  }`}>
                     Túi Mua Sắm
                   </h2>
-                  <p className="text-xs text-slate-400">
+                  <p className={`text-xs ${isCream ? 'text-stone-600' : 'text-slate-400'}`}>
                     {items.reduce((c, i) => c + i.quantity, 0)} món đồ trong giỏ
                   </p>
                 </div>
@@ -132,36 +150,44 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
               <button
                 onClick={onClose}
-                className="p-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+                className={`p-2 rounded-full transition-colors cursor-pointer ${
+                  isCream ? 'hover:bg-stone-200/60 text-stone-600' : 'hover:bg-slate-800 text-slate-400 hover:text-white'
+                }`}
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Free Shipping Progress bar */}
-            <div className="px-5 py-3 bg-amber-950/20 border-b border-amber-500/15">
+            <div className={`px-5 py-3 border-b ${
+              isCream
+                ? 'bg-amber-50/50 border-amber-200/80'
+                : 'bg-amber-950/20 border-amber-500/15'
+            }`}>
               <div className="flex items-center justify-between text-xs mb-1.5">
-                <span className="flex items-center gap-1.5 text-slate-300 font-medium">
-                  <Truck className="w-3.5 h-3.5 text-amber-400" />
+                <span className={`flex items-center gap-1.5 font-medium ${
+                  isCream ? 'text-stone-700' : 'text-slate-300'
+                }`}>
+                  <Truck className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
                   {isFreeShipping ? (
-                    <span className="text-emerald-400 font-semibold">
+                    <span className="text-emerald-700 font-semibold">
                       Chúc mừng! Đơn hàng được MIỄN PHÍ VẬN CHUYỂN
                     </span>
                   ) : (
                     <span>
                       Mua thêm{' '}
-                      <strong className="text-amber-300">
+                      <strong className={isCream ? 'text-amber-900' : 'text-amber-300'}>
                         {amountNeededForFreeShip.toLocaleString('vi-VN')}₫
                       </strong>{' '}
                       để được Freeship
                     </span>
                   )}
                 </span>
-                <span className="text-amber-400 font-bold text-[11px]">
+                <span className={`font-bold text-[11px] ${isCream ? 'text-amber-900' : 'text-amber-400'}`}>
                   {freeShipProgress}%
                 </span>
               </div>
-              <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+              <div className={`w-full h-1.5 rounded-full overflow-hidden ${isCream ? 'bg-stone-200' : 'bg-slate-800'}`}>
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${freeShipProgress}%` }}
@@ -207,7 +233,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     className="pt-3.5 first:pt-0 flex gap-3.5 group"
                   >
                     {/* Item Thumbnail */}
-                    <div className="w-20 h-24 rounded-xl overflow-hidden bg-slate-900 border border-amber-500/20 flex-shrink-0">
+                    <div className={`w-20 h-24 rounded-xl overflow-hidden border flex-shrink-0 ${
+                      isCream ? 'bg-amber-50 border-amber-200' : 'bg-slate-900 border-amber-500/20'
+                    }`}>
                       <img
                         src={item.product.images[0]}
                         alt={item.product.name}
@@ -219,7 +247,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     <div className="flex-1 min-w-0 flex flex-col justify-between">
                       <div>
                         <div className="flex items-start justify-between gap-1">
-                          <h4 className="text-xs font-semibold text-amber-200 truncate pr-1">
+                          <h4 className={`text-xs font-semibold truncate pr-1 ${
+                            isCream ? 'text-amber-950 font-bold' : 'text-amber-200'
+                          }`}>
                             {item.product.name}
                           </h4>
                           <button
@@ -227,20 +257,26 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                               soundEngine.playPluck(300);
                               onRemoveItem(item.cartItemId);
                             }}
-                            className="text-slate-500 hover:text-red-400 p-1 rounded transition-colors"
+                            className={`p-1 rounded transition-colors cursor-pointer ${
+                              isCream ? 'text-stone-400 hover:text-red-600' : 'text-slate-500 hover:text-red-400'
+                            }`}
                             title="Xóa món đồ"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-2 mt-1 text-[11px] text-slate-400">
-                          <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">
+                        <div className={`flex flex-wrap items-center gap-2 mt-1 text-[11px] ${
+                          isCream ? 'text-stone-600' : 'text-slate-400'
+                        }`}>
+                          <span className={`px-1.5 py-0.5 rounded border ${
+                            isCream ? 'bg-stone-100 text-stone-800 border-stone-200' : 'bg-slate-800 text-slate-300 border-transparent'
+                          }`}>
                             Size: {item.selectedSize}
                           </span>
                           <span className="flex items-center gap-1">
                             <span
-                              className="w-2.5 h-2.5 rounded-full border border-black/50"
+                              className="w-2.5 h-2.5 rounded-full border border-black/30"
                               style={{ backgroundColor: item.selectedColor.hex }}
                             />
                             {item.selectedColor.name}
@@ -248,7 +284,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         </div>
 
                         {item.customMeasurements && (
-                          <div className="mt-1 text-[10px] text-amber-400/90 italic">
+                          <div className={`mt-1 text-[10px] italic ${isCream ? 'text-amber-800 font-medium' : 'text-amber-400/90'}`}>
                             May đo: {item.customMeasurements.height}cm / {item.customMeasurements.weight}kg
                           </div>
                         )}
@@ -256,17 +292,21 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
                       {/* Quantity & Price */}
                       <div className="flex items-center justify-between pt-2">
-                        <div className="flex items-center border border-slate-700 rounded-lg bg-slate-900/60 overflow-hidden">
+                        <div className={`flex items-center border rounded-lg overflow-hidden ${
+                          isCream ? 'border-stone-300 bg-stone-50' : 'border-slate-700 bg-slate-900/60'
+                        }`}>
                           <button
                             onClick={() => {
                               soundEngine.playPluck(400);
                               onUpdateQuantity(item.cartItemId, item.quantity - 1);
                             }}
-                            className="p-1 hover:bg-slate-800 text-slate-300 transition-colors"
+                            className={`p-1 transition-colors cursor-pointer ${
+                              isCream ? 'hover:bg-stone-200 text-stone-700' : 'hover:bg-slate-800 text-slate-300'
+                            }`}
                           >
                             <Minus className="w-3 h-3" />
                           </button>
-                          <span className="px-2 text-xs font-semibold text-slate-200">
+                          <span className={`px-2 text-xs font-semibold ${isCream ? 'text-stone-900' : 'text-slate-200'}`}>
                             {item.quantity}
                           </span>
                           <button
@@ -274,13 +314,15 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                               soundEngine.playPluck(500);
                               onUpdateQuantity(item.cartItemId, item.quantity + 1);
                             }}
-                            className="p-1 hover:bg-slate-800 text-slate-300 transition-colors"
+                            className={`p-1 transition-colors cursor-pointer ${
+                              isCream ? 'hover:bg-stone-200 text-stone-700' : 'hover:bg-slate-800 text-slate-300'
+                            }`}
                           >
                             <Plus className="w-3 h-3" />
                           </button>
                         </div>
 
-                        <span className="text-xs font-bold font-serif-vi text-amber-300">
+                        <span className={`text-xs font-bold font-serif-vi ${isCream ? 'text-amber-900 font-bold' : 'text-amber-300'}`}>
                           {(item.product.price * item.quantity).toLocaleString('vi-VN')}₫
                         </span>
                       </div>
@@ -292,36 +334,48 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
             {/* Bottom Actions & Summary */}
             {items.length > 0 && (
-              <div className="p-4 sm:p-5 border-t border-amber-500/20 bg-[#0A0E17]/95 space-y-3">
+              <div className={`p-4 sm:p-5 border-t space-y-3 ${
+                isCream
+                  ? 'bg-[#FFFDF9] border-amber-200'
+                  : 'bg-[#0A0E17]/95 border-amber-500/20'
+              }`}>
                 {/* Promo Code Input */}
                 <div className="space-y-1.5">
                   <div className="flex gap-2">
                     <div className="relative flex-1">
-                      <Tag className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400" />
+                      <Tag className={`w-3.5 h-3.5 absolute left-3 top-2.5 ${isCream ? 'text-stone-400' : 'text-slate-400'}`} />
                       <input
                         type="text"
                         placeholder="Mã ưu đãi (VD: AURA2026)"
                         value={promoCodeInput}
                         onChange={(e) => setPromoCodeInput(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-200 uppercase placeholder:normal-case placeholder:text-slate-500 focus:border-amber-400 outline-none"
+                        className={`w-full rounded-xl pl-8 pr-3 py-1.5 text-xs uppercase outline-none border ${
+                          isCream
+                            ? 'bg-white border-stone-300 text-stone-900 placeholder:normal-case placeholder:text-stone-400 focus:border-amber-500'
+                            : 'bg-slate-900 border-slate-700 text-slate-200 placeholder:normal-case placeholder:text-slate-500 focus:border-amber-400'
+                        }`}
                       />
                     </div>
                     <button
                       onClick={handleApplyPromo}
-                      className="px-3.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs font-semibold transition-colors"
+                      className={`px-3.5 py-1.5 rounded-xl border text-xs font-semibold transition-colors cursor-pointer ${
+                        isCream
+                          ? 'bg-amber-100 hover:bg-amber-200 border-amber-300 text-amber-900'
+                          : 'bg-amber-500/20 hover:bg-amber-500/30 border-amber-500/40 text-amber-300'
+                      }`}
                     >
                       Áp dụng
                     </button>
                   </div>
 
                   {promoError && (
-                    <div className="text-[11px] text-red-400 flex items-center gap-1">
+                    <div className={`text-[11px] flex items-center gap-1 ${isCream ? 'text-red-700' : 'text-red-400'}`}>
                       <AlertCircle className="w-3 h-3" />
                       {promoError}
                     </div>
                   )}
                   {promoSuccess && (
-                    <div className="text-[11px] text-emerald-400 flex items-center gap-1">
+                    <div className={`text-[11px] flex items-center gap-1 ${isCream ? 'text-emerald-700' : 'text-emerald-400'}`}>
                       <CheckCircle2 className="w-3 h-3" />
                       {promoSuccess}
                     </div>
@@ -329,33 +383,39 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 </div>
 
                 {/* Price Breakdown */}
-                <div className="space-y-1.5 text-xs text-slate-300 pt-2 border-t border-slate-800">
+                <div className={`space-y-1.5 text-xs pt-2 border-t ${
+                  isCream ? 'text-stone-700 border-stone-200' : 'text-slate-300 border-slate-800'
+                }`}>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Tạm tính:</span>
+                    <span className={isCream ? 'text-stone-500' : 'text-slate-400'}>Tạm tính:</span>
                     <span>{subtotal.toLocaleString('vi-VN')}₫</span>
                   </div>
 
                   {discountAmount > 0 && (
-                    <div className="flex justify-between text-emerald-400">
+                    <div className={`flex justify-between ${isCream ? 'text-emerald-700' : 'text-emerald-400'}`}>
                       <span>Ưu đãi voucher ({appliedVoucher?.code}):</span>
                       <span>-{discountAmount.toLocaleString('vi-VN')}₫</span>
                     </div>
                   )}
 
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Phí vận chuyển:</span>
+                    <span className={isCream ? 'text-stone-500' : 'text-slate-400'}>Phí vận chuyển:</span>
                     <span>
                       {shippingFee === 0 ? (
-                        <span className="text-emerald-400 font-medium">Miễn phí</span>
+                        <span className={`font-medium ${isCream ? 'text-emerald-700' : 'text-emerald-400'}`}>Miễn phí</span>
                       ) : (
                         `${shippingFee.toLocaleString('vi-VN')}₫`
                       )}
                     </span>
                   </div>
 
-                  <div className="flex justify-between items-baseline pt-2 border-t border-slate-800 text-sm font-bold text-amber-200">
+                  <div className={`flex justify-between items-baseline pt-2 border-t text-sm font-bold ${
+                    isCream
+                      ? 'border-stone-200 text-stone-900'
+                      : 'border-slate-800 text-amber-200'
+                  }`}>
                     <span className="font-serif-vi">Tổng thanh toán:</span>
-                    <span className="text-base text-amber-300 font-serif-vi">
+                    <span className={`text-base font-serif-vi ${isCream ? 'text-amber-900 font-bold' : 'text-amber-300'}`}>
                       {finalTotal.toLocaleString('vi-VN')}₫
                     </span>
                   </div>
@@ -364,7 +424,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 {/* Main Action Buttons */}
                 <button
                   onClick={handleCheckoutClick}
-                  className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 flex items-center justify-center gap-2 shadow-lg shadow-amber-500/25 transition-all font-serif-vi"
+                  className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 flex items-center justify-center gap-2 shadow-lg shadow-amber-500/25 transition-all font-serif-vi cursor-pointer"
                 >
                   Tiến Hành Thanh Toán ({items.length} sản phẩm)
                   <ArrowRight className="w-4 h-4" />
@@ -377,7 +437,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       onClose();
                       onTryCartInFittingRoom();
                     }}
-                    className="w-full py-2 px-3 rounded-lg text-xs font-medium text-amber-400 hover:text-amber-300 bg-amber-950/30 border border-amber-500/20 flex items-center justify-center gap-1.5 transition-colors"
+                    className={`w-full py-2 px-3 rounded-lg text-xs font-medium border flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
+                      isCream
+                        ? 'text-amber-900 bg-amber-50 hover:bg-amber-100 border-amber-300'
+                        : 'text-amber-400 hover:text-amber-300 bg-amber-950/30 border-amber-500/20'
+                    }`}
                   >
                     <Sparkles className="w-3.5 h-3.5" />
                     Thử các trang phục trong giỏ trên người mẫu 2D

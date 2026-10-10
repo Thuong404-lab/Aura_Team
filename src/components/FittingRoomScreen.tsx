@@ -12,6 +12,7 @@ import {
 } from '../data/vietPhucData';
 import { AvatarModel } from './AvatarModel';
 import { FabricMotifInspectorModal } from './FabricMotifInspectorModal';
+import { useAppTheme } from '../context/ThemeContext';
 import {
   SilkCategoryTabs,
   SilkTabItem,
@@ -135,6 +136,9 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
   onGoHome,
   onGoLookbook,
 }) => {
+  const { theme } = useAppTheme();
+  const isCream = theme === 'cream';
+
   // Navigation Tabs for Wardrobe
   const [activeTab, setActiveTab] = useState<'top' | 'bottom' | 'accessory' | 'color' | 'fabric'>('top');
 
@@ -574,7 +578,9 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
   const hasCriticalViolations = culturalRulesData.violations.some((v) => v.severity === 'critical');
 
   return (
-    <div className="min-h-screen w-full bg-[#0A0E17] text-slate-100 flex flex-col relative overflow-x-hidden font-sans-vi">
+    <div className={`min-h-screen w-full flex flex-col relative overflow-x-hidden font-sans-vi transition-colors duration-300 ${
+      isCream ? 'bg-[#FAF7F0] text-stone-900' : 'bg-[#0A0E17] text-slate-100'
+    }`}>
       {/* Toast Notification upon Auto-Fix */}
       <AnimatePresence>
         {fixToastMessage && (
@@ -582,9 +588,13 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
             initial={{ opacity: 0, y: -24, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -24, scale: 0.95 }}
-            className="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl bg-[#140D14]/95 border border-amber-400 text-amber-200 text-xs font-semibold shadow-2xl flex items-center gap-2.5 backdrop-blur-md"
+            className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl border text-xs font-semibold shadow-2xl flex items-center gap-2.5 backdrop-blur-md ${
+              isCream
+                ? 'bg-white/95 border-amber-400 text-amber-900 shadow-[0_10px_30px_rgba(180,130,60,0.15)]'
+                : 'bg-[#140D14]/95 border border-amber-400 text-amber-200'
+            }`}
           >
-            <Sparkles className="w-4 h-4 text-amber-400 animate-spin" />
+            <Sparkles className="w-4 h-4 text-amber-500 animate-spin" />
             <span>{fixToastMessage}</span>
           </motion.div>
         )}
@@ -592,9 +602,11 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
 
       {/* Decorative Traditional Motifs */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0D1424] via-[#090D17] to-[#060910]" />
+        <div className={`absolute inset-0 transition-opacity duration-500 ${
+          isCream ? 'opacity-0' : 'bg-gradient-to-b from-[#0D1424] via-[#090D17] to-[#060910]'
+        }`} />
         <div className="absolute -bottom-36 -left-36 opacity-25">
-          <DongSonDrumMandala className="w-[520px] h-[520px]" opacity={0.3} />
+          <DongSonDrumMandala className="w-[520px] h-[520px]" opacity={isCream ? 0.45 : 0.3} />
         </div>
         <div className="absolute top-12 left-8 opacity-30">
           <CoPhongCloud className="w-48 h-28" />
@@ -660,7 +672,11 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
               LEFT COLUMN: Live 2D Mannequin Visualizer & Quick Wardrobe Bar
              ========================================================== */}
           <div className="w-full lg:sticky lg:top-20 flex flex-col gap-3.5 self-start">
-            <div className="relative w-full aspect-4/5 sm:aspect-3/4 max-h-[580px] rounded-3xl bg-radial from-[#121A2C] via-[#0D1322] to-[#080C16] border border-amber-500/30 p-2 sm:p-4 flex items-center justify-center shadow-2xl overflow-hidden group">
+            <div className={`relative w-full aspect-4/5 sm:aspect-3/4 max-h-[580px] rounded-3xl border p-2 sm:p-4 flex items-center justify-center shadow-2xl overflow-hidden group transition-all duration-300 ${
+              isCream
+                ? 'bg-radial from-[#FFFDF9] via-[#F8F3E8] to-[#EFE5D0] border-amber-400/50 shadow-[0_16px_45px_rgba(180,130,60,0.12)]'
+                : 'bg-radial from-[#121A2C] via-[#0D1322] to-[#080C16] border-amber-500/30'
+            }`}>
               <AvatarModel
                 top={currentTop}
                 bottom={currentBottom}
@@ -682,72 +698,104 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                     soundEngine.playPluck(523.25);
                     setShowFabricInspector(true);
                   }}
-                  className="px-3 py-1.5 rounded-full bg-[#162035]/90 hover:bg-[#1E2D4A] border border-amber-400/80 hover:border-amber-300 text-amber-200 text-[11px] font-bold shadow-xl flex items-center gap-1.5 backdrop-blur-md cursor-pointer transition-all hover:scale-105 active:scale-95"
+                  className={`px-3 py-1.5 rounded-full border text-[11px] font-bold shadow-xl flex items-center gap-1.5 backdrop-blur-md cursor-pointer transition-all hover:scale-105 active:scale-95 ${
+                    isCream
+                      ? 'bg-white hover:bg-amber-50 border-amber-400 text-amber-900 shadow-[0_4px_16px_rgba(180,130,60,0.15)]'
+                      : 'bg-[#162035]/90 hover:bg-[#1E2D4A] border-amber-400/80 hover:border-amber-300 text-amber-200'
+                  }`}
                   title="Phóng to xem cận cảnh chi tiết thêu tay, vân gấm và họa tiết chìm"
                 >
-                  <Scan className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                  <Scan className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-400'} animate-pulse`} />
                   <span>Soi Cận Cảnh Vải (1x - 8x)</span>
                 </button>
-                <div className="px-2 py-0.5 rounded-md bg-black/60 border border-slate-700/60 text-[9.5px] text-slate-300 backdrop-blur-xs font-mono">
+                <div className={`px-2 py-0.5 rounded-md border text-[9.5px] backdrop-blur-xs font-mono ${
+                  isCream ? 'bg-amber-50 border-amber-200 text-stone-700' : 'bg-black/60 border-slate-700/60 text-slate-300'
+                }`}>
                   {currentFabric?.name || FABRICS[1].name}
                 </div>
               </div>
             </div>
 
             {/* Currently Equipped Slots Summary */}
-            <div className="w-full p-2.5 rounded-2xl bg-[#0F1626]/90 border border-slate-800 flex items-center justify-between gap-2 flex-wrap text-xs">
+            <div className={`w-full p-2.5 rounded-2xl border flex items-center justify-between gap-2 flex-wrap text-xs transition-colors ${
+              isCream ? 'bg-white border-amber-200/90 shadow-sm' : 'bg-[#0F1626]/90 border border-slate-800'
+            }`}>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[11px] text-slate-400 font-medium">Đang mặc:</span>
+                <span className={`text-[11px] font-medium ${isCream ? 'text-stone-600' : 'text-slate-400'}`}>Đang mặc:</span>
                 {/* Top slot */}
                 {currentTop ? (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-200">
+                  <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl border ${
+                    isCream
+                      ? 'bg-amber-100/90 border-amber-300 text-amber-950'
+                      : 'bg-amber-950/40 border-amber-500/40 text-amber-200'
+                  }`}>
                     <span className="font-serif-vi font-semibold text-xs leading-tight">{currentTop.name}</span>
                     <button
                       onClick={() => onSelectTop(null)}
-                      className="text-amber-400/70 hover:text-amber-200 cursor-pointer p-0.5 rounded-full hover:bg-amber-400/20"
+                      className={`cursor-pointer p-0.5 rounded-full ${
+                        isCream ? 'text-amber-800 hover:bg-amber-200' : 'text-amber-400/70 hover:text-amber-200 hover:bg-amber-400/20'
+                      }`}
                       title="Cởi áo này"
                     >
                       <X className="w-3 h-3" />
                     </button>
                   </div>
                 ) : (
-                  <span className="px-2 py-1 rounded-lg bg-slate-900/60 border border-dashed border-slate-700 text-slate-500 text-[11px]">
+                  <span className={`px-2 py-1 rounded-lg border border-dashed text-[11px] ${
+                    isCream ? 'bg-stone-100/70 border-stone-300 text-stone-500' : 'bg-slate-900/60 border-slate-700 text-slate-500'
+                  }`}>
                     Chưa mặc áo
                   </span>
                 )}
 
                 {/* Bottom slot */}
                 {currentBottom ? (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-200">
+                  <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl border ${
+                    isCream
+                      ? 'bg-amber-100/90 border-amber-300 text-amber-950'
+                      : 'bg-amber-950/40 border-amber-500/40 text-amber-200'
+                  }`}>
                     <span className="font-serif-vi font-semibold text-xs leading-tight">{currentBottom.name}</span>
                     <button
                       onClick={() => onSelectBottom(null)}
-                      className="text-amber-400/70 hover:text-amber-200 cursor-pointer p-0.5 rounded-full hover:bg-amber-400/20"
+                      className={`cursor-pointer p-0.5 rounded-full ${
+                        isCream ? 'text-amber-800 hover:bg-amber-200' : 'text-amber-400/70 hover:text-amber-200 hover:bg-amber-400/20'
+                      }`}
                       title="Cởi quần/váy này"
                     >
                       <X className="w-3 h-3" />
                     </button>
                   </div>
                 ) : (
-                  <span className="px-2 py-1 rounded-lg bg-slate-900/60 border border-dashed border-slate-700 text-slate-500 text-[11px]">
+                  <span className={`px-2 py-1 rounded-lg border border-dashed text-[11px] ${
+                    isCream ? 'bg-stone-100/70 border-stone-300 text-stone-500' : 'bg-slate-900/60 border-slate-700 text-slate-500'
+                  }`}>
                     Chưa mặc hạ y
                   </span>
                 )}
 
                 {/* Accessory slot */}
                 {currentAccessory ? (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-200">
+                  <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl border ${
+                    isCream
+                      ? 'bg-amber-100/90 border-amber-300 text-amber-950'
+                      : 'bg-amber-950/40 border-amber-500/40 text-amber-200'
+                  }`}>
                     <span className="font-serif-vi font-semibold text-xs leading-tight">{currentAccessory.name}</span>
                     <button
                       onClick={() => onSelectAccessory(null)}
-                      className="text-amber-400/70 hover:text-amber-200 cursor-pointer p-0.5 rounded-full hover:bg-amber-400/20"
+                      className={`cursor-pointer p-0.5 rounded-full ${
+                        isCream ? 'text-amber-800 hover:bg-amber-200' : 'text-amber-400/70 hover:text-amber-200 hover:bg-amber-400/20'
+                      }`}
                       title="Gỡ phụ kiện này"
                     >
                       <X className="w-3 h-3" />
                     </button>
                   </div>
                 ) : (
-                  <span className="px-2 py-1 rounded-lg bg-slate-900/60 border border-dashed border-slate-700 text-slate-500 text-[11px]">
+                  <span className={`px-2 py-1 rounded-lg border border-dashed text-[11px] ${
+                    isCream ? 'bg-stone-100/70 border-stone-300 text-stone-500' : 'bg-slate-900/60 border-slate-700 text-slate-500'
+                  }`}>
                     Chưa đeo phụ kiện
                   </span>
                 )}
@@ -774,7 +822,9 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
              ========================================================== */}
           <div className="w-full flex flex-col gap-3.5 text-left">
             {/* 1. WORKSPACE VIEW SWITCHER TABS: Tủ Đồ vs Trợ Lý AI */}
-            <div className="flex items-center justify-between p-1.5 rounded-2xl bg-[#0D1525] border border-amber-500/30 gap-1.5 shadow-md shrink-0">
+            <div className={`flex items-center justify-between p-1.5 rounded-2xl gap-1.5 shadow-md shrink-0 border ${
+              isCream ? 'bg-amber-100/70 border-amber-300/80 shadow-xs' : 'bg-[#0D1525] border-amber-500/30'
+            }`}>
               <button
                 onClick={() => {
                   soundEngine.playPluck(523.25);
@@ -782,11 +832,15 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                 }}
                 className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
                   workspaceView === 'wardrobe'
-                    ? 'bg-gradient-to-r from-amber-500/30 via-amber-500/20 to-amber-600/30 text-amber-200 border border-amber-400/70 shadow-sm'
+                    ? isCream
+                      ? 'bg-white text-amber-950 border border-amber-400 shadow-sm'
+                      : 'bg-gradient-to-r from-amber-500/30 via-amber-500/20 to-amber-600/30 text-amber-200 border border-amber-400/70 shadow-sm'
+                    : isCream
+                    ? 'text-stone-700 hover:text-stone-900 hover:bg-white/60'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
                 }`}
               >
-                <Shirt className="w-3.5 h-3.5 text-amber-400" />
+                <Shirt className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
                 <span>👘 1. Tủ Đồ & Thử Cổ Phục</span>
               </button>
 
@@ -797,13 +851,17 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                 }}
                 className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 relative ${
                   workspaceView === 'ai_stylist'
-                    ? 'bg-gradient-to-r from-amber-500/30 via-amber-500/20 to-amber-600/30 text-amber-200 border border-amber-400/70 shadow-sm'
+                    ? isCream
+                      ? 'bg-white text-amber-950 border border-amber-400 shadow-sm'
+                      : 'bg-gradient-to-r from-amber-500/30 via-amber-500/20 to-amber-600/30 text-amber-200 border border-amber-400/70 shadow-sm'
+                    : isCream
+                    ? 'text-stone-700 hover:text-stone-900 hover:bg-white/60'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
                 }`}
               >
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <Sparkles className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
                 <span>✨ 2. Trợ Lý AI & Đánh Giá</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
               </button>
             </div>
 
@@ -939,39 +997,57 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                 </div>
               ) : currentTop || currentBottom || currentAccessory ? (
                 /* Compliant Outfit Status (No Taboos Triggered) */
-                <div className="p-3 rounded-2xl bg-gradient-to-r from-emerald-950/40 via-[#0C1A1E] to-emerald-950/40 border border-emerald-500/50 shadow-md flex items-center justify-between text-xs text-emerald-200 flex-wrap gap-2">
+                <div className={`p-3 rounded-2xl border shadow-md flex items-center justify-between text-xs flex-wrap gap-2 ${
+                  isCream
+                    ? 'bg-emerald-50/95 border-emerald-300 text-emerald-950'
+                    : 'bg-gradient-to-r from-emerald-950/40 via-[#0C1A1E] to-emerald-950/40 border-emerald-500/50 text-emerald-200'
+                }`}>
                   <div className="flex items-center gap-2.5">
                     <div className="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-400/60 flex items-center justify-center shrink-0">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                     </div>
                     <div>
-                      <span className="font-bold font-serif-vi text-emerald-300 block text-xs">
+                      <span className={`font-bold font-serif-vi block text-xs ${
+                        isCream ? 'text-emerald-950' : 'text-emerald-300'
+                      }`}>
                         Bản Phối Đoan Trang & Chuẩn Mực Thuần Phong Mỹ Tục
                       </span>
-                      <span className="text-[10.5px] text-emerald-400/80">
+                      <span className={`text-[10.5px] ${
+                        isCream ? 'text-emerald-800' : 'text-emerald-400/80'
+                      }`}>
                         Đã đối chiếu 13 điều cấm kỵ cổ phục: 100% hợp lệ, không xung đột niên đại hay quy chế.
                       </span>
                     </div>
                   </div>
                   <button
                     onClick={() => setShowTabooDatabaseModal(true)}
-                    className="px-2.5 py-1 rounded-lg bg-emerald-900/50 hover:bg-emerald-800/70 border border-emerald-500/40 text-[10.5px] text-emerald-200 font-semibold cursor-pointer transition-colors shrink-0"
+                    className={`px-2.5 py-1 rounded-lg border text-[10.5px] font-semibold cursor-pointer transition-colors shrink-0 ${
+                      isCream
+                        ? 'bg-emerald-100/80 hover:bg-emerald-200 text-emerald-950 border-emerald-300'
+                        : 'bg-emerald-900/50 hover:bg-emerald-800/70 border-emerald-500/40 text-emerald-200'
+                    }`}
                   >
                     Xem 13 Điều Cấm Kỵ
                   </button>
                 </div>
               ) : (
                 /* Bare Mannequin Status */
-                <div className="p-3 rounded-2xl bg-[#0F1626]/80 border border-slate-700/60 flex items-center justify-between text-xs text-slate-300 flex-wrap gap-2">
+                <div className={`p-3 rounded-2xl border flex items-center justify-between text-xs flex-wrap gap-2 ${
+                  isCream
+                    ? 'bg-white border-amber-200/90 text-stone-700 shadow-xs'
+                    : 'bg-[#0F1626]/80 border-slate-700/60 text-slate-300'
+                }`}>
                   <div className="flex items-center gap-2">
-                    <Shirt className="w-4 h-4 text-amber-400" />
-                    <span className="text-xs">
+                    <Shirt className={`w-4 h-4 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
+                    <span className={`text-xs ${isCream ? 'text-stone-800' : 'text-slate-300'}`}>
                       Khung ma nơ canh đang để mộc. Chọn áo, hạ y và phụ kiện bên dưới để bắt đầu thử đồ!
                     </span>
                   </div>
                   <button
                     onClick={() => setShowTabooDatabaseModal(true)}
-                    className="text-[11px] text-amber-300 hover:text-amber-200 underline cursor-pointer shrink-0 font-medium"
+                    className={`text-[11px] underline cursor-pointer shrink-0 font-medium ${
+                      isCream ? 'text-amber-900 hover:text-amber-700' : 'text-amber-300 hover:text-amber-200'
+                    }`}
                   >
                     Tra cứu 13 điều cấm kỵ
                   </button>
@@ -983,10 +1059,14 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
             {workspaceView === 'wardrobe' ? (
               <>
                 {/* Quick AI suggestion assistant hint bar */}
-                <div className="p-2.5 rounded-xl bg-gradient-to-r from-amber-500/10 via-[#162035] to-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-2 text-xs">
+                <div className={`p-2.5 rounded-xl border flex items-center justify-between gap-2 text-xs ${
+                  isCream
+                    ? 'bg-amber-50/90 border-amber-300 text-stone-800 shadow-xs'
+                    : 'bg-gradient-to-r from-amber-500/10 via-[#162035] to-amber-500/10 border-amber-500/30'
+                }`}>
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                    <span className="text-slate-300 text-[11.5px]">
+                    <Sparkles className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-400'} shrink-0`} />
+                    <span className={`text-[11.5px] ${isCream ? 'text-stone-800 font-medium' : 'text-slate-300'}`}>
                       Cần AI gợi ý phối đồ theo bối cảnh hoặc phong cách?
                     </span>
                   </div>
@@ -995,7 +1075,11 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                       soundEngine.playPluck(523.25);
                       setWorkspaceView('ai_stylist');
                     }}
-                    className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-400/50 text-[11px] font-bold cursor-pointer shrink-0 transition-all flex items-center gap-1"
+                    className={`px-2.5 py-1 rounded-lg border text-[11px] font-bold cursor-pointer shrink-0 transition-all flex items-center gap-1 ${
+                      isCream
+                        ? 'bg-amber-100/90 hover:bg-amber-200 text-amber-950 border-amber-300'
+                        : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-400/50'
+                    }`}
                   >
                     <span>Mở Trợ Lý AI</span>
                     <ArrowRight className="w-3 h-3" />
@@ -1010,9 +1094,13 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                 />
 
                 {/* 4. INLINE QUICK COLOR PICKER SWATCHES (TIỆN LỢI ĐỔI MÀU TRỰC TIẾP KHI CHỌN ĐỒ) */}
-                <div className="p-2.5 rounded-xl bg-[#121A2C] border border-amber-500/30 flex items-center justify-between gap-2 flex-wrap">
-                  <div className="flex items-center gap-1.5 text-xs text-amber-300 font-medium">
-                    <Palette className="w-3.5 h-3.5 text-amber-400" />
+                <div className={`p-2.5 rounded-xl border flex items-center justify-between gap-2 flex-wrap ${
+                  isCream ? 'bg-white border-amber-200/90 shadow-xs' : 'bg-[#121A2C] border-amber-500/30'
+                }`}>
+                  <div className={`flex items-center gap-1.5 text-xs font-medium ${
+                    isCream ? 'text-amber-900' : 'text-amber-300'
+                  }`}>
+                    <Palette className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
                     <span>
                       Đổi màu nhanh cho {activeTab === 'bottom' ? 'Quần / Váy' : 'Áo'}:
                     </span>
@@ -1044,7 +1132,11 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
 
                     {/* Custom Color Input */}
                     <label
-                      className="w-6 h-6 rounded-full border border-dashed border-amber-400/80 hover:border-amber-300 flex items-center justify-center cursor-pointer text-[10px] text-amber-300 hover:scale-105 transition-transform"
+                      className={`w-6 h-6 rounded-full border border-dashed flex items-center justify-center cursor-pointer text-[10px] hover:scale-105 transition-transform ${
+                        isCream
+                          ? 'border-amber-500 text-amber-800 hover:border-amber-700'
+                          : 'border-amber-400/80 hover:border-amber-300 text-amber-300'
+                      }`}
                       title="Chọn mã màu tùy biến hex"
                     >
                       <input
@@ -1067,8 +1159,10 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                 {/* 5. Era & Gender Filter Pills */}
                 <div className="flex items-center justify-between gap-2 flex-wrap text-xs">
                   {/* Era selector */}
-                  <div className="flex items-center gap-1 bg-[#090E1A] p-1 rounded-xl border border-slate-800">
-                    <span className="text-[10px] text-slate-400 px-1 font-medium">Niên đại:</span>
+                  <div className={`flex items-center gap-1 p-1 rounded-xl border ${
+                    isCream ? 'bg-stone-100 border-stone-200' : 'bg-[#090E1A] border-slate-800'
+                  }`}>
+                    <span className={`text-[10px] px-1 font-medium ${isCream ? 'text-stone-700' : 'text-slate-400'}`}>Niên đại:</span>
                     {[
                       { id: 'all', label: 'Tất cả' },
                       { id: 'nguyen', label: 'Nguyễn' },
@@ -1080,7 +1174,11 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                         onClick={() => setEraFilter(era.id as any)}
                         className={`px-2 py-0.5 rounded-lg text-[10.5px] transition-all cursor-pointer ${
                           eraFilter === era.id
-                            ? 'bg-amber-500 text-slate-950 font-bold'
+                            ? isCream
+                              ? 'bg-amber-400 text-stone-950 font-bold shadow-xs'
+                              : 'bg-amber-500 text-slate-950 font-bold'
+                            : isCream
+                            ? 'text-stone-700 hover:text-stone-900'
                             : 'text-slate-400 hover:text-slate-200'
                         }`}
                       >
@@ -1090,8 +1188,10 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                   </div>
 
                   {/* Gender selector */}
-                  <div className="flex items-center gap-1 bg-[#090E1A] p-1 rounded-xl border border-slate-800">
-                    <span className="text-[10px] text-slate-400 px-1 font-medium">Quy cách:</span>
+                  <div className={`flex items-center gap-1 p-1 rounded-xl border ${
+                    isCream ? 'bg-stone-100 border-stone-200' : 'bg-[#090E1A] border-slate-800'
+                  }`}>
+                    <span className={`text-[10px] px-1 font-medium ${isCream ? 'text-stone-700' : 'text-slate-400'}`}>Quy cách:</span>
                     {[
                       { id: undefined, label: 'Tất cả' },
                       { id: 'nam', label: 'Nam' },
@@ -1102,7 +1202,11 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                         onClick={() => setGenderFilter(g.id as any)}
                         className={`px-2 py-0.5 rounded-lg text-[10.5px] transition-all cursor-pointer ${
                           genderFilter === g.id
-                            ? 'bg-amber-500 text-slate-950 font-bold'
+                            ? isCream
+                              ? 'bg-amber-400 text-stone-950 font-bold shadow-xs'
+                              : 'bg-amber-500 text-slate-950 font-bold'
+                            : isCream
+                            ? 'text-stone-700 hover:text-stone-900'
                             : 'text-slate-400 hover:text-slate-200'
                         }`}
                       >
@@ -1134,23 +1238,37 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                             }}
                             className={`p-3 rounded-2xl border transition-all text-left flex flex-col justify-between gap-2 cursor-pointer group ${
                               isSelected
-                                ? 'bg-[#18233C] border-amber-400 shadow-md'
+                                ? isCream
+                                  ? 'bg-amber-100/80 border-amber-400 shadow-sm'
+                                  : 'bg-[#18233C] border-amber-400 shadow-md'
+                                : isCream
+                                ? 'bg-white hover:bg-amber-50/50 border-stone-200 hover:border-amber-300 shadow-xs'
                                 : 'bg-[#0E1524] hover:bg-[#141C30] border-slate-800 hover:border-slate-700'
                             }`}
                           >
                             <div className="flex items-start justify-between gap-1">
                               <div>
                                 <div className="flex items-center gap-1.5 flex-wrap">
-                                  <span className="text-[10px] font-bold text-amber-400/90 tracking-wide uppercase">
+                                  <span className={`text-[10px] font-bold tracking-wide uppercase ${
+                                    isCream ? 'text-amber-800' : 'text-amber-400/90'
+                                  }`}>
                                     {item.era}
                                   </span>
                                   {item.gender && (
-                                    <span className="px-1.5 py-0.2 rounded text-[9px] bg-slate-800 text-slate-300 font-medium">
+                                    <span className={`px-1.5 py-0.2 rounded text-[9px] font-medium ${
+                                      isCream
+                                        ? 'bg-stone-100 text-stone-700'
+                                        : 'bg-slate-800 text-slate-300'
+                                    }`}>
                                       {item.gender === 'nam' ? 'Nam' : item.gender === 'nu' ? 'Nữ' : 'Unisex'}
                                     </span>
                                   )}
                                 </div>
-                                <h3 className="text-xs sm:text-[13px] font-bold text-slate-100 font-serif-vi mt-0.5 leading-snug group-hover:text-amber-200 transition-colors">
+                                <h3 className={`text-xs sm:text-[13px] font-bold font-serif-vi mt-0.5 leading-snug transition-colors ${
+                                  isCream
+                                    ? 'text-stone-900 group-hover:text-amber-800'
+                                    : 'text-slate-100 group-hover:text-amber-200'
+                                }`}>
                                   {item.name}
                                 </h3>
                               </div>
@@ -1161,19 +1279,27 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                                   Đang Mặc
                                 </span>
                               ) : (
-                                <span className="px-1.5 py-0.5 rounded text-[10px] text-slate-400 group-hover:text-amber-300 shrink-0">
+                                <span className={`px-1.5 py-0.5 rounded text-[10px] shrink-0 ${
+                                  isCream ? 'text-stone-600 group-hover:text-amber-800' : 'text-slate-400 group-hover:text-amber-300'
+                                }`}>
                                   Thử áo
                                 </span>
                               )}
                             </div>
 
-                            <p className="text-[11px] text-slate-300 leading-relaxed">
+                            <p className={`text-[11px] leading-relaxed ${
+                              isCream ? 'text-stone-700 font-normal' : 'text-slate-300'
+                            }`}>
                               {item.summary}
                             </p>
 
                             {/* Culture Note Pill */}
                             {item.cultureInfo && (
-                              <div className="text-[10px] text-amber-300/80 bg-amber-950/20 px-2 py-1 rounded-lg border border-amber-500/20 leading-snug">
+                              <div className={`text-[10px] px-2 py-1 rounded-lg border leading-snug ${
+                                isCream
+                                  ? 'text-amber-900 bg-amber-50 border-amber-200'
+                                  : 'text-amber-300/80 bg-amber-950/20 border-amber-500/20'
+                              }`}>
                                 ⚜️ {item.cultureInfo.notableDynasty} • {item.cultureInfo.origin}
                               </div>
                             )}
@@ -1203,16 +1329,26 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                             }}
                             className={`p-3 rounded-2xl border transition-all text-left flex flex-col justify-between gap-2 cursor-pointer group ${
                               isSelected
-                                ? 'bg-[#18233C] border-amber-400 shadow-md'
+                                ? isCream
+                                  ? 'bg-amber-100/80 border-amber-400 shadow-sm'
+                                  : 'bg-[#18233C] border-amber-400 shadow-md'
+                                : isCream
+                                ? 'bg-white hover:bg-amber-50/50 border-stone-200 hover:border-amber-300 shadow-xs'
                                 : 'bg-[#0E1524] hover:bg-[#141C30] border-slate-800 hover:border-slate-700'
                             }`}
                           >
                             <div className="flex items-start justify-between gap-1">
                               <div>
-                                <span className="text-[10px] font-bold text-amber-400/90 tracking-wide uppercase">
+                                <span className={`text-[10px] font-bold tracking-wide uppercase ${
+                                  isCream ? 'text-amber-800' : 'text-amber-400/90'
+                                }`}>
                                   {item.era}
                                 </span>
-                                <h3 className="text-xs sm:text-[13px] font-bold text-slate-100 font-serif-vi mt-0.5 leading-snug group-hover:text-amber-200">
+                                <h3 className={`text-xs sm:text-[13px] font-bold font-serif-vi mt-0.5 leading-snug ${
+                                  isCream
+                                    ? 'text-stone-900 group-hover:text-amber-800'
+                                    : 'text-slate-100 group-hover:text-amber-200'
+                                }`}>
                                   {item.name}
                                 </h3>
                               </div>
@@ -1221,13 +1357,17 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                                   Đang Mặc
                                 </span>
                               ) : (
-                                <span className="px-1.5 py-0.5 rounded text-[10px] text-slate-400 group-hover:text-amber-300 shrink-0">
+                                <span className={`px-1.5 py-0.5 rounded text-[10px] shrink-0 ${
+                                  isCream ? 'text-stone-600 group-hover:text-amber-800' : 'text-slate-400 group-hover:text-amber-300'
+                                }`}>
                                   Thử hạ y
                                 </span>
                               )}
                             </div>
 
-                            <p className="text-[11px] text-slate-300 leading-relaxed">
+                            <p className={`text-[11px] leading-relaxed ${
+                              isCream ? 'text-stone-700 font-normal' : 'text-slate-300'
+                            }`}>
                               {item.summary}
                             </p>
                           </div>
@@ -1256,16 +1396,26 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                             }}
                             className={`p-3 rounded-2xl border transition-all text-left flex flex-col justify-between gap-2 cursor-pointer group ${
                               isSelected
-                                ? 'bg-[#18233C] border-amber-400 shadow-md'
+                                ? isCream
+                                  ? 'bg-amber-100/80 border-amber-400 shadow-sm'
+                                  : 'bg-[#18233C] border-amber-400 shadow-md'
+                                : isCream
+                                ? 'bg-white hover:bg-amber-50/50 border-stone-200 hover:border-amber-300 shadow-xs'
                                 : 'bg-[#0E1524] hover:bg-[#141C30] border-slate-800 hover:border-slate-700'
                             }`}
                           >
                             <div className="flex items-start justify-between gap-1">
                               <div>
-                                <span className="text-[10px] font-bold text-amber-400/90 tracking-wide uppercase">
+                                <span className={`text-[10px] font-bold tracking-wide uppercase ${
+                                  isCream ? 'text-amber-800' : 'text-amber-400/90'
+                                }`}>
                                   {item.era}
                                 </span>
-                                <h3 className="text-xs sm:text-[13px] font-bold text-slate-100 font-serif-vi mt-0.5 leading-snug group-hover:text-amber-200">
+                                <h3 className={`text-xs sm:text-[13px] font-bold font-serif-vi mt-0.5 leading-snug ${
+                                  isCream
+                                    ? 'text-stone-900 group-hover:text-amber-800'
+                                    : 'text-slate-100 group-hover:text-amber-200'
+                                }`}>
                                   {item.name}
                                 </h3>
                               </div>
@@ -1274,13 +1424,17 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                                   Đang Đeo
                                 </span>
                               ) : (
-                                <span className="px-1.5 py-0.5 rounded text-[10px] text-slate-400 group-hover:text-amber-300 shrink-0">
+                                <span className={`px-1.5 py-0.5 rounded text-[10px] shrink-0 ${
+                                  isCream ? 'text-stone-600 group-hover:text-amber-800' : 'text-slate-400 group-hover:text-amber-300'
+                                }`}>
                                   Đeo thử
                                 </span>
                               )}
                             </div>
 
-                            <p className="text-[11px] text-slate-300 leading-relaxed">
+                            <p className={`text-[11px] leading-relaxed ${
+                              isCream ? 'text-stone-700 font-normal' : 'text-slate-300'
+                            }`}>
                               {item.summary}
                             </p>
                           </div>
@@ -1305,7 +1459,11 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                               }}
                               className={`p-2.5 rounded-2xl border transition-all text-left flex items-center gap-2.5 cursor-pointer ${
                                 isSelected
-                                  ? 'bg-[#18233C] border-amber-400 shadow-md'
+                                  ? isCream
+                                    ? 'bg-amber-100/90 border-amber-400 shadow-sm'
+                                    : 'bg-[#18233C] border-amber-400 shadow-md'
+                                  : isCream
+                                  ? 'bg-white hover:bg-amber-50/60 border-stone-200 hover:border-amber-300 shadow-xs'
                                   : 'bg-[#0E1524] hover:bg-[#141C30] border-slate-800'
                               }`}
                             >
@@ -1316,10 +1474,16 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                                 {isSelected && <Check className="w-3.5 h-3.5 text-white drop-shadow" />}
                               </div>
                               <div>
-                                <h4 className="text-xs font-bold text-slate-100 font-serif-vi">
+                                <h4 className={`text-xs font-bold font-serif-vi ${
+                                  isCream ? 'text-stone-900' : 'text-slate-100'
+                                }`}>
                                   {palette.name}
                                 </h4>
-                                <span className="text-[10px] text-slate-400 block">{palette.meaning}</span>
+                                <span className={`text-[10px] block ${
+                                  isCream ? 'text-stone-600' : 'text-slate-400'
+                                }`}>
+                                  {palette.meaning}
+                                </span>
                               </div>
                             </div>
                           );
@@ -1332,19 +1496,29 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                   {activeTab === 'fabric' && (
                     <div className="space-y-3">
                       {/* Banner trigger for Magnifying Glass Inspector */}
-                      <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/20 via-[#1C263C] to-amber-500/20 border border-amber-400/60 shadow-lg flex items-center justify-between gap-3 flex-wrap">
+                      <div className={`p-3.5 rounded-2xl border shadow-lg flex items-center justify-between gap-3 flex-wrap ${
+                        isCream
+                          ? 'bg-amber-50/90 border-amber-300/80 shadow-xs'
+                          : 'bg-gradient-to-r from-amber-500/20 via-[#1C263C] to-amber-500/20 border-amber-400/60'
+                      }`}>
                         <div className="flex items-center gap-2.5">
-                          <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/80 flex items-center justify-center shrink-0">
-                            <Scan className="w-5 h-5 text-amber-400 animate-pulse" />
+                          <div className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${
+                            isCream ? 'bg-amber-100 border-amber-400/80' : 'bg-amber-500/20 border-amber-400/80'
+                          }`}>
+                            <Scan className={`w-5 h-5 ${isCream ? 'text-amber-800' : 'text-amber-400'} animate-pulse`} />
                           </div>
                           <div>
-                            <h4 className="text-xs font-bold text-amber-200 font-serif-vi flex items-center gap-2">
+                            <h4 className={`text-xs font-bold font-serif-vi flex items-center gap-2 ${
+                              isCream ? 'text-amber-950' : 'text-amber-200'
+                            }`}>
                               <span>KÍNH LÚP SOI CẬN CẢNH HỌA TIẾT & THỚ DỆT</span>
-                              <span className="px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 text-[9px] font-mono">
+                              <span className={`px-1.5 py-0.2 rounded text-[9px] font-mono ${
+                                isCream ? 'bg-amber-200 text-amber-950' : 'bg-amber-400/20 text-amber-300'
+                              }`}>
                                 MACRO 1X - 8X
                               </span>
                             </h4>
-                            <p className="text-[11px] text-slate-300">
+                            <p className={`text-[11px] ${isCream ? 'text-stone-700' : 'text-slate-300'}`}>
                               Phóng to xem chi tiết thêu tay, vân gấm nổi chữ Vạn, họa tiết Thủy Ba & hoa cúc chìm
                             </p>
                           </div>
@@ -1375,19 +1549,29 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                               }}
                               className={`p-3 rounded-2xl border transition-all text-left flex flex-col justify-between gap-2 cursor-pointer group ${
                                 isSelected
-                                  ? 'bg-[#18233C] border-amber-400 shadow-md ring-1 ring-amber-400/50'
+                                  ? isCream
+                                    ? 'bg-amber-100/90 border-amber-400 shadow-sm ring-1 ring-amber-400/50'
+                                    : 'bg-[#18233C] border-amber-400 shadow-md ring-1 ring-amber-400/50'
+                                  : isCream
+                                  ? 'bg-white hover:bg-amber-50/60 border-stone-200 hover:border-amber-300 shadow-xs'
                                   : 'bg-[#0E1524] hover:bg-[#141C30] border-slate-800 hover:border-slate-700'
                               }`}
                             >
                               <div className="flex items-start justify-between gap-1">
                                 <div>
                                   <div className="flex items-center gap-1.5">
-                                    <h3 className="text-xs font-bold text-slate-100 font-serif-vi group-hover:text-amber-200">
+                                    <h3 className={`text-xs font-bold font-serif-vi ${
+                                      isCream
+                                        ? 'text-stone-900 group-hover:text-amber-800'
+                                        : 'text-slate-100 group-hover:text-amber-200'
+                                    }`}>
                                       {fabric.name}
                                     </h3>
-                                    {isSelected && <Check className="w-3.5 h-3.5 text-amber-400" />}
+                                    {isSelected && <Check className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />}
                                   </div>
-                                  <span className="text-[10px] text-amber-300/80 font-mono mt-0.5 block">
+                                  <span className={`text-[10px] font-mono mt-0.5 block ${
+                                    isCream ? 'text-amber-800 font-semibold' : 'text-amber-300/80'
+                                  }`}>
                                     {fabric.sheen}
                                   </span>
                                 </div>
@@ -1396,18 +1580,24 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                                     Đang Chọn
                                   </span>
                                 ) : (
-                                  <span className="px-1.5 py-0.5 rounded text-[10px] text-slate-400 group-hover:text-amber-300 shrink-0">
+                                  <span className={`px-1.5 py-0.5 rounded text-[10px] shrink-0 ${
+                                    isCream ? 'text-stone-600 group-hover:text-amber-800' : 'text-slate-400 group-hover:text-amber-300'
+                                  }`}>
                                     Chọn vải
                                   </span>
                                 )}
                               </div>
 
-                              <p className="text-[11px] text-slate-300 leading-relaxed">
+                              <p className={`text-[11px] leading-relaxed ${
+                                isCream ? 'text-stone-700 font-normal' : 'text-slate-300'
+                              }`}>
                                 {fabric.description}
                               </p>
 
-                              <div className="flex items-center justify-between pt-1 border-t border-slate-800 text-[10px]">
-                                <span className="text-slate-400">{fabric.textureLabel}</span>
+                              <div className={`flex items-center justify-between pt-1 border-t text-[10px] ${
+                                isCream ? 'border-stone-200' : 'border-slate-800'
+                              }`}>
+                                <span className={isCream ? 'text-stone-600' : 'text-slate-400'}>{fabric.textureLabel}</span>
                                 <button
                                   type="button"
                                   onClick={(e) => {
@@ -1415,7 +1605,9 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                                     if (onSelectFabric) onSelectFabric(fabric);
                                     setShowFabricInspector(true);
                                   }}
-                                  className="text-amber-400 hover:text-amber-200 font-semibold flex items-center gap-1 cursor-pointer"
+                                  className={`font-semibold flex items-center gap-1 cursor-pointer ${
+                                    isCream ? 'text-amber-800 hover:text-amber-950' : 'text-amber-400 hover:text-amber-200'
+                                  }`}
                                 >
                                   <Scan className="w-3 h-3" />
                                   <span>Soi cận cảnh</span>
@@ -1448,21 +1640,29 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                 </div>
 
                 {/* 1. Trợ Lý AI: Phân Tích Sự Kết Hợp Cụ Thể & Gợi Ý Đương Đại */}
-                <div className="bg-[#121A2C] border border-amber-400/40 rounded-2xl p-3.5 shadow-lg flex flex-col gap-3">
+                <div className={`border rounded-2xl p-3.5 shadow-lg flex flex-col gap-3 ${
+                  isCream ? 'bg-white border-amber-300/80 shadow-[0_4px_20px_rgba(180,130,60,0.08)]' : 'bg-[#121A2C] border-amber-400/40'
+                }`}>
                   {/* Header */}
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-400/60 flex items-center justify-center">
-                        <Wand2 className="w-4 h-4 text-amber-400 animate-pulse" />
+                      <div className={`w-7 h-7 rounded-lg border flex items-center justify-center ${
+                        isCream ? 'bg-amber-100 border-amber-400/80' : 'bg-amber-500/20 border-amber-400/60'
+                      }`}>
+                        <Wand2 className={`w-4 h-4 ${isCream ? 'text-amber-800' : 'text-amber-400'} animate-pulse`} />
                       </div>
                       <div>
-                        <div className="text-xs font-bold text-amber-300 font-serif-vi flex items-center gap-1.5">
+                        <div className={`text-xs font-bold font-serif-vi flex items-center gap-1.5 ${
+                          isCream ? 'text-amber-950' : 'text-amber-300'
+                        }`}>
                           <span>TRỢ LÝ AI: PHÂN TÍCH BẢN PHỐI & GỢI Ý ĐƯƠNG ĐẠI</span>
-                          <span className="px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 text-[9px] font-mono border border-amber-400/40">
+                          <span className={`px-1.5 py-0.2 rounded text-[9px] font-mono border ${
+                            isCream ? 'bg-amber-100 border-amber-400 text-amber-900' : 'bg-amber-400/20 border-amber-400/40 text-amber-300'
+                          }`}>
                             DI SẢN & TÂN THỜI
                           </span>
                         </div>
-                        <div className="text-[10px] text-slate-400">
+                        <div className={`text-[10px] ${isCream ? 'text-stone-600' : 'text-slate-400'}`}>
                           Phân tích tương hỗ văn hóa giữa các item & xu hướng phối đồ hiện đại
                         </div>
                       </div>
@@ -1471,7 +1671,11 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setIsAnalysisExpanded(!isAnalysisExpanded)}
-                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#18233C] border border-slate-700 text-slate-300 hover:text-amber-300 text-[10.5px] cursor-pointer transition-colors"
+                        className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10.5px] cursor-pointer transition-colors ${
+                          isCream
+                            ? 'bg-amber-50 hover:bg-amber-100 border-amber-300 text-amber-950 font-medium'
+                            : 'bg-[#18233C] border-slate-700 text-slate-300 hover:text-amber-300'
+                        }`}
                       >
                         <span>{isAnalysisExpanded ? 'Thu gọn' : 'Xem phân tích'}</span>
                         {isAnalysisExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -1496,7 +1700,11 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                         }}
                         className={`px-2.5 py-1 rounded-xl text-[10.5px] font-medium whitespace-nowrap transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
                           stylingMode === mode.id
-                            ? 'bg-gradient-to-r from-amber-500/30 to-amber-600/30 text-amber-200 border border-amber-400/80 shadow-sm'
+                            ? isCream
+                              ? 'bg-amber-200/90 text-amber-950 border border-amber-400 font-bold shadow-xs'
+                              : 'bg-gradient-to-r from-amber-500/30 to-amber-600/30 text-amber-200 border border-amber-400/80 shadow-sm'
+                            : isCream
+                            ? 'bg-stone-50 hover:bg-amber-50 text-stone-700 border border-stone-200'
                             : 'bg-[#18233C]/70 hover:bg-[#1f2d4d] text-slate-300 border border-slate-700/70'
                         }`}
                       >
@@ -1508,14 +1716,18 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
 
                   {/* Prompt Input & Multi-Actions Bar */}
                   <div className="flex flex-col gap-2">
-                    <div className="flex items-center gap-2 bg-[#090E1A] rounded-xl px-2.5 py-1.5 border border-slate-700/80">
+                    <div className={`flex items-center gap-2 rounded-xl px-2.5 py-1.5 border ${
+                      isCream ? 'bg-stone-50 border-stone-200' : 'bg-[#090E1A] border-slate-700/80'
+                    }`}>
                       <input
                         type="text"
                         value={aiPrompt}
                         onChange={(e) => setAiPrompt(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleAiSuggest(undefined, stylingMode, 'full_outfit')}
                         placeholder="Nhập bối cảnh: Đi cưới bạn thân, đi cà phê triển lãm, dạo phố cổ, lễ chùa..."
-                        className="flex-1 bg-transparent text-xs text-slate-200 placeholder-slate-400 focus:outline-none font-sans-vi"
+                        className={`flex-1 bg-transparent text-xs focus:outline-none font-sans-vi ${
+                          isCream ? 'text-stone-900 placeholder:text-stone-400' : 'text-slate-200 placeholder-slate-400'
+                        }`}
                       />
                       <button
                         onClick={() => handleAiSuggest(undefined, stylingMode, 'full_outfit')}
@@ -1542,10 +1754,14 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                         <button
                           onClick={() => handleAiSuggest(undefined, stylingMode, 'complete_current')}
                           disabled={isAiSuggesting}
-                          className="px-2.5 py-1 rounded-lg bg-emerald-950/60 hover:bg-emerald-900/70 border border-emerald-500/50 text-emerald-200 text-[11px] font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+                          className={`px-2.5 py-1 rounded-lg border text-[11px] font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs ${
+                            isCream
+                              ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-950 border-emerald-300'
+                              : 'bg-emerald-950/60 hover:bg-emerald-900/70 border-emerald-500/50 text-emerald-200'
+                          }`}
                           title={`Giữ ${currentTop.name} và để AI gợi ý hạ y & phụ kiện phối hoàn hảo`}
                         >
-                          <Zap className="w-3 h-3 text-emerald-400" />
+                          <Zap className="w-3 h-3 text-emerald-500" />
                           <span>Phối tiếp cho áo "{currentTop.name}"</span>
                         </button>
                       )}
@@ -1556,9 +1772,13 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                           handleAiSuggest('Phối phong cách tân thời hiện đại Neo-Vietnamese dạo phố', 'modern_fusion', 'full_outfit');
                         }}
                         disabled={isAiSuggesting}
-                        className="px-2.5 py-1 rounded-lg bg-indigo-950/50 hover:bg-indigo-900/60 border border-indigo-400/50 text-indigo-200 text-[11px] font-medium flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+                        className={`px-2.5 py-1 rounded-lg border text-[11px] font-medium flex items-center gap-1.5 transition-all cursor-pointer shadow-xs ${
+                          isCream
+                            ? 'bg-indigo-50 hover:bg-indigo-100 border-indigo-200 text-indigo-950'
+                            : 'bg-indigo-950/50 hover:bg-indigo-900/60 border-indigo-400/50 text-indigo-200'
+                        }`}
                       >
-                        <TrendingUp className="w-3 h-3 text-indigo-400" />
+                        <TrendingUp className="w-3 h-3 text-indigo-500" />
                         <span>Xu hướng Tân Thời (Neo-Streetwear)</span>
                       </button>
 
@@ -1568,9 +1788,13 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                           handleAiSuggest('Phối chuẩn mực cổ phong triều đình mực thước', 'authentic_heritage', 'full_outfit');
                         }}
                         disabled={isAiSuggesting}
-                        className="px-2.5 py-1 rounded-lg bg-amber-950/50 hover:bg-amber-900/60 border border-amber-500/50 text-amber-200 text-[11px] font-medium flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+                        className={`px-2.5 py-1 rounded-lg border text-[11px] font-medium flex items-center gap-1.5 transition-all cursor-pointer shadow-xs ${
+                          isCream
+                            ? 'bg-amber-100/80 hover:bg-amber-200/80 border-amber-300 text-amber-950'
+                            : 'bg-amber-950/50 hover:bg-amber-900/60 border-amber-500/50 text-amber-200'
+                        }`}
                       >
-                        <Crown className="w-3 h-3 text-amber-400" />
+                        <Crown className="w-3 h-3 text-amber-500" />
                         <span>Chuẩn Cổ Phong Mực Thước</span>
                       </button>
                     </div>
@@ -1585,7 +1809,11 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                           setAiPrompt(scenario.query);
                           handleAiSuggest(scenario.query);
                         }}
-                        className="px-2.5 py-1 rounded-lg bg-[#18233C] hover:bg-amber-950/60 hover:text-amber-200 border border-slate-700 hover:border-amber-400/50 text-[10.5px] text-slate-300 font-medium whitespace-nowrap transition-colors cursor-pointer shrink-0"
+                        className={`px-2.5 py-1 rounded-lg border text-[10.5px] font-medium whitespace-nowrap transition-colors cursor-pointer shrink-0 ${
+                          isCream
+                            ? 'bg-stone-50 hover:bg-amber-50 border-stone-200 text-stone-700 hover:text-amber-900'
+                            : 'bg-[#18233C] hover:bg-amber-950/60 hover:text-amber-200 border-slate-700 text-slate-300'
+                        }`}
                       >
                         {scenario.label}
                       </button>
@@ -1599,29 +1827,47 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="pt-2 border-t border-slate-700/80 flex flex-col gap-3"
+                        className={`pt-2 border-t flex flex-col gap-3 ${
+                          isCream ? 'border-amber-200' : 'border-slate-700/80'
+                        }`}
                       >
                         {/* Combination Title & Score Bar */}
-                        <div className="p-3 rounded-xl bg-gradient-to-r from-[#172036] via-[#1A253F] to-[#172036] border border-amber-500/30 flex flex-col gap-2">
+                        <div className={`p-3 rounded-xl border flex flex-col gap-2 ${
+                          isCream
+                            ? 'bg-amber-50/70 border-amber-300/80'
+                            : 'bg-gradient-to-r from-[#172036] via-[#1A253F] to-[#172036] border-amber-500/30'
+                        }`}>
                           <div className="flex items-start justify-between gap-2 flex-wrap">
                             <div>
                               <div className="flex items-center gap-2">
-                                <span className="px-2 py-0.5 rounded-md bg-amber-950/80 text-amber-300 text-[10px] font-bold border border-amber-500/40">
+                                <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ${
+                                  isCream
+                                    ? 'bg-amber-200 text-amber-950 border-amber-400'
+                                    : 'bg-amber-950/80 text-amber-300 border-amber-500/40'
+                                }`}>
                                   {dynamicCombinationAnalysis.stylingDirectionLabel}
                                 </span>
-                                <span className="text-xs font-bold text-amber-200 font-serif-vi">
+                                <span className={`text-xs font-bold font-serif-vi ${
+                                  isCream ? 'text-amber-950' : 'text-amber-200'
+                                }`}>
                                   {dynamicCombinationAnalysis.culturalSynergyTitle}
                                 </span>
                               </div>
                               {latestAiAnalysis?.characterPersona && (
-                                <div className="text-[10.5px] text-slate-300 mt-0.5 italic">
+                                <div className={`text-[10.5px] mt-0.5 italic ${
+                                  isCream ? 'text-stone-700' : 'text-slate-300'
+                                }`}>
                                   Hình tượng: {latestAiAnalysis.characterPersona}
                                 </div>
                               )}
                             </div>
 
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/70 border border-emerald-500/50 text-emerald-300 text-xs font-bold font-mono">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-bold font-mono ${
+                              isCream
+                                ? 'bg-emerald-100 text-emerald-950 border-emerald-400'
+                                : 'bg-emerald-950/70 border-emerald-500/50 text-emerald-300'
+                            }`}>
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                               <span>{dynamicCombinationAnalysis.synergyScore}% Tương Hợp</span>
                             </div>
                           </div>
@@ -1629,24 +1875,36 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                           {/* 3 Detail Boxes: Cultural Meaning, Modern Trend, Color Harmony */}
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-1">
                             {/* Cultural Meaning */}
-                            <div className="p-2.5 rounded-lg bg-[#0F1626]/90 border border-amber-600/30 text-left">
-                              <div className="flex items-center gap-1.5 text-amber-300 text-[10.5px] font-bold font-serif-vi mb-1">
-                                <Scroll className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                            <div className={`p-2.5 rounded-lg border text-left ${
+                              isCream ? 'bg-white border-amber-200' : 'bg-[#0F1626]/90 border-amber-600/30'
+                            }`}>
+                              <div className={`flex items-center gap-1.5 text-[10.5px] font-bold font-serif-vi mb-1 ${
+                                isCream ? 'text-amber-900' : 'text-amber-300'
+                              }`}>
+                                <Scroll className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-400'} shrink-0`} />
                                 <span>Ý NGHĨA VĂN HÓA & TRIẾT LÝ TƯƠNG HỖ:</span>
                               </div>
-                              <p className="text-[11px] text-slate-300 leading-relaxed font-sans-vi">
+                              <p className={`text-[11px] leading-relaxed font-sans-vi ${
+                                isCream ? 'text-stone-700' : 'text-slate-300'
+                              }`}>
                                 {dynamicCombinationAnalysis.culturalMeaningDetails ||
                                   'Bản phối thể hiện cốt cách Nho phong mực thước và sự giao hòa âm dương đất trời Đại Việt.'}
                               </p>
                             </div>
 
                             {/* Modern Trend Factor */}
-                            <div className="p-2.5 rounded-lg bg-[#0F1626]/90 border border-indigo-500/30 text-left">
-                              <div className="flex items-center gap-1.5 text-indigo-300 text-[10.5px] font-bold font-serif-vi mb-1">
-                                <TrendingUp className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                            <div className={`p-2.5 rounded-lg border text-left ${
+                              isCream ? 'bg-white border-indigo-200' : 'bg-[#0F1626]/90 border-indigo-500/30'
+                            }`}>
+                              <div className={`flex items-center gap-1.5 text-[10.5px] font-bold font-serif-vi mb-1 ${
+                                isCream ? 'text-indigo-900' : 'text-indigo-300'
+                              }`}>
+                                <TrendingUp className={`w-3.5 h-3.5 ${isCream ? 'text-indigo-600' : 'text-indigo-400'} shrink-0`} />
                                 <span>XU HƯỚNG PHỐI ĐỒ HIỆN ĐẠI & ỨNG DỤNG:</span>
                               </div>
-                              <p className="text-[11px] text-slate-300 leading-relaxed font-sans-vi">
+                              <p className={`text-[11px] leading-relaxed font-sans-vi ${
+                                isCream ? 'text-stone-700' : 'text-slate-300'
+                              }`}>
                                 {dynamicCombinationAnalysis.modernTrendDetails ||
                                   'Phong cách Neo-Vietnamese Heritage đang dẫn đầu xu hướng thời trang trẻ và các bộ ảnh nghệ thuật.'}
                               </p>
@@ -1654,12 +1912,14 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                           </div>
 
                           {/* Color & Modern Styling Tip */}
-                          <div className="p-2 rounded-lg bg-[#0A0F1C]/80 border border-slate-700/60 text-[11px] text-slate-300 flex items-start gap-2">
-                            <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                          <div className={`p-2 rounded-lg border text-[11px] flex items-start gap-2 ${
+                            isCream ? 'bg-amber-50/80 border-amber-200 text-stone-800' : 'bg-[#0A0F1C]/80 border-slate-700/60 text-slate-300'
+                          }`}>
+                            <Sparkles className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-400'} shrink-0 mt-0.5`} />
                             <div>
-                              <span className="font-semibold text-amber-300">Gợi ý cách phối hiện đại: </span>
+                              <span className={`font-semibold ${isCream ? 'text-amber-900' : 'text-amber-300'}`}>Gợi ý cách phối hiện đại: </span>
                               <span>{dynamicCombinationAnalysis.modernOutfitTip}</span>
-                              <span className="block text-[10px] text-slate-400 mt-0.5">
+                              <span className={`block text-[10px] mt-0.5 ${isCream ? 'text-stone-600' : 'text-slate-400'}`}>
                                 🎨 Hòa sắc: {dynamicCombinationAnalysis.colorHarmonyDetails}
                               </span>
                             </div>
@@ -1668,59 +1928,79 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
 
                         {/* DUAL STYLE ALTERNATIVES */}
                         {latestAiAnalysis?.alternatives && (
-                          <div className="p-2.5 rounded-xl bg-[#0F1728] border border-slate-700/80 flex flex-col gap-2">
+                          <div className={`p-2.5 rounded-xl border flex flex-col gap-2 ${
+                            isCream ? 'bg-white border-stone-200' : 'bg-[#0F1728] border-slate-700/80'
+                          }`}>
                             <div className="flex items-center justify-between">
-                              <span className="text-[11px] font-bold text-slate-300 font-serif-vi flex items-center gap-1">
-                                <Compass className="w-3.5 h-3.5 text-amber-400" />
+                              <span className={`text-[11px] font-bold font-serif-vi flex items-center gap-1 ${
+                                isCream ? 'text-stone-800' : 'text-slate-300'
+                              }`}>
+                                <Compass className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
                                 <span>SO SÁNH 2 BIẾN THỂ PHONG CÁCH:</span>
                               </span>
-                              <span className="text-[10px] text-slate-400">1 chạm để chuyển đổi</span>
+                              <span className={`text-[10px] ${isCream ? 'text-stone-500' : 'text-slate-400'}`}>1 chạm để chuyển đổi</span>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                               {/* Classic */}
-                              <div className="p-2.5 rounded-lg bg-[#151F35] border border-amber-500/40 flex flex-col justify-between gap-1.5">
+                              <div className={`p-2.5 rounded-lg border flex flex-col justify-between gap-1.5 ${
+                                isCream ? 'bg-amber-50/70 border-amber-300' : 'bg-[#151F35] border-amber-500/40'
+                              }`}>
                                 <div>
                                   <div className="flex items-center justify-between">
-                                    <span className="px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 text-[9.5px] font-bold">
+                                    <span className={`px-1.5 py-0.5 rounded text-[9.5px] font-bold ${
+                                      isCream ? 'bg-amber-200 text-amber-950' : 'bg-amber-950 text-amber-300'
+                                    }`}>
                                       🏛️ CỔ PHONG CHUẨN ĐIỂN CHẾ
                                     </span>
-                                    <span className="text-[9.5px] text-amber-400/80 font-mono">100% Cổ Điển</span>
+                                    <span className={`text-[9.5px] font-mono ${isCream ? 'text-amber-800' : 'text-amber-400/80'}`}>100% Cổ Điển</span>
                                   </div>
-                                  <div className="text-xs font-bold text-slate-200 mt-1">
+                                  <div className={`text-xs font-bold mt-1 ${isCream ? 'text-stone-900' : 'text-slate-200'}`}>
                                     {latestAiAnalysis.alternatives.classic.title}
                                   </div>
-                                  <div className="text-[10px] text-slate-400 mt-0.5">
+                                  <div className={`text-[10px] mt-0.5 ${isCream ? 'text-stone-600' : 'text-slate-400'}`}>
                                     {latestAiAnalysis.alternatives.classic.tagline}
                                   </div>
                                 </div>
                                 <button
                                   onClick={() => handleApplyAlternative(latestAiAnalysis!.alternatives!.classic)}
-                                  className="w-full py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 text-amber-200 text-[10.5px] font-bold transition-all cursor-pointer"
+                                  className={`w-full py-1 rounded border text-[10.5px] font-bold transition-all cursor-pointer ${
+                                    isCream
+                                      ? 'bg-amber-200/90 hover:bg-amber-300 border-amber-400 text-amber-950'
+                                      : 'bg-amber-500/20 hover:bg-amber-500/30 border-amber-400/50 text-amber-200'
+                                  }`}
                                 >
                                   Áp Dụng Bản Phối Này
                                 </button>
                               </div>
 
                               {/* Modern Fusion */}
-                              <div className="p-2.5 rounded-lg bg-[#151F35] border border-indigo-500/40 flex flex-col justify-between gap-1.5">
+                              <div className={`p-2.5 rounded-lg border flex flex-col justify-between gap-1.5 ${
+                                isCream ? 'bg-indigo-50/70 border-indigo-200' : 'bg-[#151F35] border-indigo-500/40'
+                              }`}>
                                 <div>
                                   <div className="flex items-center justify-between">
-                                    <span className="px-1.5 py-0.5 rounded bg-indigo-950 text-indigo-300 text-[9.5px] font-bold">
+                                    <span className={`px-1.5 py-0.5 rounded text-[9.5px] font-bold ${
+                                      isCream ? 'bg-indigo-100 text-indigo-950' : 'bg-indigo-950 text-indigo-300'
+                                    }`}>
                                       ✨ TÂN THỜI ĐƯƠNG ĐẠI
                                     </span>
-                                    <span className="text-[9.5px] text-indigo-400/80 font-mono">Neo-Heritage</span>
+                                    <span className={`text-[9.5px] font-mono ${isCream ? 'text-indigo-700' : 'text-indigo-400/80'}`}>Neo-Heritage</span>
                                   </div>
-                                  <div className="text-xs font-bold text-slate-200 mt-1">
+                                  <div className={`text-xs font-bold mt-1 ${isCream ? 'text-stone-900' : 'text-slate-200'}`}>
                                     {latestAiAnalysis.alternatives.modernFusion.title}
                                   </div>
-                                  <div className="text-[10px] text-slate-400 mt-0.5">
+                                  <div className={`text-[10px] mt-0.5 ${isCream ? 'text-stone-600' : 'text-slate-400'}`}>
                                     {latestAiAnalysis.alternatives.modernFusion.tagline}
                                   </div>
                                 </div>
                                 <button
                                   onClick={() => handleApplyAlternative(latestAiAnalysis!.alternatives!.modernFusion)}
-                                  className="w-full py-1 rounded bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-400/50 text-indigo-200 text-[10.5px] font-bold transition-all cursor-pointer"
+                                  className={`w-full py-1 rounded border text-[10.5px] font-bold transition-all cursor-pointer ${
+                                    isCream
+                                      ? 'bg-indigo-100 hover:bg-indigo-200 border-indigo-300 text-indigo-950'
+                                      : 'bg-indigo-500/20 hover:bg-indigo-500/30 border-indigo-400/50 text-indigo-200'
+                                  }`}
                                 >
                                   Áp Dụng Bản Phối Này
                                 </button>

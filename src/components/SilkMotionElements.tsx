@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { soundEngine } from '../utils/audioSynth';
+import { useAppTheme } from '../context/ThemeContext';
 
 /**
  * Animated SVG Silk Wave Path that ripples softly on hover or loop
@@ -137,10 +138,14 @@ export const SilkCategoryTabs: React.FC<SilkCategoryTabsProps> = ({
   onSelect,
   onHoverTab,
 }) => {
+  const { theme } = useAppTheme();
+  const isCream = theme === 'cream';
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
 
   return (
-    <div className="relative w-full border-b border-amber-500/20 pb-2">
+    <div className={`relative w-full border-b pb-2 ${
+      isCream ? 'border-amber-900/15' : 'border-amber-500/20'
+    }`}>
       <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto custom-scrollbar py-1">
         {items.map((tab) => {
           const isActive = tab.id === activeId;
@@ -170,7 +175,11 @@ export const SilkCategoryTabs: React.FC<SilkCategoryTabsProps> = ({
               whileTap={{ scale: 0.97 }}
               className={`relative px-3 sm:px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 sm:gap-2 transition-colors cursor-pointer select-none shrink-0 ${
                 isActive
-                  ? 'text-amber-200'
+                  ? isCream
+                    ? 'text-amber-950 font-bold'
+                    : 'text-amber-200 font-bold'
+                  : isCream
+                  ? 'text-stone-700 hover:text-amber-900 bg-white hover:bg-amber-50/70 border border-amber-900/15 hover:border-amber-400 shadow-xs'
                   : 'text-slate-400 hover:text-amber-100 bg-[#0E1526]/60 border border-slate-800/80 hover:border-amber-500/30'
               }`}
             >
@@ -178,7 +187,11 @@ export const SilkCategoryTabs: React.FC<SilkCategoryTabsProps> = ({
               {isActive && (
                 <motion.div
                   layoutId="activeSilkTabGlider"
-                  className="absolute inset-0 rounded-xl bg-gradient-to-b from-amber-500/25 via-amber-600/15 to-[#0F172A] border border-amber-400/60 shadow-[0_4px_20px_rgba(245,158,11,0.22)]"
+                  className={`absolute inset-0 rounded-xl border ${
+                    isCream
+                      ? 'bg-amber-100/90 border-amber-400/90 shadow-[0_4px_16px_rgba(217,119,6,0.18)]'
+                      : 'bg-gradient-to-b from-amber-500/25 via-amber-600/15 to-[#0F172A] border-amber-400/60 shadow-[0_4px_20px_rgba(245,158,11,0.22)]'
+                  }`}
                   transition={{
                     type: 'spring',
                     stiffness: 350,
@@ -202,7 +215,13 @@ export const SilkCategoryTabs: React.FC<SilkCategoryTabsProps> = ({
                 }
                 transition={{ duration: 1.2, repeat: isHovered ? Infinity : 0 }}
                 className={`relative z-10 shrink-0 ${
-                  isActive ? 'text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.6)]' : 'text-slate-400'
+                  isActive
+                    ? isCream
+                      ? 'text-amber-800 drop-shadow-xs'
+                      : 'text-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.6)]'
+                    : isCream
+                    ? 'text-stone-600'
+                    : 'text-slate-400'
                 }`}
               >
                 {tab.icon}
@@ -216,7 +235,11 @@ export const SilkCategoryTabs: React.FC<SilkCategoryTabsProps> = ({
               <span
                 className={`relative z-10 text-[10px] font-mono px-1.5 py-0.5 rounded-full border transition-colors ${
                   isActive
-                    ? 'bg-amber-400/25 border-amber-400/50 text-amber-200'
+                    ? isCream
+                      ? 'bg-amber-200/80 border-amber-400 text-amber-950 font-bold'
+                      : 'bg-amber-400/25 border-amber-400/50 text-amber-200'
+                    : isCream
+                    ? 'bg-stone-100 border-stone-200 text-stone-600'
                     : 'bg-slate-800/80 border-slate-700/60 text-slate-400'
                 }`}
               >
@@ -230,7 +253,7 @@ export const SilkCategoryTabs: React.FC<SilkCategoryTabsProps> = ({
                     isHovered={isHovered}
                     isActive={isActive}
                     className="w-full h-full"
-                    color={isActive ? '#F59E0B' : '#D97706'}
+                    color={isActive ? (isCream ? '#D97706' : '#F59E0B') : '#D97706'}
                   />
                 </div>
               )}

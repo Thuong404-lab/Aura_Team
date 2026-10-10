@@ -45,6 +45,292 @@
   }
 }
 
+/* ========================================================
+   THEME TRẮNG KEM NGÀ & TƠ TẰM HOÀNG KIM (Warm Ivory Cream Theme)
+   Xóa bỏ triệt để các box xanh đen lạnh lẽo, mang lại tone màu
+   trắng kem hoàng gia ấm áp, độ tương phản cao, chữ sắc nét.
+   ======================================================== */
+html.theme-cream,
+html.theme-cream body {
+  background-color: #FAF7F0 !important;
+  color: #1F1915 !important;
+}
+
+/* Scrollbar tone kem hổ phách */
+html.theme-cream * {
+  scrollbar-color: #b45309 #f5efe6;
+}
+html.theme-cream ::-webkit-scrollbar-track {
+  background: #f5efe6 !important;
+}
+html.theme-cream ::-webkit-scrollbar-thumb {
+  background: #d97706 !important;
+  border: 1.5px solid #f5efe6 !important;
+}
+
+/* Background trang chủ, các màn hình và wrapper */
+html.theme-cream .bg-\[\#0A0E17\],
+html.theme-cream .bg-\[\#080C16\],
+html.theme-cream .bg-\[\#070B14\],
+html.theme-cream .bg-\[\#070B13\],
+html.theme-cream .bg-\[\#060910\],
+html.theme-cream [class*="bg-[#080C16]"],
+html.theme-cream [class*="bg-[#0A0E17]"] {
+  background-color: #FAF7F0 !important;
+}
+
+/* Ẩn các mảng nền gradient tối che mờ nền ở Fitting Room và Lookbook */
+html.theme-cream .fixed.inset-0.pointer-events-none > .bg-gradient-to-b {
+  display: none !important;
+}
+
+/* KHẮC PHỤC TRIỆT ĐỂ: Biến đổi TẤT CẢ các box, card, panel xanh đen sang TRẮNG KEM NGÀ / TƠ TẰM */
+html.theme-cream [class*="bg-[#0C12"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#0C15"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#0D14"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#0D15"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#0D13"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#0E15"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#0E16"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#0F16"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#0F17"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#1016"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#1017"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#1118"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#1119"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#111A"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#121A"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#121B"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#131B"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#131C"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#140D"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#141C"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#141E"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#151F"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#1620"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#1720"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#1723"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#1823"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#1C26"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#0A0F"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#090E"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-[#090D"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-slate-900"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-slate-950"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-slate-850"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream [class*="bg-slate-800"]:not([data-poster-card="true"]):not([data-photo-overlay="true"]),
+html.theme-cream .glass-imperial,
+html.theme-cream .glass-dark-imperial {
+  background-color: #FFFFFF !important;
+  background-image: none !important;
+  border-color: rgba(217, 119, 6, 0.22) !important;
+  box-shadow: 0 4px 20px rgba(180, 130, 60, 0.08) !important;
+}
+
+/* Triệt tiêu các gradient nền tối (from-[#11192E]..., from-[#0D1424]...) */
+html.theme-cream [class*="from-[#11192E]"]:not([data-poster-card="true"]),
+html.theme-cream [class*="from-[#0D1424]"]:not([data-poster-card="true"]),
+html.theme-cream [class*="from-[#10172A]"]:not([data-poster-card="true"]),
+html.theme-cream [class*="from-[#0C1222]"]:not([data-poster-card="true"]),
+html.theme-cream [class*="from-[#0E1526]"]:not([data-poster-card="true"]),
+html.theme-cream [class*="from-[#121A2C]"]:not([data-poster-card="true"]),
+html.theme-cream [class*="from-[#172036]"]:not([data-poster-card="true"]),
+html.theme-cream [class*="from-[#17233E]"]:not([data-poster-card="true"]),
+html.theme-cream [class*="from-[#1C0D15]"],
+html.theme-cream [class*="from-[#180F16]"],
+html.theme-cream [class*="from-slate-900"]:not([data-poster-card="true"]),
+html.theme-cream [class*="from-slate-950"]:not([data-poster-card="true"]) {
+  background-color: #FFFFFF !important;
+  background-image: none !important;
+  border-color: rgba(217, 119, 6, 0.22) !important;
+}
+
+/* Nút CTA Hoàng Kim (vàng amber chính): Giữ gradient vàng và chữ đen đậm rõ nét */
+html.theme-cream button[class*="from-amber-400"],
+html.theme-cream button[class*="from-amber-300"],
+html.theme-cream a[class*="from-amber-400"],
+html.theme-cream a[class*="from-amber-300"] {
+  background-image: linear-gradient(to right, var(--tw-gradient-stops)) !important;
+  border-color: rgba(254, 240, 138, 0.6) !important;
+}
+html.theme-cream button[class*="from-amber-400"] *,
+html.theme-cream button[class*="from-amber-300"] *,
+html.theme-cream a[class*="from-amber-400"] *,
+html.theme-cream a[class*="from-amber-300"] * {
+  color: #0F172A !important;
+}
+
+/* Các banner/hint bar dùng độ mờ nhẹ (như from-amber-500/10) thì dùng nền kem vàng thanh nhã */
+html.theme-cream [class*="from-amber-500/"]:not(button):not(a),
+html.theme-cream [class*="from-amber-600/"]:not(button):not(a) {
+  background: #FFF9EE !important;
+  border-color: rgba(217, 119, 6, 0.28) !important;
+}
+
+/* KHUNG MA NƠ CANH 2D PHÒNG THỬ: Biến thành Phòng Trưng Bày Lụa Hoàng Gia ấm áp */
+html.theme-cream .aspect-4\/5.max-h-\[580px\],
+html.theme-cream .aspect-3\/4.max-h-\[580px\],
+html.theme-cream [class*="bg-radial from-[#121A2C]"] {
+  background: radial-gradient(circle at center, #FFFDF9 0%, #F8F3E8 60%, #EFE5D0 100%) !important;
+  background-color: #FFFDF9 !important;
+  border-color: rgba(217, 119, 6, 0.4) !important;
+  box-shadow: 0 16px 45px rgba(180, 130, 60, 0.12), inset 0 0 40px rgba(217, 119, 6, 0.05) !important;
+}
+
+/* GIỮ NGUYÊN POSTER TẠP CHÍ LOOKBOOK (vì có ảnh thắng cảnh cố đô / hoàng hôn / sông Hương) */
+html.theme-cream [data-poster-card="true"] {
+  background-color: #090D18 !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85) !important;
+}
+
+/* Taboo Alert Panel khi phát hiện cấm kỵ: Chuyển sang tone Hồng/Đỏ Son trang nhã trên nền kem */
+html.theme-cream #cultural-taboo-warning-panel [class*="bg-gradient-to-b from-[#1C0D15]"],
+html.theme-cream #cultural-taboo-warning-panel [class*="bg-[#180F16]"] {
+  background: #FFF1F2 !important;
+  background-color: #FFF1F2 !important;
+  border-color: rgba(244, 63, 94, 0.5) !important;
+}
+html.theme-cream #cultural-taboo-warning-panel .text-rose-200,
+html.theme-cream #cultural-taboo-warning-panel .text-rose-300,
+html.theme-cream #cultural-taboo-warning-panel h4.text-rose-200 {
+  color: #9F1239 !important;
+}
+html.theme-cream #cultural-taboo-warning-panel p.text-slate-300,
+html.theme-cream #cultural-taboo-warning-panel p.text-rose-300\/90 {
+  color: #4C0519 !important;
+}
+
+/* ĐỘ TƯƠNG PHẢN CHỮ (TYPOGRAPHY HIGH CONTRAST) CHO TOÀN BỘ THEME CREAM */
+/* 1. Tiêu đề chính, H1, H2, H3, H4 trên nền kem: Mực nho cung đình đen đậm sắc nét */
+html.theme-cream h1:not([data-poster-card="true"] *):not([data-photo-overlay="true"] *),
+html.theme-cream h2:not([data-poster-card="true"] *):not([data-photo-overlay="true"] *),
+html.theme-cream h3:not([data-poster-card="true"] *):not([data-photo-overlay="true"] *),
+html.theme-cream h4:not([data-poster-card="true"] *):not([data-photo-overlay="true"] *) {
+  color: #1A1511;
+}
+
+/* 2. Toàn bộ chữ Slate thông thường trên nền kem: Nâu mực đen & Nâu cà phê đậm */
+html.theme-cream [class*="text-slate-1"]:not([data-poster-card="true"] *):not([data-photo-overlay="true"] *):not([class*="bg-black"] *):not(button[class*="from-amber"] *),
+html.theme-cream [class*="text-slate-2"]:not([data-poster-card="true"] *):not([data-photo-overlay="true"] *):not([class*="bg-black"] *):not(button[class*="from-amber"] *),
+html.theme-cream [class*="text-slate-50"]:not([data-poster-card="true"] *):not([data-photo-overlay="true"] *):not([class*="bg-black"] *):not(button[class*="from-amber"] *) {
+  color: #1A1511;
+}
+
+html.theme-cream [class*="text-slate-3"]:not([data-poster-card="true"] *):not([data-photo-overlay="true"] *):not([class*="bg-black"] *),
+html.theme-cream [class*="text-slate-4"]:not([data-poster-card="true"] *):not([data-photo-overlay="true"] *):not([class*="bg-black"] *) {
+  color: #2D241E; /* Nâu cà phê đậm, cực kỳ dễ đọc, KHÔNG BỊ CHÌM VÀO NỀN */
+}
+
+html.theme-cream [class*="text-slate-5"]:not([data-poster-card="true"] *):not([data-photo-overlay="true"] *),
+html.theme-cream [class*="text-slate-6"]:not([data-poster-card="true"] *):not([data-photo-overlay="true"] *) {
+  color: #4A3C31; /* Nâu đất rõ nét */
+}
+
+/* 3. Toàn bộ chữ Amber / Gold trên nền kem: NÂU HỔ PHÁCH & ĐỎ CHU SA HOÀNG TRIỀU */
+html.theme-cream [class*="text-amber-1"]:not([data-poster-card="true"] *):not([data-photo-overlay="true"] *):not([class*="bg-black"] *):not(button[class*="from-amber"] *),
+html.theme-cream [class*="text-amber-2"]:not([data-poster-card="true"] *):not([data-photo-overlay="true"] *):not([class*="bg-black"] *):not(button[class*="from-amber"] *) {
+  color: #8A3004;
+}
+
+html.theme-cream [class*="text-amber-3"]:not([data-poster-card="true"] *):not([data-photo-overlay="true"] *):not([class*="bg-black"] *):not(button[class*="from-amber"] *),
+html.theme-cream [class*="text-amber-4"]:not([data-poster-card="true"] *):not([data-photo-overlay="true"] *):not([class*="bg-black"] *):not(button[class*="from-amber"] *) {
+  color: #9A3412; /* Đỏ son chu sa hoàng triều / Hổ phách đậm đà (Tương phản cao) */
+}
+
+html.theme-cream [class*="text-amber-5"]:not([data-poster-card="true"] *):not([data-photo-overlay="true"] *):not([class*="bg-black"] *),
+html.theme-cream [class*="text-amber-6"]:not([data-poster-card="true"] *):not([data-photo-overlay="true"] *) {
+  color: #7C2D12;
+}
+
+/* 4. NGOẠI LỆ BẮT BUỘC: CHỮ NẰM TRÊN ẢNH (Photo overlay & Poster cards) */
+/* Khi có ảnh tối phía sau, chữ BẮT BUỘC phải là TRẮNG SÁNG và VÀNG KIM có bóng đổ */
+html.theme-cream [data-photo-overlay="true"] h3,
+html.theme-cream [data-photo-overlay="true"] .font-serif-vi,
+html.theme-cream [data-photo-overlay="true"] [class*="text-slate-"],
+html.theme-cream [data-photo-overlay="true"] .text-white {
+  color: #FFFFFF !important;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9) !important;
+}
+
+html.theme-cream [data-photo-overlay="true"] [class*="text-amber-"] {
+  color: #FDE047 !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9) !important;
+}
+
+/* 5. Ngoại lệ cho poster lookbook để giữ chữ vàng sáng và trắng nổi bật trên ảnh phong cảnh */
+html.theme-cream [data-poster-card="true"] .text-white,
+html.theme-cream [data-poster-card="true"] h3,
+html.theme-cream [data-poster-card="true"] h4 {
+  color: #FFFFFF !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8) !important;
+}
+html.theme-cream [data-poster-card="true"] [class*="text-slate-"] {
+  color: #E2E8F0 !important;
+}
+html.theme-cream [data-poster-card="true"] [class*="text-amber-"] {
+  color: #FCD34D !important;
+}
+html.theme-cream [data-poster-card="true"] [class*="bg-black/"] {
+  background-color: rgba(0, 0, 0, 0.75) !important;
+}
+
+/* Chip/Badge nền đen trên ảnh: luôn giữ chữ sáng */
+html.theme-cream [class*="bg-black"] [class*="text-amber-"] {
+  color: #FDE047 !important;
+}
+html.theme-cream [class*="bg-black"] [class*="text-white"],
+html.theme-cream [class*="bg-black"] [class*="text-slate-"] {
+  color: #FFFFFF !important;
+}
+
+/* Đường viền slate chuyển sang màu kem chỉ vàng ấm */
+html.theme-cream .border-slate-800,
+html.theme-cream .border-slate-700,
+html.theme-cream .border-slate-600 {
+  border-color: rgba(217, 119, 6, 0.22) !important;
+}
+
+/* Input, Textarea và Select trong theme cream */
+html.theme-cream input,
+html.theme-cream textarea,
+html.theme-cream select {
+  background-color: #FFFDF9 !important;
+  color: #1A1511 !important;
+  border-color: rgba(217, 119, 6, 0.3) !important;
+}
+html.theme-cream input::placeholder,
+html.theme-cream textarea::placeholder {
+  color: #8C7C6D !important;
+}
+
+/* Secondary Button trong theme cream */
+html.theme-cream button[class*="bg-slate-800"],
+html.theme-cream button[class*="bg-slate-900"] {
+  background-color: #F6F0E6 !important;
+  color: #78350F !important;
+  border-color: rgba(217, 119, 6, 0.25) !important;
+}
+html.theme-cream button[class*="bg-slate-800"]:hover,
+html.theme-cream button[class*="bg-slate-900"]:hover {
+  background-color: #EFE4D2 !important;
+  color: #92400E !important;
+}
+
+/* Footer chân trang trong theme cream */
+html.theme-cream footer {
+  background-color: #F4ECE1 !important;
+  border-top-color: rgba(217, 119, 6, 0.25) !important;
+  color: #4A3E34 !important;
+}
+html.theme-cream footer h4,
+html.theme-cream footer strong {
+  color: #8C3A04 !important;
+}
+html.theme-cream footer span.text-amber-300,
+html.theme-cream footer span.text-amber-400 {
+  color: #92400E !important;
+}
+
 .font-serif-vi {
   font-family: 'Lora', 'Noto Serif', 'Playfair Display', 'Merriweather', Georgia, serif;
   font-feature-settings: "kern" 1, "liga" 1, "calt" 1;

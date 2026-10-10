@@ -29,6 +29,7 @@ import { HeritageMapSection } from './HeritageMapSection';
 import { RegionalFashionDiversityMap } from './RegionalFashionDiversityMap';
 import { HeritageCraftsmanshipStory } from './HeritageCraftsmanshipStory';
 import { CulturalInteractiveQuiz } from './CulturalInteractiveQuiz';
+import { useAppTheme } from '../context/ThemeContext';
 import {
   BookOpen,
   Award,
@@ -226,6 +227,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   isCloudCurtainActive,
   onCloudCurtainChange,
 }) => {
+  const { theme } = useAppTheme();
+  const isCream = theme === 'cream';
+
   const [promptInput, setPromptInput] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiResult, setAiResult] = useState<AiSuggestionResult | null>(null);
@@ -294,7 +298,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     DYNASTY_ERAS.find((d) => d.id === activeDynastyId) || DYNASTY_ERAS[2];
 
   return (
-    <div className="relative min-h-screen w-full bg-[#080C16] text-slate-100 flex flex-col justify-between overflow-x-hidden font-sans-vi">
+    <div className={`relative min-h-screen w-full flex flex-col justify-between overflow-x-hidden font-sans-vi transition-colors duration-300 ${
+      isCream ? 'bg-[#FAF7F0] text-stone-900' : 'bg-[#080C16] text-slate-100'
+    }`}>
       
       {/* 0. FULL-SCREEN CLOUD CURTAIN ANIMATION (FRAMER MOTION) */}
       <CloudCurtain
@@ -312,7 +318,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       {/* 3. ATMOSPHERIC GEOMETRY & TRADITIONAL MOTIFS */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         {/* Soft imperial vignette */}
-        <div className="absolute inset-0 bg-radial-at-t from-[#152238]/60 via-[#0A0F1E] to-[#050811]" />
+        <div className={`absolute inset-0 transition-opacity duration-500 ${
+          isCream ? 'opacity-0' : 'bg-radial-at-t from-[#152238]/60 via-[#0A0F1E] to-[#050811]'
+        }`} />
 
         {/* Ambient halos */}
         <div className="absolute top-2/3 right-10 w-[400px] h-[400px] bg-red-900/10 blur-[140px] rounded-full pointer-events-none" />
@@ -412,9 +420,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               whileTap={{ scale: 0.98 }}
               href="#encyclopedia-section"
               onClick={() => soundEngine.playPluck(523.25)}
-              className="w-full sm:w-auto px-7 py-3.5 rounded-xl text-sm font-bold tracking-[0.1em] uppercase text-amber-200 bg-[#121A2D]/90 hover:bg-[#18233C] border border-amber-500/40 shadow-lg transition-all duration-300 flex items-center justify-center gap-2.5 cursor-pointer backdrop-blur-md"
+              className={`w-full sm:w-auto px-7 py-3.5 rounded-xl text-sm font-bold tracking-[0.1em] uppercase shadow-lg transition-all duration-300 flex items-center justify-center gap-2.5 cursor-pointer backdrop-blur-md ${
+                isCream
+                  ? 'bg-white hover:bg-amber-50 text-amber-900 border border-amber-300/80 shadow-sm'
+                  : 'text-amber-200 bg-[#121A2D]/90 hover:bg-[#18233C] border border-amber-500/40'
+              }`}
             >
-              <BookOpen className="w-4 h-4 text-amber-400" />
+              <BookOpen className={`w-4 h-4 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
               <span>BÁCH KHOA VIỆT PHỤC</span>
             </motion.a>
           </motion.div>
@@ -422,34 +434,44 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           {/* Cultural Heritage Trust Indicators (Highlighting Diversity, Authenticity, Philosophy) */}
           <motion.div
             variants={slideUpFadeVariants}
-            className="w-full max-w-4xl grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-amber-500/15 text-left mb-6"
+            className={`w-full max-w-4xl grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t text-left mb-6 ${
+              isCream ? 'border-amber-900/10' : 'border-amber-500/15'
+            }`}
           >
-            <div className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-900/40 border border-slate-800">
-              <Compass className="w-5 h-5 text-amber-400 flex-shrink-0" />
+            <div className={`flex items-center gap-2.5 p-3 rounded-xl border ${
+              isCream ? 'bg-white/95 border-amber-200/90 shadow-xs' : 'bg-slate-900/40 border-slate-800'
+            }`}>
+              <Compass className="w-5 h-5 text-amber-500 flex-shrink-0" />
               <div>
-                <span className="text-xs font-bold text-slate-200 block">Đa Dạng 3 Miền</span>
-                <span className="text-[10px] text-slate-400">Bắc — Trung — Nam</span>
+                <span className={`text-xs font-bold block ${isCream ? 'text-stone-900' : 'text-slate-200'}`}>Đa Dạng 3 Miền</span>
+                <span className={`text-[10px] ${isCream ? 'text-stone-600 font-medium' : 'text-slate-400'}`}>Bắc — Trung — Nam</span>
               </div>
             </div>
-            <div className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-900/40 border border-slate-800">
-              <Layers className="w-5 h-5 text-amber-400 flex-shrink-0" />
+            <div className={`flex items-center gap-2.5 p-3 rounded-xl border ${
+              isCream ? 'bg-white/95 border-amber-200/90 shadow-xs' : 'bg-slate-900/40 border-slate-800'
+            }`}>
+              <Layers className="w-5 h-5 text-amber-500 flex-shrink-0" />
               <div>
-                <span className="text-xs font-bold text-slate-200 block">Quy Thức Triều Đình</span>
-                <span className="text-[10px] text-slate-400">Phục nguyên chuẩn xác</span>
+                <span className={`text-xs font-bold block ${isCream ? 'text-stone-900' : 'text-slate-200'}`}>Quy Thức Triều Đình</span>
+                <span className={`text-[10px] ${isCream ? 'text-stone-600 font-medium' : 'text-slate-400'}`}>Phục nguyên chuẩn xác</span>
               </div>
             </div>
-            <div className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-900/40 border border-slate-800">
-              <Palette className="w-5 h-5 text-amber-400 flex-shrink-0" />
+            <div className={`flex items-center gap-2.5 p-3 rounded-xl border ${
+              isCream ? 'bg-white/95 border-amber-200/90 shadow-xs' : 'bg-slate-900/40 border-slate-800'
+            }`}>
+              <Palette className="w-5 h-5 text-amber-500 flex-shrink-0" />
               <div>
-                <span className="text-xs font-bold text-slate-200 block">Tơ Lụa & Gấm Vóc</span>
-                <span className="text-[10px] text-slate-400">100% Nhuộm thảo mộc</span>
+                <span className={`text-xs font-bold block ${isCream ? 'text-stone-900' : 'text-slate-200'}`}>Tơ Lụa & Gấm Vóc</span>
+                <span className={`text-[10px] ${isCream ? 'text-stone-600 font-medium' : 'text-slate-400'}`}>100% Nhuộm thảo mộc</span>
               </div>
             </div>
-            <div className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-900/40 border border-slate-800">
-              <Award className="w-5 h-5 text-amber-400 flex-shrink-0" />
+            <div className={`flex items-center gap-2.5 p-3 rounded-xl border ${
+              isCream ? 'bg-white/95 border-amber-200/90 shadow-xs' : 'bg-slate-900/40 border-slate-800'
+            }`}>
+              <Award className="w-5 h-5 text-amber-500 flex-shrink-0" />
               <div>
-                <span className="text-xs font-bold text-slate-200 block">Khảo Cứu Lịch Sử</span>
-                <span className="text-[10px] text-slate-400">Di sản ngàn năm văn hiến</span>
+                <span className={`text-xs font-bold block ${isCream ? 'text-stone-900' : 'text-slate-200'}`}>Khảo Cứu Lịch Sử</span>
+                <span className={`text-[10px] ${isCream ? 'text-stone-600 font-medium' : 'text-slate-400'}`}>Di sản ngàn năm văn hiến</span>
               </div>
             </div>
           </motion.div>
@@ -476,16 +498,22 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
             <div>
               <div className="flex items-center gap-2 mb-1.5">
-                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                <span className="text-xs font-bold tracking-[0.25em] uppercase text-amber-400/90 font-serif-vi">
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                <span className={`text-xs font-bold tracking-[0.25em] uppercase font-serif-vi ${
+                  isCream ? 'text-amber-800' : 'text-amber-400/90'
+                }`}>
                   KHO TÀNG CUNG ĐÌNH
                 </span>
               </div>
-              <h2 className="font-serif-vi text-2xl sm:text-3xl md:text-4xl font-bold text-amber-100 tracking-tight">
+              <h2 className={`font-serif-vi text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight ${
+                isCream ? 'text-stone-900' : 'text-amber-100'
+              }`}>
                 Hé Lộ Bí Mật Cổ Phục Nghìn Năm
               </h2>
             </div>
-            <p className="text-xs sm:text-sm text-slate-300/85 max-w-md font-light leading-relaxed">
+            <p className={`text-xs sm:text-sm max-w-md leading-relaxed ${
+              isCream ? 'text-stone-700 font-normal' : 'text-slate-300/85 font-light'
+            }`}>
               Mỗi nếp áo, hạt cúc hay dải thêu đều cất giấu những mật mã văn hóa và vũ trụ quan của tiền nhân.
               Nhấp để mở từng hộp điển tịch và trải nghiệm phục sức ngay.
             </p>
@@ -506,8 +534,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   variants={cardStaggerVariants}
                   className={`group rounded-2xl transition-all duration-300 relative overflow-hidden backdrop-blur-xl border flex flex-col ${
                     isRevealed
-                      ? 'bg-gradient-to-b from-[#11192E] via-[#0E1528] to-[#0A0F1E] border-amber-400/50 shadow-[0_12px_40px_rgba(245,158,11,0.16)]'
-                      : 'bg-gradient-to-b from-[#0D1424]/90 to-[#090E1A]/95 hover:bg-[#11192E] border-slate-700/60 hover:border-amber-400/40 shadow-lg hover:shadow-xl'
+                      ? isCream
+                        ? 'bg-white border-amber-300 shadow-[0_12px_40px_rgba(180,130,60,0.12)]'
+                        : 'bg-gradient-to-b from-[#11192E] via-[#0E1528] to-[#0A0F1E] border-amber-400/50 shadow-[0_12px_40px_rgba(245,158,11,0.16)]'
+                      : isCream
+                        ? 'bg-white hover:bg-[#FFFDF8] border-stone-200 hover:border-amber-400/60 shadow-xs hover:shadow-md'
+                        : 'bg-gradient-to-b from-[#0D1424]/90 to-[#090E1A]/95 hover:bg-[#11192E] border-slate-700/60 hover:border-amber-400/40 shadow-lg hover:shadow-xl'
                   }`}
                 >
                   {/* Subtle top ambient glow */}
@@ -522,12 +554,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                     className="p-5 sm:p-6 pb-4 cursor-pointer select-none"
                   >
                     <div className="flex items-center justify-between mb-3 text-xs">
-                      <div className="flex items-center gap-2 text-slate-400">
-                        <span className="font-serif-vi font-bold text-amber-400 text-sm">
+                      <div className="flex items-center gap-2">
+                        <span className={`font-serif-vi font-bold text-sm ${isCream ? 'text-amber-800' : 'text-amber-400'}`}>
                           {`0${index + 1}`}
                         </span>
-                        <span className="text-slate-600">/</span>
-                        <span className="tracking-wide text-slate-300 font-medium">
+                        <span className={isCream ? 'text-stone-300' : 'text-slate-600'}>/</span>
+                        <span className={`tracking-wide font-medium ${isCream ? 'text-stone-700' : 'text-slate-300'}`}>
                           {secret.dynasty}
                         </span>
                       </div>
@@ -541,8 +573,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                         }}
                         className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide transition-all flex items-center gap-1.5 cursor-pointer ${
                           isRevealed
-                            ? 'bg-amber-400/15 text-amber-300 border border-amber-400/40 hover:bg-amber-400/25'
-                            : 'bg-slate-800/80 text-slate-300 border border-slate-700 hover:text-amber-300 hover:border-amber-400/50'
+                            ? isCream
+                              ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                              : 'bg-amber-400/15 text-amber-300 border border-amber-400/40 hover:bg-amber-400/25'
+                            : isCream
+                              ? 'bg-stone-100 text-stone-700 border border-stone-200 hover:bg-amber-50 hover:text-amber-900'
+                              : 'bg-slate-800/80 text-slate-300 border border-slate-700 hover:text-amber-300 hover:border-amber-400/50'
                         }`}
                       >
                         <span>{isRevealed ? 'Thu gọn' : 'Khai mở bí mật'}</span>
@@ -559,30 +595,45 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                     {/* Main Title & Garment Thumbnail */}
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <h3 className="font-serif-vi text-xl sm:text-2xl font-bold text-amber-100 group-hover:text-amber-200 transition-colors">
+                        <h3 className={`font-serif-vi text-xl sm:text-2xl font-bold transition-colors ${
+                          isCream ? 'text-stone-900 group-hover:text-amber-800' : 'text-amber-100 group-hover:text-amber-200'
+                        }`}>
                           {secret.garmentName}
                         </h3>
-                        <p className="text-xs text-amber-300/80 font-medium mt-0.5 tracking-wide">
+                        <p className={`text-xs font-semibold mt-0.5 tracking-wide ${
+                          isCream ? 'text-amber-800' : 'text-amber-300/80'
+                        }`}>
                           {secret.mysteryTitle}
                         </p>
                       </div>
 
-                      {/* Garment Image Thumbnail */}
-                      {garment?.imageUrl && (
-                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border border-amber-500/30 flex-shrink-0 bg-slate-900 shadow-md relative group/img">
+                      {/* Garment Image Thumbnail with Fallback Icon */}
+                      <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border flex-shrink-0 shadow-md relative group/img flex items-center justify-center ${
+                        isCream ? 'bg-amber-50 border-amber-300' : 'bg-slate-900 border-amber-500/30'
+                      }`}>
+                        {garment?.imageUrl && (
                           <img
                             src={garment.imageUrl}
                             alt={secret.garmentName}
-                            className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
+                            className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110 z-10"
                             loading="lazy"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent pointer-events-none" />
-                        </div>
-                      )}
+                        )}
+                        <span className="text-2xl select-none absolute z-0 opacity-80">
+                          {garment?.icon || '👘'}
+                        </span>
+                      </div>
                     </div>
 
-                    {/* Teaser Question in Quote Style */}
-                    <div className="mt-3.5 text-xs text-slate-300/90 italic border-l-2 border-amber-400/50 pl-3 py-1 bg-amber-500/5 rounded-r-lg">
+                    {/* Teaser Question in Quote Style with High Contrast */}
+                    <div className={`mt-3.5 text-xs italic pl-3 py-1.5 rounded-r-lg border-l-3 ${
+                      isCream
+                        ? 'text-stone-800 bg-amber-50/90 border-amber-500 font-medium'
+                        : 'text-slate-300/90 border-amber-400/50 bg-amber-500/5'
+                    }`}>
                       "{secret.teaser}"
                     </div>
                   </div>
@@ -596,24 +647,32 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                        className="overflow-hidden border-t border-amber-500/20"
+                        className={`overflow-hidden border-t ${isCream ? 'border-amber-200' : 'border-amber-500/20'}`}
                       >
-                        <div className="p-5 sm:p-6 pt-4 space-y-4 bg-slate-950/40">
+                        <div className={`p-5 sm:p-6 pt-4 space-y-4 ${isCream ? 'bg-[#FFFDF9]' : 'bg-slate-950/40'}`}>
                           {/* Secret Explanation */}
                           <div className="space-y-1.5">
-                            <span className="text-[11px] font-bold tracking-wider uppercase text-amber-400 block font-serif-vi">
+                            <span className={`text-[11px] font-bold tracking-wider uppercase block font-serif-vi ${
+                              isCream ? 'text-amber-800' : 'text-amber-400'
+                            }`}>
                               Hé lộ mật mã
                             </span>
-                            <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-sans-vi">
+                            <p className={`text-xs sm:text-sm leading-relaxed font-sans-vi ${
+                              isCream ? 'text-stone-800' : 'text-slate-200'
+                            }`}>
                               {secret.revealedSecret}
                             </p>
                           </div>
 
                           {/* Philosophical Significance Card */}
-                          <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-3">
-                            <span className="text-amber-400 text-base leading-none mt-0.5">✦</span>
-                            <div className="text-xs text-amber-200/95 leading-relaxed">
-                              <strong className="text-amber-100 font-semibold font-serif-vi mr-1">
+                          <div className={`p-3.5 rounded-xl border flex items-start gap-3 ${
+                            isCream
+                              ? 'bg-amber-50 border-amber-200 text-stone-800'
+                              : 'bg-amber-500/10 border-amber-500/25 text-amber-200/95'
+                          }`}>
+                            <span className={`text-base leading-none mt-0.5 ${isCream ? 'text-amber-700' : 'text-amber-400'}`}>✦</span>
+                            <div className={`text-xs leading-relaxed ${isCream ? 'text-stone-800' : 'text-amber-200/95'}`}>
+                              <strong className={`font-semibold font-serif-vi mr-1 ${isCream ? 'text-amber-900 font-bold' : 'text-amber-100'}`}>
                                 Ý nghĩa triết lý:
                               </strong>
                               {secret.significance}
@@ -625,7 +684,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   </AnimatePresence>
 
                   {/* Footer Action Bar */}
-                  <div className="p-4 sm:p-5 pt-3 border-t border-slate-800/80 bg-slate-950/30 flex items-center justify-between gap-3 mt-auto">
+                  <div className={`p-4 sm:p-5 pt-3 border-t flex items-center justify-between gap-3 mt-auto ${
+                    isCream ? 'bg-[#FAF7F0] border-stone-200' : 'border-slate-800/80 bg-slate-950/30'
+                  }`}>
                     <span className="text-[11px] text-slate-400 flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
                       Phòng thử phục sắc 2D
@@ -655,22 +716,32 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         {/* 4.5 INTERACTIVE DYNASTY CHRONOLOGY: BIÊN NIÊN SỬ TRIỀU ĐẠI */}
         <motion.section
           variants={slideUpFadeVariants}
-          className="w-full my-12 p-6 sm:p-8 rounded-3xl bg-[#0E1526]/85 border border-amber-500/25 shadow-xl text-left"
+          className={`w-full my-12 p-6 sm:p-8 rounded-3xl border shadow-xl text-left ${
+            isCream ? 'bg-white border-amber-200/90 shadow-[0_4px_24px_rgba(180,130,60,0.08)]' : 'bg-[#0E1526]/85 border-amber-500/25'
+          }`}
         >
           <div className="mb-6">
-            <span className="text-xs font-bold tracking-[0.2em] uppercase text-amber-400 block mb-1">
+            <span className={`text-xs font-bold tracking-[0.2em] uppercase block mb-1 ${
+              isCream ? 'text-amber-800' : 'text-amber-400'
+            }`}>
               DÒNG THỜI GIAN DI SẢN
             </span>
-            <h3 className="font-serif-vi text-2xl sm:text-3xl font-bold text-amber-100">
+            <h3 className={`font-serif-vi text-2xl sm:text-3xl font-bold ${
+              isCream ? 'text-stone-900' : 'text-amber-100'
+            }`}>
               Biên Niên Sử Phục Sức Việt Qua Các Triều Đại
             </h3>
-            <p className="text-xs text-slate-400 mt-1 font-light">
+            <p className={`text-xs mt-1 font-light ${
+              isCream ? 'text-stone-600' : 'text-slate-400'
+            }`}>
               Mỗi giai đoạn lịch sử ghi dấu một bước chuyển mình của văn hóa trang phục Việt Nam
             </p>
           </div>
 
           {/* Dynasty Interactive Tabs */}
-          <div className="flex flex-wrap gap-2 mb-6 border-b border-slate-700/60 pb-4">
+          <div className={`flex flex-wrap gap-2 mb-6 border-b pb-4 ${
+            isCream ? 'border-stone-200' : 'border-slate-700/60'
+          }`}>
             {DYNASTY_ERAS.map((era) => (
               <button
                 key={era.id}
@@ -680,7 +751,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 }}
                 className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                   activeDynastyId === era.id
-                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/50 shadow-xs'
+                    ? isCream
+                      ? 'bg-amber-100 text-amber-900 border border-amber-400 font-bold shadow-xs'
+                      : 'bg-amber-500/20 text-amber-300 border border-amber-500/50 shadow-xs'
+                    : isCream
+                    ? 'bg-stone-50 text-stone-700 hover:text-stone-900 hover:bg-stone-100 border border-stone-200'
                     : 'bg-[#121A2E] text-slate-400 hover:text-slate-200 border border-slate-800'
                 }`}
               >
@@ -697,31 +772,45 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.35 }}
-              className="p-5 sm:p-6 rounded-2xl bg-[#121B30] border border-amber-500/20 grid grid-cols-1 md:grid-cols-12 gap-6"
+              className={`p-5 sm:p-6 rounded-2xl border grid grid-cols-1 md:grid-cols-12 gap-6 ${
+                isCream ? 'bg-[#FFFDF9] border-amber-200/90 shadow-xs' : 'bg-[#121B30] border-amber-500/20'
+              }`}
             >
               <div className="md:col-span-8">
                 <div className="flex items-baseline gap-3 mb-2">
-                  <h4 className="font-serif-vi text-xl font-bold text-amber-200">
+                  <h4 className={`font-serif-vi text-xl font-bold ${
+                    isCream ? 'text-amber-900' : 'text-amber-200'
+                  }`}>
                     {activeDynasty.name}
                   </h4>
-                  <span className="text-xs text-amber-400/80 font-mono">
+                  <span className={`text-xs font-mono ${
+                    isCream ? 'text-amber-800' : 'text-amber-400/80'
+                  }`}>
                     ({activeDynasty.years})
                   </span>
                 </div>
-                <h5 className="text-sm font-semibold text-slate-200 mb-3">
+                <h5 className={`text-sm font-semibold mb-3 ${
+                  isCream ? 'text-stone-800' : 'text-slate-200'
+                }`}>
                   {activeDynasty.headline}
                 </h5>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-light mb-4">
+                <p className={`text-xs sm:text-sm leading-relaxed font-light mb-4 ${
+                  isCream ? 'text-stone-700' : 'text-slate-300'
+                }`}>
                   {activeDynasty.summary}
                 </p>
 
                 {/* Garments & Textures */}
                 <div className="flex flex-wrap items-center gap-2 text-xs">
-                  <span className="text-amber-400 font-medium">Trang phục tiêu biểu:</span>
+                  <span className={`font-medium ${isCream ? 'text-amber-900' : 'text-amber-400'}`}>Trang phục tiêu biểu:</span>
                   {activeDynasty.garments.map((g, i) => (
                     <span
                       key={i}
-                      className="text-slate-200 bg-[#0E1526] px-2.5 py-1 rounded-md border border-slate-700"
+                      className={`px-2.5 py-1 rounded-md border ${
+                        isCream
+                          ? 'bg-amber-50/80 text-stone-800 border-amber-200'
+                          : 'text-slate-200 bg-[#0E1526] border-slate-700'
+                      }`}
                     >
                       {g}
                     </span>
@@ -729,20 +818,22 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 </div>
               </div>
 
-              <div className="md:col-span-4 flex flex-col justify-between border-t md:border-t-0 md:border-l border-slate-700/60 pt-4 md:pt-0 md:pl-6 text-xs">
+              <div className={`md:col-span-4 flex flex-col justify-between border-t md:border-t-0 md:border-l pt-4 md:pt-0 md:pl-6 text-xs ${
+                isCream ? 'border-stone-200' : 'border-slate-700/60'
+              }`}>
                 <div>
-                  <span className="text-slate-400 block mb-2 font-medium">Bảng Sắc Màu Đặc Trưng:</span>
-                  <div className="flex flex-col gap-1.5 text-slate-300">
+                  <span className={`block mb-2 font-medium ${isCream ? 'text-stone-700' : 'text-slate-400'}`}>Bảng Sắc Màu Đặc Trưng:</span>
+                  <div className={`flex flex-col gap-1.5 ${isCream ? 'text-stone-800' : 'text-slate-300'}`}>
                     {activeDynasty.palette.map((color, idx) => (
                       <div key={idx} className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-amber-400" />
+                        <span className="w-2 h-2 rounded-full bg-amber-500" />
                         <span>{color}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-slate-700/60">
+                <div className={`mt-4 pt-4 border-t ${isCream ? 'border-stone-200' : 'border-slate-700/60'}`}>
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}

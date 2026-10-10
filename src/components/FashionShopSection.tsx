@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { FASHION_PRODUCTS, FashionProduct } from '../data/fashionShopData';
 import { soundEngine } from '../utils/audioSynth';
+import { useAppTheme } from '../context/ThemeContext';
 
 interface FashionShopSectionProps {
   onSelectProductDetails: (product: FashionProduct) => void;
@@ -36,6 +37,9 @@ export const FashionShopSection: React.FC<FashionShopSectionProps> = ({
   wishlistIds,
   onToggleWishlist,
 }) => {
+  const { theme } = useAppTheme();
+  const isCream = theme === 'cream';
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'top' | 'bottom' | 'accessory'>('all');
   const [selectedEra, setSelectedEra] = useState<string>('all');
@@ -116,28 +120,42 @@ export const FashionShopSection: React.FC<FashionShopSectionProps> = ({
           Boutique Cổ Phục Cao Cấp
         </div>
 
-        <h2 className="text-2xl sm:text-4xl font-serif-vi font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-100 to-amber-300">
+        <h2 className={`text-2xl sm:text-4xl font-serif-vi font-bold ${
+          isCream
+            ? 'text-stone-900'
+            : 'text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-100 to-amber-300'
+        }`}>
           Bộ Sưu Tập Cổ Phục & May Đo Hoàng Triều
         </h2>
 
-        <p className="text-xs sm:text-sm text-slate-300 max-w-2xl mx-auto">
+        <p className={`text-xs sm:text-sm max-w-2xl mx-auto ${
+          isCream ? 'text-stone-700' : 'text-slate-300'
+        }`}>
           Mỗi thiết kế là một tác phẩm nghệ thuật gìn giữ hồn cốt nghìn năm. Trải nghiệm mua sắm tiện lợi hoặc thử đồ trực tiếp bằng công nghệ AI 2D.
         </p>
       </div>
 
       {/* Filter and Search Controls Bar */}
-      <div className="bg-[#0C1220]/80 border border-amber-500/20 rounded-2xl p-4 sm:p-5 mb-8 backdrop-blur-md shadow-xl space-y-4">
+      <div className={`rounded-2xl p-4 sm:p-5 mb-8 backdrop-blur-md shadow-xl space-y-4 border ${
+        isCream
+          ? 'bg-white border-amber-200/90 shadow-[0_4px_24px_rgba(180,130,60,0.08)]'
+          : 'bg-[#0C1220]/80 border-amber-500/20'
+      }`}>
         {/* Row 1: Search & Sort */}
         <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
           {/* Search Box */}
           <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
+            <Search className={`w-4 h-4 absolute left-3.5 top-3 ${isCream ? 'text-stone-400' : 'text-slate-400'}`} />
             <input
               type="text"
               placeholder="Tìm theo tên áo, gấm hoa, triều đại (Nhật Bình, Ngũ Thân, Tơ tằm...)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus:border-amber-400 outline-none transition-colors"
+              className={`w-full rounded-xl pl-10 pr-4 py-2.5 text-xs outline-none transition-colors border ${
+                isCream
+                  ? 'bg-stone-50 border-stone-200 text-stone-900 placeholder:text-stone-400 focus:border-amber-400'
+                  : 'bg-slate-900/90 border-slate-700/80 text-slate-100 placeholder:text-slate-500 focus:border-amber-400'
+              }`}
             />
           </div>
 
@@ -151,7 +169,11 @@ export const FashionShopSection: React.FC<FashionShopSectionProps> = ({
                   soundEngine.playPluck(440);
                   setSelectedEra(e.target.value);
                 }}
-                className="w-full appearance-none bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 pr-8 text-xs text-slate-200 focus:border-amber-400 outline-none cursor-pointer"
+                className={`w-full appearance-none rounded-xl px-3.5 py-2.5 pr-8 text-xs outline-none cursor-pointer border ${
+                  isCream
+                    ? 'bg-stone-50 border-stone-200 text-stone-800 focus:border-amber-400'
+                    : 'bg-slate-900 border border-slate-700 text-slate-200 focus:border-amber-400'
+                }`}
               >
                 <option value="all">Tất cả triều đại</option>
                 <option value="Triều Nguyễn">Triều Nguyễn (Cố Đô)</option>
@@ -170,7 +192,11 @@ export const FashionShopSection: React.FC<FashionShopSectionProps> = ({
                   soundEngine.playPluck(440);
                   setSortBy(e.target.value as any);
                 }}
-                className="w-full appearance-none bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 pr-8 text-xs text-slate-200 focus:border-amber-400 outline-none cursor-pointer"
+                className={`w-full appearance-none rounded-xl px-3.5 py-2.5 pr-8 text-xs outline-none cursor-pointer border ${
+                  isCream
+                    ? 'bg-stone-50 border-stone-200 text-stone-800 focus:border-amber-400'
+                    : 'bg-slate-900 border border-slate-700 text-slate-200 focus:border-amber-400'
+                }`}
               >
                 <option value="featured">Nổi bật nhất</option>
                 <option value="price-asc">Giá: Thấp đến Cao</option>
@@ -191,7 +217,11 @@ export const FashionShopSection: React.FC<FashionShopSectionProps> = ({
             }}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
               selectedCategory === 'all'
-                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                ? isCream
+                  ? 'bg-amber-100 text-amber-900 border border-amber-400 font-bold shadow-xs'
+                  : 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                : isCream
+                ? 'bg-stone-50 text-stone-700 hover:text-stone-900 hover:bg-stone-100 border border-stone-200'
                 : 'bg-slate-900/80 text-slate-300 hover:bg-slate-800 border border-slate-700/60'
             }`}
           >
@@ -205,7 +235,11 @@ export const FashionShopSection: React.FC<FashionShopSectionProps> = ({
             }}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
               selectedCategory === 'top'
-                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                ? isCream
+                  ? 'bg-amber-100 text-amber-900 border border-amber-400 font-bold shadow-xs'
+                  : 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                : isCream
+                ? 'bg-stone-50 text-stone-700 hover:text-stone-900 hover:bg-stone-100 border border-stone-200'
                 : 'bg-slate-900/80 text-slate-300 hover:bg-slate-800 border border-slate-700/60'
             }`}
           >
@@ -219,7 +253,11 @@ export const FashionShopSection: React.FC<FashionShopSectionProps> = ({
             }}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
               selectedCategory === 'bottom'
-                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                ? isCream
+                  ? 'bg-amber-100 text-amber-900 border border-amber-400 font-bold shadow-xs'
+                  : 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                : isCream
+                ? 'bg-stone-50 text-stone-700 hover:text-stone-900 hover:bg-stone-100 border border-stone-200'
                 : 'bg-slate-900/80 text-slate-300 hover:bg-slate-800 border border-slate-700/60'
             }`}
           >
@@ -233,7 +271,11 @@ export const FashionShopSection: React.FC<FashionShopSectionProps> = ({
             }}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
               selectedCategory === 'accessory'
-                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                ? isCream
+                  ? 'bg-amber-100 text-amber-900 border border-amber-400 font-bold shadow-xs'
+                  : 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                : isCream
+                ? 'bg-stone-50 text-stone-700 hover:text-stone-900 hover:bg-stone-100 border border-stone-200'
                 : 'bg-slate-900/80 text-slate-300 hover:bg-slate-800 border border-slate-700/60'
             }`}
           >
@@ -287,7 +329,11 @@ export const FashionShopSection: React.FC<FashionShopSectionProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
                 onClick={() => onSelectProductDetails(prod)}
-                className="group relative bg-[#0D1424] border border-amber-500/20 hover:border-amber-400/60 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-amber-500/10 transition-all duration-300 flex flex-col cursor-pointer"
+                className={`group relative rounded-2xl overflow-hidden transition-all duration-300 flex flex-col cursor-pointer border ${
+                  isCream
+                    ? 'bg-white border-amber-200/90 hover:border-amber-400 shadow-[0_4px_20px_rgba(180,130,60,0.08)] hover:shadow-[0_12px_36px_rgba(180,130,60,0.16)]'
+                    : 'bg-[#0D1424] border-amber-500/20 hover:border-amber-400/60 shadow-lg hover:shadow-2xl hover:shadow-amber-500/10'
+                }`}
               >
                 {/* Image Container with Editorial Look */}
                 <div className="relative aspect-[3/4] w-full overflow-hidden bg-slate-950">
@@ -346,25 +392,27 @@ export const FashionShopSection: React.FC<FashionShopSectionProps> = ({
                 <div className="p-4 flex-1 flex flex-col justify-between space-y-2.5">
                   <div>
                     {/* Era & Category Pill */}
-                    <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
-                      <span className="text-amber-400/90 font-medium">
+                    <div className="flex items-center justify-between text-[11px] mb-1">
+                      <span className={`font-semibold ${isCream ? 'text-amber-800' : 'text-amber-400/90'}`}>
                         {prod.era}
                       </span>
-                      <div className="flex items-center text-amber-400">
-                        <Star className="w-3 h-3 fill-amber-400" />
-                        <span className="ml-1 text-[11px] font-semibold text-slate-200">
+                      <div className="flex items-center text-amber-500">
+                        <Star className="w-3 h-3 fill-amber-500" />
+                        <span className={`ml-1 text-[11px] font-semibold ${isCream ? 'text-stone-800' : 'text-slate-200'}`}>
                           {prod.rating}
                         </span>
                       </div>
                     </div>
 
                     {/* Garment Title */}
-                    <h3 className="font-serif-vi font-bold text-sm text-slate-100 group-hover:text-amber-200 leading-snug transition-colors">
+                    <h3 className={`font-serif-vi font-bold text-sm leading-snug transition-colors ${
+                      isCream ? 'text-stone-900 group-hover:text-amber-800' : 'text-slate-100 group-hover:text-amber-200'
+                    }`}>
                       {prod.name}
                     </h3>
 
                     {/* Fabric description */}
-                    <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">
+                    <p className={`text-[11px] mt-0.5 leading-snug ${isCream ? 'text-stone-600' : 'text-slate-400'}`}>
                       {prod.fabric}
                     </p>
                   </div>
@@ -375,23 +423,23 @@ export const FashionShopSection: React.FC<FashionShopSectionProps> = ({
                       <span
                         key={i}
                         title={c.name}
-                        className="w-2.5 h-2.5 rounded-full border border-black/40 shadow-sm"
+                        className="w-2.5 h-2.5 rounded-full border border-black/30 shadow-sm"
                         style={{ backgroundColor: c.hex }}
                       />
                     ))}
-                    <span className="text-[10px] text-slate-400 ml-1">
+                    <span className={`text-[10px] ml-1 ${isCream ? 'text-stone-500 font-medium' : 'text-slate-400'}`}>
                       {prod.sizes.length} cỡ size
                     </span>
                   </div>
 
                   {/* Price & CTA Row */}
-                  <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between">
+                  <div className={`pt-2 border-t flex items-center justify-between ${isCream ? 'border-stone-200' : 'border-slate-800/80'}`}>
                     <div>
-                      <div className="font-serif-vi font-bold text-base text-amber-300">
+                      <div className={`font-serif-vi font-bold text-base ${isCream ? 'text-amber-900 font-bold' : 'text-amber-300'}`}>
                         {prod.price.toLocaleString('vi-VN')}₫
                       </div>
                       {prod.originalPrice && (
-                        <div className="text-[10px] text-slate-400 line-through">
+                        <div className={`text-[10px] line-through ${isCream ? 'text-stone-400' : 'text-slate-400'}`}>
                           {prod.originalPrice.toLocaleString('vi-VN')}₫
                         </div>
                       )}
@@ -399,7 +447,11 @@ export const FashionShopSection: React.FC<FashionShopSectionProps> = ({
 
                     <button
                       onClick={(e) => handleQuickAdd(e, prod)}
-                      className="py-1.5 px-3 rounded-lg bg-amber-500/10 hover:bg-amber-500 border border-amber-500/30 text-amber-300 hover:text-slate-950 text-xs font-semibold flex items-center gap-1.5 transition-all"
+                      className={`py-1.5 px-3 rounded-lg border text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                        isCream
+                          ? 'bg-amber-100 hover:bg-amber-400 text-amber-950 border-amber-300'
+                          : 'bg-amber-500/10 hover:bg-amber-500 border border-amber-500/30 text-amber-300 hover:text-slate-950'
+                      }`}
                     >
                       <ShoppingBag className="w-3 h-3" />
                       Mua
@@ -413,15 +465,19 @@ export const FashionShopSection: React.FC<FashionShopSectionProps> = ({
       )}
 
       {/* Customer Trust & Craft Banner inside Shop */}
-      <div className="mt-14 p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-amber-950/40 via-[#0E1526] to-amber-950/30 border border-amber-500/25 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+      <div className={`mt-14 p-6 sm:p-8 rounded-2xl border flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl ${
+        isCream
+          ? 'bg-gradient-to-r from-amber-50 via-white to-amber-100/70 border-amber-300/80 shadow-[0_8px_30px_rgba(180,130,60,0.08)]'
+          : 'bg-gradient-to-r from-amber-950/40 via-[#0E1526] to-amber-950/30 border-amber-500/25'
+      }`}>
         <div className="space-y-2 text-center md:text-left">
-          <span className="text-xs font-semibold uppercase tracking-widest text-amber-400">
+          <span className={`text-xs font-semibold uppercase tracking-widest ${isCream ? 'text-amber-800' : 'text-amber-400'}`}>
             Dịch Vụ May Đo Riêng Cho Sự Kiện & Đám Cưới
           </span>
-          <h3 className="text-xl sm:text-2xl font-serif-vi font-bold text-slate-100">
+          <h3 className={`text-xl sm:text-2xl font-serif-vi font-bold ${isCream ? 'text-stone-900' : 'text-slate-100'}`}>
             Cần Tư Vấn Phối Đồ Chuẩn Quy Thức Cung Đình?
           </h3>
-          <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
+          <p className={`text-xs sm:text-sm max-w-xl ${isCream ? 'text-stone-700' : 'text-slate-300'}`}>
             Đội ngũ nghiên cứu văn hóa và nghệ nhân may đo Cố đô sẵn sàng đồng hành cùng bạn từ chọn màu sắc ngũ hành đến lấy số đo tận nơi.
           </p>
         </div>

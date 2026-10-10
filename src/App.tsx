@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   WardrobeItem,
@@ -17,8 +17,12 @@ import { LookbookScreen } from './components/LookbookScreen';
 import { AppNavbar, ScreenType } from './components/AppNavbar';
 import { SmoothScrollManager } from './components/SmoothScrollManager';
 import { soundEngine } from './utils/audioSynth';
+import { ThemeProvider, useAppTheme } from './context/ThemeContext';
 
-export default function App() {
+function AppContent() {
+  const { theme } = useAppTheme();
+  const isCream = theme === 'cream';
+
   // Navigation state (Default to 'home' for welcoming entrance into the fashion realm)
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('home');
 
@@ -144,8 +148,10 @@ export default function App() {
 
   return (
     <SmoothScrollManager>
-      <div className="min-h-screen w-full bg-[#0A0E17] text-slate-100 font-sans-vi flex flex-col justify-start">
-        {/* Unified Global Navigation Bar across all screens - Hoàn toàn ẩn khi màn mây đang mở, chỉ hiện khi mây tan & trống đồng hoàn tất xoay vòng */}
+      <div className={`min-h-screen w-full font-sans-vi flex flex-col justify-start transition-colors duration-500 ${
+        isCream ? 'bg-[#F9F6F0] text-stone-800' : 'bg-[#0A0E17] text-slate-100'
+      }`}>
+        {/* Unified Global Navigation Bar across all screens */}
         {(!isCloudCurtainActive || currentScreen !== 'home') && (
           <motion.div
             initial={{ opacity: 0, y: -60 }}
@@ -220,3 +226,12 @@ export default function App() {
     </SmoothScrollManager>
   );
 }
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
+  );
+}
+
