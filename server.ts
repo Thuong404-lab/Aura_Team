@@ -352,6 +352,32 @@ Trả về JSON:
   });
 });
 
+// Image Proxy Endpoint for CORS-free poster export
+app.get('/api/proxy-image', async (req, res) => {
+  const imageUrl = req.query.url as string;
+  if (!imageUrl) {
+    return res.status(400).send('Image URL required');
+  }
+
+  try {
+    const response = await fetch(imageUrl);
+    if (!response.ok) {
+      return res.status(response.status).send('Failed to fetch image');
+    }
+    const contentType = response.headers.get('content-type') || 'image/jpeg';
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    return res.send(buffer);
+  } catch (err: any) {
+    console.error('Image proxy error:', err?.message || err);
+    return res.status(500).send('Image proxy error');
+  }
+});
+
 // Mount Vite or static serving
 async function startServer() {
   if (process.env.NODE_ENV === 'production') {

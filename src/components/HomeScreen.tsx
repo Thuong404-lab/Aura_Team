@@ -871,17 +871,21 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       </motion.main>
 
       {/* 5. CULTURAL HERITAGE EDUCATIONAL FOOTER */}
-      <footer className="relative z-10 w-full bg-[#070B14] border-t border-amber-500/20 text-slate-300 text-xs">
+      <footer className={`relative z-10 w-full border-t text-xs transition-colors ${
+        isCream ? 'bg-[#F4EFE6] border-amber-900/10 text-stone-700' : 'bg-[#070B14] border-amber-500/20 text-slate-300'
+      }`}>
         <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Project Mission */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <span className="font-serif-vi font-bold text-xl text-amber-300">AURA — VIỆT PHỤC</span>
+              <span className={`font-serif-vi font-bold text-xl ${isCream ? 'text-amber-800' : 'text-amber-300'}`}>
+                AURA — VIỆT PHỤC
+              </span>
             </div>
-            <p className="text-slate-400 text-xs leading-relaxed font-light">
+            <p className={`text-xs leading-relaxed font-light ${isCream ? 'text-stone-600' : 'text-slate-400'}`}>
               Dự án số hóa và lan tỏa vẻ đẹp cổ phục Việt Nam phi lợi nhuận. Tôn vinh bề dày văn hiến, kỹ nghệ dệt thêu cổ truyền và triết lý thẩm mỹ phương Đông qua góc nhìn công nghệ tương tác 2D.
             </p>
-            <div className="flex items-center gap-3 text-amber-400 font-medium">
+            <div className={`flex items-center gap-3 font-medium ${isCream ? 'text-amber-800' : 'text-amber-400'}`}>
               <Award className="w-4 h-4" />
               <span>Bảo Tàng Số Hóa Trang Phục Dân Tộc</span>
             </div>
@@ -889,10 +893,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
           {/* Cultural Eras */}
           <div className="space-y-3">
-            <h4 className="font-serif-vi font-bold text-amber-200 uppercase tracking-wider text-xs">
+            <h4 className={`font-serif-vi font-bold uppercase tracking-wider text-xs ${isCream ? 'text-amber-900' : 'text-amber-200'}`}>
               Các Triều Đại Tiêu Biểu
             </h4>
-            <div className="space-y-2 text-slate-400">
+            <div className={`space-y-2 ${isCream ? 'text-stone-600' : 'text-slate-400'}`}>
               <div>• <strong>Thời Lý — Trần:</strong> Hào khí Đông A, Giao Lĩnh phóng khoáng</div>
               <div>• <strong>Thời Lê Sơ & Trung Hưng:</strong> Viên Lĩnh Bổ Tử, khuôn phép lễ nghi</div>
               <div>• <strong>Triều Nguyễn:</strong> Nhật Bình, Ngũ Thân & định hình quốc phục</div>
@@ -902,10 +906,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
           {/* Research & Sources */}
           <div className="space-y-3">
-            <h4 className="font-serif-vi font-bold text-amber-200 uppercase tracking-wider text-xs">
+            <h4 className={`font-serif-vi font-bold uppercase tracking-wider text-xs ${isCream ? 'text-amber-900' : 'text-amber-200'}`}>
               Tài Liệu Khảo Cứu
             </h4>
-            <ul className="space-y-1.5 text-slate-400">
+            <ul className={`space-y-1.5 ${isCream ? 'text-stone-600' : 'text-slate-400'}`}>
               <li>• Khâm Định Đại Nam Hội Điển Sự Lệ</li>
               <li>• Ngàn Năm Áo Mũ (Trần Quang Đức)</li>
               <li>• Nghiên cứu phục dựng cổ phong Việt Nam</li>
@@ -915,14 +919,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
           {/* Interactive Capabilities */}
           <div className="space-y-3">
-            <h4 className="font-serif-vi font-bold text-amber-200 uppercase tracking-wider text-xs">
+            <h4 className={`font-serif-vi font-bold uppercase tracking-wider text-xs ${isCream ? 'text-amber-900' : 'text-amber-200'}`}>
               Không Gian Trải Nghiệm
             </h4>
             <div className="space-y-2">
-              <p className="text-slate-400 text-xs leading-relaxed font-light">
+              <p className={`text-xs leading-relaxed font-light ${isCream ? 'text-stone-600' : 'text-slate-400'}`}>
                 Trang bị công nghệ mô phỏng phục trang đa lớp, phân tích ngũ hành hòa hợp và tôn vinh bản sắc di sản văn hóa thuần Việt.
               </p>
-              <div className="pt-2 text-[11px] text-amber-400/90 font-medium">
+              <div className={`pt-2 text-[11px] font-medium ${isCream ? 'text-amber-800' : 'text-amber-400/90'}`}>
                 ✨ Trải nghiệm hoàn toàn phi thương mại, tôn vinh văn hóa cội nguồn
               </div>
             </div>
@@ -930,9 +934,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </div>
 
         {/* Bottom copyright */}
-        <div className="max-w-7xl mx-auto px-6 py-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-400">
+        <div className={`max-w-7xl mx-auto px-6 py-4 border-t flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] ${
+          isCream ? 'border-amber-900/10 text-stone-500' : 'border-slate-800/80 text-slate-400'
+        }`}>
           <span>© 2026 Aura — Không Gian Văn Hóa & Tinh Hoa Việt Phục Ngàn Năm.</span>
-          <span className="text-amber-400/90 font-medium">
+          <span className={`font-medium ${isCream ? 'text-amber-800' : 'text-amber-400/90'}`}>
             Tự hào lan tỏa trang phục truyền thống Việt Nam đến bạn bè năm châu
           </span>
         </div>
