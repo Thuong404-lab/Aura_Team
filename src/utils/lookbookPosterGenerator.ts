@@ -1,7 +1,8 @@
 /**
  * lookbookPosterGenerator.ts
  * Engine xuất Poster Lookbook Di Sản Việt Phục độ nét cao (HD 1200x1800 PNG).
- * Tự chủ vẽ Canvas 2D không phụ thuộc DOM SVG nhằm tránh lỗi Tailwind CSS hoặc tệp ngoại quan.
+ * ĐỒNG BỘ 100% VỚI UI: Kết xuất trực tiếp chính xác bản vẽ 2D từ SVG của AvatarModel
+ * lên Canvas ở độ phân giải siêu nét (1200x1800), căn chỉnh lề chính xác, chữ không bị tràn hay mất.
  */
 
 import { WardrobeItem, FabricOption, ColorOption, BackdropOption } from '../data/vietPhucData';
@@ -34,7 +35,6 @@ function loadImageWithFallback(src: string): Promise<HTMLImageElement | null> {
     img.crossOrigin = 'anonymous';
     img.onload = () => resolve(img);
     img.onerror = () => {
-      // Thử lại không dùng crossOrigin (nếu tệp cục bộ) hoặc giải quyết null
       const fallbackImg = new Image();
       fallbackImg.onload = () => resolve(fallbackImg);
       fallbackImg.onerror = () => resolve(null);
@@ -45,13 +45,63 @@ function loadImageWithFallback(src: string): Promise<HTMLImageElement | null> {
 }
 
 /**
+ * Trích xuất và render chính xác SVG Avatar 2D trên trang web sang Image element
+ */
+async function getMannequinImageFromDOM(): Promise<HTMLImageElement | null> {
+  if (typeof document === 'undefined') return null;
+
+  // Tìm SVG của AvatarModel hiển thị trên UI
+  const avatarSvg = document.querySelector('#root svg[viewBox="0 0 380 640"]') as SVGSVGElement | null;
+  if (!avatarSvg) return null;
+
+  try {
+    const clone = avatarSvg.cloneNode(true) as SVGSVGElement;
+    clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    clone.setAttribute('width', '760');
+    clone.setAttribute('height', '1280');
+
+    const svgXml = new XMLSerializer().serializeToString(clone);
+    const svgBlob = new Blob([svgXml], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        resolve(img);
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        resolve(null);
+      };
+      img.src = url;
+    });
+  } catch (err) {
+    console.warn('Failed to extract avatar SVG:', err);
+    return null;
+  }
+}
+
+/**
+ * Cắt ngắn văn bản nếu vượt quá chiều rộng tối đa
+ */
+function truncateText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string {
+  if (ctx.measureText(text).width <= maxWidth) return text;
+  let truncated = text;
+  while (truncated.length > 3 && ctx.measureText(truncated + '...').width > maxWidth) {
+    truncated = truncated.slice(0, -1);
+  }
+  return truncated.trim() + '...';
+}
+
+/**
  * Sinh và tải trực tiếp file Poster HD PNG về máy người dùng
  */
 export async function downloadLookbookPosterHD(
   options: LookbookPosterOptions,
   onProgress?: (status: string) => void
 ): Promise<string> {
-  if (onProgress) onProgress('Đang chuẩn bị khung hình di sản HD...');
+  if (onProgress) onProgress('Đang chuẩn bị khung hình di sản HD 1200x1800...');
 
   if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
     try {
@@ -75,11 +125,12 @@ export async function downloadLookbookPosterHD(
   // 1. NỀN BỐI CẢNH (BACKDROP HOẶC HOÀNG CUNG SAPPHIRE)
   let backdropDrawn = false;
   if (options.backdrop.imageUrl) {
-    if (onProgress) onProgress('Đang hòa sắc bối cảnh non nước...');
+    if (onProgress) onProgress('Đang tải và hòa sắc bối cảnh danh thắng...');
     try {
       const backdropImg = await loadImageWithFallback(options.backdrop.imageUrl);
       if (backdropImg) {
-        ctx.drawImage(backdropImg, 0, 0, width, height * 0.75);
+        // Vẽ toàn bộ chiều cao với aspect ratio phù hợp
+        ctx.drawImage(backdropImg, 0, 0, width, height * 0.76);
         backdropDrawn = true;
       }
     } catch {
@@ -96,66 +147,41 @@ export async function downloadLookbookPosterHD(
     bgGrad.addColorStop(1, '#04060A');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, width, height);
-
-    // Họa tiết vầng dương & vòng hoa văn Trống Đồng Đông Sơn chìm
-    ctx.save();
-    ctx.strokeStyle = 'rgba(212, 175, 55, 0.08)';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.arc(600, 520, 360, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(600, 520, 280, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(600, 520, 200, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // 14 tia sáng trống đồng
-    for (let i = 0; i < 14; i++) {
-      const angle = (i * 2 * Math.PI) / 14;
-      const x1 = 600 + Math.cos(angle) * 70;
-      const y1 = 520 + Math.sin(angle) * 70;
-      const x2 = 600 + Math.cos(angle) * 190;
-      const y2 = 520 + Math.sin(angle) * 190;
-      ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
-      ctx.stroke();
-    }
-    ctx.restore();
   }
 
   // 2. PHỦ LỚP GRADIENT HUYỀN ẢO & BỘ LỌC ÁNH SÁNG
   const overlayGrad = ctx.createLinearGradient(0, 0, 0, height);
-  overlayGrad.addColorStop(0, 'rgba(10, 14, 26, 0.55)');
-  overlayGrad.addColorStop(0.4, 'rgba(10, 14, 26, 0.25)');
-  overlayGrad.addColorStop(0.68, 'rgba(10, 14, 26, 0.85)');
-  overlayGrad.addColorStop(0.85, 'rgba(10, 14, 26, 0.98)');
-  overlayGrad.addColorStop(1, '#060912');
+  overlayGrad.addColorStop(0, 'rgba(10, 14, 26, 0.65)');
+  overlayGrad.addColorStop(0.35, 'rgba(10, 14, 26, 0.28)');
+  overlayGrad.addColorStop(0.62, 'rgba(10, 14, 26, 0.85)');
+  overlayGrad.addColorStop(0.75, 'rgba(10, 14, 26, 0.98)');
+  overlayGrad.addColorStop(1, '#050811');
   ctx.fillStyle = overlayGrad;
   ctx.fillRect(0, 0, width, height);
 
-  // Bộ lọc màu nghệ thuật
+  // Bộ lọc màu nghệ thuật (đồng bộ với UI)
   if (options.lightingFilter === 'sunset') {
-    ctx.fillStyle = 'rgba(245, 158, 11, 0.07)';
+    ctx.fillStyle = 'rgba(245, 158, 11, 0.12)';
     ctx.fillRect(0, 0, width, height);
   } else if (options.lightingFilter === 'moonlight') {
-    ctx.fillStyle = 'rgba(56, 189, 248, 0.06)';
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.12)';
+    ctx.fillRect(0, 0, width, height);
+  } else if (options.lightingFilter === 'royal') {
+    ctx.fillStyle = 'rgba(234, 179, 8, 0.12)';
     ctx.fillRect(0, 0, width, height);
   } else if (options.lightingFilter === 'vintage') {
-    ctx.fillStyle = 'rgba(180, 83, 9, 0.08)';
+    ctx.fillStyle = 'rgba(180, 83, 9, 0.14)';
     ctx.fillRect(0, 0, width, height);
   }
 
-  // 3. KHUNG VIỀN KIM HOÀNG GIA & HỌA TIẾT GÓC ĐẠI VIỆT
-  const m = 40; // Margin
+  // 3. KHUNG VIỀN KIM HOÀNG GIA & HỌA TIẾT CỔ PHONG
+  const m = 44; // Margin
   ctx.strokeStyle = '#D4AF37';
   ctx.lineWidth = 2.5;
   ctx.strokeRect(m, m, width - m * 2, height - m * 2);
 
   // Viền tóc chỉ mảnh bên ngoài
-  ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+  ctx.strokeStyle = 'rgba(212, 175, 55, 0.45)';
   ctx.lineWidth = 1;
   ctx.strokeRect(m - 12, m - 12, width - (m - 12) * 2, height - (m - 12) * 2);
 
@@ -165,20 +191,20 @@ export async function downloadLookbookPosterHD(
     ctx.strokeStyle = '#F59E0B';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(cx, cy + signY * 40);
+    ctx.moveTo(cx, cy + signY * 42);
     ctx.lineTo(cx, cy);
-    ctx.lineTo(cx + signX * 40, cy);
+    ctx.lineTo(cx + signX * 42, cy);
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.moveTo(cx + signX * 8, cy + signY * 28);
-    ctx.lineTo(cx + signX * 8, cy + signY * 8);
-    ctx.lineTo(cx + signX * 28, cy + signY * 8);
+    ctx.moveTo(cx + signX * 9, cy + signY * 30);
+    ctx.lineTo(cx + signX * 9, cy + signY * 9);
+    ctx.lineTo(cx + signX * 30, cy + signY * 9);
     ctx.stroke();
 
     ctx.fillStyle = '#D4AF37';
     ctx.beginPath();
-    ctx.arc(cx + signX * 18, cy + signY * 18, 3.5, 0, Math.PI * 2);
+    ctx.arc(cx + signX * 20, cy + signY * 20, 3.5, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   };
@@ -190,88 +216,75 @@ export async function downloadLookbookPosterHD(
   // 4. TIÊU ĐỀ TRANG TRỌNG TRÊN ĐỈNH POSTER
   ctx.textAlign = 'center';
   ctx.fillStyle = '#F59E0B';
-  ctx.font = 'bold 22px "Lora", "Noto Serif", "Playfair Display", "Be Vietnam Pro", serif';
-  ctx.fillText('AURA • LOOKBOOK DI SẢN VIỆT PHỤC', 600, 95);
+  ctx.font = 'bold 24px "Lora", "Noto Serif", "Playfair Display", "Be Vietnam Pro", serif';
+  ctx.fillText('AURA • LOOKBOOK DI SẢN VIỆT PHỤC', 600, 92);
 
   ctx.fillStyle = '#CBD5E1';
   ctx.font = '500 13px "Be Vietnam Pro", sans-serif';
-  ctx.letterSpacing = '3px';
-  ctx.fillText('QUY CHUẨN TRANG PHỤC TRUYỀN THỐNG ĐẠI VIỆT', 600, 122);
-  ctx.letterSpacing = '0px';
+  ctx.fillText('QUY CHUẨN TRANG PHỤC TRUYỀN THỐNG ĐẠI VIỆT', 600, 118);
 
   // Huy hiệu triều đại & bối cảnh
   ctx.fillStyle = 'rgba(212, 175, 55, 0.18)';
   ctx.strokeStyle = 'rgba(212, 175, 55, 0.6)';
   ctx.lineWidth = 1.2;
-  const badgeW = 340;
+  const badgeW = 380;
   const badgeH = 30;
   const badgeX = (width - badgeW) / 2;
-  const badgeY = 140;
+  const badgeY = 135;
   ctx.beginPath();
   ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 15);
   ctx.fill();
   ctx.stroke();
 
   ctx.fillStyle = '#FDE68A';
-  ctx.font = '600 12px "Be Vietnam Pro", sans-serif';
+  ctx.font = '600 12.5px "Be Vietnam Pro", sans-serif';
   ctx.fillText(
     `${options.top.era.toUpperCase()} • ${options.backdrop.name.toUpperCase()}`,
     600,
-    160
+    155
   );
 
-  // 5. VẼ NGƯỜI MẪU 2D TRUYỀN THẦN TRỰC TIẾP LÊN CANVAS
-  if (onProgress) onProgress('Đang vẽ sắc phục & dáng ngọc 2D...');
+  // 5. VẼ NGƯỜI MẪU 2D TRUYỀN THẦN (ĐỒNG BỘ 100% VỚI UI)
+  if (onProgress) onProgress('Đang đồng bộ chính xác người mẫu 2D từ UI...');
 
-  ctx.save();
-  // Vị trí tâm người mẫu: X=600, Y=640, Scale=1.65
   const centerX = 600;
-  const modelBaseY = 480;
+  const modelBaseY = 460;
 
   // Bóng đổ dưới chân người mẫu
   const shadowGrad = ctx.createRadialGradient(
     centerX,
-    modelBaseY + 470,
+    modelBaseY + 460,
     10,
     centerX,
-    modelBaseY + 470,
-    140
+    modelBaseY + 460,
+    160
   );
   shadowGrad.addColorStop(0, 'rgba(0, 0, 0, 0.85)');
   shadowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
   ctx.fillStyle = shadowGrad;
   ctx.beginPath();
-  ctx.ellipse(centerX, modelBaseY + 470, 140, 22, 0, 0, Math.PI * 2);
+  ctx.ellipse(centerX, modelBaseY + 460, 160, 24, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // Hạ Y (Quần 2 ống hoặc Váy)
-  const bottomColorHex = options.bottomCustomColor || options.bottom.defaultColorHex || '#F8F9FA';
-  ctx.fillStyle = bottomColorHex;
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.25)';
-  ctx.lineWidth = 1.5;
-
-  if (options.bottom.id === 'vay-xep-ly') {
-    // Váy xếp ly thời Lê / Lý
-    ctx.beginPath();
-    ctx.moveTo(centerX - 80, modelBaseY + 180);
-    ctx.lineTo(centerX - 130, modelBaseY + 460);
-    ctx.lineTo(centerX + 130, modelBaseY + 460);
-    ctx.lineTo(centerX + 80, modelBaseY + 180);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Các nếp ly váy
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.12)';
-    for (let x = centerX - 100; x <= centerX + 100; x += 22) {
-      ctx.beginPath();
-      ctx.moveTo(centerX + (x - centerX) * 0.6, modelBaseY + 190);
-      ctx.lineTo(x, modelBaseY + 460);
-      ctx.stroke();
-    }
+  // THỬ LẤY ẢNH CHÍNH XÁC TỪ SVG CỦA AVATAR TRÊN UI
+  const mannequinImg = await getMannequinImageFromDOM();
+  if (mannequinImg) {
+    // Vẽ chính xác 1:1 hình mẫu từ UI với độ nét cao
+    // SVG viewBox là 380x640 -> scale lên phù hợp khung poster
+    const mw = 440;
+    const mh = (440 * 640) / 380; // ~741px
+    const mx = centerX - mw / 2;
+    const my = modelBaseY - 260;
+    ctx.drawImage(mannequinImg, mx, my, mw, mh);
   } else {
-    // Quần ống sớ 2 ống thanh thoát chuẩn mực
-    // Ống trái
+    // FALLBACK CANVAS RENDER NẾU KHÔNG CÓ DOM SVG
+    ctx.save();
+    const bottomColorHex = options.bottomCustomColor || options.bottom.defaultColorHex || '#FAF7F0';
+    ctx.fillStyle = bottomColorHex;
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.25)';
+    ctx.lineWidth = 1.5;
+
+    // Quần 2 ống
     ctx.beginPath();
     ctx.moveTo(centerX - 75, modelBaseY + 180);
     ctx.lineTo(centerX - 120, modelBaseY + 460);
@@ -281,7 +294,6 @@ export async function downloadLookbookPosterHD(
     ctx.fill();
     ctx.stroke();
 
-    // Ống phải
     ctx.beginPath();
     ctx.moveTo(centerX + 75, modelBaseY + 180);
     ctx.lineTo(centerX + 120, modelBaseY + 460);
@@ -291,100 +303,9 @@ export async function downloadLookbookPosterHD(
     ctx.fill();
     ctx.stroke();
 
-    // Nếp rủ trung tâm giữa 2 ống
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.moveTo(centerX - 60, modelBaseY + 200);
-    ctx.lineTo(centerX - 68, modelBaseY + 455);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(centerX + 60, modelBaseY + 200);
-    ctx.lineTo(centerX + 68, modelBaseY + 455);
-    ctx.stroke();
-  }
-
-  // Thượng Y (Áo Cổ Phục Chính)
-  const topColorHex = options.topCustomColor || options.color.hex || options.top.defaultColorHex || '#9B1B30';
-  ctx.fillStyle = topColorHex;
-  ctx.strokeStyle = 'rgba(212, 175, 55, 0.45)';
-  ctx.lineWidth = 1.5;
-
-  if (options.top.id === 'tu-than') {
-    // Áo Tứ Thân Bắc Bộ
-    // Yếm đỏ bên trong
-    ctx.fillStyle = '#B23A48';
-    ctx.beginPath();
-    ctx.moveTo(centerX - 35, modelBaseY - 20);
-    ctx.lineTo(centerX + 35, modelBaseY - 20);
-    ctx.lineTo(centerX + 40, modelBaseY + 120);
-    ctx.lineTo(centerX - 40, modelBaseY + 120);
-    ctx.closePath();
-    ctx.fill();
-
-    // Hai vạt áo trước xẻ tà
+    // Áo ngũ thân / Cổ phục
+    const topColorHex = options.topCustomColor || options.color.hex || options.top.defaultColorHex || '#162544';
     ctx.fillStyle = topColorHex;
-    // Vạt trái
-    ctx.beginPath();
-    ctx.moveTo(centerX - 80, modelBaseY - 25);
-    ctx.lineTo(centerX - 35, modelBaseY - 30);
-    ctx.lineTo(centerX - 25, modelBaseY + 170);
-    ctx.lineTo(centerX - 110, modelBaseY + 340);
-    ctx.lineTo(centerX - 130, modelBaseY - 15);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Vạt phải
-    ctx.beginPath();
-    ctx.moveTo(centerX + 80, modelBaseY - 25);
-    ctx.lineTo(centerX + 35, modelBaseY - 30);
-    ctx.lineTo(centerX + 25, modelBaseY + 170);
-    ctx.lineTo(centerX + 110, modelBaseY + 340);
-    ctx.lineTo(centerX + 130, modelBaseY - 15);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Bao tượng / Dải lụa thắt lưng ngọc
-    ctx.fillStyle = '#D4AF37';
-    ctx.beginPath();
-    ctx.roundRect(centerX - 50, modelBaseY + 155, 100, 16, 8);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(centerX - 15, modelBaseY + 170);
-    ctx.lineTo(centerX - 30, modelBaseY + 280);
-    ctx.moveTo(centerX + 15, modelBaseY + 170);
-    ctx.lineTo(centerX + 30, modelBaseY + 280);
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = '#D4AF37';
-    ctx.stroke();
-  } else if (options.top.id === 'giao-linh' || options.top.id === 'giao-linh-nu') {
-    // Áo Giao Lĩnh (Cổ vạt chéo chữ Y)
-    ctx.beginPath();
-    ctx.moveTo(centerX - 85, modelBaseY - 30);
-    ctx.lineTo(centerX + 85, modelBaseY - 30);
-    ctx.lineTo(centerX + 125, modelBaseY + 350);
-    ctx.quadraticCurveTo(centerX, modelBaseY + 370, centerX - 125, modelBaseY + 350);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Cổ chéo Giao Lĩnh: vạt trái đè vạt phải hình chữ Y
-    ctx.strokeStyle = '#FDE68A';
-    ctx.lineWidth = 5;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(centerX - 42, modelBaseY - 32);
-    ctx.lineTo(centerX + 40, modelBaseY + 70);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(centerX + 42, modelBaseY - 32);
-    ctx.lineTo(centerX - 35, modelBaseY + 75);
-    ctx.stroke();
-  } else if (options.top.id === 'nhat-binh' || options.top.id === 'nhat-binh-nam') {
-    // Áo Nhật Bình Cung Đình (Khung cổ hình chữ nhật, dải ngũ sắc ngũ hành ở cửa tay, hoa văn Phụng/Long)
-    // Thân áo dáng chữ A
     ctx.beginPath();
     ctx.moveTo(centerX - 85, modelBaseY - 30);
     ctx.lineTo(centerX + 85, modelBaseY - 30);
@@ -394,135 +315,7 @@ export async function downloadLookbookPosterHD(
     ctx.fill();
     ctx.stroke();
 
-    // Tay áo rộng (Tay thụng)
-    ctx.beginPath();
-    ctx.moveTo(centerX - 85, modelBaseY - 30);
-    ctx.lineTo(centerX - 180, modelBaseY + 140);
-    ctx.lineTo(centerX - 140, modelBaseY + 180);
-    ctx.lineTo(centerX - 85, modelBaseY + 90);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(centerX + 85, modelBaseY - 30);
-    ctx.lineTo(centerX + 180, modelBaseY + 140);
-    ctx.lineTo(centerX + 140, modelBaseY + 180);
-    ctx.lineTo(centerX + 85, modelBaseY + 90);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Dải ngũ sắc ngũ hành ở hai cửa tay (Xanh, Đỏ, Vàng, Trắng, Đen)
-    const cuffColors = ['#2563EB', '#DC2626', '#F59E0B', '#FFFFFF', '#1E293B'];
-    cuffColors.forEach((c, idx) => {
-      ctx.fillStyle = c;
-      ctx.fillRect(centerX - 175 + idx * 7, modelBaseY + 142 + idx * 7, 7, 30);
-      ctx.fillRect(centerX + 140 + idx * 7, modelBaseY + 175 - idx * 7, 7, 30);
-    });
-
-    // KHUNG CỔ ÁO NHẬT BÌNH HÌNH CHỮ NHẬT TRƯỚC NGỰC
-    ctx.fillStyle = '#D4AF37';
-    ctx.strokeStyle = '#8B1E1E';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.rect(centerX - 32, modelBaseY - 35, 64, 130);
-    ctx.fill();
-    ctx.stroke();
-
-    // Hoa văn tâm cổ ngực
-    ctx.fillStyle = '#8B1E1E';
-    ctx.beginPath();
-    ctx.arc(centerX, modelBaseY + 30, 16, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#FDE68A';
-    ctx.beginPath();
-    ctx.arc(centerX, modelBaseY + 30, 8, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Hai dải kết buông rủ xuống tà
-    ctx.strokeStyle = '#FDE68A';
-    ctx.lineWidth = 3.5;
-    ctx.beginPath();
-    ctx.moveTo(centerX - 14, modelBaseY + 95);
-    ctx.lineTo(centerX - 18, modelBaseY + 280);
-    ctx.moveTo(centerX + 14, modelBaseY + 95);
-    ctx.lineTo(centerX + 18, modelBaseY + 280);
-    ctx.stroke();
-  } else if (options.top.id === 'ao-tac' || options.top.id === 'ao-tac-nu') {
-    // Áo Tấc (Tay thụng rộng buông dài qua gối)
-    ctx.beginPath();
-    ctx.moveTo(centerX - 85, modelBaseY - 30);
-    ctx.lineTo(centerX + 85, modelBaseY - 30);
-    ctx.lineTo(centerX + 130, modelBaseY + 355);
-    ctx.quadraticCurveTo(centerX, modelBaseY + 375, centerX - 130, modelBaseY + 355);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Tay thụng buông rủ qua hai bên cực đại
-    ctx.beginPath();
-    ctx.moveTo(centerX - 85, modelBaseY - 30);
-    ctx.lineTo(centerX - 195, modelBaseY + 160);
-    ctx.lineTo(centerX - 150, modelBaseY + 240);
-    ctx.lineTo(centerX - 85, modelBaseY + 110);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(centerX + 85, modelBaseY - 30);
-    ctx.lineTo(centerX + 195, modelBaseY + 160);
-    ctx.lineTo(centerX + 150, modelBaseY + 240);
-    ctx.lineTo(centerX + 85, modelBaseY + 110);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // SỐNG ÁO MŨI GÁY
-    ctx.strokeStyle = '#D4AF37';
-    ctx.lineWidth = 1.8;
-    ctx.setLineDash([6, 4]);
-    ctx.beginPath();
-    ctx.moveTo(centerX, modelBaseY - 20);
-    ctx.lineTo(centerX, modelBaseY + 365);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Cổ lập lĩnh & 5 khuy
-    ctx.fillStyle = '#D4AF37';
-    ctx.beginPath();
-    ctx.roundRect(centerX - 32, modelBaseY - 42, 64, 18, 4);
-    ctx.fill();
-
-    const buttonPositions = [
-      { x: centerX + 20, y: modelBaseY - 34 },
-      { x: centerX + 28, y: modelBaseY + 5 },
-      { x: centerX + 36, y: modelBaseY + 45 },
-      { x: centerX + 42, y: modelBaseY + 85 },
-      { x: centerX + 46, y: modelBaseY + 128 },
-    ];
-    buttonPositions.forEach((pos) => {
-      ctx.fillStyle = '#FFFBEB';
-      ctx.strokeStyle = '#D4AF37';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.arc(pos.x, pos.y, 4.5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-    });
-  } else if (options.top.id === 'vien-linh' || options.top.id === 'vien-linh-nu') {
-    // Áo Viên Lĩnh (Cổ tròn khum, Bổ tử vuông thêu Hạc/Phượng)
-    ctx.beginPath();
-    ctx.moveTo(centerX - 85, modelBaseY - 30);
-    ctx.lineTo(centerX + 85, modelBaseY - 30);
-    ctx.lineTo(centerX + 130, modelBaseY + 355);
-    ctx.quadraticCurveTo(centerX, modelBaseY + 375, centerX - 130, modelBaseY + 355);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Tay áo thụng
+    // Tay áo
     ctx.beginPath();
     ctx.moveTo(centerX - 85, modelBaseY - 30);
     ctx.lineTo(centerX - 170, modelBaseY + 130);
@@ -541,97 +334,7 @@ export async function downloadLookbookPosterHD(
     ctx.fill();
     ctx.stroke();
 
-    // CỔ TRÒN VIÊN LĨNH
-    ctx.strokeStyle = '#D4AF37';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.arc(centerX, modelBaseY - 30, 26, 0, Math.PI);
-    ctx.stroke();
-
-    // BỔ TỬ VUÔNG TRƯỚC NGỰC
-    ctx.fillStyle = '#8B1E1E';
-    ctx.strokeStyle = '#D4AF37';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.rect(centerX - 38, modelBaseY + 10, 76, 76);
-    ctx.fill();
-    ctx.stroke();
-
-    // Họa tiết Hạc trắng trong Bổ tử
-    ctx.fillStyle = '#FFFFFF';
-    ctx.beginPath();
-    ctx.arc(centerX, modelBaseY + 45, 12, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#F59E0B';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(centerX - 18, modelBaseY + 45);
-    ctx.lineTo(centerX + 18, modelBaseY + 45);
-    ctx.stroke();
-  } else if (options.top.id === 'ao-ba-ba-nam' || options.top.id === 'ao-ba-ba-nu') {
-    // Áo Bà Ba Nam Bộ (Nẹp cài cúc giữa, 2 túi vạt trước)
-    ctx.beginPath();
-    ctx.moveTo(centerX - 80, modelBaseY - 30);
-    ctx.lineTo(centerX + 80, modelBaseY - 30);
-    ctx.lineTo(centerX + 115, modelBaseY + 290);
-    ctx.lineTo(centerX - 115, modelBaseY + 290);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Nẹp cúc chính giữa
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(centerX, modelBaseY - 30);
-    ctx.lineTo(centerX, modelBaseY + 290);
-    ctx.stroke();
-
-    // 5 cúc áo ngọc
-    for (let y = modelBaseY - 15; y <= modelBaseY + 250; y += 50) {
-      ctx.fillStyle = '#FFFBEB';
-      ctx.beginPath();
-      ctx.arc(centerX, y, 4, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // Hai túi áo vuông vạt dưới
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.25)';
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(centerX - 75, modelBaseY + 180, 42, 45);
-    ctx.strokeRect(centerX + 33, modelBaseY + 180, 42, 45);
-  } else {
-    // Áo Ngũ Thân (Tay chẽn hoặc Tay thụng) / Áo Dài / Áo Tấc
-    // Thân áo dáng chữ A buông suông đáy thúng
-    ctx.beginPath();
-    ctx.moveTo(centerX - 85, modelBaseY - 30);
-    ctx.lineTo(centerX + 85, modelBaseY - 30);
-    ctx.lineTo(centerX + 130, modelBaseY + 355);
-    ctx.quadraticCurveTo(centerX, modelBaseY + 375, centerX - 130, modelBaseY + 355);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Tay áo rủ
-    ctx.beginPath();
-    ctx.moveTo(centerX - 85, modelBaseY - 30);
-    ctx.lineTo(centerX - 170, modelBaseY + 130);
-    ctx.lineTo(centerX - 135, modelBaseY + 155);
-    ctx.lineTo(centerX - 85, modelBaseY + 90);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(centerX + 85, modelBaseY - 30);
-    ctx.lineTo(centerX + 170, modelBaseY + 130);
-    ctx.lineTo(centerX + 135, modelBaseY + 155);
-    ctx.lineTo(centerX + 85, modelBaseY + 90);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // SỐNG ÁO MŨI GÁY (Đường chỉ vàng dọc chính tâm lưng)
+    // Sống áo mũi gáy
     ctx.strokeStyle = '#D4AF37';
     ctx.lineWidth = 1.8;
     ctx.setLineDash([6, 4]);
@@ -641,13 +344,13 @@ export async function downloadLookbookPosterHD(
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // CỔ ĐỨNG LẬP LĨNH
+    // Cổ áo & Khuy
     ctx.fillStyle = '#D4AF37';
     ctx.beginPath();
     ctx.roundRect(centerX - 32, modelBaseY - 42, 64, 18, 4);
     ctx.fill();
 
-    // 5 KHUY CÚC NGŨ THƯỜNG (Cần - Kiệm - Liêm - Chính - Dũng)
+    // 5 khuy
     const buttonPositions = [
       { x: centerX + 20, y: modelBaseY - 34 },
       { x: centerX + 28, y: modelBaseY + 5 },
@@ -664,108 +367,36 @@ export async function downloadLookbookPosterHD(
       ctx.fill();
       ctx.stroke();
     });
-  }
 
-  // Đầu, cổ & nét mặt thanh tú
-  ctx.fillStyle = '#F8D8C8'; // Da người mẫu ấm áp
-  ctx.beginPath();
-  ctx.roundRect(centerX - 18, modelBaseY - 60, 36, 30, 8);
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.ellipse(centerX, modelBaseY - 88, 38, 46, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Búi tóc đen óng ả
-  ctx.fillStyle = '#181412';
-  ctx.beginPath();
-  ctx.ellipse(centerX, modelBaseY - 105, 42, 28, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // PHỤ KIỆN ĐỘI ĐẦU (Khăn đóng / Mấn / Nón ba tầm)
-  if (options.accessory.id === 'non-ba-tam') {
-    // Nón ba tầm quai thao rộng vành
-    ctx.fillStyle = '#D4AF37';
+    // Đầu & khuôn mặt
+    ctx.fillStyle = '#FDF0E6';
     ctx.beginPath();
-    ctx.ellipse(centerX, modelBaseY - 110, 110, 24, 0, 0, Math.PI * 2);
+    ctx.ellipse(centerX, modelBaseY - 88, 36, 44, 0, 0, Math.PI * 2);
     ctx.fill();
-    ctx.strokeStyle = '#8B6508';
-    ctx.lineWidth = 2;
-    ctx.stroke();
 
-    // Quai thao đỏ
-    ctx.strokeStyle = '#DC2626';
-    ctx.lineWidth = 3.5;
+    // Khăn đóng / Mũ
+    ctx.fillStyle = '#141110';
     ctx.beginPath();
-    ctx.moveTo(centerX - 50, modelBaseY - 105);
-    ctx.quadraticCurveTo(centerX - 35, modelBaseY - 40, centerX - 25, modelBaseY + 60);
-    ctx.stroke();
-  } else if (options.accessory.id === 'man-ngu-sac') {
-    // Mấn ngũ sắc hoàng triều rực rỡ
-    ctx.fillStyle = '#D4AF37';
-    ctx.beginPath();
-    ctx.ellipse(centerX, modelBaseY - 108, 46, 16, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#8B1E1E';
-    ctx.beginPath();
-    ctx.ellipse(centerX, modelBaseY - 114, 40, 12, 0, 0, Math.PI * 2);
-    ctx.fill();
-  } else if (options.accessory.id === 'khan-ran') {
-    // Khăn rằn Nam Bộ
-    ctx.fillStyle = '#E2E8F0';
-    ctx.beginPath();
-    ctx.ellipse(centerX, modelBaseY - 110, 44, 18, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#0F172A';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-  } else {
-    // Khăn đóng đen 7 nếp chữ Nhân mẫu mực
-    ctx.fillStyle = '#1A1D24';
-    ctx.beginPath();
-    ctx.ellipse(centerX, modelBaseY - 108, 45, 17, 0, 0, Math.PI * 2);
+    ctx.ellipse(centerX, modelBaseY - 110, 44, 16, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = '#D4AF37';
-    ctx.lineWidth = 1.8;
+    ctx.lineWidth = 1.6;
     ctx.stroke();
 
-    // Nếp chữ Nhân
-    ctx.strokeStyle = 'rgba(212, 175, 55, 0.7)';
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.moveTo(centerX - 35, modelBaseY - 110);
-    ctx.lineTo(centerX, modelBaseY - 104);
-    ctx.lineTo(centerX + 35, modelBaseY - 110);
-    ctx.stroke();
+    ctx.restore();
   }
-
-  // DẢI LỤA MÂY BAY LƯỢN (Aura Celestial Silk)
-  ctx.strokeStyle = 'rgba(245, 158, 11, 0.4)';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(centerX - 180, modelBaseY + 120);
-  ctx.bezierCurveTo(
-    centerX - 120,
-    modelBaseY + 40,
-    centerX + 140,
-    modelBaseY + 60,
-    centerX + 190,
-    modelBaseY + 200
-  );
-  ctx.stroke();
-
-  ctx.restore();
 
   // 6. PHẦN THÔNG TIN BẢN PHỐI & LỜI BÌNH BIÊN TẬP (BOTTOM EDITORIAL CARD)
-  if (onProgress) onProgress('Đang khắc họa lời bình & con dấu chuẩn mực...');
+  // Tính toán layout tỉ mỉ để chữ hoàn toàn nằm gọn bên trong card, KHÔNG BỊ TRÀN!
+  if (onProgress) onProgress('Đang căn chỉnh chữ và con dấu di sản...');
 
-  const cardY = 1120;
-  const cardH = 590;
-  const cardW = width - m * 2 - 40;
-  const cardX = m + 20;
+  const cardY = 1130;
+  const cardH = 585;
+  const cardW = width - m * 2 - 36;
+  const cardX = m + 18;
 
   // Nền card kính mờ hoàng gia
-  ctx.fillStyle = 'rgba(12, 18, 32, 0.88)';
+  ctx.fillStyle = 'rgba(12, 18, 32, 0.92)';
   ctx.beginPath();
   ctx.roundRect(cardX, cardY, cardW, cardH, 24);
   ctx.fill();
@@ -774,110 +405,123 @@ export async function downloadLookbookPosterHD(
   ctx.lineWidth = 1.8;
   ctx.stroke();
 
-  // Tiêu đề tác phẩm / Bản phối
+  // Khung nội dung bên trong card (padding an toàn 36px)
+  const contentLeft = cardX + 36;
+  const maxContentW = cardW - 72;
+
+  // 6.1 Tiêu đề tác phẩm
   ctx.textAlign = 'left';
   ctx.fillStyle = '#FDE68A';
-  const cleanTitle = options.editionTitle || `Dáng Hoa ${options.top.name}`;
-  ctx.font = cleanTitle.length > 25 ? 'bold 28px "Lora", "Noto Serif", "Playfair Display", "Be Vietnam Pro", serif' : 'bold 34px "Lora", "Noto Serif", "Playfair Display", "Be Vietnam Pro", serif';
-  ctx.fillText(cleanTitle, cardX + 40, cardY + 58);
+  const rawTitle = options.editionTitle || `Dáng Hoa ${options.top.name}`;
+  ctx.font = 'bold 28px "Lora", "Noto Serif", "Playfair Display", "Be Vietnam Pro", serif';
+  const cleanTitle = truncateText(ctx, rawTitle, maxContentW);
+  ctx.fillText(cleanTitle, contentLeft, cardY + 52);
 
-  // Phụ đề bối cảnh
+  // 6.2 Phụ đề bối cảnh
   ctx.fillStyle = '#CBD5E1';
-  ctx.font = '500 15px "Be Vietnam Pro", sans-serif';
-  let cleanSub =
+  ctx.font = '500 14.5px "Be Vietnam Pro", sans-serif';
+  const rawSub =
     options.subHeadline ||
     `Giao hòa giữa ngàn năm di sản và nhịp thở đương đại tại ${options.backdrop.name}`;
-  if (ctx.measureText(cleanSub).width > cardW - 80) {
-    while (cleanSub.length > 10 && ctx.measureText(cleanSub + '...').width > cardW - 80) {
-      cleanSub = cleanSub.slice(0, -1);
-    }
-    cleanSub += '...';
-  }
-  ctx.fillText(cleanSub, cardX + 40, cardY + 92);
+  const cleanSub = truncateText(ctx, rawSub, maxContentW);
+  ctx.fillText(cleanSub, contentLeft, cardY + 84);
 
-  // Chi tiết các tầng phục sắc
+  // 6.3 Chi tiết các tầng phục sắc
   ctx.fillStyle = '#94A3B8';
-  ctx.font = '13.5px "Be Vietnam Pro", sans-serif';
-  ctx.fillText(
-    `Thượng y: ${options.top.name}  •  Hạ y: ${options.bottom.name}  •  Phụ kiện: ${options.accessory.name}`,
-    cardX + 40,
-    cardY + 132
-  );
-  ctx.fillText(
-    `Chất liệu: ${options.fabric.name}  •  Sắc màu: ${options.color.name}  •  Niên đại: ${options.top.era}`,
-    cardX + 40,
-    cardY + 158
-  );
+  ctx.font = '13px "Be Vietnam Pro", sans-serif';
+  const garmentsDetail = `Thượng y: ${options.top.name}  •  Hạ y: ${options.bottom.name}  •  Phụ kiện: ${options.accessory.name}`;
+  ctx.fillText(truncateText(ctx, garmentsDetail, maxContentW), contentLeft, cardY + 120);
+
+  const fabricDetail = `Chất liệu: ${options.fabric.name}  •  Sắc màu: ${options.color.name}  •  Niên đại: ${options.top.era}`;
+  ctx.fillText(truncateText(ctx, fabricDetail, maxContentW), contentLeft, cardY + 144);
 
   // Vạch ngăn cách dát vàng
   ctx.strokeStyle = 'rgba(212, 175, 55, 0.25)';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(cardX + 40, cardY + 180);
-  ctx.lineTo(cardX + cardW - 40, cardY + 180);
+  ctx.moveTo(contentLeft, cardY + 164);
+  ctx.lineTo(cardX + cardW - 36, cardY + 164);
   ctx.stroke();
 
-  // 4 DẤU ẤN CỐT LÕI (Thả suông chữ A • 5 Khuy • Sống áo mũi gáy • Quần 2 ống)
+  // 6.4 4 Dấu ấn cốt lõi
   ctx.fillStyle = '#F59E0B';
-  ctx.font = 'bold 12.5px "Be Vietnam Pro", sans-serif';
+  ctx.font = 'bold 12px "Be Vietnam Pro", sans-serif';
   ctx.fillText(
     'QUY CHUẨN ĐẠI VIỆT: 5 Thân Dáng Chữ A • 5 Khuy Ngũ Thường • Sống Áo Mũi Gáy • Quần 2 Ống Lụa',
-    cardX + 40,
-    cardY + 208
+    contentLeft,
+    cardY + 190
   );
 
-  // CÂU THƠ ĐỀ TỪ NGHỆ THUẬT
-  ctx.fillStyle = '#FBBF24';
-  ctx.font = 'italic bold 21px "Lora", "Noto Serif", "Playfair Display", "Be Vietnam Pro", serif';
-  let poetry = options.poetryCouple || 'Áo xưa khép vạt mây hồng lượn / Bước khẽ nghiêng chào bóng cố đô.';
-  if (ctx.measureText(`“ ${poetry} ”`).width > cardW - 80) {
-    ctx.font = 'italic bold 18px "Lora", "Noto Serif", "Playfair Display", "Be Vietnam Pro", serif';
-  }
-  ctx.fillText(`“ ${poetry} ”`, cardX + 40, cardY + 258);
+  // 6.5 Câu thơ đề từ nghệ thuật (khung nền vàng nhẹ)
+  const poetryW = maxContentW;
+  const poetryH = 50;
+  const poetryY = cardY + 212;
 
-  // LỜI BÌNH BIÊN TẬP / CẢM NGHĨ CÁ NHÂN
+  ctx.fillStyle = 'rgba(245, 158, 11, 0.08)';
+  ctx.strokeStyle = 'rgba(245, 158, 11, 0.3)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.roundRect(contentLeft, poetryY, poetryW, poetryH, 10);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#FDE68A';
+  ctx.font = 'italic bold 17px "Lora", "Noto Serif", "Playfair Display", "Be Vietnam Pro", serif';
+  ctx.textAlign = 'center';
+  const poetryText = `“ ${options.poetryCouple || 'Áo xưa khép vạt mây hồng lượn / Bước khẽ nghiêng chào bóng cố đô.'} ”`;
+  ctx.fillText(truncateText(ctx, poetryText, poetryW - 24), contentLeft + poetryW / 2, poetryY + 32);
+
+  // 6.6 Lời bình biên tập & Con dấu di sản
+  ctx.textAlign = 'left';
+  const hasSeal = options.showSeal !== false;
+  const textBlockWidth = hasSeal ? maxContentW - 190 : maxContentW;
+
+  ctx.fillStyle = '#F59E0B';
+  ctx.font = 'bold 13px "Be Vietnam Pro", sans-serif';
+  ctx.fillText('Lời bình di sản:', contentLeft, cardY + 292);
+
   ctx.fillStyle = '#E2E8F0';
-  ctx.font = '13.5px "Be Vietnam Pro", sans-serif';
+  ctx.font = '13px "Be Vietnam Pro", sans-serif';
   const note =
     options.personalNote ||
     'Tà áo buông suông tự nhiên tôn vinh nét nho nhã, không siết eo dải lụa. Sống áo mũi gáy ngay thẳng tượng trưng nhân cách trung thực, hòa quyện kiêu hãnh cùng thời đại.';
-  
-  // Wrap text up to 4 lines, leaving right room for seal if active
-  const maxLineW = options.showSeal !== false ? cardW - 220 : cardW - 80;
+
+  // Tách dòng an toàn cho lời bình (tối đa 4 dòng)
   const words = note.split(' ');
-  let line = '';
-  let textY = cardY + 300;
+  let currentLine = '';
+  let lineY = cardY + 318;
   let lineCount = 0;
+
   for (const w of words) {
-    const testLine = line + w + ' ';
-    if (ctx.measureText(testLine).width > maxLineW) {
-      ctx.fillText(line, cardX + 40, textY);
-      line = w + ' ';
-      textY += 23;
+    const testLine = currentLine + w + ' ';
+    if (ctx.measureText(testLine).width > textBlockWidth) {
+      ctx.fillText(currentLine.trim(), contentLeft, lineY);
+      currentLine = w + ' ';
+      lineY += 24;
       lineCount++;
       if (lineCount >= 4) {
-        line = '...';
+        currentLine = '...';
         break;
       }
     } else {
-      line = testLine;
+      currentLine = testLine;
     }
   }
-  if (line) {
-    ctx.fillText(line, cardX + 40, textY);
+  if (currentLine) {
+    ctx.fillText(currentLine.trim(), contentLeft, lineY);
   }
 
-  // CON DẤU QUY CHUẨN DI SẢN (IMPERIAL AUTHENTICITY STAMP)
-  if (options.showSeal !== false) {
+  // 6.7 Con dấu triện đỏ di sản Việt (Seal Stamp)
+  if (hasSeal) {
     ctx.save();
-    const stampX = cardX + cardW - 170;
-    const stampY = cardY + 410;
+    const stampX = cardX + cardW - 105;
+    const stampY = cardY + 345;
 
-    // Hình triện đỏ son truyền thống
+    // Viền triện đỏ son truyền thống
     ctx.strokeStyle = '#DC2626';
-    ctx.lineWidth = 3.5;
+    ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.roundRect(stampX - 70, stampY - 50, 140, 100, 14);
+    ctx.roundRect(stampX - 70, stampY - 55, 140, 110, 12);
     ctx.stroke();
 
     ctx.fillStyle = 'rgba(220, 38, 38, 0.12)';
@@ -886,28 +530,28 @@ export async function downloadLookbookPosterHD(
     ctx.textAlign = 'center';
     ctx.fillStyle = '#EF4444';
     ctx.font = 'bold 15px "Lora", "Noto Serif", "Be Vietnam Pro", serif';
-    ctx.fillText('DI SẢN VIỆT', stampX, stampY - 18);
+    ctx.fillText('DI SẢN VIỆT', stampX, stampY - 20);
 
     ctx.font = 'bold 11px "Be Vietnam Pro", sans-serif';
     ctx.fillText('✓ CHUẨN MỰC', stampX, stampY + 5);
 
     ctx.font = '600 12px "Be Vietnam Pro", sans-serif';
-    ctx.fillText(`${options.harmonyScore}/100 ĐIỂM`, stampX, stampY + 28);
+    ctx.fillText(`${options.harmonyScore}/100 ĐIỂM`, stampX, stampY + 30);
     ctx.restore();
   }
 
   // Chân trang ký tên
   ctx.textAlign = 'center';
   ctx.fillStyle = '#64748B';
-  ctx.font = '13px "Be Vietnam Pro", sans-serif';
+  ctx.font = '12.5px "Be Vietnam Pro", sans-serif';
   ctx.fillText(
     `Aura Team • Dự Án Bảo Tồn & Số Hóa Cổ Phục Việt • ${new Date().toLocaleDateString('vi-VN')}`,
     600,
-    height - 55
+    cardY + cardH - 22
   );
 
   // 7. XUẤT TẬP TIN PNG HD VÀ KÍCH HOẠT TẢI VỀ
-  if (onProgress) onProgress('Đang kết xuất tệp ảnh PNG HD...');
+  if (onProgress) onProgress('Đang hoàn thiện tập tin PNG HD...');
   const dataUrl = canvas.toDataURL('image/png', 1.0);
 
   const link = document.createElement('a');
@@ -920,3 +564,4 @@ export async function downloadLookbookPosterHD(
 
   return dataUrl;
 }
+

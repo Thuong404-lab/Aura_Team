@@ -426,161 +426,161 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
               </button>
             </div>
 
-            {/* Poster Card Container with Strict Aspect Ratio - NO OVERFLOW! */}
-            <div
-              className="relative w-full max-w-[480px] rounded-3xl overflow-hidden border-2 border-amber-500/35 bg-[#090D18] shadow-[0_20px_50px_rgba(0,0,0,0.85)] flex flex-col justify-between group h-[600px] sm:h-[650px] lg:h-[680px]"
-            >
-              {/* Background Photo & Ambient Lighting Filter */}
-              <div className="absolute inset-0 pointer-events-none">
-                <img
-                  src={selectedBackdrop.imageUrl}
-                  alt={selectedBackdrop.name}
-                  className="w-full h-full object-cover object-center filter brightness-[0.78] contrast-[1.05] transition-transform duration-700 group-hover:scale-102"
-                />
-                {/* Lighting Filter Tint */}
-                <div
-                  className={`absolute inset-0 transition-colors ${
-                    lightingFilter === 'sunset'
-                      ? 'bg-amber-500/12'
-                      : lightingFilter === 'moonlight'
-                      ? 'bg-sky-500/12'
-                      : lightingFilter === 'royal'
-                      ? 'bg-yellow-500/12'
-                      : 'bg-amber-900/15'
-                  }`}
-                />
-                {/* Inner Vignette Gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-black/60" />
-
-                {/* Inner Golden Border Accent */}
-                <div className="absolute inset-3.5 rounded-2xl border border-amber-400/30 pointer-events-none" />
-                <div className="absolute inset-4.5 rounded-2xl border border-amber-400/15 pointer-events-none" />
-              </div>
-
-              {/* POSTER HEADER (Top ~12%) */}
-              <div className="relative z-20 p-4 sm:p-5 flex items-center justify-between text-white">
-                <div className="flex items-center gap-2">
-                  <AuraLogo className="w-5 h-5 text-amber-400" />
-                  <div>
-                    <span className="text-[11px] font-serif-vi font-bold tracking-[0.25em] uppercase drop-shadow-md text-amber-300 block leading-tight">
-                      AURA LOOKBOOK
-                    </span>
-                    <span className="text-[9px] tracking-widest text-slate-400 uppercase block font-sans-vi">
-                      VIỆT PHỤC DI SẢN
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1.5">
-                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-black/60 text-amber-300 border border-amber-500/40">
-                    {evaluation.matchedPeriod.eraName}
-                  </span>
-                  <span
-                    className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border flex items-center gap-1 ${
-                      evaluation.isAuthentic
-                        ? 'bg-emerald-950/80 border-emerald-400/50 text-emerald-300'
-                        : 'bg-amber-950/80 border-amber-400/50 text-amber-300'
+              {/* POSTER CARD: Live Editorial Poster Preview (High Fidelity with dynamic aspect-ratio container) */}
+              <div
+                className="relative w-full max-w-[480px] aspect-[2/3] rounded-3xl overflow-hidden border-2 border-amber-500/35 bg-[#090D18] shadow-[0_20px_50px_rgba(0,0,0,0.85)] flex flex-col justify-between group"
+              >
+                {/* Background Photo & Ambient Lighting Filter */}
+                <div className="absolute inset-0 pointer-events-none">
+                  <img
+                    src={selectedBackdrop.imageUrl}
+                    alt={selectedBackdrop.name}
+                    className="w-full h-full object-cover object-center filter brightness-[0.78] contrast-[1.05] transition-transform duration-700 group-hover:scale-102"
+                  />
+                  {/* Lighting Filter Tint */}
+                  <div
+                    className={`absolute inset-0 transition-colors ${
+                      lightingFilter === 'sunset'
+                        ? 'bg-amber-500/12'
+                        : lightingFilter === 'moonlight'
+                        ? 'bg-sky-500/12'
+                        : lightingFilter === 'royal'
+                        ? 'bg-yellow-500/12'
+                        : 'bg-amber-900/15'
                     }`}
-                  >
-                    {evaluation.isAuthentic ? 'CHUẨN MỰC' : 'CÓ LƯU Ý'}
-                  </span>
-                </div>
-              </div>
+                  />
+                  {/* Inner Vignette Gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-black/60" />
 
-              {/* POSTER CENTER: Full 2D Mannequin Standing Proudly (Middle ~60%) */}
-              {previewMode === 'poster' ? (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none pt-12 pb-44 z-10">
-                  <div className="w-full h-full max-h-[460px] flex items-center justify-center scale-90 sm:scale-95 drop-shadow-[0_18px_40px_rgba(0,0,0,0.95)]">
-                    <AvatarModel
-                      top={top}
-                      bottom={bottom}
-                      accessory={accessory}
-                      fabric={fabric}
-                      color={color}
-                      topCustomColor={topCustomColor}
-                      bottomCustomColor={bottomCustomColor}
-                      harmonyScore={harmonyData?.score || 95}
-                      showCulturePins={false}
-                      hideOverlays={true}
-                    />
-                  </div>
+                  {/* Inner Golden Border Accent */}
+                  <div className="absolute inset-3.5 rounded-2xl border border-amber-400/30 pointer-events-none" />
+                  <div className="absolute inset-4.5 rounded-2xl border border-amber-400/15 pointer-events-none" />
                 </div>
-              ) : (
-                /* Detail Specs View */
-                <div className="relative z-10 mx-6 my-auto p-4 rounded-2xl bg-black/75 backdrop-blur-md border border-amber-500/30 text-left space-y-2 text-xs">
-                  <h4 className="font-serif-vi font-bold text-amber-300 text-sm border-b border-amber-500/30 pb-1.5 flex items-center gap-1.5">
-                    <Info className="w-4 h-4 text-amber-400" />
-                    Thông Số Sắc Phục Phối Hợp
-                  </h4>
-                  <div className="grid grid-cols-2 gap-2 text-[11px]">
-                    <div className="p-2 rounded-xl bg-[#111827] border border-slate-800">
-                      <span className="text-slate-400 block text-[10px]">Thượng Y:</span>
-                      <strong className="text-amber-200">{top.name}</strong>
-                    </div>
-                    <div className="p-2 rounded-xl bg-[#111827] border border-slate-800">
-                      <span className="text-slate-400 block text-[10px]">Hạ Y:</span>
-                      <strong className="text-amber-200">{bottom.name}</strong>
-                    </div>
-                    <div className="p-2 rounded-xl bg-[#111827] border border-slate-800">
-                      <span className="text-slate-400 block text-[10px]">Phụ Kiện:</span>
-                      <strong className="text-amber-200">{accessory.name}</strong>
-                    </div>
-                    <div className="p-2 rounded-xl bg-[#111827] border border-slate-800">
-                      <span className="text-slate-400 block text-[10px]">Chất Liệu:</span>
-                      <strong className="text-amber-200">{fabric.name}</strong>
-                    </div>
-                  </div>
-                  <div className="p-2 rounded-xl bg-[#111827] border border-slate-800 text-[11px]">
-                    <span className="text-slate-400 block text-[10px]">Bối Cảnh Lịch Sử:</span>
-                    <strong className="text-amber-200">📍 {selectedBackdrop.name} ({selectedBackdrop.city})</strong>
-                  </div>
-                </div>
-              )}
 
-              {/* POSTER FOOTER / EDITORIAL LOWER-THIRD (Bottom ~28%) - SLIM & ELEGANT */}
-              <div className="relative p-4 sm:p-5 text-white z-20 text-left bg-gradient-to-t from-black/98 via-black/88 to-transparent pt-6 mt-auto border-t border-amber-500/30 backdrop-blur-xs">
-                {/* Location & Title */}
-                <div className="flex items-center justify-between gap-2 mb-1">
-                  <div className="flex items-center gap-1.5 text-[10.5px] text-slate-300">
-                    <MapPin className="w-3 h-3 text-amber-400" />
-                    <span className="truncate max-w-[240px] font-medium">
-                      {selectedBackdrop.name} • {selectedBackdrop.city}
+                {/* POSTER HEADER (Top section) */}
+                <div className="relative z-20 p-3.5 sm:p-5 flex items-center justify-between text-white shrink-0">
+                  <div className="flex items-center gap-2">
+                    <AuraLogo className="w-5 h-5 text-amber-400 shrink-0" />
+                    <div>
+                      <span className="text-[10.5px] sm:text-[11px] font-serif-vi font-bold tracking-[0.25em] uppercase drop-shadow-md text-amber-300 block leading-tight">
+                        AURA LOOKBOOK
+                      </span>
+                      <span className="text-[8.5px] sm:text-[9px] tracking-widest text-slate-400 uppercase block font-sans-vi">
+                        VIỆT PHỤC DI SẢN
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="px-2 py-0.5 rounded-md text-[9.5px] sm:text-[10px] font-bold uppercase tracking-wider bg-black/60 text-amber-300 border border-amber-500/40">
+                      {evaluation.matchedPeriod.eraName}
+                    </span>
+                    <span
+                      className={`px-2 py-0.5 rounded-md text-[9.5px] sm:text-[10px] font-bold uppercase tracking-wider border flex items-center gap-1 ${
+                        evaluation.isAuthentic
+                          ? 'bg-emerald-950/80 border-emerald-400/50 text-emerald-300'
+                          : 'bg-amber-950/80 border-amber-400/50 text-amber-300'
+                      }`}
+                    >
+                      {evaluation.isAuthentic ? 'CHUẨN MỰC' : 'CÓ LƯU Ý'}
                     </span>
                   </div>
-                  <span className="text-[10px] text-amber-400/90 font-mono">
-                    {evaluation.matchedPeriod.periodText}
-                  </span>
                 </div>
 
-                {/* Edition Title */}
-                <h3 className="font-serif-vi text-base sm:text-lg font-bold leading-tight text-amber-100">
-                  {editionTitle || `Dáng Hoa ${top.name}`}
-                </h3>
-
-                {/* Poetry Couple Quote */}
-                <div className="my-1.5 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-400/30">
-                  <p className="text-[11px] sm:text-xs text-amber-200 font-serif-vi italic text-center leading-relaxed">
-                    “{poetryCouple}”
-                  </p>
-                </div>
-
-                {/* Personal Note & Heritage Seal Row */}
-                <div className="flex items-center justify-between gap-2 mt-1">
-                  <p className="text-[10px] sm:text-[10.5px] text-slate-300/90 leading-tight line-clamp-2 flex-1">
-                    <span className="text-amber-400 font-semibold">Lời bình: </span>
-                    {personalNote || 'Bản phối gìn giữ nguyên vẹn cốt cách đoan trang, thanh lịch của phục sức cổ truyền.'}
-                  </p>
-
-                  {/* Red Imperial Seal */}
-                  {showSeal && (
-                    <div className="px-2 py-1 rounded-md border border-red-500/80 bg-red-950/80 text-red-300 text-[9px] font-bold uppercase tracking-wider shrink-0 text-center shadow-xs">
-                      <div>✓ DI SẢN VIỆT</div>
-                      <div className="text-[8px] text-red-400 font-mono">CHUẨN MỰC</div>
+                {/* POSTER CENTER: Full 2D Mannequin Standing Proudly */}
+                {previewMode === 'poster' ? (
+                  <div className="relative flex-1 w-full flex items-center justify-center pointer-events-none z-10 px-4 min-h-0">
+                    <div className="w-full h-full max-h-[380px] sm:max-h-[440px] flex items-center justify-center scale-90 sm:scale-95 drop-shadow-[0_18px_40px_rgba(0,0,0,0.95)]">
+                      <AvatarModel
+                        top={top}
+                        bottom={bottom}
+                        accessory={accessory}
+                        fabric={fabric}
+                        color={color}
+                        topCustomColor={topCustomColor}
+                        bottomCustomColor={bottomCustomColor}
+                        harmonyScore={harmonyData?.score || 95}
+                        showCulturePins={false}
+                        hideOverlays={true}
+                      />
                     </div>
-                  )}
+                  </div>
+                ) : (
+                  /* Detail Specs View */
+                  <div className="relative z-10 mx-4 sm:mx-6 my-auto p-4 rounded-2xl bg-black/75 backdrop-blur-md border border-amber-500/30 text-left space-y-2 text-xs">
+                    <h4 className="font-serif-vi font-bold text-amber-300 text-sm border-b border-amber-500/30 pb-1.5 flex items-center gap-1.5">
+                      <Info className="w-4 h-4 text-amber-400" />
+                      Thông Số Sắc Phục Phối Hợp
+                    </h4>
+                    <div className="grid grid-cols-2 gap-2 text-[11px]">
+                      <div className="p-2 rounded-xl bg-[#111827] border border-slate-800">
+                        <span className="text-slate-400 block text-[10px]">Thượng Y:</span>
+                        <strong className="text-amber-200">{top.name}</strong>
+                      </div>
+                      <div className="p-2 rounded-xl bg-[#111827] border border-slate-800">
+                        <span className="text-slate-400 block text-[10px]">Hạ Y:</span>
+                        <strong className="text-amber-200">{bottom.name}</strong>
+                      </div>
+                      <div className="p-2 rounded-xl bg-[#111827] border border-slate-800">
+                        <span className="text-slate-400 block text-[10px]">Phụ Kiện:</span>
+                        <strong className="text-amber-200">{accessory.name}</strong>
+                      </div>
+                      <div className="p-2 rounded-xl bg-[#111827] border border-slate-800">
+                        <span className="text-slate-400 block text-[10px]">Chất Liệu:</span>
+                        <strong className="text-amber-200">{fabric.name}</strong>
+                      </div>
+                    </div>
+                    <div className="p-2 rounded-xl bg-[#111827] border border-slate-800 text-[11px]">
+                      <span className="text-slate-400 block text-[10px]">Bối Cảnh Lịch Sử:</span>
+                      <strong className="text-amber-200">📍 {selectedBackdrop.name} ({selectedBackdrop.city})</strong>
+                    </div>
+                  </div>
+                )}
+
+                {/* POSTER FOOTER / EDITORIAL LOWER-THIRD - ADAPTIVE & LEGIBLE */}
+                <div className="relative p-3 sm:p-4 text-white z-20 text-left bg-gradient-to-t from-black/98 via-black/92 to-transparent pt-4 sm:pt-5 border-t border-amber-500/30 backdrop-blur-xs shrink-0">
+                  {/* Location & Era */}
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <div className="flex items-center gap-1.5 text-[10px] sm:text-[10.5px] text-slate-300 min-w-0">
+                      <MapPin className="w-3 h-3 text-amber-400 shrink-0" />
+                      <span className="truncate max-w-[200px] sm:max-w-[240px] font-medium">
+                        {selectedBackdrop.name} • {selectedBackdrop.city}
+                      </span>
+                    </div>
+                    <span className="text-[9px] sm:text-[9.5px] text-amber-400/90 font-mono shrink-0">
+                      {evaluation.matchedPeriod.periodText}
+                    </span>
+                  </div>
+
+                  {/* Edition Title */}
+                  <h3 className="font-serif-vi text-sm sm:text-base font-bold leading-tight text-amber-100 truncate break-words">
+                    {editionTitle || `Dáng Hoa ${top.name}`}
+                  </h3>
+
+                  {/* Poetry Couple Quote */}
+                  <div className="my-1 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-400/30">
+                    <p className="text-[10.5px] sm:text-[11px] text-amber-200 font-serif-vi italic text-center leading-snug line-clamp-1 break-words">
+                      “{poetryCouple}”
+                    </p>
+                  </div>
+
+                  {/* Personal Note & Heritage Seal Row */}
+                  <div className="flex items-center justify-between gap-2 mt-1">
+                    <p className="text-[9.5px] sm:text-[10px] text-slate-300 leading-tight line-clamp-2 flex-1 break-words">
+                      <span className="text-amber-400 font-semibold">Lời bình: </span>
+                      {personalNote || 'Bản phối gìn giữ nguyên vẹn cốt cách đoan trang, thanh lịch của phục sức cổ truyền.'}
+                    </p>
+
+                    {/* Red Imperial Seal */}
+                    {showSeal && (
+                      <div className="px-2 py-0.5 rounded-md border border-red-500/80 bg-red-950/80 text-red-300 text-[8.5px] font-bold uppercase tracking-wider shrink-0 text-center shadow-xs">
+                        <div>✓ DI SẢN VIỆT</div>
+                        <div className="text-[7.5px] text-red-400 font-mono">CHUẨN MỰC</div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
 
             {/* Poster Download Status Hint */}
             <p className="text-[11px] text-slate-400 mt-2 text-center">
@@ -748,25 +748,44 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
 
                   {/* Tiêu đề ấn bản */}
                   <div>
-                    <label className="block text-[11px] font-bold text-amber-400 mb-1">
-                      Tên ấn bản Lookbook:
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-bold text-amber-400">
+                        Tên ấn bản Lookbook:
+                      </label>
+                      <span className={`text-[10px] ${editionTitle.length > 40 ? 'text-rose-400' : 'text-slate-400'}`}>
+                        {editionTitle.length}/45 ký tự
+                      </span>
+                    </div>
                     <input
                       type="text"
+                      maxLength={45}
                       value={editionTitle}
                       onChange={(e) => setEditionTitle(e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-xl bg-[#101728] border border-slate-700 focus:border-amber-400 text-slate-100 text-xs font-sans-vi focus:outline-none transition-colors"
+                      className={`w-full px-3 py-1.5 rounded-xl bg-[#101728] border text-slate-100 text-xs font-sans-vi focus:outline-none transition-colors ${
+                        editionTitle.trim().length === 0
+                          ? 'border-rose-500/80 focus:border-rose-400'
+                          : 'border-slate-700 focus:border-amber-400'
+                      }`}
                       placeholder="Ví dụ: Dáng Hoa Áo Ngũ Thân..."
                     />
+                    {editionTitle.trim().length === 0 && (
+                      <p className="text-[10px] text-rose-400 mt-0.5">⚠️ Vui lòng không để trống tên ấn bản</p>
+                    )}
                   </div>
 
                   {/* Phụ đề & Bối cảnh */}
                   <div>
-                    <label className="block text-[11px] font-bold text-amber-400 mb-1">
-                      Phụ đề tác phẩm & Ý niệm:
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-bold text-amber-400">
+                        Phụ đề tác phẩm & Ý niệm:
+                      </label>
+                      <span className={`text-[10px] ${subHeadline.length > 70 ? 'text-amber-400' : 'text-slate-400'}`}>
+                        {subHeadline.length}/80 ký tự
+                      </span>
+                    </div>
                     <input
                       type="text"
+                      maxLength={80}
                       value={subHeadline}
                       onChange={(e) => setSubHeadline(e.target.value)}
                       className="w-full px-3 py-1.5 rounded-xl bg-[#101728] border border-slate-700 focus:border-amber-400 text-slate-100 text-xs font-sans-vi focus:outline-none transition-colors"
@@ -780,10 +799,13 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                       <label className="text-[11px] font-bold text-amber-400">
                         Câu thơ đề từ (In trên Poster):
                       </label>
-                      <span className="text-[10px] text-slate-400">Chọn nhanh bên dưới</span>
+                      <span className={`text-[10px] ${poetryCouple.length > 60 ? 'text-amber-400' : 'text-slate-400'}`}>
+                        {poetryCouple.length}/70 ký tự
+                      </span>
                     </div>
                     <input
                       type="text"
+                      maxLength={70}
                       value={poetryCouple}
                       onChange={(e) => setPoetryCouple(e.target.value)}
                       className="w-full px-3 py-1.5 rounded-xl bg-[#101728] border border-slate-700 focus:border-amber-400 text-amber-200 text-xs font-sans-vi italic focus:outline-none transition-colors mb-1.5"
@@ -817,18 +839,31 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                       <label className="text-[11px] font-bold text-amber-400">
                         Lời bình & Bút ký di sản (In chân poster):
                       </label>
-                      <span className="text-[10px] text-slate-400">
-                        {personalNote.length}/180 ký tự
+                      <span className={`text-[10px] ${personalNote.length > 130 ? 'text-amber-400 font-bold' : 'text-slate-400'}`}>
+                        {personalNote.length}/150 ký tự
                       </span>
                     </div>
                     <textarea
                       rows={2}
-                      maxLength={180}
+                      maxLength={150}
                       value={personalNote}
                       onChange={(e) => setPersonalNote(e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-xl bg-[#101728] border border-slate-700 focus:border-amber-400 text-slate-200 text-xs leading-relaxed focus:outline-none transition-colors"
+                      className="w-full px-3 py-1.5 rounded-xl bg-[#101728] border border-slate-700 focus:border-amber-400 text-slate-200 text-xs leading-relaxed focus:outline-none transition-colors resize-none"
                       placeholder="Nhập cảm nghĩ về bản phối cổ phục..."
                     />
+                    <div className="flex items-center justify-between text-[10px] text-slate-400 mt-0.5">
+                      <span>💡 Lời bình sẽ được căn lề tự động, không bị che mất dấu ấn</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPersonalNote(`Bản phối tôn vinh nét đoan chính của ${top.name} cùng ${bottom.name}, sống áo mũi gáy thẳng ngay và năm khuy ngũ thường mực thước.`);
+                          soundEngine.playPluck(523.25);
+                        }}
+                        className="text-amber-400 hover:underline cursor-pointer"
+                      >
+                        Điền mẫu chuẩn
+                      </button>
+                    </div>
                   </div>
 
                   {/* Con dấu quy chuẩn */}
@@ -934,28 +969,55 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                   TAB CONTENT 3: 4 DẤU ẤN CỐT LÕI
                  ======================================================== */}
               {activeTab === 'hallmarks' && (
-                <div className="space-y-2 animate-in fade-in duration-300 text-xs">
-                  <div className="text-[11px] text-amber-400 font-bold uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                    <Crown className="w-4 h-4" />
-                    4 DẤU ẤN ĐỊNH HÌNH VIỆT PHỤC CHUẨN MỰC
+                <div className="space-y-2.5 animate-in fade-in duration-300 text-xs">
+                  <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200">
+                    <div className="font-bold flex items-center gap-1.5 text-xs text-amber-300">
+                      <Crown className="w-4 h-4 text-amber-400" />
+                      4 Dấu Ấn Di Sản là gì?
+                    </div>
+                    <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
+                      Đây là <strong>4 đặc trưng cốt lõi độc bản của Việt Phục</strong> để phân biệt với Hán Phục (Trung Quốc) hay trang phục các nước láng giềng. Bạn có thể bấm nút <strong>"Áp dụng vào Poster"</strong> ở từng dấu ấn để lập tức đưa lời bình và ý niệm này vào trang bìa Lookbook của bạn!
+                    </p>
                   </div>
 
                   {CULTURAL_CORE_HALLMARKS.map((h) => (
                     <div
                       key={h.id}
-                      className="p-2.5 rounded-xl bg-[#131C2E] border border-slate-700/60 hover:border-amber-500/40 transition-colors text-left"
+                      className="p-3 rounded-xl bg-[#131C2E] border border-slate-700/60 hover:border-amber-500/40 transition-all text-left group"
                     >
-                      <div className="flex items-center gap-1.5 mb-0.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                        <h5 className="font-bold text-amber-200 text-xs font-serif-vi">
-                          {h.title}
-                        </h5>
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-base">{h.icon}</span>
+                          <h5 className="font-bold text-amber-200 text-xs font-serif-vi">
+                            {h.title}
+                          </h5>
+                        </div>
+                        <span className="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-medium">
+                          {h.badge}
+                        </span>
                       </div>
-                      <p className="text-slate-300 leading-relaxed text-[10.5px] mb-1">
+
+                      <p className="text-slate-300 leading-relaxed text-[11px] mb-1.5">
                         {h.vietnamTrait}
                       </p>
-                      <div className="text-[10px] text-amber-300/90 italic bg-[#0B101D] p-1.5 rounded-lg border border-slate-800">
+
+                      <div className="text-[10.5px] text-amber-300/90 italic bg-[#0B101D] p-2 rounded-lg border border-slate-800 mb-2">
                         ✨ <strong>Phân biệt:</strong> {h.foreignContrast}
+                      </div>
+
+                      <div className="flex items-center justify-end">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPersonalNote(`Bản phối tôn vinh dấu ấn di sản: ${h.title}. ${h.vietnamTrait.slice(0, 85)}...`);
+                            soundEngine.playPluck(659.25);
+                            setActiveTab('editor');
+                          }}
+                          className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-[10.5px] font-bold transition-all cursor-pointer flex items-center gap-1"
+                        >
+                          <Edit3 className="w-3 h-3" />
+                          <span>Áp dụng vào Lời bình Poster</span>
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -1084,8 +1146,8 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
 
       {/* FULLSCREEN POSTER PREVIEW MODAL */}
       {showFullscreenModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="relative max-w-lg w-full max-h-[92vh] flex flex-col items-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="relative max-w-md w-full max-h-[95vh] flex flex-col items-center">
             <button
               onClick={() => setShowFullscreenModal(false)}
               className="absolute -top-10 right-0 text-slate-300 hover:text-white flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800/80 cursor-pointer"
@@ -1094,7 +1156,7 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
               <span>Đóng</span>
             </button>
 
-            <div className="w-full rounded-3xl overflow-hidden border-2 border-amber-500/50 bg-[#090D18] shadow-2xl relative h-[650px] flex flex-col justify-between">
+            <div className="w-full aspect-[2/3] rounded-3xl overflow-hidden border-2 border-amber-500/50 bg-[#090D18] shadow-2xl relative flex flex-col justify-between">
               {/* Photo background */}
               <div className="absolute inset-0 pointer-events-none">
                 <img
@@ -1114,25 +1176,25 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                   }`}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/25 to-black/60" />
-                <div className="absolute inset-4 rounded-2xl border border-amber-400/30" />
+                <div className="absolute inset-3.5 sm:inset-4 rounded-2xl border border-amber-400/30" />
               </div>
 
               {/* Header */}
-              <div className="relative z-20 p-5 flex items-center justify-between text-white">
+              <div className="relative z-20 p-4 sm:p-5 flex items-center justify-between text-white shrink-0">
                 <div className="flex items-center gap-2">
-                  <AuraLogo className="w-5 h-5 text-amber-400" />
+                  <AuraLogo className="w-5 h-5 text-amber-400 shrink-0" />
                   <span className="text-xs font-serif-vi font-bold tracking-[0.25em] uppercase text-amber-300">
                     AURA LOOKBOOK
                   </span>
                 </div>
-                <span className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase bg-black/60 text-amber-300 border border-amber-500/40">
+                <span className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase bg-black/60 text-amber-300 border border-amber-500/40 shrink-0">
                   {evaluation.matchedPeriod.eraName}
                 </span>
               </div>
 
-              {/* Mannequin */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none pt-12 pb-44 z-10">
-                <div className="w-full h-full max-h-[460px] flex items-center justify-center scale-95 drop-shadow-2xl">
+              {/* Mannequin in Center */}
+              <div className="relative flex-1 w-full flex items-center justify-center pointer-events-none z-10 px-4 min-h-0">
+                <div className="w-full h-full max-h-[380px] sm:max-h-[440px] flex items-center justify-center scale-95 drop-shadow-2xl">
                   <AvatarModel
                     top={top}
                     bottom={bottom}
@@ -1149,27 +1211,27 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
               </div>
 
               {/* Footer */}
-              <div className="relative p-5 text-white z-20 text-left bg-gradient-to-t from-black/98 via-black/90 to-transparent pt-6 mt-auto border-t border-amber-500/30">
-                <div className="flex items-center justify-between text-xs text-amber-300/80 mb-1">
-                  <span>📍 {selectedBackdrop.name} • {selectedBackdrop.city}</span>
-                  <span className="font-mono">{evaluation.matchedPeriod.periodText}</span>
+              <div className="relative p-3.5 sm:p-4 text-white z-20 text-left bg-gradient-to-t from-black/98 via-black/90 to-transparent pt-4 sm:pt-5 border-t border-amber-500/30 shrink-0">
+                <div className="flex items-center justify-between text-[10.5px] sm:text-xs text-amber-300/80 mb-1">
+                  <span className="truncate max-w-[220px]">📍 {selectedBackdrop.name} • {selectedBackdrop.city}</span>
+                  <span className="font-mono text-[9.5px] sm:text-[10px] shrink-0">{evaluation.matchedPeriod.periodText}</span>
                 </div>
-                <h3 className="font-serif-vi text-xl font-bold text-amber-100">
+                <h3 className="font-serif-vi text-base sm:text-lg font-bold text-amber-100 truncate break-words">
                   {editionTitle || `Dáng Hoa ${top.name}`}
                 </h3>
-                <div className="my-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-400/30">
-                  <p className="text-xs text-amber-200 font-serif-vi italic text-center leading-relaxed">
+                <div className="my-1 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-400/30">
+                  <p className="text-[10.5px] sm:text-xs text-amber-200 font-serif-vi italic text-center leading-relaxed line-clamp-1 break-words">
                     “{poetryCouple}”
                   </p>
                 </div>
-                <div className="flex items-center justify-between gap-3 mt-1.5">
-                  <p className="text-[11px] text-slate-300 line-clamp-2 flex-1">
+                <div className="flex items-center justify-between gap-3 mt-1">
+                  <p className="text-[10px] sm:text-[11px] text-slate-300 line-clamp-2 flex-1 break-words">
                     {personalNote}
                   </p>
                   {showSeal && (
-                    <div className="px-2.5 py-1 rounded-md border border-red-500/80 bg-red-950/80 text-red-300 text-[10px] font-bold uppercase tracking-wider shrink-0 text-center">
+                    <div className="px-2 py-0.5 rounded-md border border-red-500/80 bg-red-950/80 text-red-300 text-[9px] font-bold uppercase tracking-wider shrink-0 text-center shadow-xs">
                       <div>✓ DI SẢN VIỆT</div>
-                      <div className="text-[9px] text-red-400 font-mono">CHUẨN MỰC</div>
+                      <div className="text-[8px] text-red-400 font-mono">CHUẨN MỰC</div>
                     </div>
                   )}
                 </div>
@@ -1180,7 +1242,7 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
               <button
                 onClick={handleDownloadPoster}
                 disabled={isDownloading}
-                className="py-2.5 px-6 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold flex items-center gap-2 cursor-pointer shadow-lg"
+                className="py-2.5 px-6 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold flex items-center gap-2 cursor-pointer shadow-lg active:scale-95 transition-all"
               >
                 <Camera className="w-4 h-4" />
                 <span>Tải Poster HD Ngay</span>
