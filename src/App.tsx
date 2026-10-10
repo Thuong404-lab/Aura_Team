@@ -22,14 +22,10 @@ export default function App() {
   // Navigation state (Default to 'home' for welcoming entrance into the fashion realm)
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('home');
 
-  // Outfit state - Defaults to Áo ngũ thân tay chẽn + Quần ống sớ + Khăn đóng
-  const [currentTop, setCurrentTop] = useState<WardrobeItem | null>(TOPS[0]); // Áo ngũ thân tay chẽn
-  const [currentBottom, setCurrentBottom] = useState<WardrobeItem | null>(
-    BOTTOMS.find((b) => b.id === 'quan-ong-so') || BOTTOMS[0]
-  ); // Quần ống sớ lụa bạch
-  const [currentAccessory, setCurrentAccessory] = useState<WardrobeItem | null>(
-    ACCESSORIES.find((a) => a.id === 'khan-dong') || ACCESSORIES[0]
-  ); // Khăn đóng lụa đen
+  // Outfit state - Initially bare mannequin as requested ("bản vẽ 2D mới đầu sẽ không có mặc trang phục gì khi người cho mặc mới có trang phục")
+  const [currentTop, setCurrentTop] = useState<WardrobeItem | null>(null);
+  const [currentBottom, setCurrentBottom] = useState<WardrobeItem | null>(null);
+  const [currentAccessory, setCurrentAccessory] = useState<WardrobeItem | null>(null);
   const [currentFabric, setCurrentFabric] = useState<FabricOption>(FABRICS[1]); // Gấm Cung Đình
   const [currentColor, setCurrentColor] = useState<ColorOption>(COLOR_PALETTES[0]); // Đỏ Điều / Sắc thắm
   const [topCustomColor, setTopCustomColor] = useState<string | undefined>(undefined);
@@ -37,18 +33,18 @@ export default function App() {
 
   // Harmony analysis data passed between screens
   const [harmonyData, setHarmonyData] = useState<HarmonyResult>({
-    score: 96,
-    ratingBadge: 'Phối đồ xuất sắc',
-    historicalMatchPercent: 98,
-    colorHarmonyPercent: 96,
-    contextAestheticPercent: 95,
-    critiqueTitle: 'Phối đồ chuẩn mực (96 điểm)',
+    score: 0,
+    ratingBadge: 'Khung Ma Nơ Canh Mộc',
+    historicalMatchPercent: 0,
+    colorHarmonyPercent: 0,
+    contextAestheticPercent: 0,
+    critiqueTitle: 'Chưa khoác y phục',
     detailedCritique:
-      'Sự kết hợp mẫu mực giữa Áo ngũ thân tay chẽn truyền thống, Quần ống sớ lụa bạch và Khăn đóng lụa đen, toát lên cốt cách Nho nhã, mực thước.',
+      'Khung ma nơ canh đang để mộc thanh lịch. Hãy chọn áo, quần/váy và phụ kiện bên phải để bắt đầu thiết kế xiêm y cổ phục!',
     culturalSecret:
-      'Áo ngũ thân quy chuẩn đi kèm khăn đóng 7 nếp chữ Nhân, nhắc nhở người mặc luôn lấy chữ Nhân làm đầu trong xử thế.',
+      'Cổ nhân coi phục sức là diện mạo của lễ giáo, "y phục xứng kỳ đức". Mời bạn khai mở xiêm y.',
     stylingTip:
-      'Khi tạo dáng, hãy đứng thẳng người thanh thoát, tay giữ nhẹ tà áo để tôn trọn phom áo năm thân.',
+      'Hãy bắt đầu bằng việc chọn một dáng áo yêu thích: Áo Ngũ Thân trang nhã, Áo Nhật Bình vương giả hay Áo Giao Lĩnh cổ phong.',
   });
 
   // Cloud Curtain visibility state

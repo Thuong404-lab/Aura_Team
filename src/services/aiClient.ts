@@ -4,16 +4,42 @@ import {
   BOTTOMS,
   ACCESSORIES,
 } from '../data/vietPhucData';
+import { evaluateCulturalRules, CulturalViolation } from '../utils/culturalRules';
+import {
+  CombinationAnalysis,
+  NextItemSuggestion,
+  AiSuggestOptions,
+  StylingMode,
+  StyleAlternative,
+  generateIntelligentOutfitSuggestion,
+  analyzeItemCombination,
+  getSmartNextItemSuggestions,
+} from '../utils/combinationAnalyzer';
+
+export type {
+  CombinationAnalysis,
+  NextItemSuggestion,
+  AiSuggestOptions,
+  StylingMode,
+  StyleAlternative,
+};
 
 export interface AiSuggestionResult {
   recommendedTopId: string;
   recommendedBottomId: string;
   recommendedAccessoryId: string;
+  recommendedColorHex?: string;
   colorScheme: string;
   conceptTitle: string;
   characterPersona: string;
   aiAdvice: string;
   culturalNote: string;
+  combinationAnalysis?: CombinationAnalysis;
+  alternatives?: {
+    classic: StyleAlternative;
+    modernFusion: StyleAlternative;
+  };
+  nextItemSuggestions?: NextItemSuggestion[];
 }
 
 export interface HarmonyEvaluationResult {
@@ -26,6 +52,7 @@ export interface HarmonyEvaluationResult {
   detailedCritique: string;
   culturalSecret: string;
   stylingTip: string;
+  violations?: CulturalViolation[];
 }
 
 export interface LookbookStoryResult {
@@ -36,82 +63,91 @@ export interface LookbookStoryResult {
   photographerNote: string;
 }
 
-// 1. Suggest Outfit (API with immediate intelligent fallback)
-export async function getAiSuggestion(prompt: string): Promise<AiSuggestionResult> {
+// 1. Suggest Outfit (API with combination analysis based on cultural meaning and modern trends)
+export async function getAiSuggestion(
+  promptOrOptions: string | AiSuggestOptions,
+  maybeOptions?: AiSuggestOptions
+): Promise<AiSuggestionResult> {
+  const options: AiSuggestOptions =
+    typeof promptOrOptions === 'string'
+      ? { prompt: promptOrOptions, ...(maybeOptions || {}) }
+      : promptOrOptions;
+
+  const promptText = options.prompt || '';
+
   try {
     const res = await fetch('/api/ai/suggest', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt }),
+      body: JSON.stringify({
+        prompt: promptText,
+        currentTop: options.currentTop,
+        currentBottom: options.currentBottom,
+        currentAccessory: options.currentAccessory,
+        stylingMode: options.stylingMode || 'auto',
+        targetAction: options.targetAction || 'full_outfit',
+        topCustomColor: options.topCustomColor,
+        bottomCustomColor: options.bottomCustomColor,
+      }),
     });
 
     if (res.ok) {
       const data = await res.json();
       if (data.success && data.data && data.data.recommendedTopId) {
-        return data.data;
+        // Ensure combinationAnalysis is present even if remote model only returned basic fields
+        const result = data.data;
+        if (!result.combinationAnalysis) {
+          const topObj = TOPS.find((t) => t.id === result.recommendedTopId) || null;
+          const bottomObj = BOTTOMS.find((b) => b.id === result.recommendedBottomId) || null;
+          const accObj = ACCESSORIES.find((a) => a.id === result.recommendedAccessoryId) || null;
+          result.combinationAnalysis = analyzeItemCombination({
+            top: topObj,
+            bottom: bottomObj,
+            accessory: accObj,
+            stylingMode: options.stylingMode,
+            prompt: promptText,
+          });
+        }
+        if (!result.nextItemSuggestions) {
+          const topObj = TOPS.find((t) => t.id === result.recommendedTopId) || null;
+          result.nextItemSuggestions = getSmartNextItemSuggestions({
+            currentTop: topObj,
+            currentBottom: null,
+            currentAccessory: null,
+            stylingMode: options.stylingMode,
+          });
+        }
+        return result;
       }
     }
   } catch {
-    // Non-blocking fallback for static hosting / Vercel static deployments
+    // Non-blocking fallback for preview / offline
   }
 
-  // Authoritative Cultural Fallback Logic
-  const lower = prompt.toLowerCase();
-  let topId = 'ngu-than';
-  let bottomId = 'quan-ong-so';
-  let accId = 'khan-dong';
-  let title = 'Thu Nhật Dạo Phố';
-  let persona = 'Nhã sĩ kinh kỳ phong thái ung dung';
-  let advice = `Bản phối Áo Ngũ Thân tay chẽn kết hợp quần ống sớ trắng tạo dáng vẻ tao nhã, thoải mái khi dạo bước. Phù hợp cho yêu cầu: "${prompt}".`;
-  let note = 'Ngũ thân tượng trưng cho tứ thân phụ mẫu và đạo hiếu làm người với 5 thân áo và 5 đức tính cao đẹp.';
-
-  if (lower.includes('cưới') || lower.includes('hôn') || lower.includes('sang') || lower.includes('cung đình')) {
-    topId = 'nhat-binh';
-    bottomId = 'quan-men-lam';
-    accId = 'man-ngu-sac';
-    title = 'Hôn Lễ Vương Triều';
-    persona = 'Nữ tử hoàng tộc uy nghi trong ngày đại lễ';
-    advice = 'Áo Nhật Bình sắc đỏ chu sa viền cổ thêu ngũ hành kết hợp mấn ngũ sắc tôn vinh tối đa nét đài các trong lễ trọng.';
-    note = 'Họa tiết cổ áo hình chữ nhật tượng trưng cho trời đất hòa quyện, gắn liền với chúc phúc trăm năm viên mãn.';
-  } else if (lower.includes('lễ') || lower.includes('trang trọng') || lower.includes('chùa') || lower.includes('đền')) {
-    topId = 'ao-tac';
-    bottomId = 'quan-ong-so';
-    accId = 'khan-dong';
-    title = 'Nghi Lễ Tôn Nghiêm';
-    persona = 'Trưởng tử gia tộc trong tuần tế lễ tổ tiên';
-    advice = 'Áo Tấc với tay áo thụ rộng thênh thang mang tính nghi lễ cao nhất của triều Nguyễn, thể hiện sự kính trọng tuyệt đối.';
-    note = 'Khi khoanh tay hành lễ, hai vạt tay thụ phủ kín trước ngực biểu trưng cho lòng thành kính vô lượng.';
-  } else if (lower.includes('trẻ') || lower.includes('nữ') || lower.includes('thơ') || lower.includes('dạo phố')) {
-    topId = 'giao-linh-nu';
-    bottomId = 'vay-xep-ly';
-    accId = 'quat-lua';
-    title = 'Thanh Phong Giao Lĩnh';
-    persona = 'Tiểu thư đài các phong thái nhẹ nhàng, tao nhã';
-    advice = 'Sự kết hợp giữa phom Áo Giao Lĩnh cổ chéo chữ Y cùng chân váy xếp ly mang lại nét thanh tao, thoát tục chuẩn mực mỹ học Đại Việt.';
-    note = 'Đường cổ chéo chữ Y vạt trái đè vạt phải tượng trưng cho sự giao hòa âm dương, đoan trang mà phóng khoáng.';
-  }
-
-  return {
-    recommendedTopId: topId,
-    recommendedBottomId: bottomId,
-    recommendedAccessoryId: accId,
-    colorScheme: 'Sắc thắm Cung đình & Lụa bạch tơ tằm',
-    conceptTitle: title,
-    characterPersona: persona,
-    aiAdvice: advice,
-    culturalNote: note,
-  };
+  // Fallback to high-fidelity dynamic algorithmic combination analyzer
+  return generateIntelligentOutfitSuggestion(options);
 }
 
-// 2. Harmony Check (API with intelligent fallback)
+// 2. Harmony Check (API with comprehensive Cultural Rules Engine integration)
 export async function checkAiHarmony(params: {
-  top: WardrobeItem;
-  bottom: WardrobeItem;
-  accessory: WardrobeItem;
-  fabricName: string;
-  colorName: string;
+  top: WardrobeItem | null;
+  bottom: WardrobeItem | null;
+  accessory: WardrobeItem | null;
+  fabricName?: string;
+  colorName?: string;
+  topCustomColor?: string;
+  bottomCustomColor?: string;
 }): Promise<HarmonyEvaluationResult> {
-  const { top, bottom, accessory, fabricName, colorName } = params;
+  const { top, bottom, accessory, topCustomColor, bottomCustomColor } = params;
+
+  // Run comprehensive Cultural Rules Evaluator
+  const evaluated = evaluateCulturalRules({
+    top,
+    bottom,
+    accessory,
+    topColorHex: topCustomColor,
+    bottomColorHex: bottomCustomColor,
+  });
 
   try {
     const res = await fetch('/api/ai/harmony', {
@@ -121,39 +157,41 @@ export async function checkAiHarmony(params: {
         top,
         bottom,
         accessory,
-        fabric: fabricName,
-        color: colorName,
-        era: top.era,
+        fabric: params.fabricName,
+        color: params.colorName,
+        era: top?.era,
       }),
     });
 
     if (res.ok) {
       const data = await res.json();
       if (data.success && data.data && data.data.score) {
-        return data.data;
+        // If there are cultural violations, penalize the external score
+        const finalScore = evaluated.violations.length > 0
+          ? Math.min(data.data.score, evaluated.totalScore)
+          : data.data.score;
+        return {
+          ...data.data,
+          score: finalScore,
+          violations: evaluated.violations,
+        };
       }
     }
   } catch {
-    // Non-blocking fallback
+    // Fallback to local evaluated results
   }
 
-  // Intelligent fallback calculation
-  let baseScore = 94;
-  if (top.era === bottom.era) baseScore += 2;
-  if (top.id === 'nhat-binh' && accessory.id === 'man-ngu-sac') baseScore = 98;
-  if (top.id === 'ngu-than' && bottom.id === 'quan-ong-so') baseScore = 97;
-  if (top.id === 'giao-linh-nu' || top.id === 'tu-than') baseScore = 96;
-
   return {
-    score: baseScore,
-    ratingBadge: baseScore >= 95 ? 'Xuất sắc' : 'Hài Hòa Tinh Tế',
-    historicalMatchPercent: baseScore >= 95 ? 97 : 92,
-    colorHarmonyPercent: 95,
-    contextAestheticPercent: 94,
-    critiqueTitle: 'Bản Phối Chuẩn Mực Văn Hóa & Thẩm Mỹ Cổ Phong',
-    detailedCritique: `Sự kết hợp giữa ${top.name} cùng ${bottom.name} và ${accessory.name} tạo nên dáng dấp thanh cao, chuẩn mực lễ giáo cổ phong. Màu ${colorName} trên chất liệu ${fabricName} giúp tà áo có độ rủ tự nhiên, tôn vinh vóc dáng.`,
-    culturalSecret: top.cultureInfo.symbolism,
-    stylingTip: 'Khi tạo dáng, hãy nhẹ nhàng nâng tà áo hoặc cầm quạt lụa nghiêng 45 độ ngang ngực để khoe trọn hoa văn viền cổ áo.',
+    score: evaluated.totalScore,
+    ratingBadge: evaluated.ratingBadge,
+    historicalMatchPercent: evaluated.eraMatchScore,
+    colorHarmonyPercent: evaluated.fiveElementsScore,
+    contextAestheticPercent: evaluated.aestheticScore,
+    critiqueTitle: evaluated.critiqueTitle,
+    detailedCritique: evaluated.detailedCritique,
+    culturalSecret: evaluated.culturalSecret,
+    stylingTip: evaluated.stylingTip,
+    violations: evaluated.violations,
   };
 }
 

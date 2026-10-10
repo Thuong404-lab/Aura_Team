@@ -31,30 +31,89 @@ if (apiKey && apiKey !== 'MY_GEMINI_API_KEY' && !apiKey.startsWith('MY_')) {
 
 // 1. Suggest Outfit API
 app.post('/api/ai/suggest', async (req, res) => {
-  const { prompt } = req.body;
-  if (!prompt) {
-    return res.status(400).json({ error: 'Prompt is required' });
+  const {
+    prompt,
+    currentTop,
+    currentBottom,
+    currentAccessory,
+    stylingMode = 'auto',
+    targetAction = 'full_outfit',
+    topCustomColor,
+    bottomCustomColor,
+  } = req.body;
+
+  if (!prompt && !currentTop && !currentBottom) {
+    return res.status(400).json({ error: 'Prompt or current items required' });
   }
+
+  const promptText = prompt || 'Gợi ý bản phối trang phục di sản hài hòa và thời thượng';
 
   if (ai) {
     try {
-      const systemInstruction = `Bạn là Trợ lý AI chuyên gia về Việt phục (Trang phục truyền thống Việt Nam qua các triều đại Lý, Trần, Lê, Nguyễn và phong cách cách tân hiện đại).
-Người dùng sẽ đưa ra yêu cầu (ví dụ: bối cảnh đi dạo phố, đám cưới, lễ hội, dự tiệc, thời tiết, phong cách).
-Nhiệm vụ của bạn là phản hồi ĐÚNG ĐỊNH DẠNG JSON sau:
+      const systemInstruction = `Bạn là Trợ lý AI Cấp cao chuyên gia Thẩm mỹ & Di sản Cổ phục Việt Nam (qua các triều đại Lý, Trần, Lê, Nguyễn và xu hướng thời trang cách tân hiện đại Neo-Vietnamese Heritage).
+Nhiệm vụ của bạn là PHÂN TÍCH SỰ KẾT HỢP GIỮA CÁC ITEM CỤ THỂ DỰA TRÊN Ý NGHĨA VĂN HÓA VÀ XU HƯỚNG PHỐI ĐỒ HIỆN ĐẠI, thay vì chỉ trả về các gợi ý tĩnh.
+
+Hãy phân tích mối tương quan giữa Áo (Top), Hạ Y / Quần / Váy (Bottom), và Phụ Kiện (Accessory) cùng Hòa sắc:
+1. Ý NGHĨA VĂN HÓA (Cultural Synergy): Phân tích chi tiết tại sao các item này đi với nhau lại mang ý nghĩa sâu sắc (ví dụ: vạt áo ngũ thân đáy thúng kết hợp quần ống sớ trắng tượng trưng thế trực lập đoan chính; cổ chữ nhật Nhật Bình phối mấn ngũ sắc tượng trưng đất trời vuông tròn và ngũ hành tương sinh; cổ giao lĩnh chữ Y kết hợp váy Thủy Ba tạo thế phóng khoáng Đông A).
+2. XU HƯỚNG PHỐI ĐỒ HIỆN ĐẠI (Modern Trend Factor): Phân tích cách giới trẻ, nhà thiết kế thời trang hiện đại ứng dụng bản phối này (ví dụ: phong cách Neo-Heritage Minimalist dạo phố, Streetwear kết hợp quần tây cạp cao, chụp ảnh cưới di sản Hoàng gia, trang phục biểu diễn folk-core nghệ thuật đương đại).
+
+Phản hồi ĐÚNG ĐỊNH DẠNG JSON sau:
 {
-  "recommendedTopId": "nhat-binh" | "ngu-than" | "ao-tac" | "giao-linh" | "vien-linh" | "tu-than" | "doi-kham" | "ao-ba-ba-nu",
-  "recommendedBottomId": "quan-ong-so" | "quan-men-lam" | "vay-xep-ly" | "quan-gam-vang" | "vay-den-kinh-bac-nu",
-  "recommendedAccessoryId": "man-ngu-sac" | "khan-dong" | "ngoc-boi" | "quat-lua" | "hai-theu" | "chuoi-ngoc" | "non-ba-tam-nu",
-  "colorScheme": "string (ví dụ: Đỏ điều phối Trắng ngà, Men lam phối Vàng kim)",
-  "conceptTitle": "string (Tên gợi cảm hứng, ví dụ: 'Nét Cố Đô Thanh Lịch', 'Thu Hà Nội Di Sản')",
-  "characterPersona": "string (Hình mẫu nhân vật, ví dụ: 'Tiểu thư khuê các tại kinh thành Huế những năm 1920')",
-  "aiAdvice": "string (Giải thích ngắn gọn 2-3 câu vì sao bộ này hoàn hảo cho ngữ cảnh)",
-  "culturalNote": "string (1-2 câu lưu ý văn hóa hoặc ý nghĩa hoa văn)"
+  "recommendedTopId": "nhat-binh" | "ngu-than" | "ngu-than-nu" | "ao-tac" | "ao-tac-nu" | "giao-linh" | "giao-linh-nu" | "vien-linh" | "vien-linh-nu" | "doi-kham" | "tu-than" | "ao-ba-ba-nu" | "ao-ba-ba-nam" | "dong-son",
+  "recommendedBottomId": "quan-ong-so" | "quan-men-lam" | "vay-xep-ly" | "quan-gam-vang" | "quan-do-dieu-nu" | "vay-den-kinh-bac-nu" | "quan-ba-ba-den-nu" | "quan-ba-ba-den-nam" | "quan-linh-dai-viet-nam" | "thuong-dai-viet-nu" | "quan-tay-hien-dai" | "kho-dong-son-nam" | "vay-quan-dong-son-nu",
+  "recommendedAccessoryId": "man-ngu-sac" | "khan-dong" | "khan-vanh-day-nu" | "ngoc-boi" | "quat-lua" | "hai-theu" | "chuoi-ngoc" | "non-ba-tam-nu" | "khan-mo-qua-nu" | "khan-ran-nam-bo" | "non-la-nam-bo" | "mu-phoc-dau-nam" | "tram-cai-diem-thuy-nu" | "mu-long-chim-dong-son",
+  "colorScheme": "string (ví dụ: Đỏ Chu Sa phối Men Lam Cố Đô)",
+  "conceptTitle": "string (Tên chủ đề giàu cảm hứng)",
+  "characterPersona": "string (Hình tượng nhân vật)",
+  "aiAdvice": "string (Lời khuyên phối đồ chi tiết)",
+  "culturalNote": "string (Lưu ý hoặc ý nghĩa văn hóa hoa văn)",
+  "combinationAnalysis": {
+    "synergyScore": number (88 - 99),
+    "culturalSynergyTitle": "string",
+    "culturalMeaningDetails": "string (Phân tích sâu sắc sự tương hỗ giữa các item cụ thể về mặt văn hóa)",
+    "modernTrendDetails": "string (Phân tích xu hướng thời trang đương đại và tính ứng dụng)",
+    "colorHarmonyDetails": "string (Phân tích hòa sắc ngũ hành và thị giác)",
+    "stylingDirection": "authentic_heritage" | "modern_fusion" | "festive_ceremony" | "daily_casual",
+    "stylingDirectionLabel": "string",
+    "itemRoles": {
+      "heroPiece": { "name": "string", "role": "string", "highlight": "string" },
+      "anchorPiece": { "name": "string", "role": "string", "highlight": "string" },
+      "accentPiece": { "name": "string", "role": "string", "highlight": "string" }
+    },
+    "modernOutfitTip": "string (Gợi ý mix phụ kiện hiện đại như kính râm, sneaker, túi mây tre...)"
+  },
+  "alternatives": {
+    "classic": {
+      "title": "string",
+      "topId": "string",
+      "bottomId": "string",
+      "accessoryId": "string",
+      "vibe": "string",
+      "tagline": "string"
+    },
+    "modernFusion": {
+      "title": "string",
+      "topId": "string",
+      "bottomId": "string",
+      "accessoryId": "string",
+      "vibe": "string",
+      "tagline": "string"
+    }
+  }
 }`;
+
+      const contents = `Ngữ cảnh yêu cầu: "${promptText}".
+Đồ người dùng đang chọn:
+- Áo: ${currentTop?.name || 'Chưa chọn'}
+- Hạ y: ${currentBottom?.name || 'Chưa chọn'}
+- Phụ kiện: ${currentAccessory?.name || 'Chưa chọn'}
+- Định hướng phong cách: ${stylingMode}
+- Hành động mong muốn: ${targetAction}
+Hãy phân tích sự kết hợp giữa các item cụ thể dựa trên ý nghĩa văn hóa và xu hướng phối đồ hiện đại.`;
 
       const response = await ai.models.generateContent({
         model: 'gemini-3.8-flash',
-        contents: `Yêu cầu của người dùng: "${prompt}". Hãy gợi ý bản phối Việt phục chuẩn xác và đầy cảm hứng.`,
+        contents,
         config: {
           systemInstruction,
           responseMimeType: 'application/json',
@@ -72,39 +131,62 @@ Nhiệm vụ của bạn là phản hồi ĐÚNG ĐỊNH DẠNG JSON sau:
   }
 
   // Fallback if no Gemini API key configured or call failed
-  const lower = prompt.toLowerCase();
+  const lower = promptText.toLowerCase();
   let topId = 'ngu-than';
   let bottomId = 'quan-ong-so';
   let accId = 'khan-dong';
-  let title = 'Thu Nhật Dạo Phố';
+  let title = 'Thu Nhật Dạo Phố: Áo Ngũ Thân & Quần Ống Sớ';
   let persona = 'Nhã sĩ kinh kỳ phong thái ung dung';
-  let advice = 'Áo Ngũ Thân tay chẽn bằng lụa mỏng nhẹ kết hợp quần ống sớ trắng tạo dáng vẻ tao nhã, thoải mái khi dạo bước ngắm thu.';
-  let note = 'Ngũ thân tượng trưng cho tứ thân phụ mẫu và bản thân người mặc, thể hiện tinh thần khiêm cung đạo hiếu.';
+  let advice =
+    'Áo Ngũ Thân tay chẽn bằng lụa mỏng nhẹ kết hợp quần ống sớ trắng tạo dáng vẻ tao nhã, thoải mái khi dạo bước ngắm thu.';
+  let note =
+    'Ngũ thân tượng trưng cho tứ thân phụ mẫu và bản thân người mặc, thể hiện tinh thần khiêm cung đạo hiếu.';
+  let colors = 'Sắc chàm nho nhã & Lụa bạch tơ tằm';
 
-  if (lower.includes('cưới') || lower.includes('hôn') || lower.includes('sang') || lower.includes('cung đình')) {
+  if (stylingMode === 'modern_fusion' || lower.includes('cách tân') || lower.includes('hiện đại')) {
+    topId = 'ngu-than';
+    bottomId = 'quan-tay-hien-dai';
+    accId = 'quat-lua';
+    title = 'Neo-Heritage Urban: Áo Ngũ Thân & Quần Tây Cách Tân';
+    persona = 'Người trẻ sáng tạo yêu di sản giữa đô thị hiện đại';
+    advice =
+      'Bản phối kết hợp tà áo năm thân lập lĩnh cổ điển với quần tây cạp cao ống đứng tạo nên phong cách Neo-Vietnamese thời thượng, thích hợp đi làm và dạo phố.';
+    note =
+      'Sự cách tân tôn trọng cấu trúc 5 thân nguyên bản nhưng giải phóng hạ y giúp người mặc sải bước tự tin năng động.';
+    colors = 'Chàm Đêm Than Chì & Lụa Hoàng Kim';
+  } else if (lower.includes('cưới') || lower.includes('hôn') || lower.includes('sang') || lower.includes('cung đình')) {
     topId = 'nhat-binh';
     bottomId = 'quan-men-lam';
     accId = 'man-ngu-sac';
-    title = 'Hôn Lễ Vương Triều';
+    title = 'Hôn Lễ Vương Triều: Áo Nhật Bình Phẩm Phục';
     persona = 'Nữ tử hoàng tộc uy nghi trong ngày đại lễ';
-    advice = 'Áo Nhật Bình sắc đỏ chu sa viền cổ thêu ngũ hành kết hợp mấn ngũ sắc tôn vinh tối đa nét đài các trong lễ trọng.';
-    note = 'Họa tiết cổ áo hình chữ nhật tượng trưng cho trời đất hòa quyện, gắn liền với chúc phúc trăm năm viên mãn.';
+    advice =
+      'Áo Nhật Bình sắc đỏ chu sa viền cổ thêu ngũ hành kết hợp mấn ngũ sắc tôn vinh tối đa nét đài các trong lễ trọng.';
+    note =
+      'Họa tiết cổ áo hình chữ nhật tượng trưng cho trời đất hòa quyện, gắn liền với chúc phúc trăm năm viên mãn.';
+    colors = 'Đỏ Chu Sa Cung Đình & Men Lam Cố Đô';
   } else if (lower.includes('lễ') || lower.includes('trang trọng') || lower.includes('chùa') || lower.includes('đền')) {
     topId = 'ao-tac';
     bottomId = 'quan-ong-so';
     accId = 'khan-dong';
-    title = 'Nghi Lễ Tôn Nghiêm';
+    title = 'Nghi Lễ Tôn Nghiêm Chốn Cổ Tự';
     persona = 'Trưởng tử gia tộc trong tuần tế lễ tổ tiên';
-    advice = 'Áo Tấc với tay áo thụ rộng thênh thang mang tính nghi lễ cao nhất của triều Nguyễn, thể hiện sự kính trọng tuyệt đối.';
-    note = 'Khi khoanh tay hành lễ, hai vạt tay thụ phủ kín trước ngực biểu trưng cho lòng thành kính vô lượng.';
+    advice =
+      'Áo Tấc với tay áo thụ rộng thênh thang mang tính nghi lễ cao nhất của triều Nguyễn, thể hiện sự kính trọng tuyệt đối.';
+    note =
+      'Khi khoanh tay hành lễ, hai vạt tay thụ phủ kín trước ngực biểu trưng cho lòng thành kính vô lượng.';
+    colors = 'Xanh Chàm Mực Thước & Lụa Bạch';
   } else if (lower.includes('trẻ') || lower.includes('nữ') || lower.includes('thơ') || lower.includes('dạo phố')) {
     topId = 'giao-linh-nu';
     bottomId = 'vay-xep-ly';
     accId = 'quat-lua';
-    title = 'Thanh Phong Giao Lĩnh';
+    title = 'Thanh Phong Giao Lĩnh & Chân Váy Thủy Ba';
     persona = 'Tiểu thư đài các phong thái nhẹ nhàng tao nhã';
-    advice = 'Sự kết hợp giữa phom Áo Giao Lĩnh cổ chéo chữ Y cùng chân váy xếp ly mang lại nét thanh tao, thoát tục chuẩn mực mỹ học Đại Việt.';
-    note = 'Đường cổ chéo chữ Y vạt trái đè vạt phải tượng trưng cho sự giao hòa âm dương, đoan trang mà phóng khoáng.';
+    advice =
+      'Sự kết hợp giữa phom Áo Giao Lĩnh cổ chéo chữ Y cùng chân váy xếp ly mang lại nét thanh tao, thoát tục chuẩn mực mỹ học Đại Việt.';
+    note =
+      'Đường cổ chéo chữ Y vạt trái đè vạt phải tượng trưng cho sự giao hòa âm dương, đoan trang mà phóng khoáng.';
+    colors = 'Xanh Lam Ngọc & Chân Váy Đỏ Trầm';
   }
 
   return res.json({
@@ -113,7 +195,7 @@ Nhiệm vụ của bạn là phản hồi ĐÚNG ĐỊNH DẠNG JSON sau:
       recommendedTopId: topId,
       recommendedBottomId: bottomId,
       recommendedAccessoryId: accId,
-      colorScheme: 'Sắc thắm Cung đình & Lụa bạch tơ tằm',
+      colorScheme: colors,
       conceptTitle: title,
       characterPersona: persona,
       aiAdvice: advice,

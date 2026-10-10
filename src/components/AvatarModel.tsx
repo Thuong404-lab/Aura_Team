@@ -1,30 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WardrobeItem, FabricOption, ColorOption, TOPS, BOTTOMS, ACCESSORIES } from '../data/vietPhucData';
+import { WardrobeItem, FabricOption, ColorOption } from '../data/vietPhucData';
 import { DongSonDrumMandala } from './VietnameseDecorativeElements';
 import { CelestialSilkSash } from './SilkMotionElements';
-import { Waves, Check } from 'lucide-react';
+import { Waves, Sparkles, AlertCircle } from 'lucide-react';
 import { soundEngine } from '../utils/audioSynth';
+import { evaluateCulturalRules } from '../utils/culturalRules';
 
-interface AvatarModelProps {
-  top?: WardrobeItem | null;
-  bottom?: WardrobeItem | null;
-  accessory?: WardrobeItem | null;
-  fabric?: FabricOption;
-  color?: ColorOption;
-  topCustomColor?: string;
-  bottomCustomColor?: string;
-  harmonyScore?: number;
-  harmonyBadge?: string;
-  harmonyCritique?: string;
-  showCulturePins?: boolean;
-  onDownloadPhoto?: () => void;
-  hoveredItem?: WardrobeItem | null;
-  isHoveringSilk?: boolean;
-  hideOverlays?: boolean;
-}
-
-// Visual profile matching the 15 authentic photos
 export interface GarmentVisualProfile {
   baseColor: string;
   accentGold: string;
@@ -57,7 +39,6 @@ export interface GarmentVisualProfile {
 }
 
 export const GARMENT_VISUAL_PROFILES: Record<string, GarmentVisualProfile> = {
-  // 1. Áo Nhật Bình Nam (Ảnh: Gấm đỏ rực rỡ, Long Vân Đại Hội thêu rồng cuộn chỉ kim, tay thụng ngũ sắc, gấu thủy ba)
   'nhat-binh-nam': {
     baseColor: '#B31D28',
     accentGold: '#F59E0B',
@@ -71,7 +52,6 @@ export const GARMENT_VISUAL_PROFILES: Record<string, GarmentVisualProfile> = {
     hasThuyBaHem: true,
     hasChestRibbons: true,
   },
-  // 2. Áo Nhật Bình Nữ (Ảnh: Gấm đỏ son cố đô, chim Phụng ngậm ngọc, dải ngũ sắc ngũ hành, mấn vàng cung đình)
   'nhat-binh': {
     baseColor: '#84161C',
     accentGold: '#D4AF37',
@@ -85,7 +65,6 @@ export const GARMENT_VISUAL_PROFILES: Record<string, GarmentVisualProfile> = {
     hasThuyBaHem: true,
     hasChestRibbons: true,
   },
-  // 3. Áo Tấc Nam (Ảnh: Đỏ tía sẫm vương triều, tay thụng buông qua tay trang nghiêm, chữ Thọ mây cuộn, gấu thủy ba)
   'ao-tac': {
     baseColor: '#781419',
     accentGold: '#D4AF37',
@@ -97,7 +76,6 @@ export const GARMENT_VISUAL_PROFILES: Record<string, GarmentVisualProfile> = {
     chestMotif: 'lap-linh-buttons',
     hasThuyBaHem: true,
   },
-  // 4. Áo Tấc Nữ (Ảnh: Đỏ hồng mẫu đơn quý phái, tay thụng buông rủ uy nghi, 5 cúc vàng cài chéo, mấn vàng hoàng gia)
   'ao-tac-nu': {
     baseColor: '#9C1A2E',
     accentGold: '#D4AF37',
@@ -109,7 +87,6 @@ export const GARMENT_VISUAL_PROFILES: Record<string, GarmentVisualProfile> = {
     chestMotif: 'lap-linh-buttons',
     hasThuyBaHem: true,
   },
-  // 5. Áo Ngũ Thân Nam (Ảnh: Xanh chàm nho nhã mực thước, 5 cúc vàng cài chéo bên phải, tà đáy thúng, tay chẽn gọn gàng)
   'ngu-than': {
     baseColor: '#162544',
     accentGold: '#D4AF37',
@@ -120,7 +97,6 @@ export const GARMENT_VISUAL_PROFILES: Record<string, GarmentVisualProfile> = {
     headpieceType: 'khan-dong',
     chestMotif: 'lap-linh-buttons',
   },
-  // 6. Áo Ngũ Thân Nữ (Ảnh: Đỏ thắm quý phái khuê các, 5 thân kín đáo, cổ lập lĩnh 2.5cm, tay chẽn, mấn đen nhung)
   'ngu-than-nu': {
     baseColor: '#8C1D24',
     accentGold: '#D4AF37',
@@ -131,7 +107,6 @@ export const GARMENT_VISUAL_PROFILES: Record<string, GarmentVisualProfile> = {
     headpieceType: 'man-den',
     chestMotif: 'lap-linh-buttons',
   },
-  // 7. Áo Giao Lĩnh Nam (Ảnh: Lụa bạch ngọc ngà thanh tao, viền lục ngọc, cổ chéo chữ Y, đai ngọc thắt lưng)
   'giao-linh': {
     baseColor: '#F2EDE4',
     accentGold: '#244B3B',
@@ -142,7 +117,6 @@ export const GARMENT_VISUAL_PROFILES: Record<string, GarmentVisualProfile> = {
     headpieceType: 'khan-dong',
     chestMotif: 'lap-linh-buttons',
   },
-  // 8. Áo Giao Lĩnh Nữ (Ảnh: Xanh lam ngọc cổ phong, cổ chéo chữ Y lộ yếm đào hồng, chân váy xếp ly đỏ điều thêu thủy ba)
   'giao-linh-nu': {
     baseColor: '#165566',
     accentGold: '#D4AF37',
@@ -153,7 +127,6 @@ export const GARMENT_VISUAL_PROFILES: Record<string, GarmentVisualProfile> = {
     headpieceType: 'man-den',
     chestMotif: 'yem-dao',
   },
-  // 9. Áo Viên Lĩnh Nam (Ảnh: Xanh midnight thẫm hoàng triều, cổ tròn khum, Bổ Tử vuông thêu Hạc Trắng tung cánh mây lành)
   'vien-linh': {
     baseColor: '#122036',
     accentGold: '#D4AF37',
@@ -164,7 +137,6 @@ export const GARMENT_VISUAL_PROFILES: Record<string, GarmentVisualProfile> = {
     headpieceType: 'khan-dong',
     chestMotif: 'mandarin-crane',
   },
-  // 10. Áo Viên Lĩnh Nữ (Ảnh: Tím trầm cố đô / mận chín quý tộc, cổ tròn viền vàng, Bổ Tử thêu phượng hoàng)
   'vien-linh-nu': {
     baseColor: '#54254E',
     accentGold: '#D4AF37',
@@ -175,7 +147,6 @@ export const GARMENT_VISUAL_PROFILES: Record<string, GarmentVisualProfile> = {
     headpieceType: 'man-vang',
     chestMotif: 'mandarin-crane',
   },
-  // 11. Áo Đối Khâm (Ảnh: Đỏ son Lê triều, 2 vạt song song buông thẳng từ vai xuống gấu viền hoa văn vàng lộng lẫy)
   'doi-kham': {
     baseColor: '#982121',
     accentGold: '#D4AF37',
@@ -186,7 +157,6 @@ export const GARMENT_VISUAL_PROFILES: Record<string, GarmentVisualProfile> = {
     headpieceType: 'man-vang',
     chestMotif: 'doi-kham-lapels',
   },
-  // 12. Áo Tứ Thân Nữ (Ảnh: Áo the nâu sồng dân gian, yếm đào hồng thắm, thắt nút bụng, thắt lưng xanh, nón ba tầm quai thao)
   'tu-than': {
     baseColor: '#423429',
     accentGold: '#D83A56',
@@ -197,7 +167,6 @@ export const GARMENT_VISUAL_PROFILES: Record<string, GarmentVisualProfile> = {
     headpieceType: 'non-ba-tam',
     chestMotif: 'yem-dao',
   },
-  // 13. Trang Phục Đông Sơn (Ảnh: Sắc nâu đồng Văn Lang, mặt trời 14 tia sáng rực rỡ, chim Lạc bay uy dũng, đai đồng)
   'dong-son': {
     baseColor: '#724122',
     accentGold: '#F59E0B',
@@ -208,7 +177,6 @@ export const GARMENT_VISUAL_PROFILES: Record<string, GarmentVisualProfile> = {
     headpieceType: 'khan-dong',
     chestMotif: 'dong-son-sun',
   },
-  // 14. Áo Bà Ba Nữ (Ảnh: Lụa xanh ngọc duyên dáng Nam Bộ, cúc bấm ngọc trai, xẻ tà hông, khăn rằn Nam Bộ kẻ caro)
   'ao-ba-ba-nu': {
     baseColor: '#256F52',
     accentGold: '#FAF7F0',
@@ -220,7 +188,6 @@ export const GARMENT_VISUAL_PROFILES: Record<string, GarmentVisualProfile> = {
     chestMotif: 'baba-placket',
     hasKhanRan: true,
   },
-  // 15. Áo Bà Ba Nam (Ảnh: Nâu sồng mộc mạc hào sảng, hai túi vuông to ở vạt trước, cúc cài dọc, quần đen, khăn rằn)
   'ao-ba-ba-nam': {
     baseColor: '#3E3129',
     accentGold: '#FAF7F0',
@@ -234,26 +201,45 @@ export const GARMENT_VISUAL_PROFILES: Record<string, GarmentVisualProfile> = {
   },
 };
 
+interface AvatarModelProps {
+  top?: WardrobeItem | null;
+  bottom?: WardrobeItem | null;
+  accessory?: WardrobeItem | null;
+  fabric?: FabricOption;
+  color?: ColorOption;
+  topCustomColor?: string;
+  bottomCustomColor?: string;
+  harmonyScore?: number;
+  harmonyBadge?: string;
+  harmonyCritique?: string;
+  showCulturePins?: boolean;
+  onDownloadPhoto?: () => void;
+  hoveredItem?: WardrobeItem | null;
+  isHoveringSilk?: boolean;
+  hideOverlays?: boolean;
+  onViolationClick?: () => void;
+}
+
 export const AvatarModel: React.FC<AvatarModelProps> = ({
   top,
   bottom,
   accessory,
   fabric,
-  color,
   topCustomColor,
   bottomCustomColor,
-  harmonyScore = 95,
-  harmonyCritique = 'Sự kết hợp hài hòa giữa Áo ngũ thân tay chẽn truyền thống và váy xếp ly hiện đại, giữ được nét thanh lịch nhưng vẫn năng động.',
+  harmonyScore,
+  harmonyBadge,
+  harmonyCritique,
   showCulturePins = true,
-  onDownloadPhoto,
   hoveredItem = null,
   isHoveringSilk = false,
   hideOverlays = false,
+  onViolationClick,
 }) => {
   const [hoveredPin, setHoveredPin] = useState<'accessory' | 'garment' | 'bottom' | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
 
-  // Active top and bottom items (accounts for real-time hover preview)
+  // Active items accounting for real-time hover preview
   const activeGarment = hoveredItem && hoveredItem.category === 'top' ? hoveredItem : top;
   const activeBottom = hoveredItem && hoveredItem.category === 'bottom' ? hoveredItem : bottom;
   const activeAccessory = hoveredItem && hoveredItem.category === 'accessory' ? hoveredItem : accessory;
@@ -272,7 +258,17 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
 
   // Garment primary and secondary colors (prioritize custom top color, keep pattern/motifs)
   const garmentColor = topCustomColor || profile.baseColor;
-  const goldColor = profile.accentGold;
+  const goldColor = profile.accentGold || '#D4AF37';
+
+  // Fabric texture visual weighting
+  const brocadeOpacity =
+    fabric?.id === 'gam-cung-dinh'
+      ? '0.65'
+      : fabric?.id === 'sa-nam-bo'
+      ? '0.35'
+      : fabric?.id === 'dui-to-tam'
+      ? '0.2'
+      : '0.45';
 
   // Active bottom color & type determination
   const bottomType = activeBottom
@@ -306,23 +302,19 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
       ? '#724122'
       : (activeBottom?.defaultColorHex || profile.bottomColor);
 
-  // Trousers / Skirt color (prioritize custom bottom color, keep folds/pleats/motifs)
   const trousersColor = bottomCustomColor || defaultTrousersColor;
 
-  // Active headpiece determination
-  const headpieceType = activeAccessory
-    ? activeAccessory.id === 'non-ba-tam' || activeAccessory.id === 'non-ba-tam-nu' || activeAccessory.id === 'non-la-nam-bo' || activeAccessory.svgLayerType === 'non-ba-tam'
-      ? 'non-ba-tam'
-      : activeAccessory.id === 'khan-ran' || activeAccessory.id === 'khan-ran-nam-bo' || activeAccessory.svgLayerType === 'khan-ran'
-      ? 'khan-ran'
-      : activeAccessory.id === 'khan-vanh-day-nu' || activeAccessory.id === 'man-ngu-sac' || activeAccessory.id === 'man-vang'
-      ? 'man-vang'
-      : activeAccessory.id === 'khan-dong' || activeAccessory.id === 'mu-phoc-dau-nam' || activeAccessory.id === 'mu-long-chim-dong-son' || activeAccessory.svgLayerType === 'khan-dong'
-      ? 'khan-dong'
-      : activeAccessory.id === 'man-doi-dau' || activeAccessory.id === 'khan-mo-qua-nu'
-      ? 'man-tron'
-      : profile.headpieceType
-    : null;
+  // Real-time cultural check for alert icon on avatar
+  const culturalEvaluation = evaluateCulturalRules({
+    top: activeGarment || null,
+    bottom: activeBottom || null,
+    accessory: activeAccessory || null,
+    topColorHex: garmentColor,
+    bottomColorHex: trousersColor,
+  });
+
+  const hasCriticalViolation = culturalEvaluation.violations.some((v) => v.severity === 'critical');
+  const isCompletelyBare = !activeGarment && !activeBottom && !activeAccessory;
 
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center select-none overflow-hidden">
@@ -337,10 +329,48 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
         </div>
       )}
 
-      {/* 2. Interactive Cultural Callout Hotspots (Ẩn mặc định, chỉ hiện khi rê chuột) */}
+      {/* 2. Bare Mannequin Status Guidance Badge */}
+      {!hideOverlays && isCompletelyBare && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="absolute top-6 z-30 px-3 py-1.5 rounded-full bg-[#0E1626]/90 border border-amber-400/50 backdrop-blur-md shadow-xl flex items-center gap-2 pointer-events-none"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin" />
+          <span className="text-[11px] font-medium text-amber-200 font-serif-vi">
+            Khung Ma Nơ Canh Mộc — Chọn y phục bên phải để bắt đầu mặc
+          </span>
+        </motion.div>
+      )}
+
+      {/* 3. Cultural Violation Floating Warning Badge */}
+      {!hideOverlays && hasCriticalViolation && (
+        <motion.button
+          onClick={onViolationClick}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.98 }}
+          className="absolute top-4 left-3 sm:top-5 sm:left-4 z-40 px-3 py-1.5 rounded-xl bg-rose-950/95 border border-rose-500/80 backdrop-blur-md shadow-2xl flex items-center gap-2 pointer-events-auto cursor-pointer hover:border-rose-400 hover:bg-rose-900/90 transition-all text-left group"
+          title="Bấm để xem chi tiết điều cấm kỵ & sửa tự động"
+        >
+          <AlertCircle className="w-4 h-4 text-rose-400 group-hover:scale-110 animate-pulse shrink-0" />
+          <div className="text-left">
+            <div className="text-[10px] font-bold text-rose-300 uppercase font-sans-vi flex items-center gap-1">
+              <span>⚠️ Cảnh Báo Cấm Kỵ</span>
+              <span className="text-[9px] text-rose-400 underline font-normal">Sửa ngay</span>
+            </div>
+            <div className="text-[11px] text-rose-100 font-serif-vi line-clamp-1 max-w-[190px]">
+              {culturalEvaluation.violations[0].title}
+            </div>
+          </div>
+        </motion.button>
+      )}
+
+      {/* 4. Interactive Cultural Callout Hotspots */}
       {showCulturePins && !hideOverlays && (
         <>
-          {/* Phụ Kiện / Mấn Đội Đầu (Top-Right) */}
+          {/* Phụ Kiện (Top-Right) */}
           {activeAccessory && (
             <div
               className="absolute top-10 right-3 sm:right-8 z-30 flex items-center"
@@ -378,7 +408,7 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
                     <p className="text-[10.5px] text-slate-300 leading-relaxed font-sans-vi">
                       {activeAccessory.cultureInfo?.origin ||
                         activeAccessory.summary ||
-                        'Mấn tròn quấn nhiều vòng thanh tú, tôn vinh nét đoan trang đài các của phục sức Việt.'}
+                        'Phụ kiện truyền thống tinh xảo, tôn vinh nét đoan trang đài các của phục sức Việt.'}
                     </p>
                   </motion.div>
                 )}
@@ -454,9 +484,9 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
               <AnimatePresence>
                 {hoveredPin === 'bottom' && (
                   <motion.div
-                    initial={{ opacity: 0, y: 6, scale: 0.95 }}
+                    initial={{ opacity: 0, y: -6, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 6, scale: 0.95 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.95 }}
                     transition={{ duration: 0.18 }}
                     className="absolute bottom-8 right-0 z-40 w-56 sm:w-64 bg-[#0E1626]/95 backdrop-blur-md border border-amber-400/50 rounded-xl p-3 shadow-2xl text-left pointer-events-auto"
                   >
@@ -479,32 +509,12 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
         </>
       )}
 
-      {/* 5. AI Harmony Evaluation Badge (Bottom-Right of Canvas) */}
-      {!hideOverlays && (
-        <div className="absolute bottom-16 right-2 md:right-6 z-30 max-w-[230px] hidden lg:block animate-in fade-in duration-500 pointer-events-none">
-          <div className="rounded-xl overflow-hidden shadow-2xl border border-emerald-500/40 bg-[#092018]/90 backdrop-blur-md text-left">
-            <div className="bg-emerald-600/90 text-emerald-50 px-3 py-1 flex items-center gap-1.5 text-[11px] font-semibold tracking-wide">
-              <Check className="w-3.5 h-3.5 stroke-[3]" />
-              <span>CHUẨN BẢN VẼ 2D DI SẢN</span>
-            </div>
-            <div className="p-2.5 text-emerald-100">
-              <div className="font-bold text-[11px] text-emerald-300 font-serif-vi mb-0.5">
-                Khớp chuẩn di sản ({harmonyScore} điểm)
-              </div>
-              <p className="text-[10px] leading-relaxed text-emerald-100/90 font-sans-vi line-clamp-3">
-                "{harmonyCritique}"
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* ========================================================
-          6. BẢN VẼ 2D: KHỚP 100% TỪNG PHẦN, MÀU SẮC, HỌA TIẾT & KIỂU DÁNG
+          5. BẢN VẼ 2D SIÊU CHI TIẾT: HOA VĂN, NẾP GẤP, 16 PHỤ KIỆN
          ======================================================== */}
       <div className="relative w-[280px] sm:w-[320px] md:w-[360px] h-[500px] sm:h-[550px] flex items-center justify-center">
         {/* Soft Floor Shadow */}
-        <div className="absolute bottom-3 w-52 h-6 bg-black/55 blur-md rounded-full pointer-events-none" />
+        <div className="absolute bottom-3 w-52 h-6 bg-black/60 blur-md rounded-full pointer-events-none" />
 
         <svg
           ref={svgRef}
@@ -515,14 +525,29 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
             {/* Skin Tone Gradient for Illustrated Model */}
             <linearGradient id="skinTone2D" x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" stopColor="#FDF0E6" />
-              <stop offset="100%" stopColor="#E2BDAA" />
+              <stop offset="100%" stopColor="#DFC0AF" />
+            </linearGradient>
+
+            {/* Subtle Base Silk Camisole / Under-garment when Bare */}
+            <linearGradient id="undergarmentGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#FBF7EE" />
+              <stop offset="100%" stopColor="#E2DDD2" />
             </linearGradient>
 
             {/* Gold Button Radial Gradient */}
-            <radialGradient id="goldButtonGrad">
-              <stop offset="0%" stopColor="#FFF4B8" />
-              <stop offset="60%" stopColor="#D4AF37" />
-              <stop offset="100%" stopColor="#8A6623" />
+            <radialGradient id="goldButtonGrad" cx="35%" cy="35%" r="65%">
+              <stop offset="0%" stopColor="#FFF8D6" />
+              <stop offset="45%" stopColor="#F59E0B" />
+              <stop offset="85%" stopColor="#B45309" />
+              <stop offset="100%" stopColor="#78350F" />
+            </radialGradient>
+
+            {/* Jade Stone Gradient */}
+            <radialGradient id="jadeStoneGrad" cx="35%" cy="35%" r="65%">
+              <stop offset="0%" stopColor="#A7F3D0" />
+              <stop offset="50%" stopColor="#10B981" />
+              <stop offset="90%" stopColor="#047857" />
+              <stop offset="100%" stopColor="#064E3B" />
             </radialGradient>
 
             {/* Silk Sheen Overlay */}
@@ -532,14 +557,14 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
               <stop offset="100%" stopColor="#000000" stopOpacity="0.25" />
             </linearGradient>
 
-            {/* Cloud Brocade Overlay */}
-            <pattern id="cloudBrocadePattern" width="36" height="36" patternUnits="userSpaceOnUse">
+            {/* Cloud Brocade (Gấm Vân Mây) Pattern */}
+            <pattern id="cloudBrocadePattern" width="40" height="40" patternUnits="userSpaceOnUse">
               <path
-                d="M8 18 Q14 12 18 18 Q24 12 28 18 Q20 25 8 18 Z"
+                d="M8 20 Q14 12 20 20 Q26 12 32 20 Q22 28 8 20 Z M4 35 Q10 28 16 35 Q10 40 4 35 Z M24 6 Q30 0 36 6 Q30 11 24 6 Z"
                 fill="none"
                 stroke={goldColor}
-                strokeWidth="0.6"
-                opacity="0.28"
+                strokeWidth="0.75"
+                opacity="0.32"
               />
             </pattern>
 
@@ -557,13 +582,6 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
               <stop offset="60%" stopColor={goldColor} stopOpacity="0.6" />
               <stop offset="100%" stopColor="#8B1E1E" stopOpacity="0.8" />
             </linearGradient>
-
-            {/* Dragon Medallion Gradient */}
-            <radialGradient id="dragonMedallionGrad" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#FFF2A3" />
-              <stop offset="70%" stopColor="#D4AF37" />
-              <stop offset="100%" stopColor="#8A6623" />
-            </radialGradient>
           </defs>
 
           {/* ===== 1. LOWER GARMENT (QUẦN / VÁY) & GIÀY HÀI ===== */}
@@ -573,7 +591,7 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
             onMouseEnter={() => setHoveredPin('bottom')}
             onMouseLeave={() => setHoveredPin(null)}
           >
-            {/* Giày Hài Thêu Mũi Cong (Shoes under trousers/skirts) */}
+            {/* Giày Hài Thêu Mũi Cong (Traditional Shoes) */}
             <g id="traditional-shoes">
               {/* Left Shoe */}
               <path
@@ -604,28 +622,34 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
                     stroke="#4A1515"
                     strokeWidth="0.8"
                   />
-                  {/* Pleats (nếp gấp xếp ly) */}
+                  {/* Pleats (nếp gấp xếp ly 3D) */}
                   {[-55, -40, -25, -10, 5, 20, 35, 50].map((offset, i) => (
-                    <path
-                      key={i}
-                      d={`M${190 + offset * 0.4} 245 L${190 + offset * 1.15} 565`}
-                      stroke="rgba(0, 0, 0, 0.25)"
-                      strokeWidth="1.2"
-                    />
+                    <g key={i}>
+                      <path
+                        d={`M${190 + offset * 0.4} 245 L${190 + offset * 1.15} 565`}
+                        stroke="rgba(0, 0, 0, 0.28)"
+                        strokeWidth="1.4"
+                      />
+                      <path
+                        d={`M${190 + offset * 0.4 + 1.2} 245 L${190 + offset * 1.15 + 1.2} 565`}
+                        stroke="rgba(255, 255, 255, 0.12)"
+                        strokeWidth="0.8"
+                      />
+                    </g>
                   ))}
                   {/* Thủy Ba wave border at skirt hem */}
                   <path
                     d="M126 558 Q158 566 190 560 Q222 566 254 558"
                     stroke={goldColor}
-                    strokeWidth="2"
+                    strokeWidth="2.2"
                     fill="none"
                   />
                   <path
                     d="M127 563 Q158 571 190 565 Q222 571 253 563"
                     stroke={goldColor}
-                    strokeWidth="1"
+                    strokeWidth="1.2"
                     fill="none"
-                    opacity="0.7"
+                    opacity="0.8"
                   />
                 </g>
               ) : bottomType === 'vay-den' ? (
@@ -640,6 +664,7 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
                   {/* Folds */}
                   <path d="M166 250 L160 562" stroke="rgba(255,255,255,0.08)" strokeWidth="1.2" />
                   <path d="M214 250 L220 562" stroke="rgba(255,255,255,0.08)" strokeWidth="1.2" />
+                  <path d="M190 250 L190 562" stroke="rgba(0,0,0,0.3)" strokeWidth="1.5" />
                 </g>
               ) : bottomType === 'dong-son' ? (
                 /* Khố / Váy Đông Sơn (Văn hóa Trống Đồng) */
@@ -650,7 +675,7 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
                     stroke={goldColor}
                     strokeWidth="1.2"
                   />
-                  {/* Vạt khố buông giữa thêu hoa văn kỷ hà */}
+                  {/* Vạt khố buông giữa thêu hoa văn chữ S và chim Lạc */}
                   <rect x="178" y="240" width="24" height="280" fill="#522B13" stroke={goldColor} strokeWidth="1" />
                   <path d="M140 535 L240 535" stroke={goldColor} strokeWidth="2" />
                   {[-36, -18, 0, 18, 36].map((x, i) => (
@@ -658,7 +683,7 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
                   ))}
                 </g>
               ) : (
-                /* Quần Ống Sớ Lụa Bạch / Quần Cung Đình / Quần Đen */
+                /* Quần Ống Sớ Lụa Bạch / Men Lam / Cung Đình */
                 <g id="quan-ong-so-standard">
                   {/* Left Leg */}
                   <path
@@ -675,34 +700,35 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
                     strokeWidth="0.8"
                   />
                   {/* Vertical crease lines (đường ly ống sớ) */}
-                  <path d="M166 260 L164 558" stroke="rgba(0,0,0,0.12)" strokeWidth="1" />
-                  <path d="M214 260 L216 558" stroke="rgba(0,0,0,0.12)" strokeWidth="1" />
+                  <path d="M166 260 L164 558" stroke="rgba(0,0,0,0.14)" strokeWidth="1.2" />
+                  <path d="M214 260 L216 558" stroke="rgba(0,0,0,0.14)" strokeWidth="1.2" />
                   {/* Ankle Gold Trims */}
-                  <path d="M144 562 L188 562" stroke={goldColor} strokeWidth="1.2" opacity="0.6" />
-                  <path d="M192 562 L236 562" stroke={goldColor} strokeWidth="1.2" opacity="0.6" />
+                  <path d="M144 562 L188 562" stroke={goldColor} strokeWidth="1.4" opacity="0.6" />
+                  <path d="M192 562 L236 562" stroke={goldColor} strokeWidth="1.4" opacity="0.6" />
                 </g>
               )
             ) : (
-              /* Mannequin neutral under-legs when lower garment is not selected */
-              <g id="unselected-legs" opacity={0.65}>
+              /* Mannequin neutral bare legs when lower garment is unselected */
+              <g id="mannequin-bare-legs">
                 <path
-                  d="M165 240 L158 565 L186 565 L188 380 Z"
-                  fill="#EDE8DF"
+                  d="M166 240 L160 565 L186 565 L188 380 Z"
+                  fill="url(#skinTone2D)"
                   stroke="#C8BEB0"
-                  strokeWidth="1"
-                  strokeDasharray="4 2"
+                  strokeWidth="0.8"
                 />
                 <path
-                  d="M192 380 L194 565 L222 565 L215 240 Z"
-                  fill="#EDE8DF"
+                  d="M192 380 L194 565 L220 565 L214 240 Z"
+                  fill="url(#skinTone2D)"
                   stroke="#C8BEB0"
-                  strokeWidth="1"
-                  strokeDasharray="4 2"
+                  strokeWidth="0.8"
                 />
-                <rect x="145" y="440" width="90" height="20" rx="5" fill="#0F172A" fillOpacity="0.75" stroke="#C4BBAA" strokeWidth="0.6" />
-                <text x="190" y="453" textAnchor="middle" fill="#E2E8F0" fontSize="8.5" fontFamily="sans-serif">
-                  (Chưa chọn quần/váy)
-                </text>
+                {/* Minimalist under-shorts */}
+                <path
+                  d="M166 240 L162 290 Q190 295 218 290 L214 240 Z"
+                  fill="url(#undergarmentGrad)"
+                  stroke="#D1C7B7"
+                  strokeWidth="0.8"
+                />
               </g>
             )}
           </g>
@@ -711,7 +737,7 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
           <g id="mannequin-body-layer">
             {/* Neck (Seamlessly connects to collar at Y: 124) */}
             <path d="M183 94 L183 126 L197 126 L197 94 Z" fill="url(#skinTone2D)" />
-            
+
             {/* Face Oval Silhouette */}
             <ellipse cx="190" cy="74" rx="24" ry="29" fill="url(#skinTone2D)" />
             <path
@@ -721,10 +747,27 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
               strokeWidth="0.8"
             />
             {/* Subtle eyes/brow contour for artistic 2D elegance */}
-            <path d="M178 70 Q182 68 186 70" stroke="rgba(140, 90, 65, 0.5)" strokeWidth="0.8" fill="none" />
-            <path d="M194 70 Q198 68 202 70" stroke="rgba(140, 90, 65, 0.5)" strokeWidth="0.8" fill="none" />
+            <path d="M178 70 Q182 68 186 70" stroke="rgba(140, 90, 65, 0.45)" strokeWidth="0.8" fill="none" />
+            <path d="M194 70 Q198 68 202 70" stroke="rgba(140, 90, 65, 0.45)" strokeWidth="0.8" fill="none" />
+            {/* Gentle smile curve */}
+            <path d="M186 85 Q190 88 194 85" stroke="rgba(180, 90, 70, 0.4)" strokeWidth="0.8" fill="none" />
 
-            {/* Hands (Positioned seamlessly at wrist level Y: 305 to fingertips Y: 335) */}
+            {/* Bare Under-Camisole / Torso when Top is unselected */}
+            {!activeGarment && (
+              <g id="bare-camisole-torso">
+                <path
+                  d="M180 124 L154 140 L148 245 Q190 252 232 245 L226 140 L200 124 Z"
+                  fill="url(#undergarmentGrad)"
+                  stroke="#D1C7B7"
+                  strokeWidth="0.9"
+                />
+                {/* Camisole delicate stitching */}
+                <path d="M180 124 Q190 135 200 124" stroke="#B8AFA0" strokeWidth="0.8" fill="none" />
+                <path d="M190 135 L190 248" stroke="#D1C7B7" strokeWidth="0.8" strokeDasharray="3 3" />
+              </g>
+            )}
+
+            {/* Mannequin Hands (Y: 305 to 335) */}
             <g id="mannequin-hands">
               {/* Left Hand */}
               <path
@@ -743,459 +786,470 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
             </g>
           </g>
 
-          {/* ===== 3. UPPER GARMENT (ÁO CỔ PHỤC KHỚP TỪNG PHẦN VỚI ẢNH GỐC) ===== */}
-          {activeGarment ? (
+          {/* ===== 3. UPPER GARMENT (ÁO CỔ PHỤC SIÊU CHI TIẾT) ===== */}
+          {activeGarment && (
             <motion.g
               id="authentic-top-garment"
               className="cursor-pointer"
               onMouseEnter={() => setHoveredPin('garment')}
               onMouseLeave={() => setHoveredPin(null)}
-            animate={{
-              filter: isHoveringSilk
-                ? 'drop-shadow(0 0 16px rgba(245, 158, 11, 0.5))'
-                : 'drop-shadow(0 4px 14px rgba(0, 0, 0, 0.45))',
-            }}
-            transition={{ duration: 0.3 }}
-          >
-            {/* ========================================================
-                TYPE 1: ÁO TAY THỤNG (Nhật Bình Nam/Nữ, Áo Tấc Nam/Nữ, Viên Lĩnh, Giao Lĩnh, Đối Khâm)
-               ======================================================== */}
-            {profile.sleeveType === 'tay-thung' ? (
-              <g id="ao-tay-thung-group">
-                {/* Main Drooping Sleeve & Torso Silhouette */}
-                {/* Left Sleeve: (142, 142) -> (82, 280) -> (82, 345) -> (156, 350) -> (162, 215) */}
-                <path
-                  d="M180 124 L142 142 L82 280 L82 345 L156 350 L162 235 L144 412 Q190 422 236 412 L218 235 L224 350 L298 345 L298 280 L238 142 L200 124 Z"
-                  fill={garmentColor}
-                  stroke={goldColor}
-                  strokeWidth="1.5"
-                />
+              animate={{
+                filter: isHoveringSilk
+                  ? 'drop-shadow(0 0 16px rgba(245, 158, 11, 0.5))'
+                  : 'drop-shadow(0 4px 14px rgba(0, 0, 0, 0.45))',
+              }}
+              transition={{ duration: 0.3 }}
+            >
+              {/* ========================================================
+                  TYPE 1: ÁO TAY THỤNG (Nhật Bình Nam/Nữ, Áo Tấc Nam/Nữ, Viên Lĩnh, Giao Lĩnh, Đối Khâm)
+                 ======================================================== */}
+              {profile.sleeveType === 'tay-thung' ? (
+                <g id="ao-tay-thung-group">
+                  {/* Main Drooping Sleeve & Torso Silhouette */}
+                  <path
+                    d="M180 124 L142 142 L82 280 L82 345 L156 350 L162 235 L144 412 Q190 422 236 412 L218 235 L224 350 L298 345 L298 280 L238 142 L200 124 Z"
+                    fill={garmentColor}
+                    stroke={goldColor}
+                    strokeWidth="1.5"
+                  />
 
-                {/* Cloud Damask Pattern */}
-                <path
-                  d="M180 124 L142 142 L82 280 L82 345 L156 350 L162 235 L144 412 Q190 422 236 412 L218 235 L224 350 L298 345 L298 280 L238 142 L200 124 Z"
-                  fill="url(#cloudBrocadePattern)"
-                  opacity="0.45"
-                />
+                  {/* Cloud Damask Pattern */}
+                  <path
+                    d="M180 124 L142 142 L82 280 L82 345 L156 350 L162 235 L144 412 Q190 422 236 412 L218 235 L224 350 L298 345 L298 280 L238 142 L200 124 Z"
+                    fill="url(#cloudBrocadePattern)"
+                    opacity={brocadeOpacity}
+                  />
 
-                {/* Silk Sheen Overlay */}
-                <path
-                  d="M180 124 L142 142 L82 280 L82 345 L156 350 L162 235 L144 412 Q190 422 236 412 L218 235 L224 350 L298 345 L298 280 L238 142 L200 124 Z"
-                  fill="url(#silkShineGrad)"
-                />
+                  {/* Silk Sheen Overlay */}
+                  <path
+                    d="M180 124 L142 142 L82 280 L82 345 L156 350 L162 235 L144 412 Q190 422 236 412 L218 235 L224 350 L298 345 L298 280 L238 142 L200 124 Z"
+                    fill="url(#silkShineGrad)"
+                  />
 
-                {/* Cửa tay phối dải ngũ sắc ngũ hành trên Nhật Bình (Kim, Mộc, Thủy, Hỏa, Thổ) */}
-                {profile.hasFiveColorCuffs && (
-                  <g id="tay-ao-ngu-sac">
-                    {/* Left Sleeve 5 Color Stripes */}
-                    <path d="M82 280 L82 293 L150 293 L150 280 Z" fill="#1F5A46" />
-                    <path d="M82 293 L82 306 L150 306 L150 293 Z" fill="#D4AF37" />
-                    <path d="M82 306 L82 319 L150 319 L150 306 Z" fill="#FAF7F0" />
-                    <path d="M82 319 L82 332 L150 332 L150 319 Z" fill="#9E1A2E" />
-                    <path d="M82 332 L82 345 L156 345 L156 332 Z" fill="#1A1A1A" />
-                    <path d="M82 280 L82 345" stroke={goldColor} strokeWidth="1.2" />
+                  {/* Cửa tay phối dải ngũ sắc ngũ hành trên Nhật Bình (Kim, Mộc, Thủy, Hỏa, Thổ) */}
+                  {profile.hasFiveColorCuffs && (
+                    <g id="tay-ao-ngu-sac">
+                      {/* Left Sleeve 5 Color Stripes */}
+                      <path d="M82 280 L82 293 L150 293 L150 280 Z" fill="#1F5A46" />
+                      <path d="M82 293 L82 306 L150 306 L150 293 Z" fill="#D4AF37" />
+                      <path d="M82 306 L82 319 L150 319 L150 306 Z" fill="#FAF7F0" />
+                      <path d="M82 319 L82 332 L150 332 L150 319 Z" fill="#9E1A2E" />
+                      <path d="M82 332 L82 345 L156 345 L156 332 Z" fill="#1A1A1A" />
+                      <path d="M82 280 L82 345" stroke={goldColor} strokeWidth="1.4" />
 
-                    {/* Right Sleeve 5 Color Stripes */}
-                    <path d="M298 280 L298 293 L230 293 L230 280 Z" fill="#1F5A46" />
-                    <path d="M298 293 L298 306 L230 306 L230 293 Z" fill="#D4AF37" />
-                    <path d="M298 306 L298 319 L230 319 L230 306 Z" fill="#FAF7F0" />
-                    <path d="M298 319 L298 332 L230 332 L230 319 Z" fill="#9E1A2E" />
-                    <path d="M298 332 L298 345 L224 345 L224 332 Z" fill="#1A1A1A" />
-                    <path d="M298 280 L298 345" stroke={goldColor} strokeWidth="1.2" />
-                  </g>
-                )}
+                      {/* Right Sleeve 5 Color Stripes */}
+                      <path d="M298 280 L298 293 L230 293 L230 280 Z" fill="#1F5A46" />
+                      <path d="M298 293 L298 306 L230 306 L230 293 Z" fill="#D4AF37" />
+                      <path d="M298 306 L298 319 L230 319 L230 306 Z" fill="#FAF7F0" />
+                      <path d="M298 319 L298 332 L230 332 L230 319 Z" fill="#9E1A2E" />
+                      <path d="M298 332 L298 345 L224 345 L224 332 Z" fill="#1A1A1A" />
+                      <path d="M298 280 L298 345" stroke={goldColor} strokeWidth="1.4" />
+                    </g>
+                  )}
 
-                {/* Thủy Ba (Sóng Nước Tam Sơn) ở Gấu Áo */}
-                {profile.hasThuyBaHem && (
-                  <g id="thuy-ba-hem">
-                    <path
-                      d="M144 395 Q190 405 236 395 L236 412 Q190 422 144 412 Z"
-                      fill="url(#thuyBaGrad)"
-                      stroke={goldColor}
-                      strokeWidth="1.4"
-                    />
-                    {/* Tam Sơn (Núi Ba Đỉnh) giữa sóng */}
-                    <path
-                      d="M182 410 L190 398 L198 410 Z"
-                      fill="#D4AF37"
-                      stroke="#8A6623"
-                      strokeWidth="0.8"
-                    />
-                  </g>
-                )}
+                  {/* Thủy Ba (Sóng Nước Tam Sơn) ở Gấu Áo */}
+                  {profile.hasThuyBaHem && (
+                    <g id="thuy-ba-hem">
+                      <path
+                        d="M144 395 Q190 405 236 395 L236 412 Q190 422 144 412 Z"
+                        fill="url(#thuyBaGrad)"
+                        stroke={goldColor}
+                        strokeWidth="1.6"
+                      />
+                      {/* Tam Sơn (Núi Ba Đỉnh) giữa sóng */}
+                      <path
+                        d="M182 410 L190 398 L198 410 Z"
+                        fill="#D4AF37"
+                        stroke="#8A6623"
+                        strokeWidth="0.8"
+                      />
+                      {/* Lớp bọt sóng uốn lượn */}
+                      <path
+                        d="M148 404 Q168 398 190 404 Q212 398 232 404"
+                        stroke="#FAF7F0"
+                        strokeWidth="0.9"
+                        fill="none"
+                        opacity="0.85"
+                      />
+                    </g>
+                  )}
 
-                {/* ===== SPECIFIC COLLARS & CHEST MOTIFS ===== */}
-                {profile.collarType === 'nhat-binh' ? (
-                  /* CỔ CHỮ NHẬT & LONG VÂN ĐẠI HỘI / PHỤNG HOÀNG */
-                  <g id="collar-nhat-binh-authentic">
-                    {/* Rectangular Collar Brocade Frame */}
-                    <path
-                      d="M174 124 L206 124 L208 198 L172 198 Z"
-                      fill="#2A0B0E"
-                      stroke={goldColor}
-                      strokeWidth="2"
-                    />
-                    <path
-                      d="M178 126 L202 126 L204 194 L176 194 Z"
-                      fill="none"
-                      stroke="#FDE68A"
-                      strokeWidth="1"
-                    />
-                    {/* Cúc cài cổ và hoa văn cổ đồ */}
-                    <circle cx="190" cy="144" r="3.5" fill="url(#goldButtonGrad)" />
-                    <circle cx="190" cy="172" r="3" fill="url(#goldButtonGrad)" />
+                  {/* CỔ NHẬT BÌNH & LONG VÂN ĐẠI HỘI / PHỤNG HOÀNG */}
+                  {profile.collarType === 'nhat-binh' ? (
+                    <g id="collar-nhat-binh-authentic">
+                      {/* Rectangular Collar Brocade Frame */}
+                      <path
+                        d="M174 124 L206 124 L208 198 L172 198 Z"
+                        fill="#2A0B0E"
+                        stroke={goldColor}
+                        strokeWidth="2.2"
+                      />
+                      <path
+                        d="M178 126 L202 126 L204 194 L176 194 Z"
+                        fill="none"
+                        stroke="#FDE68A"
+                        strokeWidth="1"
+                      />
+                      {/* Cúc cài cổ và hoa văn cổ đồ */}
+                      <circle cx="190" cy="144" r="3.5" fill="url(#goldButtonGrad)" />
+                      <circle cx="190" cy="172" r="3.2" fill="url(#goldButtonGrad)" />
 
-                    {/* Hai dải thắt ngực buông rủ dài xuống thân */}
-                    {profile.hasChestRibbons && (
-                      <g id="chest-ribbons">
-                        <path d="M180 198 L178 335" stroke={goldColor} strokeWidth="1.8" />
-                        <path d="M200 198 L202 335" stroke={goldColor} strokeWidth="1.8" />
-                        <circle cx="178" cy="335" r="2.5" fill="url(#goldButtonGrad)" />
-                        <circle cx="202" cy="335" r="2.5" fill="url(#goldButtonGrad)" />
-                      </g>
-                    )}
+                      {/* Hai dải thắt ngực buông rủ dài xuống tận gấu */}
+                      {profile.hasChestRibbons && (
+                        <g id="chest-ribbons">
+                          {/* Left Ribbon */}
+                          <path
+                            d="M176 198 L174 380 L182 380 L184 198 Z"
+                            fill="#8B1E1E"
+                            stroke={goldColor}
+                            strokeWidth="0.9"
+                          />
+                          <path d="M178 380 L174 395 M180 380 L180 398 M182 380 L186 395" stroke="#C82333" strokeWidth="1.2" />
+                          {/* Right Ribbon */}
+                          <path
+                            d="M196 198 L198 380 L206 380 L204 198 Z"
+                            fill="#8B1E1E"
+                            stroke={goldColor}
+                            strokeWidth="0.9"
+                          />
+                          <path d="M200 380 L196 395 M202 380 L202 398 M204 380 L208 395" stroke="#C82333" strokeWidth="1.2" />
+                        </g>
+                      )}
 
-                    {/* Long Vân Đại Hội (Rồng Vàng trên Nhật Bình Nam - khớp ảnh gốc) */}
-                    {profile.chestMotif === 'dragon-long-van' && (
-                      <g id="dragon-chest-medallion">
-                        <circle cx="190" cy="242" r="24" fill="none" stroke="#FDE68A" strokeWidth="1.6" />
-                        <circle cx="190" cy="242" r="20" fill="#750C0C" stroke={goldColor} strokeWidth="1" />
-                        
-                        {/* Golden Coiled Dragon */}
-                        <path
-                          d="M184 232 Q190 226 196 232 Q200 240 192 244 Q183 244 186 250 Q192 254 198 248"
-                          fill="none"
-                          stroke="url(#dragonMedallionGrad)"
-                          strokeWidth="2.8"
-                          strokeLinecap="round"
-                        />
-                        <path d="M187 230 Q190 224 193 230" stroke="#FFF" strokeWidth="1.2" fill="none" />
-                        <circle cx="190" cy="242" r="3" fill="url(#goldButtonGrad)" />
-                      </g>
-                    )}
-
-                    {/* Phụng Hoàng Ngậm Ngọc (Nhật Bình Nữ - khớp ảnh gốc) */}
-                    {profile.chestMotif === 'phoenix-phung' && (
-                      <g id="phoenix-chest-medallion">
-                        <circle cx="190" cy="242" r="22" fill="none" stroke="#FDE68A" strokeWidth="1.5" />
-                        <circle cx="190" cy="242" r="18" fill="#580A10" stroke={goldColor} strokeWidth="0.8" />
-                        <path d="M190 230 Q185 240 190 250 Q195 240 190 230 Z" fill="#FDE68A" />
-                        <path d="M180 238 Q190 242 200 238" stroke="#FFF" strokeWidth="1.2" fill="none" />
-                        <circle cx="190" cy="232" r="1.5" fill="#FFF" />
-                      </g>
-                    )}
-                  </g>
-                ) : profile.collarType === 'giao-linh' ? (
-                  /* CỔ CHÉO CHỮ Y (GIAO LĨNH) */
-                  <g id="collar-giao-linh-group">
-                    <path d="M174 125 L190 158 L206 125" stroke="#FFFFFF" strokeWidth="3" fill="none" />
-                    <path d="M164 125 L196 178 L218 125" stroke={goldColor} strokeWidth="2.4" fill="none" />
-                    <path d="M158 125 L196 188 L184 275" stroke={goldColor} strokeWidth="1.6" fill="none" />
-                    {profile.chestMotif === 'yem-dao' && (
-                      <path d="M178 144 L202 144 L190 162 Z" fill="#D83A56" />
-                    )}
-                    {/* Thắt Lưng Đai Ngọc (Áo nam) */}
-                    <rect x="160" y="240" width="60" height="9" fill="#1C382B" stroke={goldColor} strokeWidth="1" />
-                    <circle cx="190" cy="244.5" r="3" fill="url(#goldButtonGrad)" />
-                  </g>
-                ) : profile.collarType === 'vien-linh' ? (
-                  /* CỔ TRÒN KHUM & BỔ TỬ VUÔNG (VIÊN LĨNH) */
-                  <g id="collar-vien-linh-group">
-                    <ellipse cx="190" cy="126" rx="15" ry="8" fill="none" stroke={goldColor} strokeWidth="2" />
-                    <circle cx="205" cy="126" r="3" fill="url(#goldButtonGrad)" />
-                    
-                    {/* Bổ Tử vuông thêu Hạc Trắng / Phượng Hoàng trên ngực */}
-                    <rect x="174" y="155" width="32" height="30" fill="#750C0C" stroke={goldColor} strokeWidth="1.5" rx="2" />
-                    <rect x="177" y="158" width="26" height="24" fill="none" stroke="#FDE68A" strokeWidth="0.8" />
-                    {/* Hạc trắng tung cánh */}
-                    <path d="M190 165 L183 174 M190 165 L197 174" stroke="#FFFFFF" strokeWidth="1.8" />
-                    <circle cx="190" cy="163" r="1.8" fill="#FFFFFF" />
-                    {/* Mây ngũ sắc chân hạc */}
-                    <path d="M182 178 Q190 174 198 178" stroke={goldColor} strokeWidth="1.2" fill="none" />
-                  </g>
-                ) : profile.collarType === 'doi-kham' ? (
-                  /* CỔ ĐỐI KHÂM HAI VẠT SONG SONG */
-                  <g id="collar-doi-kham-group">
-                    {/* Lớp áo lót trong */}
-                    <path d="M176 125 L190 170 L204 125" fill="#FAF7F0" opacity="0.4" />
-                    {/* Hai vạt song song thêu hoa văn vàng */}
-                    <path d="M174 125 L174 410" stroke={goldColor} strokeWidth="2.5" />
-                    <path d="M206 125 L206 410" stroke={goldColor} strokeWidth="2.5" />
-                    <path d="M178 125 L178 410" stroke="#FDE68A" strokeWidth="1" strokeDasharray="4 3" />
-                    <path d="M202 125 L202 410" stroke="#FDE68A" strokeWidth="1" strokeDasharray="4 3" />
-                  </g>
-                ) : (
-                  /* CỔ LẬP LĨNH 1 TẤC & 5 CÚC CÀI CHÉO (ÁO TẤC) */
-                  <g id="collar-ao-tac-group">
-                    <path
-                      d="M180 120 Q190 123 200 120 L200 132 Q190 135 180 132 Z"
-                      fill={goldColor}
-                      stroke="#6B2117"
-                      strokeWidth="0.8"
-                    />
-                    <path
-                      d="M195 132 Q202 155 212 175 L210 330"
-                      stroke="rgba(212, 175, 55, 0.75)"
-                      strokeWidth="1.4"
-                      fill="none"
-                    />
-                    {[132, 150, 170, 192, 218].map((y, i) => (
-                      <g key={i}>
-                        <circle cx={195 + i * 3.5} cy={y} r="2.8" fill="url(#goldButtonGrad)" />
-                        <circle cx={195 + i * 3.5} cy={y} r="0.9" fill="#FFFFFF" opacity="0.8" />
-                      </g>
-                    ))}
-                  </g>
-                )}
-              </g>
-            ) : profile.collarType === 'tu-than' ? (
-              /* ========================================================
-                  TYPE 2: ÁO TỨ THÂN (Áo the nâu sồng, Yếm đào hồng, thắt nút bụng)
-                 ======================================================== */
-              <g id="ao-tu-than-group">
-                {/* Yếm Đào bên trong lộ ở cổ */}
-                <path d="M172 125 L208 125 L190 178 Z" fill="#D83A56" stroke={goldColor} strokeWidth="1.2" />
-                <circle cx="190" cy="148" r="2.2" fill="#FFF" />
-
-                {/* Hai thân sau buông dài */}
-                <path
-                  d="M180 124 L142 142 L124 220 L122 305 L134 305 L140 220 L162 185 L144 415 Q190 422 236 415 L218 185 L240 220 L246 305 L258 305 L256 220 L238 142 L200 124 Z"
-                  fill="#423429"
-                  stroke={goldColor}
-                  strokeWidth="1.2"
-                />
-
-                {/* Hai vạt trước thắt nút duyên dáng trước bụng */}
-                <path
-                  d="M162 140 L188 238 Q190 252 182 340 L172 335 L182 232 Z"
-                  fill="#544335"
-                  stroke="rgba(212,175,55,0.7)"
-                  strokeWidth="0.8"
-                />
-                <path
-                  d="M218 140 L192 238 Q190 252 198 340 L208 335 L198 232 Z"
-                  fill="#544335"
-                  stroke="rgba(212,175,55,0.7)"
-                  strokeWidth="0.8"
-                />
-                {/* Thắt lưng lụa xanh & nút thắt hoa */}
-                <path d="M164 240 L216 240" stroke="#2A7C52" strokeWidth="5" />
-                <circle cx="190" cy="240" r="5.5" fill="#2A7C52" stroke="#D4AF37" strokeWidth="1" />
-              </g>
-            ) : profile.collarType === 'dong-son' ? (
-              /* ========================================================
-                  TYPE 3: TRANG PHỤC ĐÔNG SƠN (Nâu đồng, mặt trời 14 tia, chim Lạc bay)
-                 ======================================================== */
-              <g id="dong-son-group">
-                <path
-                  d="M180 124 L142 142 L130 200 L146 205 L162 165 L148 395 Q190 405 232 395 L218 165 L234 205 L250 200 L238 142 L200 124 Z"
-                  fill={garmentColor}
-                  stroke={goldColor}
-                  strokeWidth="1.4"
-                />
-                {/* Mặt trời 14 tia rực rỡ */}
-                <circle cx="190" cy="182" r="16" fill="none" stroke={goldColor} strokeWidth="1.5" />
-                <circle cx="190" cy="182" r="6" fill={goldColor} />
-                {[0, 25.7, 51.4, 77.1, 102.8, 128.5, 154.2, 180, 205.7, 231.4, 257.1, 282.8, 308.5, 334.2].map((ang, i) => (
-                  <line
-                    key={i}
-                    x1={190 + Math.cos((ang * Math.PI) / 180) * 7}
-                    y1={182 + Math.sin((ang * Math.PI) / 180) * 7}
-                    x2={190 + Math.cos((ang * Math.PI) / 180) * 15}
-                    y2={182 + Math.sin((ang * Math.PI) / 180) * 15}
+                      {/* Phượng Hoàng hoặc Long Vân ở ngực */}
+                      {profile.chestMotif === 'phoenix-phung' ? (
+                        <g id="phoenix-motif">
+                          <circle cx="190" cy="226" r="14" fill="#6B1419" stroke={goldColor} strokeWidth="1.2" />
+                          <path d="M185 220 Q190 214 195 220 Q190 236 185 220 Z" fill={goldColor} />
+                          <circle cx="190" cy="217" r="2" fill="#FAF7F0" />
+                        </g>
+                      ) : (
+                        <g id="dragon-motif">
+                          <circle cx="190" cy="226" r="14" fill="#6B1419" stroke={goldColor} strokeWidth="1.2" />
+                          <path d="M184 226 Q190 216 196 226 Q190 234 184 226 Z" fill="none" stroke={goldColor} strokeWidth="1.8" />
+                        </g>
+                      )}
+                    </g>
+                  ) : profile.collarType === 'giao-linh' ? (
+                    /* CỔ GIAO LĨNH (Chữ Y - Hữu nhậm: Vạt trái đè vạt phải) */
+                    <g id="collar-giao-linh">
+                      {/* Yếm Đào bên trong */}
+                      <path d="M180 124 Q190 148 200 124" fill="#C53030" stroke="#9B2C2C" strokeWidth="0.8" />
+                      <circle cx="190" cy="140" r="1.5" fill="#FAF7F0" />
+                      {/* Vạt trong (dưới) */}
+                      <path d="M178 124 L204 185" stroke={goldColor} strokeWidth="2.5" />
+                      {/* Vạt ngoài (đè lên): Trái đè Phải chuẩn Hữu nhậm */}
+                      <path d="M202 124 L176 185" stroke={goldColor} strokeWidth="2.5" />
+                      <path d="M202 124 L176 185" stroke={garmentColor} strokeWidth="1.2" />
+                      {/* Đai thắt lưng lụa buộc nút hoa đào */}
+                      <rect x="162" y="220" width="56" height="12" fill="#1C382B" stroke={goldColor} strokeWidth="1" />
+                      <circle cx="190" cy="226" r="3" fill="url(#goldButtonGrad)" />
+                      {/* Dải đai buông */}
+                      <path d="M188 232 L185 320 M192 232 L195 320" stroke="#1C382B" strokeWidth="2.5" />
+                    </g>
+                  ) : profile.collarType === 'vien-linh' ? (
+                    /* CỔ VIÊN LĨNH (Cổ tròn, Bổ tử thêu hạc/kỳ lân) */
+                    <g id="collar-vien-linh">
+                      <path d="M176 122 Q190 127 204 122" stroke={goldColor} strokeWidth="2.2" fill="none" />
+                      <circle cx="198" cy="125" r="2.5" fill="url(#goldButtonGrad)" />
+                      {/* Bổ Tử vuông ở giữa ngực */}
+                      <rect x="174" y="165" width="32" height="32" fill="#0E1D33" stroke={goldColor} strokeWidth="1.6" />
+                      {/* Tiên Hạc tung cánh */}
+                      <path d="M182 181 Q190 173 198 181 Q190 186 182 181 Z" fill="#FAF7F0" />
+                      <circle cx="190" cy="177" r="1.5" fill="#C53030" />
+                    </g>
+                  ) : (
+                    /* ÁO TẤC TAY THỤNG (Cổ Lập Lĩnh 5 cúc) */
+                    <g id="collar-ao-tac">
+                      <path d="M180 120 Q190 123 200 120 L200 132 Q190 135 180 132 Z" fill={goldColor} stroke="#4A1515" strokeWidth="0.8" />
+                      <path d="M195 132 Q202 155 212 175 L210 330" stroke={goldColor} strokeWidth="1.2" fill="none" />
+                      {[132, 150, 170, 192, 218].map((y, i) => (
+                        <circle key={i} cx={195 + i * 3.5} cy={y} r="2.8" fill="url(#goldButtonGrad)" />
+                      ))}
+                    </g>
+                  )}
+                </g>
+              ) : profile.collarType === 'tu-than' ? (
+                /* ========================================================
+                    TYPE 2: ÁO TỨ THÂN (4 vạt, yếm đào, thắt nút bụng, thắt lưng lụa)
+                   ======================================================== */
+                <g id="ao-tu-than-group">
+                  {/* Yếm Đào bên trong */}
+                  <path d="M176 126 L164 165 L190 220 L216 165 L204 126 Z" fill="#C53030" stroke="#9B2C2C" strokeWidth="1" />
+                  <circle cx="190" cy="145" r="3" fill="#D4AF37" />
+                  {/* Hai vạt áo khoác lụa the nâu sồng */}
+                  <path
+                    d="M180 124 L142 142 L124 220 L122 305 L134 305 L140 220 L164 175 L152 410 L170 410 L188 235 L190 235 L208 410 L226 410 L214 175 L238 220 L244 305 L256 305 L254 220 L238 142 L200 124 Z"
+                    fill={garmentColor}
+                    stroke={goldColor}
+                    strokeWidth="1.4"
+                  />
+                  {/* Thắt lưng lụa xanh lý buộc nơ trước bụng */}
+                  <path d="M174 230 Q190 236 206 230 L204 242 Q190 248 176 242 Z" fill="#2E7D46" stroke={goldColor} strokeWidth="0.8" />
+                  <path d="M185 242 L180 340 M195 242 L200 340" stroke="#2E7D46" strokeWidth="2.4" />
+                </g>
+              ) : profile.collarType === 'ao-ba-ba' ? (
+                /* ========================================================
+                    TYPE 3: ÁO BÀ BA (Cổ tròn, cúc bấm ngọc trai, xẻ tà, khăn rằn)
+                   ======================================================== */
+                <g id="ao-ba-ba-group">
+                  <path
+                    d="M180 124 L142 142 L124 220 L122 305 L134 305 L140 220 L162 185 L150 330 Q190 338 230 330 L218 185 L240 220 L246 305 L258 305 L256 220 L238 142 L200 124 Z"
+                    fill={garmentColor}
                     stroke={goldColor}
                     strokeWidth="1.2"
                   />
-                ))}
-                {/* Chim Lạc bay uy dũng */}
-                <path d="M170 216 Q180 208 190 216 M190 216 Q200 208 210 216" stroke={goldColor} strokeWidth="1.4" fill="none" />
-                {/* Đai thắt lưng đồng bản to */}
-                <rect x="160" y="244" width="60" height="12" fill="#522B13" stroke={goldColor} strokeWidth="1.4" />
-                <circle cx="190" cy="250" r="3" fill={goldColor} />
-              </g>
-            ) : profile.collarType === 'ao-ba-ba' ? (
-              /* ========================================================
-                  TYPE 4: ÁO BÀ BA (Cổ tròn, cúc bấm ngọc trai, xẻ tà, khăn rằn)
-                 ======================================================== */
-              <g id="ao-ba-ba-group">
-                {/* Thân áo bà ba & tay chẽn nối chuẩn khít cổ tay */}
-                <path
-                  d="M180 124 L142 142 L124 220 L122 305 L134 305 L140 220 L162 185 L150 330 Q190 338 230 330 L218 185 L240 220 L246 305 L258 305 L256 220 L238 142 L200 124 Z"
-                  fill={garmentColor}
-                  stroke={goldColor}
-                  strokeWidth="1.2"
-                />
-                {/* Xẻ tà hông (2 bên tà) */}
-                <path d="M150 255 L150 330" stroke="#143D2E" strokeWidth="1.2" />
-                <path d="M230 255 L230 330" stroke="#143D2E" strokeWidth="1.2" />
+                  {/* Xẻ tà hông */}
+                  <path d="M150 255 L150 330" stroke="rgba(0,0,0,0.35)" strokeWidth="1.2" />
+                  <path d="M230 255 L230 330" stroke="rgba(0,0,0,0.35)" strokeWidth="1.2" />
+                  {/* Cổ tròn & Cúc bấm ngọc trai */}
+                  <path d="M180 125 Q190 128 200 125" fill="none" stroke={goldColor} strokeWidth="1.4" />
+                  <path d="M190 127 L190 325" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1.2" />
+                  {[145, 175, 205, 235, 265, 295].map((y, i) => (
+                    <circle key={i} cx="190" cy={y} r="2.4" fill="#FFFFFF" stroke="#888" strokeWidth="0.6" />
+                  ))}
+                  {/* Hai túi vuông nam */}
+                  {activeGarment.gender === 'nam' && (
+                    <>
+                      <rect x="162" y="275" width="16" height="18" fill="none" stroke={goldColor} strokeWidth="0.9" />
+                      <rect x="202" y="275" width="16" height="18" fill="none" stroke={goldColor} strokeWidth="0.9" />
+                    </>
+                  )}
+                </g>
+              ) : profile.collarType === 'dong-son' ? (
+                /* ========================================================
+                    TYPE 4: TRANG PHỤC ĐÔNG SƠN (Mặt trời 14 tia, chim Lạc)
+                   ======================================================== */
+                <g id="dong-son-top">
+                  <path
+                    d="M180 124 L142 142 L130 200 L146 205 L162 165 L148 395 Q190 405 232 395 L218 165 L234 205 L250 200 L238 142 L200 124 Z"
+                    fill={garmentColor}
+                    stroke={goldColor}
+                    strokeWidth="1.4"
+                  />
+                  {/* Mặt trời 14 tia rực rỡ */}
+                  <circle cx="190" cy="182" r="16" fill="none" stroke={goldColor} strokeWidth="1.5" />
+                  <circle cx="190" cy="182" r="6" fill={goldColor} />
+                  {[0, 25.7, 51.4, 77.1, 102.8, 128.5, 154.2, 180, 205.7, 231.4, 257.1, 282.8, 308.5, 334.2].map((ang, i) => (
+                    <line
+                      key={i}
+                      x1={190 + Math.cos((ang * Math.PI) / 180) * 7}
+                      y1={182 + Math.sin((ang * Math.PI) / 180) * 7}
+                      x2={190 + Math.cos((ang * Math.PI) / 180) * 15}
+                      y2={182 + Math.sin((ang * Math.PI) / 180) * 15}
+                      stroke={goldColor}
+                      strokeWidth="1.2"
+                    />
+                  ))}
+                  {/* Chim Lạc bay uy dũng */}
+                  <path d="M170 216 Q180 208 190 216 M190 216 Q200 208 210 216" stroke={goldColor} strokeWidth="1.4" fill="none" />
+                  {/* Đai thắt lưng đồng */}
+                  <rect x="160" y="244" width="60" height="12" fill="#522B13" stroke={goldColor} strokeWidth="1.4" />
+                </g>
+              ) : (
+                /* ========================================================
+                    TYPE 5: ÁO NGŨ THÂN TAY CHẼN (Chuẩn 5 thân, cổ lập lĩnh 2.5cm, 5 cúc vàng, tà đáy thúng)
+                   ======================================================== */
+                <g id="ao-ngu-than-group">
+                  <path
+                    d="M180 124 L142 142 L124 220 L122 305 L134 305 L140 220 L162 185 L144 410 Q190 422 236 410 L218 185 L240 220 L246 305 L258 305 L256 220 L238 142 L200 124 Z"
+                    fill={garmentColor}
+                    stroke={goldColor}
+                    strokeWidth="1.5"
+                  />
+                  <path
+                    d="M180 124 L142 142 L124 220 L122 305 L134 305 L140 220 L162 185 L144 410 Q190 422 236 410 L218 185 L240 220 L246 305 L258 305 L256 220 L238 142 L200 124 Z"
+                    fill="url(#cloudBrocadePattern)"
+                    opacity="0.38"
+                  />
+                  <path
+                    d="M180 124 L142 142 L124 220 L122 305 L134 305 L140 220 L162 185 L144 410 Q190 422 236 410 L218 185 L240 220 L246 305 L258 305 L256 220 L238 142 L200 124 Z"
+                    fill="url(#silkShineGrad)"
+                  />
+                  {/* Cổ Lập Lĩnh cao 2.5cm */}
+                  <path d="M180 120 Q190 123 200 120 L200 132 Q190 135 180 132 Z" fill={goldColor} stroke="#4A1515" strokeWidth="0.8" />
+                  {/* Vạt hò cài chéo sang nách phải */}
+                  <path d="M195 132 Q202 155 212 175 L210 330" stroke="rgba(212, 175, 55, 0.8)" strokeWidth="1.3" fill="none" />
+                  {/* 5 Cúc Ngũ Thường 3D */}
+                  {[132, 150, 170, 192, 218].map((y, i) => (
+                    <circle key={i} cx={195 + i * 3.5} cy={y} r="2.8" fill="url(#goldButtonGrad)" />
+                  ))}
+                </g>
+              )}
 
-                {/* Cổ tròn xẻ giữa ngực & hàng cúc bấm ngọc trai */}
-                <path d="M180 125 Q190 128 200 125" fill="none" stroke={goldColor} strokeWidth="1.4" />
-                <path d="M190 127 L190 325" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1.2" />
-                {[145, 175, 205, 235, 265, 295].map((y, i) => (
-                  <circle key={i} cx="190" cy={y} r="2.2" fill="#FFFFFF" stroke="#888" strokeWidth="0.5" />
-                ))}
+              {/* Sống Áo Mũi Gáy (Vertical Seam down center) */}
+              <path
+                d="M190 132 L190 405"
+                stroke="rgba(212, 175, 55, 0.45)"
+                strokeWidth="0.8"
+                strokeDasharray="4 2"
+              />
+            </motion.g>
+          )}
 
-                {/* Hai túi vuông dưới vạt áo (Áo nam) */}
-                {activeGarment.gender === 'nam' && (
-                  <>
-                    <rect x="162" y="275" width="16" height="18" fill="none" stroke={goldColor} strokeWidth="0.9" />
-                    <rect x="202" y="275" width="16" height="18" fill="none" stroke={goldColor} strokeWidth="0.9" />
-                  </>
-                )}
-
-                {/* Khăn Rằn Nam Bộ kẻ caro quàng qua vai */}
-                {profile.hasKhanRan && (
-                  <g id="khan-ran-mesh">
-                    {/* Left side scarf band */}
-                    <path d="M172 125 Q160 185 164 290 L172 290 Q168 185 178 125 Z" fill="url(#khanRanPattern)" stroke="#1A1A1A" strokeWidth="0.8" />
-                    {/* Right side scarf band */}
-                    <path d="M208 125 Q220 185 216 290 L208 290 Q212 185 202 125 Z" fill="url(#khanRanPattern)" stroke="#1A1A1A" strokeWidth="0.8" />
-                  </g>
-                )}
-              </g>
-            ) : (
-              /* ========================================================
-                  TYPE 5: ÁO NGŨ THÂN TAY CHẼN (Chuẩn 5 thân, cổ lập lĩnh, 5 cúc vàng, tay chẽn khít tay)
-                 ======================================================== */
-              <g id="ao-ngu-than-group">
-                {/* Torso & Tay Chẽn (Tapered Sleeves perfectly fitting wrists at Y: 305) */}
-                <path
-                  d="M180 124 L142 142 L124 220 L122 305 L134 305 L140 220 L162 185 L144 410 Q190 422 236 410 L218 185 L240 220 L246 305 L258 305 L256 220 L238 142 L200 124 Z"
-                  fill={garmentColor}
-                  stroke={goldColor}
-                  strokeWidth="1.5"
-                />
-
-                {/* Cloud Damask Pattern */}
-                <path
-                  d="M180 124 L142 142 L124 220 L122 305 L134 305 L140 220 L162 185 L144 410 Q190 422 236 410 L218 185 L240 220 L246 305 L258 305 L256 220 L238 142 L200 124 Z"
-                  fill="url(#cloudBrocadePattern)"
-                  opacity="0.35"
-                />
-
-                {/* Silk Sheen Overlay */}
-                <path
-                  d="M180 124 L142 142 L124 220 L122 305 L134 305 L140 220 L162 185 L144 410 Q190 422 236 410 L218 185 L240 220 L246 305 L258 305 L256 220 L238 142 L200 124 Z"
-                  fill="url(#silkShineGrad)"
-                />
-
-                {/* Cổ Lập Lĩnh cao 2.5cm */}
-                <path
-                  d="M180 120 Q190 123 200 120 L200 132 Q190 135 180 132 Z"
-                  fill={goldColor}
-                  stroke="#5A1A12"
-                  strokeWidth="0.8"
-                />
-
-                {/* Vạt hò cài chéo sang nách phải */}
-                <path
-                  d="M195 132 Q202 155 212 175 L210 330"
-                  stroke="rgba(212, 175, 55, 0.75)"
-                  strokeWidth="1.3"
-                  fill="none"
-                />
-
-                {/* 5 Cúc Ngũ Thường (Nhân, Lễ, Nghĩa, Trí, Tín) */}
-                {[132, 150, 170, 192, 218].map((y, i) => (
-                  <g key={i}>
-                    <circle cx={195 + i * 3.5} cy={y} r="2.8" fill="url(#goldButtonGrad)" />
-                    <circle cx={195 + i * 3.5} cy={y} r="0.9" fill="#FFFFFF" opacity="0.8" />
-                  </g>
-                ))}
-              </g>
-            )}
-
-            {/* Sống Áo Mũi Gáy (Vertical Seam down center) */}
-            <path
-              d="M190 132 L190 405"
-              stroke="rgba(212, 175, 55, 0.45)"
-              strokeWidth="0.8"
-              strokeDasharray="4 2"
-            />
-          </motion.g>
-        ) : (
-          /* Áo lót bạch / Mannequin inner silhouette when top is unselected */
-          <g id="unselected-top-garment" opacity={0.75}>
-            <path
-              d="M182 124 L154 140 L154 260 L146 395 Q190 405 234 395 L226 260 L226 140 L198 124 Z"
-              fill="#F5F3EF"
-              stroke="#D5CEBE"
-              strokeWidth="1.2"
-              strokeDasharray="4 2"
-            />
-            <path d="M180 124 L190 148 L200 124" stroke="#C4BBAA" strokeWidth="1.2" fill="none" />
-            <path d="M190 148 L190 395" stroke="#D5CEBE" strokeWidth="0.8" strokeDasharray="3 3" />
-            <path d="M154 140 L132 260 L142 265 L162 165 Z" fill="#EAE5DC" stroke="#D5CEBE" strokeWidth="0.8" />
-            <path d="M226 140 L248 260 L238 265 L218 165 Z" fill="#EAE5DC" stroke="#D5CEBE" strokeWidth="0.8" />
-            <rect x="150" y="240" width="80" height="20" rx="5" fill="#0F172A" fillOpacity="0.75" stroke="#C4BBAA" strokeWidth="0.6" />
-            <text x="190" y="253" textAnchor="middle" fill="#E2E8F0" fontSize="8.5" fontFamily="sans-serif">
-              (Chưa chọn áo)
-            </text>
-          </g>
-        )}
-
-        {/* ===== 4. HEADPIECE (KHĂN ĐÓNG, MẤN, NÓN BA TẦM, KHĂN RẰN) ===== */}
-        {activeAccessory ? (
-          <g
-            id="headpiece-layer"
-            className="cursor-pointer"
-            onMouseEnter={() => setHoveredPin('accessory')}
-            onMouseLeave={() => setHoveredPin(null)}
-          >
-            {headpieceType === 'non-ba-tam' ? (
-              /* Nón Ba Tầm Quai Thao (Áo Tứ Thân) */
-              <g id="non-ba-tam">
-                <ellipse cx="190" cy="50" rx="46" ry="14" fill="#CBB693" stroke="#8A734D" strokeWidth="1" />
-                <ellipse cx="190" cy="50" rx="42" ry="11" fill="none" stroke="#8A734D" strokeWidth="0.6" />
-                <path d="M160 55 Q168 95 166 140" stroke="#D83A56" strokeWidth="2.2" fill="none" />
-                <path d="M220 55 Q212 95 214 140" stroke="#D83A56" strokeWidth="2.2" fill="none" />
-              </g>
-            ) : headpieceType === 'khan-ran' ? (
-              /* Khăn Rằn quấn đầu Nam Bộ */
-              <g id="khan-ran-head">
-                <ellipse cx="190" cy="52" rx="27" ry="12" fill="url(#khanRanPattern)" stroke="#1A1A1A" strokeWidth="1" />
-                <path d="M206 50 Q218 62 214 85" stroke="#1A1A1A" strokeWidth="3" fill="none" />
-              </g>
-            ) : (
-              /* Khăn Đóng / Mấn Tròn Cung Đình */
-              <g id="man-tron">
-                <ellipse cx="190" cy="52" rx="28" ry="12" fill="#1A1816" />
-                <path
-                  d="M162 53 Q190 42 218 53 Q190 62 162 53 Z"
-                  fill={headpieceType === 'man-vang' ? '#B8860B' : '#1D2533'}
-                  stroke={goldColor}
-                  strokeWidth="1.4"
-                />
-                {/* Chevron pleat for Khăn Đóng or golden floral rim for Mấn */}
-                <path
-                  d="M166 50 Q190 39 214 50"
-                  fill="none"
-                  stroke={goldColor}
-                  strokeWidth="0.9"
-                  opacity="0.85"
-                />
-                <circle cx="190" cy="50" r="3" fill="url(#goldButtonGrad)" />
-              </g>
-            )}
-
-            {/* Ngọc bội thắt lưng nếu phụ kiện là ngọc bội */}
-            {activeAccessory.id === 'ngoc-boi' && (
-              <g id="ngoc-boi-charm">
-                <path d="M208 240 L208 310" stroke="#C82333" strokeWidth="1.4" />
-                <circle cx="208" cy="270" r="6.5" fill="#50C878" stroke="#D4AF37" strokeWidth="1.2" />
-                <circle cx="208" cy="270" r="2.5" fill="#2E7D46" />
-                <path d="M206 278 L204 315 M208 278 L208 318 M210 278 L212 315" stroke="#C82333" strokeWidth="1.2" />
-              </g>
-            )}
-          </g>
-        ) : (
-          /* Búi tóc tự nhiên của người mẫu khi không đội phụ kiện */
-          <g id="natural-hair-knot" opacity={0.9}>
-            <ellipse cx="190" cy="48" rx="14" ry="7" fill="#1A1816" />
-            <circle cx="190" cy="44" r="5" fill="#141110" />
-          </g>
-        )}
+          {/* ===== 4. PHỤ KIỆN (HIỂN THỊ ĐẦY ĐỦ 16 LOẠI PHỤ KIỆN VIỆT PHỤC) ===== */}
+          {activeAccessory ? (
+            <g id="accessory-layer">
+              {/* 1. Nón Ba Tầm Quai Thao */}
+              {activeAccessory.id === 'non-ba-tam-nu' || activeAccessory.id === 'non-ba-tam' ? (
+                <g id="acc-non-ba-tam">
+                  <ellipse cx="190" cy="50" rx="46" ry="14" fill="#CBB693" stroke="#8A734D" strokeWidth="1.2" />
+                  <ellipse cx="190" cy="50" rx="41" ry="10" fill="none" stroke="#8A734D" strokeWidth="0.6" />
+                  {/* Dải Quai Thao tơ tằm buông rủ dài trước ngực */}
+                  <path d="M156 55 Q164 120 162 195" stroke="#D83A56" strokeWidth="2.5" fill="none" />
+                  <path d="M224 55 Q216 120 218 195" stroke="#D83A56" strokeWidth="2.5" fill="none" />
+                  <circle cx="162" cy="195" r="2.5" fill="#D4AF37" />
+                  <circle cx="218" cy="195" r="2.5" fill="#D4AF37" />
+                </g>
+              ) : activeAccessory.id === 'non-la-nam-bo' ? (
+                /* 2. Nón Lá Chóp Nhọn Nam Bộ */
+                <g id="acc-non-la">
+                  <path d="M190 28 L146 64 Q190 70 234 64 Z" fill="#D7C7A3" stroke="#8A734D" strokeWidth="1" />
+                  {[36, 44, 52, 60].map((y, i) => (
+                    <path key={i} d={`M${190 - (y - 28) * 1.2} ${y} Q190 ${y + 4} ${190 + (y - 28) * 1.2} ${y}`} stroke="#B3A27D" strokeWidth="0.6" fill="none" />
+                  ))}
+                  {/* Quai nón lụa hồng */}
+                  <path d="M165 64 Q178 95 190 92 Q202 95 215 64" stroke="#F472B6" strokeWidth="1.8" fill="none" />
+                </g>
+              ) : activeAccessory.id === 'khan-mo-qua-nu' ? (
+                /* 3. Khăn Mỏ Quạ Kinh Bắc */
+                <g id="acc-khan-mo-qua">
+                  <ellipse cx="190" cy="52" rx="27" ry="13" fill="#141110" />
+                  {/* Mũi nhọn mỏ quạ chúc xuống trán */}
+                  <path d="M164 54 Q190 40 216 54 L190 68 Z" fill="#1F1B1A" stroke={goldColor} strokeWidth="0.8" />
+                </g>
+              ) : activeAccessory.id === 'khan-vanh-day-nu' ? (
+                /* 4. Khăn Vành Dây Hoàng Cung (Nhiều vành vàng kim lộng lẫy) */
+                <g id="acc-khan-vanh-day">
+                  <ellipse cx="190" cy="50" rx="36" ry="15" fill="#B8860B" stroke="#D4AF37" strokeWidth="1.8" />
+                  <ellipse cx="190" cy="48" rx="32" ry="13" fill="#D4AF37" stroke="#F59E0B" strokeWidth="1.2" />
+                  <ellipse cx="190" cy="46" rx="28" ry="11" fill="#F59E0B" stroke="#D4AF37" strokeWidth="1" />
+                  <ellipse cx="190" cy="46" rx="20" ry="7" fill="#1A1816" />
+                </g>
+              ) : activeAccessory.id === 'mu-phoc-dau-nam' ? (
+                /* 5. Mũ Phốc Đầu Ô Sa Quan Lại (Hai cánh chuồn ngang) */
+                <g id="acc-mu-phoc-dau">
+                  <ellipse cx="190" cy="50" rx="24" ry="14" fill="#111111" stroke={goldColor} strokeWidth="1" />
+                  <rect x="176" y="26" width="28" height="20" rx="4" fill="#171717" stroke={goldColor} strokeWidth="1.2" />
+                  {/* Cánh chuồn trái */}
+                  <path d="M166 48 L104 46 Q100 48 104 54 L166 52 Z" fill="#111111" stroke={goldColor} strokeWidth="1.2" />
+                  {/* Cánh chuồn phải */}
+                  <path d="M214 48 L276 46 Q280 48 276 54 L214 52 Z" fill="#111111" stroke={goldColor} strokeWidth="1.2" />
+                </g>
+              ) : activeAccessory.id === 'mu-long-chim-dong-son' ? (
+                /* 6. Mũ Lông Chim Lạc Đông Sơn */
+                <g id="acc-dong-son-crown">
+                  <ellipse cx="190" cy="54" rx="26" ry="10" fill="#784421" stroke="#F59E0B" strokeWidth="1.4" />
+                  {/* Các nhánh lông chim vút cao */}
+                  {[-18, -9, 0, 9, 18].map((offset, i) => (
+                    <path
+                      key={i}
+                      d={`M${190 + offset} 52 Q${190 + offset * 1.5} 12 ${190 + offset * 1.8} 8`}
+                      stroke="#F59E0B"
+                      strokeWidth="2.2"
+                      fill="none"
+                    />
+                  ))}
+                </g>
+              ) : activeAccessory.id === 'tram-cai-diem-thuy-nu' ? (
+                /* 7. Trâm Cài Tóc Điểm Thúy Hoa Mai */
+                <g id="acc-tram-cai">
+                  <ellipse cx="190" cy="46" rx="14" ry="7" fill="#1A1816" />
+                  {/* Cây trâm vàng xiên qua búi tóc */}
+                  <path d="M165 42 L215 36" stroke="#D4AF37" strokeWidth="2.5" />
+                  {/* Bông hoa mai vàng ngọc trai ở đầu trâm */}
+                  <circle cx="166" cy="42" r="5" fill="#D4AF37" />
+                  <circle cx="166" cy="42" r="2" fill="#FAF7F0" />
+                  <path d="M166 47 L164 62" stroke="#D4AF37" strokeWidth="1" />
+                  <circle cx="164" cy="62" r="2" fill="#10B981" />
+                </g>
+              ) : activeAccessory.id === 'quat-lua' ? (
+                /* 8. Quạt Lụa Tơ Tằm Cầm Tay Thêu Sen */
+                <g id="acc-quat-lua">
+                  {/* Nan tre và cánh quạt xòe bên tay phải */}
+                  <path d="M254 315 L288 280 Q305 295 296 322 Z" fill="#FAF7F0" stroke="#D4AF37" strokeWidth="1.4" />
+                  {/* Hoa sen thêu trên quạt */}
+                  <path d="M280 298 Q286 292 292 298 Q286 308 280 298 Z" fill="#EC4899" />
+                  {/* Cán quạt nan tre */}
+                  <path d="M252 318 L262 308" stroke="#854D0E" strokeWidth="2.5" />
+                  {/* Dải tua rua đỏ đung đưa */}
+                  <path d="M252 318 Q248 335 250 350" stroke="#DC2626" strokeWidth="1.8" fill="none" />
+                  <circle cx="250" cy="350" r="2" fill="#D4AF37" />
+                </g>
+              ) : activeAccessory.id === 'the-bai-hoang-cung' ? (
+                /* 9. Thẻ Bài Ngà & Dây Lụa Cung Đình */
+                <g id="acc-the-bai">
+                  <path d="M204 185 L204 220" stroke="#DC2626" strokeWidth="1.4" />
+                  {/* Phiến thẻ bài ngà */}
+                  <rect x="198" y="215" width="12" height="24" rx="2" fill="#FAF6ED" stroke="#8A6623" strokeWidth="1" />
+                  <line x1="204" y1="219" x2="204" y2="233" stroke="#8A6623" strokeWidth="0.8" />
+                  {/* Tua rua đỏ dưới thẻ bài */}
+                  <path d="M204 239 L202 260 M204 239 L206 260" stroke="#DC2626" strokeWidth="1.2" />
+                </g>
+              ) : activeAccessory.id === 'dai-bac-khiep-nam' ? (
+                /* 10. Đai Bác Khiệp & Thắt Lưng Ngọc */
+                <g id="acc-dai-bac-khiep">
+                  <rect x="156" y="232" width="68" height="13" rx="2" fill="#8B2222" stroke={goldColor} strokeWidth="1.4" />
+                  {[-24, -12, 0, 12, 24].map((offset, i) => (
+                    <rect key={i} x={186 + offset} y="234" width="8" height="9" fill="url(#jadeStoneGrad)" stroke={goldColor} strokeWidth="0.8" />
+                  ))}
+                </g>
+              ) : activeAccessory.id === 'vong-dong-dong-son' ? (
+                /* 11. Hộ Tâm Phiến & Vòng Tay Đồng */
+                <g id="acc-vong-dong">
+                  {/* Tấm hộ tâm phiến tròn ở ngực */}
+                  <circle cx="190" cy="185" r="14" fill="#9C6938" stroke="#F59E0B" strokeWidth="1.6" />
+                  <circle cx="190" cy="185" r="6" fill="#F59E0B" />
+                  {/* Vòng đồng ở hai cổ tay */}
+                  <rect x="121" y="300" width="13" height="6" rx="2" fill="#F59E0B" stroke="#78350F" strokeWidth="0.8" />
+                  <rect x="246" y="300" width="13" height="6" rx="2" fill="#F59E0B" stroke="#78350F" strokeWidth="0.8" />
+                </g>
+              ) : activeAccessory.id === 'ngoc-boi' ? (
+                /* 12. Ngọc Bội Thắt Lưng Chạm Rồng */
+                <g id="acc-ngoc-boi">
+                  <path d="M208 240 L208 275" stroke="#C82333" strokeWidth="1.6" />
+                  <circle cx="208" cy="280" r="7.5" fill="url(#jadeStoneGrad)" stroke="#D4AF37" strokeWidth="1.4" />
+                  <circle cx="208" cy="280" r="2.8" fill="#064E3B" />
+                  <path d="M206 288 L204 322 M208 288 L208 325 M210 288 L212 322" stroke="#C82333" strokeWidth="1.2" />
+                </g>
+              ) : activeAccessory.id === 'khan-ran' || activeAccessory.id === 'khan-ran-nam-bo' ? (
+                /* 13. Khăn Rằn Nam Bộ */
+                <g id="acc-khan-ran">
+                  <ellipse cx="190" cy="52" rx="27" ry="12" fill="url(#khanRanPattern)" stroke="#1A1A1A" strokeWidth="1" />
+                  <path d="M206 50 Q218 62 214 85" stroke="#1A1A1A" strokeWidth="3" fill="none" />
+                </g>
+              ) : activeAccessory.id === 'khan-dong' ? (
+                /* 14. Khăn Đóng Lụa Đen 7 Nếp Chữ Nhân */
+                <g id="acc-khan-dong">
+                  <ellipse cx="190" cy="52" rx="28" ry="12" fill="#141110" />
+                  <path d="M162 53 Q190 42 218 53 Q190 62 162 53 Z" fill="#1A1817" stroke={goldColor} strokeWidth="1.2" />
+                  {/* Nếp gấp chữ Nhân (人) trước trán */}
+                  <path d="M182 50 L190 56 L198 50" stroke={goldColor} strokeWidth="1.4" fill="none" />
+                  <path d="M166 50 Q190 39 214 50" fill="none" stroke={goldColor} strokeWidth="0.8" opacity="0.8" />
+                </g>
+              ) : (
+                /* 15 & 16. Mấn Tròn Cung Đình / Mấn Ngũ Sắc Đính Ngọc */
+                <g id="acc-man-tron">
+                  <ellipse cx="190" cy="52" rx="28" ry="12" fill="#1A1816" />
+                  <path
+                    d="M162 53 Q190 42 218 53 Q190 62 162 53 Z"
+                    fill={activeAccessory.id === 'man-ngu-sac' ? '#8B1E1E' : '#1D2533'}
+                    stroke={goldColor}
+                    strokeWidth="1.6"
+                  />
+                  {/* Viền hoa văn & ngọc bích đính chính giữa */}
+                  <circle cx="190" cy="50" r="3.2" fill="url(#jadeStoneGrad)" stroke={goldColor} strokeWidth="1" />
+                  <path d="M166 50 Q190 39 214 50" fill="none" stroke={goldColor} strokeWidth="0.9" opacity="0.85" />
+                </g>
+              )}
+            </g>
+          ) : (
+            /* Tóc Búi Tự Nhiên khi không đội mũ/mấn */
+            <g id="natural-hair-knot" opacity={0.9}>
+              <ellipse cx="190" cy="48" rx="14" ry="7" fill="#1A1816" />
+              <circle cx="190" cy="44" r="5" fill="#141110" />
+            </g>
+          )}
         </svg>
 
         {/* Celestial Silk Sash Fluttering Around 2D Mannequin */}
@@ -1224,7 +1278,6 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
           )}
         </AnimatePresence>
       </div>
-
     </div>
   );
 };
