@@ -662,7 +662,7 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
                         >
                           {garment.name}
                         </h4>
-                        <p className="text-xs text-slate-400 line-clamp-1 mt-1 font-light">
+                        <p className="text-xs text-slate-400 line-clamp-2 mt-1 font-light leading-relaxed">
                           {garment.description}
                         </p>
                       </div>

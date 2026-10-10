@@ -359,12 +359,12 @@ export const FashionShopSection: React.FC<FashionShopSectionProps> = ({
                     </div>
 
                     {/* Garment Title */}
-                    <h3 className="font-serif-vi font-bold text-sm text-slate-100 group-hover:text-amber-200 line-clamp-1 transition-colors">
+                    <h3 className="font-serif-vi font-bold text-sm text-slate-100 group-hover:text-amber-200 leading-snug transition-colors">
                       {prod.name}
                     </h3>
 
                     {/* Fabric description */}
-                    <p className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">
+                    <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">
                       {prod.fabric}
                     </p>
                   </div>

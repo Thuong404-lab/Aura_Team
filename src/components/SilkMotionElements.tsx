@@ -168,7 +168,7 @@ export const SilkCategoryTabs: React.FC<SilkCategoryTabsProps> = ({
                 transition: { type: 'spring', stiffness: 380, damping: 22 },
               }}
               whileTap={{ scale: 0.97 }}
-              className={`relative px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer select-none overflow-hidden ${
+              className={`relative px-3 sm:px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 sm:gap-2 transition-colors cursor-pointer select-none shrink-0 ${
                 isActive
                   ? 'text-amber-200'
                   : 'text-slate-400 hover:text-amber-100 bg-[#0E1526]/60 border border-slate-800/80 hover:border-amber-500/30'

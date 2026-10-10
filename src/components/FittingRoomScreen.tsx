@@ -167,6 +167,9 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
   // Toast feedback state for Auto-Fix actions
   const [fixToastMessage, setFixToastMessage] = useState<string | null>(null);
 
+  // Workspace View Mode: 'wardrobe' | 'ai_stylist' | 'taboo_audit'
+  const [workspaceView, setWorkspaceView] = useState<'wardrobe' | 'ai_stylist' | 'taboo_audit'>('wardrobe');
+
   // Dynamic AI Combination Analysis State & Styling Mode
   const [stylingMode, setStylingMode] = useState<StylingMode>('auto');
   const [latestAiAnalysis, setLatestAiAnalysis] = useState<AiSuggestionResult | null>(null);
@@ -244,12 +247,15 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
 
   // Scroll smoothly to warning panel when clicking avatar alert badge
   const scrollToTabooWarning = () => {
-    const el = document.getElementById('cultural-taboo-warning-panel');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      el.classList.add('ring-4', 'ring-rose-500');
-      setTimeout(() => el.classList.remove('ring-4', 'ring-rose-500'), 1500);
-    }
+    setWorkspaceView('wardrobe');
+    setTimeout(() => {
+      const el = document.getElementById('cultural-taboo-warning-panel');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.add('ring-4', 'ring-rose-500');
+        setTimeout(() => el.classList.remove('ring-4', 'ring-rose-500'), 1500);
+      }
+    }, 100);
   };
 
   // Filter wardrobe items by era and gender
@@ -541,25 +547,25 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
     },
     {
       id: 'bottom',
-      label: 'Hạ Y (Quần / Váy)',
+      label: 'Quần & Váy',
       icon: <Layers className="w-4 h-4" />,
       count: BOTTOMS.length,
     },
     {
       id: 'accessory',
-      label: 'Phụ Kiện Cung Đình & Dân Gian',
+      label: 'Phụ Kiện',
       icon: <Crown className="w-4 h-4" />,
       count: ACCESSORIES.length,
     },
     {
       id: 'color',
-      label: 'Ngũ Hành & Bảng Màu',
+      label: 'Bảng Màu Ngũ Hành',
       icon: <Palette className="w-4 h-4" />,
       count: COLOR_PALETTES.length,
     },
     {
       id: 'fabric',
-      label: 'Chất Liệu & Vân Gấm',
+      label: 'Chất Liệu Gấm Lụa',
       icon: <Waves className="w-4 h-4" />,
       count: FABRICS.length,
     },
@@ -653,7 +659,7 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
           {/* ==========================================================
               LEFT COLUMN: Live 2D Mannequin Visualizer & Quick Wardrobe Bar
              ========================================================== */}
-          <div className="w-full flex flex-col gap-3">
+          <div className="w-full lg:sticky lg:top-20 flex flex-col gap-3.5 self-start">
             <div className="relative w-full aspect-4/5 sm:aspect-3/4 max-h-[580px] rounded-3xl bg-radial from-[#121A2C] via-[#0D1322] to-[#080C16] border border-amber-500/30 p-2 sm:p-4 flex items-center justify-center shadow-2xl overflow-hidden group">
               <AvatarModel
                 top={currentTop}
@@ -694,11 +700,11 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                 <span className="text-[11px] text-slate-400 font-medium">Đang mặc:</span>
                 {/* Top slot */}
                 {currentTop ? (
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-950/40 border border-amber-500/40 text-amber-200">
-                    <span className="truncate max-w-[120px] font-serif-vi font-semibold">{currentTop.name}</span>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-200">
+                    <span className="font-serif-vi font-semibold text-xs leading-tight">{currentTop.name}</span>
                     <button
                       onClick={() => onSelectTop(null)}
-                      className="text-amber-400/70 hover:text-amber-200 cursor-pointer"
+                      className="text-amber-400/70 hover:text-amber-200 cursor-pointer p-0.5 rounded-full hover:bg-amber-400/20"
                       title="Cởi áo này"
                     >
                       <X className="w-3 h-3" />
@@ -712,11 +718,11 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
 
                 {/* Bottom slot */}
                 {currentBottom ? (
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-950/40 border border-amber-500/40 text-amber-200">
-                    <span className="truncate max-w-[120px] font-serif-vi font-semibold">{currentBottom.name}</span>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-200">
+                    <span className="font-serif-vi font-semibold text-xs leading-tight">{currentBottom.name}</span>
                     <button
                       onClick={() => onSelectBottom(null)}
-                      className="text-amber-400/70 hover:text-amber-200 cursor-pointer"
+                      className="text-amber-400/70 hover:text-amber-200 cursor-pointer p-0.5 rounded-full hover:bg-amber-400/20"
                       title="Cởi quần/váy này"
                     >
                       <X className="w-3 h-3" />
@@ -730,11 +736,11 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
 
                 {/* Accessory slot */}
                 {currentAccessory ? (
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-950/40 border border-amber-500/40 text-amber-200">
-                    <span className="truncate max-w-[110px] font-serif-vi font-semibold">{currentAccessory.name}</span>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-200">
+                    <span className="font-serif-vi font-semibold text-xs leading-tight">{currentAccessory.name}</span>
                     <button
                       onClick={() => onSelectAccessory(null)}
-                      className="text-amber-400/70 hover:text-amber-200 cursor-pointer"
+                      className="text-amber-400/70 hover:text-amber-200 cursor-pointer p-0.5 rounded-full hover:bg-amber-400/20"
                       title="Gỡ phụ kiện này"
                     >
                       <X className="w-3 h-3" />
@@ -767,343 +773,41 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
               RIGHT COLUMN: Controls, AI Real-World Suggester, Rules & Wardrobe
              ========================================================== */}
           <div className="w-full flex flex-col gap-3.5 text-left">
-            {/* 1. Trợ Lý AI: Phân Tích Sự Kết Hợp Cụ Thể & Gợi Ý Đương Đại */}
-            <div className="bg-[#121A2C] border border-amber-400/40 rounded-2xl p-3.5 shadow-lg flex flex-col gap-3">
-              {/* Header */}
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-400/60 flex items-center justify-center">
-                    <Wand2 className="w-4 h-4 text-amber-400 animate-pulse" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-amber-300 font-serif-vi flex items-center gap-1.5">
-                      <span>TRỢ LÝ AI: PHÂN TÍCH BẢN PHỐI & GỢI Ý ĐƯƠNG ĐẠI</span>
-                      <span className="px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 text-[9px] font-mono border border-amber-400/40">
-                        DI SẢN & TÂN THỜI
-                      </span>
-                    </div>
-                    <div className="text-[10px] text-slate-400">
-                      Phân tích tương hỗ văn hóa giữa các item & xu hướng phối đồ hiện đại
-                    </div>
-                  </div>
-                </div>
+            {/* 1. WORKSPACE VIEW SWITCHER TABS: Tủ Đồ vs Trợ Lý AI */}
+            <div className="flex items-center justify-between p-1.5 rounded-2xl bg-[#0D1525] border border-amber-500/30 gap-1.5 shadow-md shrink-0">
+              <button
+                onClick={() => {
+                  soundEngine.playPluck(523.25);
+                  setWorkspaceView('wardrobe');
+                }}
+                className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                  workspaceView === 'wardrobe'
+                    ? 'bg-gradient-to-r from-amber-500/30 via-amber-500/20 to-amber-600/30 text-amber-200 border border-amber-400/70 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                }`}
+              >
+                <Shirt className="w-3.5 h-3.5 text-amber-400" />
+                <span>👘 1. Tủ Đồ & Thử Cổ Phục</span>
+              </button>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setIsAnalysisExpanded(!isAnalysisExpanded)}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#18233C] border border-slate-700 text-slate-300 hover:text-amber-300 text-[10.5px] cursor-pointer transition-colors"
-                  >
-                    <span>{isAnalysisExpanded ? 'Thu gọn' : 'Xem phân tích'}</span>
-                    {isAnalysisExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
-              </div>
-
-              {/* STYLING MODE SELECTOR (4 Chế độ định hướng) */}
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 custom-scrollbar">
-                {[
-                  { id: 'auto', label: 'Tự Động Cân Bằng', icon: '✨' },
-                  { id: 'authentic_heritage', label: 'Cổ Phong Mực Thước', icon: '🏛️' },
-                  { id: 'modern_fusion', label: 'Tân Thời Đương Đại', icon: '⚡' },
-                  { id: 'festive_ceremony', label: 'Đại Lễ & Lễ Cưới', icon: '🌸' },
-                  { id: 'daily_casual', label: 'Dạo Phố & Hàng Ngày', icon: '☕' },
-                ].map((mode) => (
-                  <button
-                    key={mode.id}
-                    onClick={() => {
-                      setStylingMode(mode.id as StylingMode);
-                      soundEngine.playPluck(440);
-                    }}
-                    className={`px-2.5 py-1 rounded-xl text-[10.5px] font-medium whitespace-nowrap transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
-                      stylingMode === mode.id
-                        ? 'bg-gradient-to-r from-amber-500/30 to-amber-600/30 text-amber-200 border border-amber-400/80 shadow-sm'
-                        : 'bg-[#18233C]/70 hover:bg-[#1f2d4d] text-slate-300 border border-slate-700/70'
-                    }`}
-                  >
-                    <span>{mode.icon}</span>
-                    <span>{mode.label}</span>
-                  </button>
-                ))}
-              </div>
-
-              {/* Prompt Input & Multi-Actions Bar */}
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2 bg-[#090E1A] rounded-xl px-2.5 py-1.5 border border-slate-700/80">
-                  <input
-                    type="text"
-                    value={aiPrompt}
-                    onChange={(e) => setAiPrompt(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleAiSuggest(undefined, stylingMode, 'full_outfit')}
-                    placeholder="Nhập bối cảnh: Đi cưới bạn thân, đi cà phê triển lãm, dạo phố cổ, lễ chùa..."
-                    className="flex-1 bg-transparent text-xs text-slate-200 placeholder-slate-400 focus:outline-none font-sans-vi"
-                  />
-                  <button
-                    onClick={() => handleAiSuggest(undefined, stylingMode, 'full_outfit')}
-                    disabled={isAiSuggesting}
-                    className="px-3 py-1 rounded-lg bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-bold text-xs tracking-tight shadow-md hover:brightness-110 active:scale-95 transition-all whitespace-nowrap flex items-center gap-1 shrink-0 cursor-pointer"
-                  >
-                    {isAiSuggesting ? (
-                      <>
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                        <span>Đang phân tích...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-3 h-3 fill-slate-950" />
-                        <span>Gợi Ý Toàn Bộ</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                {/* Smart Action Buttons (Phối tiếp món đang chọn / Chuyển sang cách tân) */}
-                <div className="flex items-center gap-2 flex-wrap text-xs">
-                  {currentTop && (
-                    <button
-                      onClick={() => handleAiSuggest(undefined, stylingMode, 'complete_current')}
-                      disabled={isAiSuggesting}
-                      className="px-2.5 py-1 rounded-lg bg-emerald-950/60 hover:bg-emerald-900/70 border border-emerald-500/50 text-emerald-200 text-[11px] font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
-                      title={`Giữ ${currentTop.name} và để AI gợi ý hạ y & phụ kiện phối hoàn hảo`}
-                    >
-                      <Zap className="w-3 h-3 text-emerald-400" />
-                      <span>Phối tiếp cho áo "{currentTop.name.slice(0, 18)}..."</span>
-                    </button>
-                  )}
-
-                  <button
-                    onClick={() => {
-                      setStylingMode('modern_fusion');
-                      handleAiSuggest('Phối phong cách tân thời hiện đại Neo-Vietnamese dạo phố', 'modern_fusion', 'full_outfit');
-                    }}
-                    disabled={isAiSuggesting}
-                    className="px-2.5 py-1 rounded-lg bg-indigo-950/50 hover:bg-indigo-900/60 border border-indigo-400/50 text-indigo-200 text-[11px] font-medium flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
-                  >
-                    <TrendingUp className="w-3 h-3 text-indigo-400" />
-                    <span>Xu hướng Tân Thời (Neo-Streetwear)</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setStylingMode('authentic_heritage');
-                      handleAiSuggest('Phối chuẩn mực cổ phong triều đình mực thước', 'authentic_heritage', 'full_outfit');
-                    }}
-                    disabled={isAiSuggesting}
-                    className="px-2.5 py-1 rounded-lg bg-amber-950/50 hover:bg-amber-900/60 border border-amber-500/50 text-amber-200 text-[11px] font-medium flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
-                  >
-                    <Crown className="w-3 h-3 text-amber-400" />
-                    <span>Chuẩn Cổ Phong Mực Thước</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Contextual Preset Scenarios */}
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
-                {REAL_WORLD_SCENARIOS.map((scenario, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => {
-                      setAiPrompt(scenario.query);
-                      handleAiSuggest(scenario.query);
-                    }}
-                    className="px-2.5 py-1 rounded-lg bg-[#18233C] hover:bg-amber-950/60 hover:text-amber-200 border border-slate-700 hover:border-amber-400/50 text-[10.5px] text-slate-300 font-medium whitespace-nowrap transition-colors cursor-pointer shrink-0"
-                  >
-                    {scenario.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* ==========================================================
-                  DYNAMIC COMBINATION ANALYSIS CARD (DEEP DIVE)
-                 ========================================================== */}
-              <AnimatePresence>
-                {isAnalysisExpanded && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="pt-2 border-t border-slate-700/80 flex flex-col gap-3"
-                  >
-                    {/* Combination Title & Score Bar */}
-                    <div className="p-3 rounded-xl bg-gradient-to-r from-[#172036] via-[#1A253F] to-[#172036] border border-amber-500/30 flex flex-col gap-2">
-                      <div className="flex items-start justify-between gap-2 flex-wrap">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="px-2 py-0.5 rounded-md bg-amber-950/80 text-amber-300 text-[10px] font-bold border border-amber-500/40">
-                              {dynamicCombinationAnalysis.stylingDirectionLabel}
-                            </span>
-                            <span className="text-xs font-bold text-amber-200 font-serif-vi">
-                              {dynamicCombinationAnalysis.culturalSynergyTitle}
-                            </span>
-                          </div>
-                          {latestAiAnalysis?.characterPersona && (
-                            <div className="text-[10.5px] text-slate-300 mt-0.5 italic">
-                              Hình tượng: {latestAiAnalysis.characterPersona}
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/70 border border-emerald-500/50 text-emerald-300 text-xs font-bold font-mono">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                          <span>{dynamicCombinationAnalysis.synergyScore}% Tương Hợp</span>
-                        </div>
-                      </div>
-
-                      {/* 3 Detail Boxes: Cultural Meaning, Modern Trend, Color Harmony */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-1">
-                        {/* Cultural Meaning */}
-                        <div className="p-2.5 rounded-lg bg-[#0F1626]/90 border border-amber-600/30 text-left">
-                          <div className="flex items-center gap-1.5 text-amber-300 text-[10.5px] font-bold font-serif-vi mb-1">
-                            <Scroll className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                            <span>Ý NGHĨA VĂN HÓA & TRIẾT LÝ TƯƠNG HỖ:</span>
-                          </div>
-                          <p className="text-[11px] text-slate-300 leading-relaxed font-sans-vi">
-                            {dynamicCombinationAnalysis.culturalMeaningDetails ||
-                              'Bản phối thể hiện cốt cách Nho phong mực thước và sự giao hòa âm dương đất trời Đại Việt.'}
-                          </p>
-                        </div>
-
-                        {/* Modern Trend Factor */}
-                        <div className="p-2.5 rounded-lg bg-[#0F1626]/90 border border-indigo-500/30 text-left">
-                          <div className="flex items-center gap-1.5 text-indigo-300 text-[10.5px] font-bold font-serif-vi mb-1">
-                            <TrendingUp className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-                            <span>XU HƯỚNG PHỐI ĐỒ HIỆN ĐẠI & ỨNG DỤNG:</span>
-                          </div>
-                          <p className="text-[11px] text-slate-300 leading-relaxed font-sans-vi">
-                            {dynamicCombinationAnalysis.modernTrendDetails ||
-                              'Phong cách Neo-Vietnamese Heritage đang dẫn đầu xu hướng thời trang trẻ và các bộ ảnh nghệ thuật.'}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Color & Modern Styling Tip */}
-                      <div className="p-2 rounded-lg bg-[#0A0F1C]/80 border border-slate-700/60 text-[11px] text-slate-300 flex items-start gap-2">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
-                        <div>
-                          <span className="font-semibold text-amber-300">Gợi ý cách phối hiện đại: </span>
-                          <span>{dynamicCombinationAnalysis.modernOutfitTip}</span>
-                          <span className="block text-[10px] text-slate-400 mt-0.5">
-                            🎨 Hòa sắc: {dynamicCombinationAnalysis.colorHarmonyDetails}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* DUAL STYLE ALTERNATIVES (Cổ Phong Mực Thước vs Tân Thời Đương Đại) */}
-                    {latestAiAnalysis?.alternatives && (
-                      <div className="p-2.5 rounded-xl bg-[#0F1728] border border-slate-700/80 flex flex-col gap-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] font-bold text-slate-300 font-serif-vi flex items-center gap-1">
-                            <Compass className="w-3.5 h-3.5 text-amber-400" />
-                            <span>SO SÁNH 2 BIẾN THỂ PHONG CÁCH:</span>
-                          </span>
-                          <span className="text-[10px] text-slate-400">1 chạm để chuyển đổi</span>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {/* Classic */}
-                          <div className="p-2.5 rounded-lg bg-[#151F35] border border-amber-500/40 flex flex-col justify-between gap-1.5">
-                            <div>
-                              <div className="flex items-center justify-between">
-                                <span className="px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 text-[9.5px] font-bold">
-                                  🏛️ CỔ PHONG CHUẨN ĐIỂN CHẾ
-                                </span>
-                                <span className="text-[9.5px] text-amber-400/80 font-mono">100% Cổ Điển</span>
-                              </div>
-                              <div className="text-xs font-bold text-slate-200 mt-1">
-                                {latestAiAnalysis.alternatives.classic.title}
-                              </div>
-                              <div className="text-[10px] text-slate-400 mt-0.5">
-                                {latestAiAnalysis.alternatives.classic.tagline}
-                              </div>
-                            </div>
-                            <button
-                              onClick={() => handleApplyAlternative(latestAiAnalysis!.alternatives!.classic)}
-                              className="w-full py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 text-amber-200 text-[10.5px] font-bold transition-all cursor-pointer"
-                            >
-                              Áp Dụng Bản Phối Này
-                            </button>
-                          </div>
-
-                          {/* Modern Fusion */}
-                          <div className="p-2.5 rounded-lg bg-[#151F35] border border-indigo-500/40 flex flex-col justify-between gap-1.5">
-                            <div>
-                              <div className="flex items-center justify-between">
-                                <span className="px-1.5 py-0.5 rounded bg-indigo-950 text-indigo-300 text-[9.5px] font-bold">
-                                  ✨ TÂN THỜI ĐƯƠNG ĐẠI
-                                </span>
-                                <span className="text-[9.5px] text-indigo-400/80 font-mono">Neo-Heritage</span>
-                              </div>
-                              <div className="text-xs font-bold text-slate-200 mt-1">
-                                {latestAiAnalysis.alternatives.modernFusion.title}
-                              </div>
-                              <div className="text-[10px] text-slate-400 mt-0.5">
-                                {latestAiAnalysis.alternatives.modernFusion.tagline}
-                              </div>
-                            </div>
-                            <button
-                              onClick={() => handleApplyAlternative(latestAiAnalysis!.alternatives!.modernFusion)}
-                              className="w-full py-1 rounded bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-400/50 text-indigo-200 text-[10.5px] font-bold transition-all cursor-pointer"
-                            >
-                              Áp Dụng Bản Phối Này
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* SMART NEXT-ITEM QUICK PICKS (Khi đang chọn dở đồ) */}
-                    {smartNextItems.length > 0 && (!currentBottom || !currentAccessory) && (
-                      <div className="p-2.5 rounded-xl bg-[#0E1524] border border-emerald-500/30 flex flex-col gap-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] font-bold text-emerald-300 font-serif-vi flex items-center gap-1.5">
-                            <Zap className="w-3.5 h-3.5 text-emerald-400" />
-                            <span>GỢI Ý MÓN PHỐI TIẾP THEO TƯƠNG THÍCH NHẤT:</span>
-                          </span>
-                          <span className="text-[10px] text-slate-400">Dựa trên item hiện tại</span>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {smartNextItems.slice(0, 2).map((sugg) => (
-                            <div
-                              key={sugg.item.id}
-                              className="p-2 rounded-lg bg-[#141C30] border border-slate-700/80 hover:border-emerald-500/50 flex items-center justify-between gap-2 transition-all"
-                            >
-                              <div className="flex items-center gap-2 overflow-hidden">
-                                <span className="text-xl shrink-0">{sugg.item.icon}</span>
-                                <div className="truncate">
-                                  <div className="flex items-center gap-1.5">
-                                    <span className="text-xs font-bold text-slate-200 truncate font-serif-vi">
-                                      {sugg.item.name}
-                                    </span>
-                                    <span className="px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-300 text-[9px] font-mono shrink-0">
-                                      {sugg.compatibilityScore}%
-                                    </span>
-                                  </div>
-                                  <p className="text-[10px] text-slate-400 truncate mt-0.5">
-                                    {sugg.reason}
-                                  </p>
-                                </div>
-                              </div>
-                              <button
-                                onClick={() => handleEquipNextItem(sugg.item)}
-                                className="px-2 py-1 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-400/50 text-[10.5px] font-bold shrink-0 cursor-pointer"
-                              >
-                                + Mặc
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              <button
+                onClick={() => {
+                  soundEngine.playPluck(587.33);
+                  setWorkspaceView('ai_stylist');
+                }}
+                className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 relative ${
+                  workspaceView === 'ai_stylist'
+                    ? 'bg-gradient-to-r from-amber-500/30 via-amber-500/20 to-amber-600/30 text-amber-200 border border-amber-400/70 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>✨ 2. Trợ Lý AI & Đánh Giá</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              </button>
             </div>
 
-            {/* ==========================================================
-                2. AUTOMATIC VISUAL WARNING UI (CULTURAL TABOO REAL-TIME CHECKER)
-                Compares user's selected outfit in real time against CULTURAL_TABOOS_DATABASE
-               ========================================================== */}
+            {/* 2. AUTOMATIC VISUAL WARNING UI (CULTURAL TABOO REAL-TIME CHECKER) */}
             <div id="cultural-taboo-warning-panel" className="transition-all duration-300">
               {culturalRulesData.violations.length > 0 ? (
                 <div className="p-3.5 rounded-2xl bg-gradient-to-b from-[#1C0D15] via-[#140A10] to-[#170912] border-2 border-rose-500/80 shadow-[0_0_30px_rgba(244,63,94,0.25)] text-left space-y-3">
@@ -1275,540 +979,912 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
               )}
             </div>
 
-            {/* 3. Silk Category Navigation Tabs */}
-            <SilkCategoryTabs
-              items={categoryTabs}
-              activeId={activeTab}
-              onSelect={(id) => setActiveTab(id as any)}
-            />
-
-            {/* 4. INLINE QUICK COLOR PICKER SWATCHES (TIỆN LỢI ĐỔI MÀU TRỰC TIẾP KHI CHỌN ĐỒ) */}
-            <div className="p-2.5 rounded-xl bg-[#121A2C] border border-amber-500/30 flex items-center justify-between gap-2 flex-wrap">
-              <div className="flex items-center gap-1.5 text-xs text-amber-300 font-medium">
-                <Palette className="w-3.5 h-3.5 text-amber-400" />
-                <span>
-                  Đổi màu nhanh cho {activeTab === 'bottom' ? 'Quần / Váy' : 'Áo'}:
-                </span>
-              </div>
-
-              {/* Swatches */}
-              <div className="flex items-center gap-1.5 flex-wrap">
-                {QUICK_HERITAGE_SWATCHES.map((swatch, idx) => (
+            {/* CONDITIONAL WORKSPACE VIEWS */}
+            {workspaceView === 'wardrobe' ? (
+              <>
+                {/* Quick AI suggestion assistant hint bar */}
+                <div className="p-2.5 rounded-xl bg-gradient-to-r from-amber-500/10 via-[#162035] to-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-2 text-xs">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    <span className="text-slate-300 text-[11.5px]">
+                      Cần AI gợi ý phối đồ theo bối cảnh hoặc phong cách?
+                    </span>
+                  </div>
                   <button
-                    key={idx}
                     onClick={() => {
-                      soundEngine.playPluck(523.25 + idx * 25);
-                      if (activeTab === 'bottom') {
-                        onSelectBottomColor(swatch.hex);
-                      } else {
-                        onSelectTopColor(swatch.hex);
-                      }
+                      soundEngine.playPluck(523.25);
+                      setWorkspaceView('ai_stylist');
                     }}
-                    className="group relative w-6 h-6 rounded-full border border-white/60 shadow-xs hover:scale-115 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
-                    style={{ backgroundColor: swatch.hex }}
-                    title={swatch.name}
+                    className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-400/50 text-[11px] font-bold cursor-pointer shrink-0 transition-all flex items-center gap-1"
                   >
-                    {((activeTab === 'bottom' && activeBottomHex === swatch.hex) ||
-                      (activeTab !== 'bottom' && activeTopHex === swatch.hex)) && (
-                      <Check className="w-3 h-3 text-white drop-shadow stroke-[3]" />
-                    )}
+                    <span>Mở Trợ Lý AI</span>
+                    <ArrowRight className="w-3 h-3" />
                   </button>
-                ))}
+                </div>
 
-                {/* Custom Color Input */}
-                <label
-                  className="w-6 h-6 rounded-full border border-dashed border-amber-400/80 hover:border-amber-300 flex items-center justify-center cursor-pointer text-[10px] text-amber-300 hover:scale-105 transition-transform"
-                  title="Chọn mã màu tùy biến hex"
-                >
-                  <input
-                    type="color"
-                    className="sr-only"
-                    value={activeTab === 'bottom' ? activeBottomHex : activeTopHex}
-                    onChange={(e) => {
-                      if (activeTab === 'bottom') {
-                        onSelectBottomColor(e.target.value);
-                      } else {
-                        onSelectTopColor(e.target.value);
-                      }
-                    }}
-                  />
-                  <span>+</span>
-                </label>
-              </div>
-            </div>
+                {/* 3. Silk Category Navigation Tabs */}
+                <SilkCategoryTabs
+                  items={categoryTabs}
+                  activeId={activeTab}
+                  onSelect={(id) => setActiveTab(id as any)}
+                />
 
-            {/* 5. Era & Gender Filter Pills */}
-            <div className="flex items-center justify-between gap-2 flex-wrap text-xs">
-              {/* Era selector */}
-              <div className="flex items-center gap-1 bg-[#090E1A] p-1 rounded-xl border border-slate-800">
-                <span className="text-[10px] text-slate-400 px-1 font-medium">Niên đại:</span>
-                {[
-                  { id: 'all', label: 'Tất cả' },
-                  { id: 'nguyen', label: 'Nguyễn' },
-                  { id: 'le', label: 'Hậu Lê' },
-                  { id: 'tran', label: 'Trần - Lý' },
-                ].map((era) => (
-                  <button
-                    key={era.id}
-                    onClick={() => setEraFilter(era.id as any)}
-                    className={`px-2 py-0.5 rounded-lg text-[10.5px] transition-all cursor-pointer ${
-                      eraFilter === era.id
-                        ? 'bg-amber-500 text-slate-950 font-bold'
-                        : 'text-slate-400 hover:text-slate-200'
-                    }`}
-                  >
-                    {era.label}
-                  </button>
-                ))}
-              </div>
+                {/* 4. INLINE QUICK COLOR PICKER SWATCHES (TIỆN LỢI ĐỔI MÀU TRỰC TIẾP KHI CHỌN ĐỒ) */}
+                <div className="p-2.5 rounded-xl bg-[#121A2C] border border-amber-500/30 flex items-center justify-between gap-2 flex-wrap">
+                  <div className="flex items-center gap-1.5 text-xs text-amber-300 font-medium">
+                    <Palette className="w-3.5 h-3.5 text-amber-400" />
+                    <span>
+                      Đổi màu nhanh cho {activeTab === 'bottom' ? 'Quần / Váy' : 'Áo'}:
+                    </span>
+                  </div>
 
-              {/* Gender selector */}
-              <div className="flex items-center gap-1 bg-[#090E1A] p-1 rounded-xl border border-slate-800">
-                <span className="text-[10px] text-slate-400 px-1 font-medium">Quy cách:</span>
-                {[
-                  { id: undefined, label: 'Tất cả' },
-                  { id: 'nam', label: 'Nam' },
-                  { id: 'nu', label: 'Nữ' },
-                ].map((g, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setGenderFilter(g.id as any)}
-                    className={`px-2 py-0.5 rounded-lg text-[10.5px] transition-all cursor-pointer ${
-                      genderFilter === g.id
-                        ? 'bg-amber-500 text-slate-950 font-bold'
-                        : 'text-slate-400 hover:text-slate-200'
-                    }`}
-                  >
-                    {g.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 6. Wardrobe Cards Grid */}
-            <div className="max-h-[360px] overflow-y-auto pr-1 space-y-2 custom-scrollbar">
-              {/* TAB 1: Áo Cổ Phục (TOPS) */}
-              {activeTab === 'top' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {getFilteredItems(TOPS).map((item) => {
-                    const isSelected = currentTop?.id === item.id;
-                    return (
-                      <div
-                        key={item.id}
-                        onMouseEnter={() => setHoveredItem(item)}
-                        onMouseLeave={() => setHoveredItem(null)}
+                  {/* Swatches */}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {QUICK_HERITAGE_SWATCHES.map((swatch, idx) => (
+                      <button
+                        key={idx}
                         onClick={() => {
-                          soundEngine.playPluck(659.25);
-                          if (isSelected) {
-                            onSelectTop(null); // Deselect on second click
+                          soundEngine.playPluck(523.25 + idx * 25);
+                          if (activeTab === 'bottom') {
+                            onSelectBottomColor(swatch.hex);
                           } else {
-                            onSelectTop(item);
+                            onSelectTopColor(swatch.hex);
                           }
                         }}
-                        className={`p-3 rounded-2xl border transition-all text-left flex flex-col justify-between gap-2 cursor-pointer group ${
-                          isSelected
-                            ? 'bg-[#18233C] border-amber-400 shadow-md'
-                            : 'bg-[#0E1524] hover:bg-[#141C30] border-slate-800 hover:border-slate-700'
+                        className="group relative w-6 h-6 rounded-full border border-white/60 shadow-xs hover:scale-115 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+                        style={{ backgroundColor: swatch.hex }}
+                        title={swatch.name}
+                      >
+                        {((activeTab === 'bottom' && activeBottomHex === swatch.hex) ||
+                          (activeTab !== 'bottom' && activeTopHex === swatch.hex)) && (
+                          <Check className="w-3 h-3 text-white drop-shadow stroke-[3]" />
+                        )}
+                      </button>
+                    ))}
+
+                    {/* Custom Color Input */}
+                    <label
+                      className="w-6 h-6 rounded-full border border-dashed border-amber-400/80 hover:border-amber-300 flex items-center justify-center cursor-pointer text-[10px] text-amber-300 hover:scale-105 transition-transform"
+                      title="Chọn mã màu tùy biến hex"
+                    >
+                      <input
+                        type="color"
+                        className="sr-only"
+                        value={activeTab === 'bottom' ? activeBottomHex : activeTopHex}
+                        onChange={(e) => {
+                          if (activeTab === 'bottom') {
+                            onSelectBottomColor(e.target.value);
+                          } else {
+                            onSelectTopColor(e.target.value);
+                          }
+                        }}
+                      />
+                      <span>+</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* 5. Era & Gender Filter Pills */}
+                <div className="flex items-center justify-between gap-2 flex-wrap text-xs">
+                  {/* Era selector */}
+                  <div className="flex items-center gap-1 bg-[#090E1A] p-1 rounded-xl border border-slate-800">
+                    <span className="text-[10px] text-slate-400 px-1 font-medium">Niên đại:</span>
+                    {[
+                      { id: 'all', label: 'Tất cả' },
+                      { id: 'nguyen', label: 'Nguyễn' },
+                      { id: 'le', label: 'Hậu Lê' },
+                      { id: 'tran', label: 'Trần - Lý' },
+                    ].map((era) => (
+                      <button
+                        key={era.id}
+                        onClick={() => setEraFilter(era.id as any)}
+                        className={`px-2 py-0.5 rounded-lg text-[10.5px] transition-all cursor-pointer ${
+                          eraFilter === era.id
+                            ? 'bg-amber-500 text-slate-950 font-bold'
+                            : 'text-slate-400 hover:text-slate-200'
                         }`}
                       >
-                        <div className="flex items-start justify-between gap-1">
-                          <div>
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="text-[10px] font-bold text-amber-400/90 tracking-wide uppercase">
-                                {item.era}
-                              </span>
-                              {item.gender && (
-                                <span className="px-1.5 py-0.2 rounded text-[9px] bg-slate-800 text-slate-300 font-medium">
-                                  {item.gender === 'nam' ? 'Nam' : item.gender === 'nu' ? 'Nữ' : 'Unisex'}
+                        {era.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Gender selector */}
+                  <div className="flex items-center gap-1 bg-[#090E1A] p-1 rounded-xl border border-slate-800">
+                    <span className="text-[10px] text-slate-400 px-1 font-medium">Quy cách:</span>
+                    {[
+                      { id: undefined, label: 'Tất cả' },
+                      { id: 'nam', label: 'Nam' },
+                      { id: 'nu', label: 'Nữ' },
+                    ].map((g, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setGenderFilter(g.id as any)}
+                        className={`px-2 py-0.5 rounded-lg text-[10.5px] transition-all cursor-pointer ${
+                          genderFilter === g.id
+                            ? 'bg-amber-500 text-slate-950 font-bold'
+                            : 'text-slate-400 hover:text-slate-200'
+                        }`}
+                      >
+                        {g.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 6. Wardrobe Cards Grid */}
+                <div className="min-h-[380px] max-h-[520px] overflow-y-auto pr-1 space-y-2 custom-scrollbar">
+                  {/* TAB 1: Áo Cổ Phục (TOPS) */}
+                  {activeTab === 'top' && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {getFilteredItems(TOPS).map((item) => {
+                        const isSelected = currentTop?.id === item.id;
+                        return (
+                          <div
+                            key={item.id}
+                            onMouseEnter={() => setHoveredItem(item)}
+                            onMouseLeave={() => setHoveredItem(null)}
+                            onClick={() => {
+                              soundEngine.playPluck(659.25);
+                              if (isSelected) {
+                                onSelectTop(null); // Deselect on second click
+                              } else {
+                                onSelectTop(item);
+                              }
+                            }}
+                            className={`p-3 rounded-2xl border transition-all text-left flex flex-col justify-between gap-2 cursor-pointer group ${
+                              isSelected
+                                ? 'bg-[#18233C] border-amber-400 shadow-md'
+                                : 'bg-[#0E1524] hover:bg-[#141C30] border-slate-800 hover:border-slate-700'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-1">
+                              <div>
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="text-[10px] font-bold text-amber-400/90 tracking-wide uppercase">
+                                    {item.era}
+                                  </span>
+                                  {item.gender && (
+                                    <span className="px-1.5 py-0.2 rounded text-[9px] bg-slate-800 text-slate-300 font-medium">
+                                      {item.gender === 'nam' ? 'Nam' : item.gender === 'nu' ? 'Nữ' : 'Unisex'}
+                                    </span>
+                                  )}
+                                </div>
+                                <h3 className="text-xs sm:text-[13px] font-bold text-slate-100 font-serif-vi mt-0.5 leading-snug group-hover:text-amber-200 transition-colors">
+                                  {item.name}
+                                </h3>
+                              </div>
+
+                              {/* Selected Checkmark or Equip Pill */}
+                              {isSelected ? (
+                                <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-bold shrink-0">
+                                  Đang Mặc
+                                </span>
+                              ) : (
+                                <span className="px-1.5 py-0.5 rounded text-[10px] text-slate-400 group-hover:text-amber-300 shrink-0">
+                                  Thử áo
                                 </span>
                               )}
                             </div>
-                            <h3 className="text-xs font-bold text-slate-100 font-serif-vi mt-0.5 line-clamp-1 group-hover:text-amber-200 transition-colors">
-                              {item.name}
-                            </h3>
+
+                            <p className="text-[11px] text-slate-300 leading-relaxed">
+                              {item.summary}
+                            </p>
+
+                            {/* Culture Note Pill */}
+                            {item.cultureInfo && (
+                              <div className="text-[10px] text-amber-300/80 bg-amber-950/20 px-2 py-1 rounded-lg border border-amber-500/20 leading-snug">
+                                ⚜️ {item.cultureInfo.notableDynasty} • {item.cultureInfo.origin}
+                              </div>
+                            )}
                           </div>
+                        );
+                      })}
+                    </div>
+                  )}
 
-                          {/* Selected Checkmark or Equip Pill */}
-                          {isSelected ? (
-                            <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-bold shrink-0">
-                              Đang Mặc
-                            </span>
-                          ) : (
-                            <span className="px-1.5 py-0.5 rounded text-[10px] text-slate-400 group-hover:text-amber-300 shrink-0">
-                              Thử áo
-                            </span>
-                          )}
-                        </div>
-
-                        <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
-                          {item.summary}
-                        </p>
-
-                        {/* Culture Note Pill */}
-                        {item.cultureInfo && (
-                          <div className="text-[10px] text-amber-300/80 bg-amber-950/20 px-2 py-1 rounded-lg border border-amber-500/20 line-clamp-1">
-                            ⚜️ {item.cultureInfo.notableDynasty} • {item.cultureInfo.origin}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* TAB 2: Hạ Y (Quần / Váy) */}
-              {activeTab === 'bottom' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {BOTTOMS.map((item) => {
-                    const isSelected = currentBottom?.id === item.id;
-                    return (
-                      <div
-                        key={item.id}
-                        onMouseEnter={() => setHoveredItem(item)}
-                        onMouseLeave={() => setHoveredItem(null)}
-                        onClick={() => {
-                          soundEngine.playPluck(587.33);
-                          if (isSelected) {
-                            onSelectBottom(null);
-                          } else {
-                            onSelectBottom(item);
-                          }
-                        }}
-                        className={`p-3 rounded-2xl border transition-all text-left flex flex-col justify-between gap-2 cursor-pointer group ${
-                          isSelected
-                            ? 'bg-[#18233C] border-amber-400 shadow-md'
-                            : 'bg-[#0E1524] hover:bg-[#141C30] border-slate-800 hover:border-slate-700'
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-1">
-                          <div>
-                            <span className="text-[10px] font-bold text-amber-400/90 tracking-wide uppercase">
-                              {item.era}
-                            </span>
-                            <h3 className="text-xs font-bold text-slate-100 font-serif-vi mt-0.5 line-clamp-1 group-hover:text-amber-200">
-                              {item.name}
-                            </h3>
-                          </div>
-                          {isSelected ? (
-                            <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-bold shrink-0">
-                              Đang Mặc
-                            </span>
-                          ) : (
-                            <span className="px-1.5 py-0.5 rounded text-[10px] text-slate-400 group-hover:text-amber-300 shrink-0">
-                              Thử hạ y
-                            </span>
-                          )}
-                        </div>
-
-                        <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
-                          {item.summary}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* TAB 3: Phụ Kiện (ACCESSORIES) */}
-              {activeTab === 'accessory' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {ACCESSORIES.map((item) => {
-                    const isSelected = currentAccessory?.id === item.id;
-                    return (
-                      <div
-                        key={item.id}
-                        onMouseEnter={() => setHoveredItem(item)}
-                        onMouseLeave={() => setHoveredItem(null)}
-                        onClick={() => {
-                          soundEngine.playPluck(783.99);
-                          if (isSelected) {
-                            onSelectAccessory(null);
-                          } else {
-                            onSelectAccessory(item);
-                          }
-                        }}
-                        className={`p-3 rounded-2xl border transition-all text-left flex flex-col justify-between gap-2 cursor-pointer group ${
-                          isSelected
-                            ? 'bg-[#18233C] border-amber-400 shadow-md'
-                            : 'bg-[#0E1524] hover:bg-[#141C30] border-slate-800 hover:border-slate-700'
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-1">
-                          <div>
-                            <span className="text-[10px] font-bold text-amber-400/90 tracking-wide uppercase">
-                              {item.era}
-                            </span>
-                            <h3 className="text-xs font-bold text-slate-100 font-serif-vi mt-0.5 line-clamp-1 group-hover:text-amber-200">
-                              {item.name}
-                            </h3>
-                          </div>
-                          {isSelected ? (
-                            <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-bold shrink-0">
-                              Đang Đeo
-                            </span>
-                          ) : (
-                            <span className="px-1.5 py-0.5 rounded text-[10px] text-slate-400 group-hover:text-amber-300 shrink-0">
-                              Đeo thử
-                            </span>
-                          )}
-                        </div>
-
-                        <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
-                          {item.summary}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* TAB 4: Ngũ Hành & Bảng Màu Toàn Diện */}
-              {activeTab === 'color' && (
-                <div className="space-y-3">
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {COLOR_PALETTES.map((palette) => {
-                      const isSelected = currentColor.name === palette.name;
-                      return (
-                        <div
-                          key={palette.name}
-                          onClick={() => {
-                            soundEngine.playPluck(523.25);
-                            onSelectColor(palette);
-                            onSelectTopColor(palette.hex);
-                          }}
-                          className={`p-2.5 rounded-2xl border transition-all text-left flex items-center gap-2.5 cursor-pointer ${
-                            isSelected
-                              ? 'bg-[#18233C] border-amber-400 shadow-md'
-                              : 'bg-[#0E1524] hover:bg-[#141C30] border-slate-800'
-                          }`}
-                        >
+                  {/* TAB 2: Hạ Y (Quần / Váy) */}
+                  {activeTab === 'bottom' && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {BOTTOMS.map((item) => {
+                        const isSelected = currentBottom?.id === item.id;
+                        return (
                           <div
-                            className="w-7 h-7 rounded-full border border-white/60 shadow-xs shrink-0 flex items-center justify-center"
-                            style={{ backgroundColor: palette.hex }}
+                            key={item.id}
+                            onMouseEnter={() => setHoveredItem(item)}
+                            onMouseLeave={() => setHoveredItem(null)}
+                            onClick={() => {
+                              soundEngine.playPluck(587.33);
+                              if (isSelected) {
+                                onSelectBottom(null);
+                              } else {
+                                onSelectBottom(item);
+                              }
+                            }}
+                            className={`p-3 rounded-2xl border transition-all text-left flex flex-col justify-between gap-2 cursor-pointer group ${
+                              isSelected
+                                ? 'bg-[#18233C] border-amber-400 shadow-md'
+                                : 'bg-[#0E1524] hover:bg-[#141C30] border-slate-800 hover:border-slate-700'
+                            }`}
                           >
-                            {isSelected && <Check className="w-3.5 h-3.5 text-white drop-shadow" />}
+                            <div className="flex items-start justify-between gap-1">
+                              <div>
+                                <span className="text-[10px] font-bold text-amber-400/90 tracking-wide uppercase">
+                                  {item.era}
+                                </span>
+                                <h3 className="text-xs sm:text-[13px] font-bold text-slate-100 font-serif-vi mt-0.5 leading-snug group-hover:text-amber-200">
+                                  {item.name}
+                                </h3>
+                              </div>
+                              {isSelected ? (
+                                <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-bold shrink-0">
+                                  Đang Mặc
+                                </span>
+                              ) : (
+                                <span className="px-1.5 py-0.5 rounded text-[10px] text-slate-400 group-hover:text-amber-300 shrink-0">
+                                  Thử hạ y
+                                </span>
+                              )}
+                            </div>
+
+                            <p className="text-[11px] text-slate-300 leading-relaxed">
+                              {item.summary}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* TAB 3: Phụ Kiện (ACCESSORIES) */}
+                  {activeTab === 'accessory' && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {ACCESSORIES.map((item) => {
+                        const isSelected = currentAccessory?.id === item.id;
+                        return (
+                          <div
+                            key={item.id}
+                            onMouseEnter={() => setHoveredItem(item)}
+                            onMouseLeave={() => setHoveredItem(null)}
+                            onClick={() => {
+                              soundEngine.playPluck(783.99);
+                              if (isSelected) {
+                                onSelectAccessory(null);
+                              } else {
+                                onSelectAccessory(item);
+                              }
+                            }}
+                            className={`p-3 rounded-2xl border transition-all text-left flex flex-col justify-between gap-2 cursor-pointer group ${
+                              isSelected
+                                ? 'bg-[#18233C] border-amber-400 shadow-md'
+                                : 'bg-[#0E1524] hover:bg-[#141C30] border-slate-800 hover:border-slate-700'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-1">
+                              <div>
+                                <span className="text-[10px] font-bold text-amber-400/90 tracking-wide uppercase">
+                                  {item.era}
+                                </span>
+                                <h3 className="text-xs sm:text-[13px] font-bold text-slate-100 font-serif-vi mt-0.5 leading-snug group-hover:text-amber-200">
+                                  {item.name}
+                                </h3>
+                              </div>
+                              {isSelected ? (
+                                <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-bold shrink-0">
+                                  Đang Đeo
+                                </span>
+                              ) : (
+                                <span className="px-1.5 py-0.5 rounded text-[10px] text-slate-400 group-hover:text-amber-300 shrink-0">
+                                  Đeo thử
+                                </span>
+                              )}
+                            </div>
+
+                            <p className="text-[11px] text-slate-300 leading-relaxed">
+                              {item.summary}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* TAB 4: Ngũ Hành & Bảng Màu Toàn Diện */}
+                  {activeTab === 'color' && (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {COLOR_PALETTES.map((palette) => {
+                          const isSelected = currentColor.name === palette.name;
+                          return (
+                            <div
+                              key={palette.name}
+                              onClick={() => {
+                                soundEngine.playPluck(523.25);
+                                onSelectColor(palette);
+                                onSelectTopColor(palette.hex);
+                              }}
+                              className={`p-2.5 rounded-2xl border transition-all text-left flex items-center gap-2.5 cursor-pointer ${
+                                isSelected
+                                  ? 'bg-[#18233C] border-amber-400 shadow-md'
+                                  : 'bg-[#0E1524] hover:bg-[#141C30] border-slate-800'
+                              }`}
+                            >
+                              <div
+                                className="w-7 h-7 rounded-full border border-white/60 shadow-xs shrink-0 flex items-center justify-center"
+                                style={{ backgroundColor: palette.hex }}
+                              >
+                                {isSelected && <Check className="w-3.5 h-3.5 text-white drop-shadow" />}
+                              </div>
+                              <div>
+                                <h4 className="text-xs font-bold text-slate-100 font-serif-vi">
+                                  {palette.name}
+                                </h4>
+                                <span className="text-[10px] text-slate-400 block">{palette.meaning}</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 5: Chất Liệu Vải & Vân Gấm (FABRICS) */}
+                  {activeTab === 'fabric' && (
+                    <div className="space-y-3">
+                      {/* Banner trigger for Magnifying Glass Inspector */}
+                      <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/20 via-[#1C263C] to-amber-500/20 border border-amber-400/60 shadow-lg flex items-center justify-between gap-3 flex-wrap">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/80 flex items-center justify-center shrink-0">
+                            <Scan className="w-5 h-5 text-amber-400 animate-pulse" />
                           </div>
                           <div>
-                            <h4 className="text-xs font-bold text-slate-100 font-serif-vi">
-                              {palette.name}
+                            <h4 className="text-xs font-bold text-amber-200 font-serif-vi flex items-center gap-2">
+                              <span>KÍNH LÚP SOI CẬN CẢNH HỌA TIẾT & THỚ DỆT</span>
+                              <span className="px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 text-[9px] font-mono">
+                                MACRO 1X - 8X
+                              </span>
                             </h4>
-                            <span className="text-[10px] text-slate-400 block">{palette.meaning}</span>
+                            <p className="text-[11px] text-slate-300">
+                              Phóng to xem chi tiết thêu tay, vân gấm nổi chữ Vạn, họa tiết Thủy Ba & hoa cúc chìm
+                            </p>
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
 
-              {/* TAB 5: Chất Liệu Vải & Vân Gấm (FABRICS) */}
-              {activeTab === 'fabric' && (
-                <div className="space-y-3">
-                  {/* Banner trigger for Magnifying Glass Inspector */}
-                  <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/20 via-[#1C263C] to-amber-500/20 border border-amber-400/60 shadow-lg flex items-center justify-between gap-3 flex-wrap">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/80 flex items-center justify-center shrink-0">
-                        <Scan className="w-5 h-5 text-amber-400 animate-pulse" />
+                        <button
+                          onClick={() => {
+                            soundEngine.playPluck(587.33);
+                            setShowFabricInspector(true);
+                          }}
+                          className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-bold text-xs tracking-tight shadow-md hover:brightness-110 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
+                        >
+                          <ZoomIn className="w-4 h-4" />
+                          <span>Mở Kính Lúp Soi Cận Cảnh</span>
+                        </button>
+                      </div>
+
+                      {/* 4 Fabric Cards */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {FABRICS.map((fabric) => {
+                          const isSelected = (currentFabric?.id || FABRICS[1].id) === fabric.id;
+                          return (
+                            <div
+                              key={fabric.id}
+                              onClick={() => {
+                                soundEngine.playPluck(659.25);
+                                if (onSelectFabric) onSelectFabric(fabric);
+                              }}
+                              className={`p-3 rounded-2xl border transition-all text-left flex flex-col justify-between gap-2 cursor-pointer group ${
+                                isSelected
+                                  ? 'bg-[#18233C] border-amber-400 shadow-md ring-1 ring-amber-400/50'
+                                  : 'bg-[#0E1524] hover:bg-[#141C30] border-slate-800 hover:border-slate-700'
+                              }`}
+                            >
+                              <div className="flex items-start justify-between gap-1">
+                                <div>
+                                  <div className="flex items-center gap-1.5">
+                                    <h3 className="text-xs font-bold text-slate-100 font-serif-vi group-hover:text-amber-200">
+                                      {fabric.name}
+                                    </h3>
+                                    {isSelected && <Check className="w-3.5 h-3.5 text-amber-400" />}
+                                  </div>
+                                  <span className="text-[10px] text-amber-300/80 font-mono mt-0.5 block">
+                                    {fabric.sheen}
+                                  </span>
+                                </div>
+                                {isSelected ? (
+                                  <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-bold shrink-0">
+                                    Đang Chọn
+                                  </span>
+                                ) : (
+                                  <span className="px-1.5 py-0.5 rounded text-[10px] text-slate-400 group-hover:text-amber-300 shrink-0">
+                                    Chọn vải
+                                  </span>
+                                )}
+                              </div>
+
+                              <p className="text-[11px] text-slate-300 leading-relaxed">
+                                {fabric.description}
+                              </p>
+
+                              <div className="flex items-center justify-between pt-1 border-t border-slate-800 text-[10px]">
+                                <span className="text-slate-400">{fabric.textureLabel}</span>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (onSelectFabric) onSelectFabric(fabric);
+                                    setShowFabricInspector(true);
+                                  }}
+                                  className="text-amber-400 hover:text-amber-200 font-semibold flex items-center gap-1 cursor-pointer"
+                                >
+                                  <Scan className="w-3 h-3" />
+                                  <span>Soi cận cảnh</span>
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              /* AI STYLIST & EVALUATION VIEW */
+              <div className="flex flex-col gap-3.5">
+                <div className="flex items-center justify-between pb-1">
+                  <button
+                    onClick={() => {
+                      soundEngine.playPluck(440);
+                      setWorkspaceView('wardrobe');
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-amber-300 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
+                  >
+                    <span>← Quay lại Tủ Đồ Cổ Phục</span>
+                  </button>
+                  <span className="text-[11px] text-slate-400 font-mono">
+                    CHẾ ĐỘ TRỢ LÝ THỜI TRANG AI
+                  </span>
+                </div>
+
+                {/* 1. Trợ Lý AI: Phân Tích Sự Kết Hợp Cụ Thể & Gợi Ý Đương Đại */}
+                <div className="bg-[#121A2C] border border-amber-400/40 rounded-2xl p-3.5 shadow-lg flex flex-col gap-3">
+                  {/* Header */}
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-400/60 flex items-center justify-center">
+                        <Wand2 className="w-4 h-4 text-amber-400 animate-pulse" />
                       </div>
                       <div>
-                        <h4 className="text-xs font-bold text-amber-200 font-serif-vi flex items-center gap-2">
-                          <span>KÍNH LÚP SOI CẬN CẢNH HỌA TIẾT & THỚ DỆT</span>
-                          <span className="px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 text-[9px] font-mono">
-                            MACRO 1X - 8X
+                        <div className="text-xs font-bold text-amber-300 font-serif-vi flex items-center gap-1.5">
+                          <span>TRỢ LÝ AI: PHÂN TÍCH BẢN PHỐI & GỢI Ý ĐƯƠNG ĐẠI</span>
+                          <span className="px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 text-[9px] font-mono border border-amber-400/40">
+                            DI SẢN & TÂN THỜI
                           </span>
-                        </h4>
-                        <p className="text-[11px] text-slate-300">
-                          Phóng to xem chi tiết thêu tay, vân gấm nổi chữ Vạn, họa tiết Thủy Ba & hoa cúc chìm
-                        </p>
+                        </div>
+                        <div className="text-[10px] text-slate-400">
+                          Phân tích tương hỗ văn hóa giữa các item & xu hướng phối đồ hiện đại
+                        </div>
                       </div>
                     </div>
 
-                    <button
-                      onClick={() => {
-                        soundEngine.playPluck(587.33);
-                        setShowFabricInspector(true);
-                      }}
-                      className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-bold text-xs tracking-tight shadow-md hover:brightness-110 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
-                    >
-                      <ZoomIn className="w-4 h-4" />
-                      <span>Mở Kính Lúp Soi Cận Cảnh</span>
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setIsAnalysisExpanded(!isAnalysisExpanded)}
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#18233C] border border-slate-700 text-slate-300 hover:text-amber-300 text-[10.5px] cursor-pointer transition-colors"
+                      >
+                        <span>{isAnalysisExpanded ? 'Thu gọn' : 'Xem phân tích'}</span>
+                        {isAnalysisExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
                   </div>
 
-                  {/* 4 Fabric Cards */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {FABRICS.map((fabric) => {
-                      const isSelected = (currentFabric?.id || FABRICS[1].id) === fabric.id;
-                      return (
-                        <div
-                          key={fabric.id}
-                          onClick={() => {
-                            soundEngine.playPluck(659.25);
-                            if (onSelectFabric) onSelectFabric(fabric);
-                          }}
-                          className={`p-3 rounded-2xl border transition-all text-left flex flex-col justify-between gap-2 cursor-pointer group ${
-                            isSelected
-                              ? 'bg-[#18233C] border-amber-400 shadow-md ring-1 ring-amber-400/50'
-                              : 'bg-[#0E1524] hover:bg-[#141C30] border-slate-800 hover:border-slate-700'
-                          }`}
+                  {/* STYLING MODE SELECTOR (4 Chế độ định hướng) */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 custom-scrollbar">
+                    {[
+                      { id: 'auto', label: 'Tự Động Cân Bằng', icon: '✨' },
+                      { id: 'authentic_heritage', label: 'Cổ Phong Mực Thước', icon: '🏛️' },
+                      { id: 'modern_fusion', label: 'Tân Thời Đương Đại', icon: '⚡' },
+                      { id: 'festive_ceremony', label: 'Đại Lễ & Lễ Cưới', icon: '🌸' },
+                      { id: 'daily_casual', label: 'Dạo Phố & Hàng Ngày', icon: '☕' },
+                    ].map((mode) => (
+                      <button
+                        key={mode.id}
+                        onClick={() => {
+                          setStylingMode(mode.id as StylingMode);
+                          soundEngine.playPluck(440);
+                        }}
+                        className={`px-2.5 py-1 rounded-xl text-[10.5px] font-medium whitespace-nowrap transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
+                          stylingMode === mode.id
+                            ? 'bg-gradient-to-r from-amber-500/30 to-amber-600/30 text-amber-200 border border-amber-400/80 shadow-sm'
+                            : 'bg-[#18233C]/70 hover:bg-[#1f2d4d] text-slate-300 border border-slate-700/70'
+                        }`}
+                      >
+                        <span>{mode.icon}</span>
+                        <span>{mode.label}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Prompt Input & Multi-Actions Bar */}
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2 bg-[#090E1A] rounded-xl px-2.5 py-1.5 border border-slate-700/80">
+                      <input
+                        type="text"
+                        value={aiPrompt}
+                        onChange={(e) => setAiPrompt(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleAiSuggest(undefined, stylingMode, 'full_outfit')}
+                        placeholder="Nhập bối cảnh: Đi cưới bạn thân, đi cà phê triển lãm, dạo phố cổ, lễ chùa..."
+                        className="flex-1 bg-transparent text-xs text-slate-200 placeholder-slate-400 focus:outline-none font-sans-vi"
+                      />
+                      <button
+                        onClick={() => handleAiSuggest(undefined, stylingMode, 'full_outfit')}
+                        disabled={isAiSuggesting}
+                        className="px-3 py-1 rounded-lg bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-bold text-xs tracking-tight shadow-md hover:brightness-110 active:scale-95 transition-all whitespace-nowrap flex items-center gap-1 shrink-0 cursor-pointer"
+                      >
+                        {isAiSuggesting ? (
+                          <>
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                            <span>Đang phân tích...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-3 h-3 fill-slate-950" />
+                            <span>Gợi Ý Toàn Bộ</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Smart Action Buttons (Phối tiếp món đang chọn / Chuyển sang cách tân) */}
+                    <div className="flex items-center gap-2 flex-wrap text-xs">
+                      {currentTop && (
+                        <button
+                          onClick={() => handleAiSuggest(undefined, stylingMode, 'complete_current')}
+                          disabled={isAiSuggesting}
+                          className="px-2.5 py-1 rounded-lg bg-emerald-950/60 hover:bg-emerald-900/70 border border-emerald-500/50 text-emerald-200 text-[11px] font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+                          title={`Giữ ${currentTop.name} và để AI gợi ý hạ y & phụ kiện phối hoàn hảo`}
                         >
-                          <div className="flex items-start justify-between gap-1">
+                          <Zap className="w-3 h-3 text-emerald-400" />
+                          <span>Phối tiếp cho áo "{currentTop.name}"</span>
+                        </button>
+                      )}
+
+                      <button
+                        onClick={() => {
+                          setStylingMode('modern_fusion');
+                          handleAiSuggest('Phối phong cách tân thời hiện đại Neo-Vietnamese dạo phố', 'modern_fusion', 'full_outfit');
+                        }}
+                        disabled={isAiSuggesting}
+                        className="px-2.5 py-1 rounded-lg bg-indigo-950/50 hover:bg-indigo-900/60 border border-indigo-400/50 text-indigo-200 text-[11px] font-medium flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+                      >
+                        <TrendingUp className="w-3 h-3 text-indigo-400" />
+                        <span>Xu hướng Tân Thời (Neo-Streetwear)</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setStylingMode('authentic_heritage');
+                          handleAiSuggest('Phối chuẩn mực cổ phong triều đình mực thước', 'authentic_heritage', 'full_outfit');
+                        }}
+                        disabled={isAiSuggesting}
+                        className="px-2.5 py-1 rounded-lg bg-amber-950/50 hover:bg-amber-900/60 border border-amber-500/50 text-amber-200 text-[11px] font-medium flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+                      >
+                        <Crown className="w-3 h-3 text-amber-400" />
+                        <span>Chuẩn Cổ Phong Mực Thước</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Contextual Preset Scenarios */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
+                    {REAL_WORLD_SCENARIOS.map((scenario, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          setAiPrompt(scenario.query);
+                          handleAiSuggest(scenario.query);
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-[#18233C] hover:bg-amber-950/60 hover:text-amber-200 border border-slate-700 hover:border-amber-400/50 text-[10.5px] text-slate-300 font-medium whitespace-nowrap transition-colors cursor-pointer shrink-0"
+                      >
+                        {scenario.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Dynamic Combination Analysis Card */}
+                  <AnimatePresence>
+                    {isAnalysisExpanded && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="pt-2 border-t border-slate-700/80 flex flex-col gap-3"
+                      >
+                        {/* Combination Title & Score Bar */}
+                        <div className="p-3 rounded-xl bg-gradient-to-r from-[#172036] via-[#1A253F] to-[#172036] border border-amber-500/30 flex flex-col gap-2">
+                          <div className="flex items-start justify-between gap-2 flex-wrap">
                             <div>
-                              <div className="flex items-center gap-1.5">
-                                <h3 className="text-xs font-bold text-slate-100 font-serif-vi group-hover:text-amber-200">
-                                  {fabric.name}
-                                </h3>
-                                {isSelected && <Check className="w-3.5 h-3.5 text-amber-400" />}
+                              <div className="flex items-center gap-2">
+                                <span className="px-2 py-0.5 rounded-md bg-amber-950/80 text-amber-300 text-[10px] font-bold border border-amber-500/40">
+                                  {dynamicCombinationAnalysis.stylingDirectionLabel}
+                                </span>
+                                <span className="text-xs font-bold text-amber-200 font-serif-vi">
+                                  {dynamicCombinationAnalysis.culturalSynergyTitle}
+                                </span>
                               </div>
-                              <span className="text-[10px] text-amber-300/80 font-mono mt-0.5 block">
-                                {fabric.sheen}
+                              {latestAiAnalysis?.characterPersona && (
+                                <div className="text-[10.5px] text-slate-300 mt-0.5 italic">
+                                  Hình tượng: {latestAiAnalysis.characterPersona}
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/70 border border-emerald-500/50 text-emerald-300 text-xs font-bold font-mono">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                              <span>{dynamicCombinationAnalysis.synergyScore}% Tương Hợp</span>
+                            </div>
+                          </div>
+
+                          {/* 3 Detail Boxes: Cultural Meaning, Modern Trend, Color Harmony */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-1">
+                            {/* Cultural Meaning */}
+                            <div className="p-2.5 rounded-lg bg-[#0F1626]/90 border border-amber-600/30 text-left">
+                              <div className="flex items-center gap-1.5 text-amber-300 text-[10.5px] font-bold font-serif-vi mb-1">
+                                <Scroll className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                                <span>Ý NGHĨA VĂN HÓA & TRIẾT LÝ TƯƠNG HỖ:</span>
+                              </div>
+                              <p className="text-[11px] text-slate-300 leading-relaxed font-sans-vi">
+                                {dynamicCombinationAnalysis.culturalMeaningDetails ||
+                                  'Bản phối thể hiện cốt cách Nho phong mực thước và sự giao hòa âm dương đất trời Đại Việt.'}
+                              </p>
+                            </div>
+
+                            {/* Modern Trend Factor */}
+                            <div className="p-2.5 rounded-lg bg-[#0F1626]/90 border border-indigo-500/30 text-left">
+                              <div className="flex items-center gap-1.5 text-indigo-300 text-[10.5px] font-bold font-serif-vi mb-1">
+                                <TrendingUp className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                                <span>XU HƯỚNG PHỐI ĐỒ HIỆN ĐẠI & ỨNG DỤNG:</span>
+                              </div>
+                              <p className="text-[11px] text-slate-300 leading-relaxed font-sans-vi">
+                                {dynamicCombinationAnalysis.modernTrendDetails ||
+                                  'Phong cách Neo-Vietnamese Heritage đang dẫn đầu xu hướng thời trang trẻ và các bộ ảnh nghệ thuật.'}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Color & Modern Styling Tip */}
+                          <div className="p-2 rounded-lg bg-[#0A0F1C]/80 border border-slate-700/60 text-[11px] text-slate-300 flex items-start gap-2">
+                            <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                            <div>
+                              <span className="font-semibold text-amber-300">Gợi ý cách phối hiện đại: </span>
+                              <span>{dynamicCombinationAnalysis.modernOutfitTip}</span>
+                              <span className="block text-[10px] text-slate-400 mt-0.5">
+                                🎨 Hòa sắc: {dynamicCombinationAnalysis.colorHarmonyDetails}
                               </span>
                             </div>
-                            {isSelected ? (
-                              <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-bold shrink-0">
-                                Đang Chọn
-                              </span>
-                            ) : (
-                              <span className="px-1.5 py-0.5 rounded text-[10px] text-slate-400 group-hover:text-amber-300 shrink-0">
-                                Chọn vải
-                              </span>
-                            )}
-                          </div>
-
-                          <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
-                            {fabric.description}
-                          </p>
-
-                          <div className="flex items-center justify-between pt-1 border-t border-slate-800 text-[10px]">
-                            <span className="text-slate-400">{fabric.textureLabel}</span>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (onSelectFabric) onSelectFabric(fabric);
-                                setShowFabricInspector(true);
-                              }}
-                              className="text-amber-400 hover:text-amber-200 font-semibold flex items-center gap-1 cursor-pointer"
-                            >
-                              <Scan className="w-3 h-3" />
-                              <span>Soi cận cảnh</span>
-                            </button>
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
 
-            {/* 7. Comprehensive Cultural & Aesthetic Harmony Analysis Report */}
-            <div className="p-3.5 rounded-2xl bg-[#0F1626]/90 border border-slate-800 text-left space-y-2.5 shadow-md">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-[11px] text-slate-400 font-medium">BÁO CÁO ĐÁNH GIÁ ĐA TIÊU CHÍ (AI)</div>
-                  <h3 className="text-sm font-bold font-serif-vi text-amber-200">
-                    {harmonyResult.critiqueTitle}
-                  </h3>
+                        {/* DUAL STYLE ALTERNATIVES */}
+                        {latestAiAnalysis?.alternatives && (
+                          <div className="p-2.5 rounded-xl bg-[#0F1728] border border-slate-700/80 flex flex-col gap-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] font-bold text-slate-300 font-serif-vi flex items-center gap-1">
+                                <Compass className="w-3.5 h-3.5 text-amber-400" />
+                                <span>SO SÁNH 2 BIẾN THỂ PHONG CÁCH:</span>
+                              </span>
+                              <span className="text-[10px] text-slate-400">1 chạm để chuyển đổi</span>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {/* Classic */}
+                              <div className="p-2.5 rounded-lg bg-[#151F35] border border-amber-500/40 flex flex-col justify-between gap-1.5">
+                                <div>
+                                  <div className="flex items-center justify-between">
+                                    <span className="px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 text-[9.5px] font-bold">
+                                      🏛️ CỔ PHONG CHUẨN ĐIỂN CHẾ
+                                    </span>
+                                    <span className="text-[9.5px] text-amber-400/80 font-mono">100% Cổ Điển</span>
+                                  </div>
+                                  <div className="text-xs font-bold text-slate-200 mt-1">
+                                    {latestAiAnalysis.alternatives.classic.title}
+                                  </div>
+                                  <div className="text-[10px] text-slate-400 mt-0.5">
+                                    {latestAiAnalysis.alternatives.classic.tagline}
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => handleApplyAlternative(latestAiAnalysis!.alternatives!.classic)}
+                                  className="w-full py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 text-amber-200 text-[10.5px] font-bold transition-all cursor-pointer"
+                                >
+                                  Áp Dụng Bản Phối Này
+                                </button>
+                              </div>
+
+                              {/* Modern Fusion */}
+                              <div className="p-2.5 rounded-lg bg-[#151F35] border border-indigo-500/40 flex flex-col justify-between gap-1.5">
+                                <div>
+                                  <div className="flex items-center justify-between">
+                                    <span className="px-1.5 py-0.5 rounded bg-indigo-950 text-indigo-300 text-[9.5px] font-bold">
+                                      ✨ TÂN THỜI ĐƯƠNG ĐẠI
+                                    </span>
+                                    <span className="text-[9.5px] text-indigo-400/80 font-mono">Neo-Heritage</span>
+                                  </div>
+                                  <div className="text-xs font-bold text-slate-200 mt-1">
+                                    {latestAiAnalysis.alternatives.modernFusion.title}
+                                  </div>
+                                  <div className="text-[10px] text-slate-400 mt-0.5">
+                                    {latestAiAnalysis.alternatives.modernFusion.tagline}
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => handleApplyAlternative(latestAiAnalysis!.alternatives!.modernFusion)}
+                                  className="w-full py-1 rounded bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-400/50 text-indigo-200 text-[10.5px] font-bold transition-all cursor-pointer"
+                                >
+                                  Áp Dụng Bản Phối Này
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* SMART NEXT-ITEM QUICK PICKS */}
+                        {smartNextItems.length > 0 && (!currentBottom || !currentAccessory) && (
+                          <div className="p-2.5 rounded-xl bg-[#0E1524] border border-emerald-500/30 flex flex-col gap-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] font-bold text-emerald-300 font-serif-vi flex items-center gap-1.5">
+                                <Zap className="w-3.5 h-3.5 text-emerald-400" />
+                                <span>GỢI Ý MÓN PHỐI TIẾP THEO TƯƠNG THÍCH NHẤT:</span>
+                              </span>
+                              <span className="text-[10px] text-slate-400">Dựa trên item hiện tại</span>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {smartNextItems.slice(0, 2).map((sugg) => (
+                                <div
+                                  key={sugg.item.id}
+                                  className="p-2.5 rounded-xl bg-[#141C30] border border-slate-700/80 hover:border-emerald-500/50 flex items-center justify-between gap-2.5 transition-all"
+                                >
+                                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                                    <span className="text-xl shrink-0">{sugg.item.icon}</span>
+                                    <div className="min-w-0 flex-1">
+                                      <div className="flex items-center gap-1.5 flex-wrap">
+                                        <span className="text-xs font-bold text-slate-200 font-serif-vi leading-tight">
+                                          {sugg.item.name}
+                                        </span>
+                                        <span className="px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-300 text-[9px] font-mono shrink-0">
+                                          {sugg.compatibilityScore}%
+                                        </span>
+                                      </div>
+                                      <p className="text-[10.5px] text-slate-300 mt-0.5 leading-snug">
+                                        {sugg.reason}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <button
+                                    onClick={() => handleEquipNextItem(sugg.item)}
+                                    className="px-2.5 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-400/50 text-[10.5px] font-bold shrink-0 cursor-pointer"
+                                  >
+                                    + Mặc
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-                <div className="text-right">
-                  <div className="text-xl font-bold font-mono text-amber-400 leading-none">
-                    {harmonyResult.score}
-                    <span className="text-xs text-slate-400 font-normal">/100</span>
+
+                {/* 7. Comprehensive Cultural & Aesthetic Harmony Analysis Report */}
+                <div className="p-3.5 rounded-2xl bg-[#0F1626]/90 border border-slate-800 text-left space-y-2.5 shadow-md">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-[11px] text-slate-400 font-medium">BÁO CÁO ĐÁNH GIÁ ĐA TIÊU CHÍ (AI)</div>
+                      <h3 className="text-sm font-bold font-serif-vi text-amber-200">
+                        {harmonyResult.critiqueTitle}
+                      </h3>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xl font-bold font-mono text-amber-400 leading-none">
+                        {harmonyResult.score}
+                        <span className="text-xs text-slate-400 font-normal">/100</span>
+                      </div>
+                      <span className="text-[10px] text-amber-300/80 font-medium font-sans-vi">
+                        {harmonyResult.ratingBadge}
+                      </span>
+                    </div>
                   </div>
-                  <span className="text-[10px] text-amber-300/80 font-medium font-sans-vi">
-                    {harmonyResult.ratingBadge}
-                  </span>
+
+                  {/* Progress bars for 3 Pillars */}
+                  <div className="grid grid-cols-3 gap-2 pt-1 text-[10.5px]">
+                    <div className="bg-[#090E1A] p-2 rounded-xl border border-slate-800">
+                      <div className="text-slate-400 flex justify-between">
+                        <span>Niên đại</span>
+                        <span className="text-amber-300 font-bold">{harmonyResult.historicalMatchPercent}%</span>
+                      </div>
+                      <div className="w-full bg-slate-800 h-1 rounded-full mt-1 overflow-hidden">
+                        <div
+                          className="bg-amber-400 h-full rounded-full transition-all duration-500"
+                          style={{ width: `${harmonyResult.historicalMatchPercent}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="bg-[#090E1A] p-2 rounded-xl border border-slate-800">
+                      <div className="text-slate-400 flex justify-between">
+                        <span>Ngũ hành</span>
+                        <span className="text-amber-300 font-bold">{harmonyResult.colorHarmonyPercent}%</span>
+                      </div>
+                      <div className="w-full bg-slate-800 h-1 rounded-full mt-1 overflow-hidden">
+                        <div
+                          className="bg-amber-400 h-full rounded-full transition-all duration-500"
+                          style={{ width: `${harmonyResult.colorHarmonyPercent}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="bg-[#090E1A] p-2 rounded-xl border border-slate-800">
+                      <div className="text-slate-400 flex justify-between">
+                        <span>Mỹ cảm</span>
+                        <span className="text-amber-300 font-bold">{harmonyResult.contextAestheticPercent}%</span>
+                      </div>
+                      <div className="w-full bg-slate-800 h-1 rounded-full mt-1 overflow-hidden">
+                        <div
+                          className="bg-amber-400 h-full rounded-full transition-all duration-500"
+                          style={{ width: `${harmonyResult.contextAestheticPercent}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Detailed AI Critique Text */}
+                  <p className="text-xs text-slate-300 leading-relaxed pt-1">
+                    {harmonyResult.detailedCritique}
+                  </p>
+
+                  {/* Styling Tip */}
+                  {harmonyResult.stylingTip && (
+                    <div className="text-[11px] text-amber-300 bg-amber-950/30 p-2 rounded-xl border border-amber-500/20 flex items-start gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                      <span>
+                        <strong>Mẹo tạo dáng & phối đồ:</strong> {harmonyResult.stylingTip}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
+            )}
 
-              {/* Progress bars for 3 Pillars */}
-              <div className="grid grid-cols-3 gap-2 pt-1 text-[10.5px]">
-                <div className="bg-[#090E1A] p-2 rounded-xl border border-slate-800">
-                  <div className="text-slate-400 flex justify-between">
-                    <span>Niên đại</span>
-                    <span className="text-amber-300 font-bold">{harmonyResult.historicalMatchPercent}%</span>
-                  </div>
-                  <div className="w-full bg-slate-800 h-1 rounded-full mt-1 overflow-hidden">
-                    <div
-                      className="bg-amber-400 h-full rounded-full transition-all duration-500"
-                      style={{ width: `${harmonyResult.historicalMatchPercent}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div className="bg-[#090E1A] p-2 rounded-xl border border-slate-800">
-                  <div className="text-slate-400 flex justify-between">
-                    <span>Ngũ hành</span>
-                    <span className="text-amber-300 font-bold">{harmonyResult.colorHarmonyPercent}%</span>
-                  </div>
-                  <div className="w-full bg-slate-800 h-1 rounded-full mt-1 overflow-hidden">
-                    <div
-                      className="bg-amber-400 h-full rounded-full transition-all duration-500"
-                      style={{ width: `${harmonyResult.colorHarmonyPercent}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div className="bg-[#090E1A] p-2 rounded-xl border border-slate-800">
-                  <div className="text-slate-400 flex justify-between">
-                    <span>Mỹ cảm</span>
-                    <span className="text-amber-300 font-bold">{harmonyResult.contextAestheticPercent}%</span>
-                  </div>
-                  <div className="w-full bg-slate-800 h-1 rounded-full mt-1 overflow-hidden">
-                    <div
-                      className="bg-amber-400 h-full rounded-full transition-all duration-500"
-                      style={{ width: `${harmonyResult.contextAestheticPercent}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Detailed AI Critique Text */}
-              <p className="text-xs text-slate-300 leading-relaxed pt-1">
-                {harmonyResult.detailedCritique}
-              </p>
-
-              {/* Styling Tip */}
-              {harmonyResult.stylingTip && (
-                <div className="text-[11px] text-amber-300 bg-amber-950/30 p-2 rounded-xl border border-amber-500/20 flex items-start gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
-                  <span>
-                    <strong>Mẹo tạo dáng & phối đồ:</strong> {harmonyResult.stylingTip}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* 8. Action Buttons */}
-            <div className="pt-1 flex flex-col gap-2.5">
+            {/* 8. Bottom Action Buttons: Always accessible */}
+            <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
               <button
                 onClick={handleCheckHarmony}
                 disabled={isCheckingHarmony}
-                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-bold text-sm tracking-wide shadow-[0_4px_24px_rgba(245,158,11,0.3)] hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-bold text-xs sm:text-sm tracking-wide shadow-[0_4px_24px_rgba(245,158,11,0.3)] hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 {isCheckingHarmony ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
-                    <span>ĐANG CHẤM ĐIỂM QUY CHUẨN CỔ PHỤC...</span>
+                    <span>ĐANG CHẤM ĐIỂM QUY CHUẨN...</span>
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4 text-slate-950" />
-                    <span>CHẤM ĐIỂM & ĐÁNH GIÁ HÀI HÒA (AI)</span>
+                    <span>CHẤM ĐIỂM & ĐÁNH GIÁ (AI)</span>
                   </>
                 )}
               </button>
 
               <button
                 onClick={handleSaveToLookbook}
-                className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#121A2C] via-[#1A2640] to-[#121A2C] hover:from-[#18233C] hover:to-[#223254] text-amber-200 hover:text-amber-100 border border-amber-400/60 hover:border-amber-300 text-xs font-bold shadow-lg active:scale-[0.99] transition-all flex items-center justify-between gap-2.5 cursor-pointer group"
+                className="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-[#121A2C] via-[#1A2640] to-[#121A2C] hover:from-[#18233C] hover:to-[#223254] text-amber-200 hover:text-amber-100 border border-amber-400/60 hover:border-amber-300 text-xs sm:text-sm font-bold shadow-lg active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer group"
                 title="Mở Trang Soạn Thảo Lookbook để tùy biến bối cảnh, tiêu đề, thơ đề từ và tải Poster HD"
               >
-                <div className="flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform shrink-0" />
-                  <span>📖 Mở Trang Soạn Thảo & Tải Poster Lookbook</span>
-                </div>
+                <BookOpen className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform shrink-0" />
+                <span>Soạn Thảo & Tải Poster</span>
                 <ArrowRight className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform shrink-0" />
               </button>
             </div>

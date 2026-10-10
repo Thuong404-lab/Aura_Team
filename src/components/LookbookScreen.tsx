@@ -553,13 +553,13 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                 </div>
 
                 {/* Edition Title */}
-                <h3 className="font-serif-vi text-base sm:text-lg font-bold leading-tight text-amber-100 truncate">
+                <h3 className="font-serif-vi text-base sm:text-lg font-bold leading-tight text-amber-100">
                   {editionTitle || `Dáng Hoa ${top.name}`}
                 </h3>
 
                 {/* Poetry Couple Quote */}
-                <div className="my-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-400/30">
-                  <p className="text-[11px] sm:text-xs text-amber-200 font-serif-vi italic text-center truncate">
+                <div className="my-1.5 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-400/30">
+                  <p className="text-[11px] sm:text-xs text-amber-200 font-serif-vi italic text-center leading-relaxed">
                     “{poetryCouple}”
                   </p>
                 </div>
@@ -790,7 +790,7 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                     />
 
                     {/* Quick Poetic suggestions */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                       {HISTORIC_POEMS.map((poem, idx) => (
                         <button
                           key={idx}
@@ -799,7 +799,7 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                             setPoetryCouple(poem);
                             soundEngine.playPluck(523.25);
                           }}
-                          className={`text-left px-2 py-1 rounded-lg text-[10.5px] transition-all cursor-pointer font-sans-vi truncate ${
+                          className={`text-left px-2.5 py-1.5 rounded-lg text-[10.5px] transition-all cursor-pointer font-sans-vi leading-snug ${
                             poetryCouple === poem
                               ? 'bg-amber-500/25 text-amber-200 border border-amber-400/50'
                               : 'bg-[#101626] text-slate-400 hover:text-slate-200 border border-slate-800'
@@ -1154,11 +1154,11 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                   <span>📍 {selectedBackdrop.name} • {selectedBackdrop.city}</span>
                   <span className="font-mono">{evaluation.matchedPeriod.periodText}</span>
                 </div>
-                <h3 className="font-serif-vi text-xl font-bold text-amber-100 truncate">
+                <h3 className="font-serif-vi text-xl font-bold text-amber-100">
                   {editionTitle || `Dáng Hoa ${top.name}`}
                 </h3>
-                <div className="my-1.5 px-3 py-1 rounded-lg bg-amber-500/10 border border-amber-400/30">
-                  <p className="text-xs text-amber-200 font-serif-vi italic text-center truncate">
+                <div className="my-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-400/30">
+                  <p className="text-xs text-amber-200 font-serif-vi italic text-center leading-relaxed">
                     “{poetryCouple}”
                   </p>
                 </div>

@@ -360,7 +360,7 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
               <span>⚠️ Cảnh Báo Cấm Kỵ</span>
               <span className="text-[9px] text-rose-400 underline font-normal">Sửa ngay</span>
             </div>
-            <div className="text-[11px] text-rose-100 font-sans-vi line-clamp-1 max-w-[190px]">
+            <div className="text-[11px] text-rose-100 font-sans-vi max-w-[280px] leading-tight font-medium">
               {culturalEvaluation.violations[0].title}
             </div>
           </div>
