@@ -568,7 +568,7 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif-vi font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-amber-300 to-amber-500 drop-shadow-[0_6px_24px_rgba(0,0,0,0.95)] tracking-wide">
-            Việt Phục Hoàng Triều
+            Aura — Cung Điện Việt Phục
           </h1>
           <p className="text-xs sm:text-sm text-amber-100/90 max-w-md mx-auto font-sans-vi leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] bg-black/40 px-3 py-1 rounded-xl border border-amber-500/20">
             Làn mây cổ phong tản quanh vòm trời · Chạm hoặc bấm vào màn hình để khai mở
@@ -594,14 +594,26 @@ export const CloudCurtain: React.FC<CloudCurtainProps> = ({
               whileTap={{ scale: 0.92 }}
               onClick={triggerRevealAnimation}
               className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-slate-950/85 hover:bg-slate-900/95 backdrop-blur-xl border border-amber-400/70 hover:border-amber-300 shadow-[0_0_25px_rgba(245,158,11,0.5)] flex items-center justify-center cursor-pointer group select-none transition-all"
-              title="Chạm để khai mở"
-              aria-label="Chạm để khai mở"
+              title="Chạm để khai mở Aura — Cung Điện Việt Phục"
+              aria-label="Chạm để khai mở Aura — Cung Điện Việt Phục"
             >
               <div className="relative flex items-center justify-center">
                 <span className="animate-ping absolute inline-flex h-8 w-8 rounded-full bg-amber-400/40 opacity-75 pointer-events-none" />
                 <Hand className="w-5 h-5 sm:w-6 sm:h-6 text-amber-300 group-hover:text-amber-200 animate-bounce transition-colors" />
               </div>
             </motion.button>
+
+            {/* Dưới button: nội dung Aura — Cung Điện Việt Phục */}
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              onClick={triggerRevealAnimation}
+              className="cursor-pointer select-none"
+            >
+              <span className="text-xs sm:text-sm font-serif-vi font-bold tracking-wider text-amber-200 drop-shadow-[0_2px_8px_rgba(0,0,0,0.95)] bg-black/60 px-4 py-1.5 rounded-full border border-amber-400/50 hover:border-amber-300 transition-colors flex items-center gap-1.5 shadow-[0_0_15px_rgba(245,158,11,0.3)]">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                <span>Aura — Cung Điện Việt Phục</span>
+              </span>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

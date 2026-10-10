@@ -583,9 +583,12 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
   const hasCriticalViolations = culturalRulesData.violations.some((v) => v.severity === 'critical');
 
   return (
-    <div className={`min-h-screen md:h-[calc(100vh-4.25rem)] md:max-h-[calc(100vh-4.25rem)] w-full flex flex-col relative overflow-x-clip font-sans-vi transition-colors duration-300 ${
-      isCream ? 'bg-[#FAF7F0] text-stone-900' : 'bg-[#0A0E17] text-slate-100'
-    }`}>
+    <div
+      data-lenis-prevent="true"
+      className={`min-h-screen md:h-[calc(100vh-4.25rem)] md:max-h-[calc(100vh-4.25rem)] w-full flex flex-col relative overflow-x-clip font-sans-vi transition-colors duration-300 ${
+        isCream ? 'bg-[#FAF7F0] text-stone-900' : 'bg-[#0A0E17] text-slate-100'
+      }`}
+    >
       {/* Toast Notification upon Auto-Fix */}
       <AnimatePresence>
         {fixToastMessage && (
@@ -638,6 +641,23 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
+            {/* Cultural Taboo Alert Badge in Header if critical violations exist */}
+            {hasCriticalViolations && (
+              <div className="px-3 py-1.5 rounded-xl bg-rose-950/90 border border-rose-500/70 text-rose-200 text-xs flex items-center gap-2 shadow-md">
+                <ShieldAlert className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
+                <span className="font-bold text-[11px] uppercase tracking-wide">
+                  {culturalRulesData.violations.length} Cấm Kỵ
+                </span>
+                <button
+                  onClick={handleAutoFixAll}
+                  className="px-2 py-0.5 rounded-md bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-[10.5px] cursor-pointer shadow-xs"
+                  title="Sửa nhanh tất cả điều cấm kỵ"
+                >
+                  Sửa ngay
+                </button>
+              </div>
+            )}
+
             {/* Taboo Database Modal Trigger Button */}
             <button
               onClick={() => {
@@ -669,47 +689,15 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
               LEFT COLUMN: Live 2D Mannequin Visualizer (CỐ ĐỊNH HOÀN TOÀN)
              ========================================================== */}
           <div
+            data-lenis-prevent="true"
             onWheel={(e) => {
               if (rightColumnRef.current) {
                 rightColumnRef.current.scrollTop += e.deltaY;
               }
             }}
-            className="w-full h-full flex flex-col gap-2.5 self-stretch z-10 shrink-0 md:overflow-hidden select-none"
+            className="w-full h-full flex flex-col self-stretch z-10 shrink-0 md:overflow-hidden select-none"
           >
-            {/* Dedicated Cultural Taboo Alert Banner (Nằm phía trên khung ma nơ canh, KHÔNG che nhân vật) */}
-            {hasCriticalViolations && (
-              <div className="w-full px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-rose-950/95 via-[#220B14] to-rose-950/95 border border-rose-500/70 shadow-lg flex items-center justify-between gap-2.5 text-xs animate-in slide-in-from-top duration-200 shrink-0">
-                <div className="flex items-center gap-2 min-w-0">
-                  <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0 animate-pulse" />
-                  <div className="truncate text-left">
-                    <span className="font-bold text-rose-300 block text-[11px] uppercase tracking-wide">
-                      Cảnh Báo Cấm Kỵ Cổ Phục
-                    </span>
-                    <span className="text-[11px] text-rose-100 truncate block">
-                      {culturalRulesData.violations[0].title}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <button
-                    onClick={handleAutoFixAll}
-                    className="px-2.5 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-[11px] transition-all cursor-pointer shadow-xs"
-                    title="Khắc phục quy chuẩn tự động"
-                  >
-                    Khắc phục ngay
-                  </button>
-                  <button
-                    onClick={scrollToTabooWarning}
-                    className="px-2 py-1 rounded-lg bg-rose-900/60 hover:bg-rose-800 text-rose-200 text-[11px] border border-rose-600/50 cursor-pointer"
-                    title="Xem chi tiết lý giải cấm kỵ"
-                  >
-                    Xem lý giải
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className={`relative w-full flex-1 min-h-[380px] md:min-h-0 rounded-3xl border p-2 sm:p-4 flex items-center justify-center shadow-2xl overflow-hidden group transition-all duration-300 ${
+            <div className={`relative w-full h-full flex-1 min-h-[380px] md:min-h-0 rounded-3xl border p-2 sm:p-4 flex items-center justify-center shadow-2xl overflow-hidden group transition-all duration-300 ${
               isCream
                 ? 'bg-radial from-[#FFFDF9] via-[#F8F3E8] to-[#EFE5D0] border-amber-400/50 shadow-[0_16px_45px_rgba(180,130,60,0.12)]'
                 : 'bg-radial from-[#121A2C] via-[#0D1322] to-[#080C16] border-amber-500/30'
@@ -760,8 +748,41 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
           <div
             ref={rightColumnRef}
             data-lenis-prevent="true"
-            className="w-full h-full min-h-0 flex flex-col gap-3.5 text-left md:overflow-y-auto md:pr-2.5 custom-scrollbar overscroll-contain"
+            className="w-full h-full min-h-0 flex flex-col gap-3 text-left overflow-y-auto md:pr-2.5 custom-scrollbar overscroll-contain pb-16"
           >
+            {/* Cultural Taboo Alert Banner placed cleanly in Right Column so it NEVER covers mannequin */}
+            {hasCriticalViolations && (
+              <div className="w-full px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-rose-950/95 via-[#220B14] to-rose-950/95 border border-rose-500/70 shadow-lg flex items-center justify-between gap-2.5 text-xs animate-in slide-in-from-top duration-200 shrink-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0 animate-pulse" />
+                  <div className="truncate text-left">
+                    <span className="font-bold text-rose-300 block text-[11px] uppercase tracking-wide">
+                      Cảnh Báo Cấm Kỵ Cổ Phục
+                    </span>
+                    <span className="text-[11px] text-rose-100 truncate block">
+                      {culturalRulesData.violations[0].title}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    onClick={handleAutoFixAll}
+                    className="px-2.5 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-[11px] transition-all cursor-pointer shadow-xs"
+                    title="Khắc phục quy chuẩn tự động"
+                  >
+                    Khắc phục ngay
+                  </button>
+                  <button
+                    onClick={scrollToTabooWarning}
+                    className="px-2 py-1 rounded-lg bg-rose-900/60 hover:bg-rose-800 text-rose-200 text-[11px] border border-rose-600/50 cursor-pointer"
+                    title="Xem chi tiết lý giải cấm kỵ"
+                  >
+                    Xem lý giải
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* 1. WORKSPACE VIEW SWITCHER TABS: Tủ Đồ vs Trợ Lý AI */}
             <div className={`flex items-center justify-between p-1.5 rounded-2xl gap-1.5 shadow-md shrink-0 border ${
               isCream ? 'bg-amber-100/70 border-amber-300/80 shadow-xs' : 'bg-[#0D1525] border-amber-500/30'
@@ -937,95 +958,31 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                   </div>
                 </div>
               ) : currentTop || currentBottom || currentAccessory ? (
-                /* Compliant Outfit Status (No Taboos Triggered) */
-                <div className={`p-3 rounded-2xl border shadow-md flex items-center justify-between text-xs flex-wrap gap-2 ${
+                /* Compliant Outfit Status (No Taboos Triggered) - Slim & Refined */
+                <div className={`p-2 px-3 rounded-xl border shadow-xs flex items-center justify-between text-xs flex-wrap gap-2 ${
                   isCream
-                    ? 'bg-emerald-50/95 border-emerald-300 text-emerald-950'
-                    : 'bg-gradient-to-r from-emerald-950/40 via-[#0C1A1E] to-emerald-950/40 border-emerald-500/50 text-emerald-200'
-                }`}>
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-400/60 flex items-center justify-center shrink-0">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                    </div>
-                    <div>
-                      <span className={`font-bold font-serif-vi block text-xs ${
-                        isCream ? 'text-emerald-950' : 'text-emerald-300'
-                      }`}>
-                        Bản Phối Đoan Trang & Chuẩn Mực Thuần Phong Mỹ Tục
-                      </span>
-                      <span className={`text-[10.5px] ${
-                        isCream ? 'text-emerald-800' : 'text-emerald-400/80'
-                      }`}>
-                        Đã đối chiếu 13 điều cấm kỵ cổ phục: 100% hợp lệ, không xung đột niên đại hay quy chế.
-                      </span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setShowTabooDatabaseModal(true)}
-                    className={`px-2.5 py-1 rounded-lg border text-[10.5px] font-semibold cursor-pointer transition-colors shrink-0 ${
-                      isCream
-                        ? 'bg-emerald-100/80 hover:bg-emerald-200 text-emerald-950 border-emerald-300'
-                        : 'bg-emerald-900/50 hover:bg-emerald-800/70 border-emerald-500/40 text-emerald-200'
-                    }`}
-                  >
-                    Xem 13 Điều Cấm Kỵ
-                  </button>
-                </div>
-              ) : (
-                /* Bare Mannequin Status */
-                <div className={`p-3 rounded-2xl border flex items-center justify-between text-xs flex-wrap gap-2 ${
-                  isCream
-                    ? 'bg-white border-amber-200/90 text-stone-700 shadow-xs'
-                    : 'bg-[#0F1626]/80 border-slate-700/60 text-slate-300'
+                    ? 'bg-emerald-50/90 border-emerald-300/80 text-emerald-950'
+                    : 'bg-emerald-950/40 border-emerald-500/40 text-emerald-200'
                 }`}>
                   <div className="flex items-center gap-2">
-                    <Shirt className={`w-4 h-4 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
-                    <span className={`text-xs ${isCream ? 'text-stone-800' : 'text-slate-300'}`}>
-                      Khung ma nơ canh đang để mộc. Chọn áo, hạ y và phụ kiện bên dưới để bắt đầu thử đồ!
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <span className="font-semibold text-xs font-serif-vi">
+                      Bản Phối Đoan Trang & Chuẩn Mực Di Sản (100% Hợp Lệ)
                     </span>
                   </div>
                   <button
                     onClick={() => setShowTabooDatabaseModal(true)}
-                    className={`text-[11px] underline cursor-pointer shrink-0 font-medium ${
-                      isCream ? 'text-amber-900 hover:text-amber-700' : 'text-amber-300 hover:text-amber-200'
-                    }`}
+                    className="text-[11px] underline cursor-pointer text-emerald-400 hover:text-emerald-300"
                   >
-                    Tra cứu 13 điều cấm kỵ
+                    Xem 13 quy chuẩn
                   </button>
                 </div>
-              )}
+              ) : null}
             </div>
 
             {/* CONDITIONAL WORKSPACE VIEWS */}
             {workspaceView === 'wardrobe' ? (
               <>
-                {/* Quick AI suggestion assistant hint bar */}
-                <div className={`p-2.5 rounded-xl border flex items-center justify-between gap-2 text-xs ${
-                  isCream
-                    ? 'bg-amber-50/90 border-amber-300 text-stone-800 shadow-xs'
-                    : 'bg-gradient-to-r from-amber-500/10 via-[#162035] to-amber-500/10 border-amber-500/30'
-                }`}>
-                  <div className="flex items-center gap-2">
-                    <Sparkles className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-400'} shrink-0`} />
-                    <span className={`text-[11.5px] ${isCream ? 'text-stone-800 font-medium' : 'text-slate-300'}`}>
-                      Cần AI gợi ý phối đồ theo bối cảnh hoặc phong cách?
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => {
-                      soundEngine.playPluck(523.25);
-                      setWorkspaceView('ai_stylist');
-                    }}
-                    className={`px-2.5 py-1 rounded-lg border text-[11px] font-bold cursor-pointer shrink-0 transition-all flex items-center gap-1 ${
-                      isCream
-                        ? 'bg-amber-100/90 hover:bg-amber-200 text-amber-950 border-amber-300'
-                        : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-400/50'
-                    }`}
-                  >
-                    <span>Mở Trợ Lý AI</span>
-                    <ArrowRight className="w-3 h-3" />
-                  </button>
-                </div>
 
                 {/* 3. Silk Category Navigation Tabs */}
                 <SilkCategoryTabs
@@ -1158,7 +1115,7 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                 </div>
 
                 {/* 6. Wardrobe Cards Grid */}
-                <div className="min-h-[380px] space-y-2 pr-0.5">
+                <div className="min-h-[380px] space-y-2 pr-0.5 pb-8">
                   {/* TAB 1: Áo Cổ Phục (TOPS) */}
                   {activeTab === 'top' && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -2089,12 +2046,14 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
               </div>
             )}
 
-            {/* 8. Bottom Action Buttons: Always accessible */}
-            <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
+            {/* 8. Bottom Action Buttons: Dedicated Dock with Clear Spacing & No Overlap */}
+            <div className={`mt-6 pt-4 pb-3 border-t flex flex-col sm:flex-row gap-3 shrink-0 ${
+              isCream ? 'border-amber-300/80 bg-[#FAF7F0]' : 'border-amber-500/25 bg-[#0A0E17]'
+            }`}>
               <button
                 onClick={handleCheckHarmony}
                 disabled={isCheckingHarmony}
-                className="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-bold text-xs sm:text-sm tracking-wide shadow-[0_4px_24px_rgba(245,158,11,0.3)] hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="flex-1 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-bold text-xs sm:text-sm tracking-wide shadow-[0_4px_24px_rgba(245,158,11,0.35)] hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer border border-amber-300/60"
               >
                 {isCheckingHarmony ? (
                   <>
@@ -2111,12 +2070,16 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
 
               <button
                 onClick={handleSaveToLookbook}
-                className="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-[#121A2C] via-[#1A2640] to-[#121A2C] hover:from-[#18233C] hover:to-[#223254] text-amber-200 hover:text-amber-100 border border-amber-400/60 hover:border-amber-300 text-xs sm:text-sm font-bold shadow-lg active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer group"
+                className={`flex-1 py-3.5 px-4 rounded-2xl text-xs sm:text-sm font-bold shadow-lg active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer group ${
+                  isCream
+                    ? 'bg-amber-200/90 hover:bg-amber-300 text-amber-950 border border-amber-500/80 shadow-sm'
+                    : 'bg-gradient-to-r from-[#121A2C] via-[#1A2640] to-[#121A2C] hover:from-[#18233C] hover:to-[#223254] text-amber-200 hover:text-amber-100 border border-amber-400/60 hover:border-amber-300'
+                }`}
                 title="Mở Trang Soạn Thảo Lookbook để tùy biến bối cảnh, tiêu đề, thơ đề từ và tải Poster HD"
               >
-                <BookOpen className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform shrink-0" />
+                <BookOpen className={`w-4 h-4 ${isCream ? 'text-amber-800' : 'text-amber-400'} group-hover:scale-110 transition-transform shrink-0`} />
                 <span>Soạn Thảo & Tải Poster</span>
-                <ArrowRight className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform shrink-0" />
+                <ArrowRight className={`w-4 h-4 ${isCream ? 'text-amber-800' : 'text-amber-400'} group-hover:translate-x-1 transition-transform shrink-0`} />
               </button>
             </div>
           </div>

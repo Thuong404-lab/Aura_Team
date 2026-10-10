@@ -364,32 +364,42 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           {/* Editorial Kicker (Zero-Pill Discipline, Sequential Slide Up) */}
           <motion.div
             variants={slideUpFadeVariants}
-            className="flex items-center gap-2.5 text-xs tracking-[0.25em] uppercase text-amber-400 font-semibold mb-5 select-none"
+            className={`flex items-center gap-2.5 text-xs tracking-[0.25em] uppercase font-semibold mb-5 select-none ${
+              isCream ? 'text-amber-800' : 'text-amber-400'
+            }`}
           >
-            <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping inline-block" />
+            <span className={`w-2 h-2 rounded-full animate-ping inline-block ${
+              isCream ? 'bg-amber-600' : 'bg-amber-400'
+            }`} />
             <span>KHAI MỞ CỔNG DI SẢN</span>
-            <span className="text-amber-500/60">·</span>
-            <span>THẾ GIỚI VIỆT PHỤC HOÀNG TRIỀU</span>
-            <span className="text-amber-500/60">·</span>
-            <span className="text-amber-300">CÔNG NGHỆ 2D & AI</span>
+            <span className={isCream ? 'text-amber-700/60' : 'text-amber-500/60'}>·</span>
+            <span>AURA — CUNG ĐIỆN VIỆT PHỤC</span>
+            <span className={isCream ? 'text-amber-700/60' : 'text-amber-500/60'}>·</span>
+            <span className={isCream ? 'text-amber-900 font-bold' : 'text-amber-300'}>CÔNG NGHỆ 2D & AI</span>
           </motion.div>
 
           {/* Majestic Hero Headline (Sequential Fade & Scale-Up) */}
           <motion.h1
             variants={heroTitleVariants}
-            className="font-serif-vi text-4xl sm:text-6xl md:text-7xl font-bold text-amber-100 leading-[1.12] tracking-tight mb-6 drop-shadow-md"
+            className={`font-serif-vi text-4xl sm:text-6xl md:text-7xl font-bold leading-[1.12] tracking-tight mb-6 drop-shadow-md ${
+              isCream ? 'text-amber-950' : 'text-amber-100'
+            }`}
           >
             Aura — Cung Điện Việt Phục
-            <span className="block text-xl sm:text-3xl md:text-4xl font-normal text-slate-200 mt-3 font-serif-vi">
+            <span className={`block text-xl sm:text-3xl md:text-4xl font-normal mt-3 font-serif-vi ${
+              isCream ? 'text-stone-800' : 'text-slate-200'
+            }`}>
               Nơi Di Sản Hoàng Triều Bừng Sáng Trong{' '}
-              <span className="text-amber-300 italic font-medium">Nhịp Thở Đương Đại</span>
+              <span className={`${isCream ? 'text-amber-800 font-bold' : 'text-amber-300'} italic font-medium`}>Nhịp Thở Đương Đại</span>
             </span>
           </motion.h1>
 
           {/* Narrative Subtitle (Sequential Slide Up) */}
           <motion.p
             variants={slideUpFadeVariants}
-            className="text-base sm:text-lg text-slate-300 max-w-2xl mb-10 leading-relaxed font-sans-vi font-light"
+            className={`text-base sm:text-lg max-w-2xl mb-10 leading-relaxed font-sans-vi ${
+              isCream ? 'text-stone-700 font-normal' : 'text-slate-300 font-light'
+            }`}
           >
             Bước vào không gian phục sức cung đình nghìn năm tuổi. Khám phá các bí mật triều đại,
             thử nghiệm phối phục 2D sống động và giải mã vẻ đẹp ngũ hành cùng trí tuệ nhân tạo.
@@ -879,7 +889,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <span className={`font-serif-vi font-bold text-xl ${isCream ? 'text-amber-800' : 'text-amber-300'}`}>
-                AURA — VIỆT PHỤC
+                AURA — CUNG ĐIỆN VIỆT PHỤC
               </span>
             </div>
             <p className={`text-xs leading-relaxed font-light ${isCream ? 'text-stone-600' : 'text-slate-400'}`}>
@@ -937,7 +947,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         <div className={`max-w-7xl mx-auto px-6 py-4 border-t flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] ${
           isCream ? 'border-amber-900/10 text-stone-500' : 'border-slate-800/80 text-slate-400'
         }`}>
-          <span>© 2026 Aura — Không Gian Văn Hóa & Tinh Hoa Việt Phục Ngàn Năm.</span>
+          <span>© 2026 Aura — Cung Điện Việt Phục. Tinh hoa di sản hoàng triều ngàn năm.</span>
           <span className={`font-medium ${isCream ? 'text-amber-800' : 'text-amber-400/90'}`}>
             Tự hào lan tỏa trang phục truyền thống Việt Nam đến bạn bè năm châu
           </span>

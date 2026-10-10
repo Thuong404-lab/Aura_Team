@@ -24,6 +24,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { soundEngine } from '../utils/audioSynth';
+import { useAppTheme } from '../context/ThemeContext';
 
 export interface GarmentShowcaseItem {
   id: string;
@@ -325,6 +326,8 @@ interface CulturalGarmentEncyclopediaProps {
 export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaProps> = ({
   onSelectGarmentForFitting,
 }) => {
+  const { theme } = useAppTheme();
+  const isCream = theme === 'cream';
   const [selectedGarmentId, setSelectedGarmentId] = useState<string>(CULTURAL_GARMENTS[0].id);
   const [activeTab, setActiveTab] = useState<'overview' | 'layers' | 'philosophy' | 'craftsmanship'>('overview');
   const [filterCategory, setFilterCategory] = useState<string>('all');
@@ -379,28 +382,38 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
   return (
     <section id="encyclopedia-section" className="w-full my-16 text-left relative z-10">
       {/* Decorative Title Header */}
-      <div className="border-b border-amber-500/20 pb-6 mb-8">
+      <div className={`border-b pb-6 mb-8 ${isCream ? 'border-amber-900/10' : 'border-amber-500/20'}`}>
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-            <span className="text-xs font-bold tracking-[0.25em] uppercase text-amber-400/90 font-serif-vi">
+            <span className={`w-2 h-2 rounded-full animate-pulse ${isCream ? 'bg-amber-600' : 'bg-amber-400'}`} />
+            <span className={`text-xs font-bold tracking-[0.25em] uppercase font-serif-vi ${
+              isCream ? 'text-amber-800' : 'text-amber-400/90'
+            }`}>
               KHO TÀNG KHẢO CỨU DI SẢN
             </span>
           </div>
-          <h2 className="font-serif-vi text-2xl sm:text-3xl md:text-4xl font-bold text-amber-100 tracking-tight">
+          <h2 className={`font-serif-vi text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight ${
+            isCream ? 'text-amber-950' : 'text-amber-100'
+          }`}>
             Bách Khoa Toàn Thư Cổ Phục Việt
           </h2>
-          <p className="text-xs sm:text-sm text-slate-300/85 mt-2 max-w-2xl font-light font-sans-vi leading-relaxed">
-            Tra cứu chuẩn mực về <strong className="text-amber-200 font-medium">Lịch sử ra đời</strong>,{' '}
-            <strong className="text-amber-200 font-medium">Ý nghĩa triết lý</strong> và{' '}
-            <strong className="text-amber-200 font-medium">Chất liệu gấm vóc</strong> của từng loại trang phục truyền thống qua các thời kỳ.
+          <p className={`text-xs sm:text-sm mt-2 max-w-2xl font-sans-vi leading-relaxed ${
+            isCream ? 'text-stone-700 font-normal' : 'text-slate-300/85 font-light'
+          }`}>
+            Tra cứu chuẩn mực về <strong className={`font-semibold ${isCream ? 'text-amber-900' : 'text-amber-200'}`}>Lịch sử ra đời</strong>,{' '}
+            <strong className={`font-semibold ${isCream ? 'text-amber-900' : 'text-amber-200'}`}>Ý nghĩa triết lý</strong> và{' '}
+            <strong className={`font-semibold ${isCream ? 'text-amber-900' : 'text-amber-200'}`}>Chất liệu gấm vóc</strong> của từng loại trang phục truyền thống qua các thời kỳ.
           </p>
         </div>
 
         {/* Action Controls Toolbar: Clean, Spacious, No Broken Lines */}
-        <div className="mt-6 flex flex-col md:flex-row md:items-center justify-between gap-4 pt-4 border-t border-slate-800/80">
+        <div className={`mt-6 flex flex-col md:flex-row md:items-center justify-between gap-4 pt-4 border-t ${
+          isCream ? 'border-stone-200' : 'border-slate-800/80'
+        }`}>
           {/* Category Filter Tabs */}
-          <div className="flex items-center gap-1.5 p-1 bg-[#0A0F1E]/90 rounded-xl border border-slate-800 overflow-x-auto scrollbar-none max-w-full">
+          <div className={`flex items-center gap-1.5 p-1 rounded-xl border overflow-x-auto scrollbar-none max-w-full ${
+            isCream ? 'bg-white border-amber-200/90 shadow-xs' : 'bg-[#0A0F1E]/90 border-slate-800'
+          }`}>
             {categories.map((cat) => (
               <button
                 key={cat.id}
@@ -411,7 +424,11 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
                 }}
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all cursor-pointer flex-shrink-0 ${
                   filterCategory === cat.id
-                    ? 'bg-amber-400 text-slate-950 font-bold shadow-sm shadow-amber-500/20'
+                    ? isCream
+                      ? 'bg-amber-400 text-stone-950 font-bold shadow-xs'
+                      : 'bg-amber-400 text-slate-950 font-bold shadow-sm shadow-amber-500/20'
+                    : isCream
+                    ? 'text-stone-700 hover:text-amber-900 hover:bg-amber-50'
                     : 'text-slate-400 hover:text-amber-200 hover:bg-slate-800/60'
                 }`}
               >
@@ -421,7 +438,9 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
           </div>
 
           {/* View Mode Toggle: Symmetrical, Crisp, No Word Breaking */}
-          <div className="flex items-center bg-[#0A0F1E]/90 p-1 rounded-xl border border-slate-800 self-start md:self-auto flex-shrink-0">
+          <div className={`flex items-center p-1 rounded-xl border self-start md:self-auto flex-shrink-0 ${
+            isCream ? 'bg-white border-amber-200/90 shadow-xs' : 'bg-[#0A0F1E]/90 border-slate-800'
+          }`}>
             <button
               type="button"
               onClick={() => {
@@ -430,12 +449,16 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
               }}
               className={`py-1.5 px-3.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 flex-shrink-0 ${
                 viewMode === 'cards'
-                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm'
+                  ? isCream
+                    ? 'bg-amber-100 text-amber-900 border border-amber-300 font-bold shadow-xs'
+                    : 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm'
+                  : isCream
+                  ? 'text-stone-600 hover:text-stone-900'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-850'
               }`}
               title="Xem dạng thẻ bách khoa toàn thư"
             >
-              <LayoutGrid className="w-3.5 h-3.5 text-amber-400" />
+              <LayoutGrid className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
               <span>Dạng Thẻ</span>
             </button>
             <button
@@ -446,12 +469,16 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
               }}
               className={`py-1.5 px-3.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 flex-shrink-0 ${
                 viewMode === 'studio'
-                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm'
+                  ? isCream
+                    ? 'bg-amber-100 text-amber-900 border border-amber-300 font-bold shadow-xs'
+                    : 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm'
+                  : isCream
+                  ? 'text-stone-600 hover:text-stone-900'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-850'
               }`}
               title="Khảo cứu chuyên sâu 2 cột"
             >
-              <Columns3 className="w-3.5 h-3.5 text-amber-400" />
+              <Columns3 className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
               <span>Bàn Khảo Cứu</span>
             </button>
           </div>
@@ -473,7 +500,11 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
                 y: -5,
                 transition: { duration: 0.25, ease: 'easeOut' },
               }}
-              className="group rounded-2xl bg-gradient-to-b from-[#10172A]/95 via-[#0C1222]/90 to-[#080D1A]/95 border border-slate-700/60 hover:border-amber-400/60 p-5 shadow-lg hover:shadow-[0_14px_36px_rgba(245,158,11,0.16)] transition-all flex flex-col justify-between relative overflow-hidden backdrop-blur-xl cursor-pointer"
+              className={`group rounded-2xl p-5 shadow-lg transition-all flex flex-col justify-between relative overflow-hidden backdrop-blur-xl cursor-pointer ${
+                isCream
+                  ? 'bg-white hover:bg-[#FFFDF9] border border-amber-200/90 hover:border-amber-400 shadow-[0_4px_24px_rgba(180,130,60,0.08)] hover:shadow-[0_12px_36px_rgba(180,130,60,0.16)]'
+                  : 'bg-gradient-to-b from-[#10172A]/95 via-[#0C1222]/90 to-[#080D1A]/95 border border-slate-700/60 hover:border-amber-400/60 shadow-lg hover:shadow-[0_14px_36px_rgba(245,158,11,0.16)]'
+              }`}
               onClick={() => {
                 soundEngine.playPluck(523.25 + idx * 25);
                 setModalGarment(garment);
@@ -487,18 +518,20 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
 
               <div className="flex flex-col flex-1">
                 {/* Visual Header Image Container */}
-                <div className="relative w-full h-48 rounded-xl overflow-hidden mb-4 bg-slate-900 border border-slate-700/60">
+                <div className={`relative w-full h-48 rounded-xl overflow-hidden mb-4 border ${
+                  isCream ? 'bg-amber-50 border-amber-200' : 'bg-slate-900 border-slate-700/60'
+                }`}>
                   <img
                     src={garment.imageUrl}
                     alt={garment.name}
                     className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500 ease-out"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#080D1A] via-transparent to-black/30" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30" />
 
                   {/* Category Chip */}
                   <div className="absolute top-2.5 left-2.5">
-                    <span className="px-2.5 py-1 rounded-md text-[10px] font-bold tracking-wider uppercase bg-slate-950/80 backdrop-blur-md text-amber-300 border border-amber-500/30">
+                    <span className="px-2.5 py-1 rounded-md text-[10px] font-bold tracking-wider uppercase bg-slate-950/85 backdrop-blur-md text-amber-300 border border-amber-500/40">
                       {garment.category}
                     </span>
                   </div>
@@ -506,10 +539,10 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
                   {/* Garment Title on bottom of image */}
                   <div className="absolute bottom-2.5 left-3 right-3 flex items-end justify-between gap-2">
                     <div>
-                      <span className="text-[11px] font-mono text-amber-300/90 block font-semibold">
+                      <span className="text-[11px] font-mono text-amber-300 block font-semibold drop-shadow-sm">
                         {garment.period}
                       </span>
-                      <h3 className="font-serif-vi text-lg font-bold text-slate-100 group-hover:text-amber-200 transition-colors drop-shadow-md">
+                      <h3 className="font-serif-vi text-lg font-bold text-white group-hover:text-amber-200 transition-colors drop-shadow-md">
                         {garment.name}
                       </h3>
                     </div>
@@ -524,34 +557,58 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
                 {/* 3 Core Encyclopedia Attribute Cards */}
                 <div className="space-y-2.5 mb-4 flex-1">
                   {/* 1. Lịch sử & Triều đại */}
-                  <div className="p-3 rounded-xl bg-slate-950/50 border border-slate-800/80 group-hover:border-slate-700 transition-colors">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-400/90 uppercase tracking-wide mb-1 font-serif-vi">
-                      <Clock className="w-3 h-3 text-amber-400" />
+                  <div className={`p-3 rounded-xl border transition-colors ${
+                    isCream
+                      ? 'bg-amber-50/70 border-amber-200/90 group-hover:border-amber-300'
+                      : 'bg-slate-950/50 border-slate-800/80 group-hover:border-slate-700'
+                  }`}>
+                    <div className={`flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide mb-1 font-serif-vi ${
+                      isCream ? 'text-amber-900 font-bold' : 'text-amber-400/90'
+                    }`}>
+                      <Clock className={`w-3 h-3 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
                       <span>Lịch Sử & Triều Đại</span>
                     </div>
-                    <p className="text-xs text-slate-300/90 leading-relaxed font-sans-vi line-clamp-2">
+                    <p className={`text-xs leading-relaxed font-sans-vi line-clamp-2 ${
+                      isCream ? 'text-stone-700 font-normal' : 'text-slate-300/90'
+                    }`}>
                       {garment.history}
                     </p>
                   </div>
 
                   {/* 2. Ý nghĩa & Biểu trưng */}
-                  <div className="p-3 rounded-xl bg-slate-950/50 border border-slate-800/80 group-hover:border-slate-700 transition-colors">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-400/90 uppercase tracking-wide mb-1 font-serif-vi">
-                      <Shield className="w-3 h-3 text-amber-400" />
+                  <div className={`p-3 rounded-xl border transition-colors ${
+                    isCream
+                      ? 'bg-amber-50/70 border-amber-200/90 group-hover:border-amber-300'
+                      : 'bg-slate-950/50 border-slate-800/80 group-hover:border-slate-700'
+                  }`}>
+                    <div className={`flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide mb-1 font-serif-vi ${
+                      isCream ? 'text-amber-900 font-bold' : 'text-amber-400/90'
+                    }`}>
+                      <Shield className={`w-3 h-3 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
                       <span>Ý Nghĩa & Biểu Trưng</span>
                     </div>
-                    <p className="text-xs text-slate-300/90 leading-relaxed font-sans-vi line-clamp-2">
+                    <p className={`text-xs leading-relaxed font-sans-vi line-clamp-2 ${
+                      isCream ? 'text-stone-700 font-normal' : 'text-slate-300/90'
+                    }`}>
                       {garment.meaning}
                     </p>
                   </div>
 
                   {/* 3. Chất liệu & Gấm vóc */}
-                  <div className="p-3 rounded-xl bg-slate-950/50 border border-slate-800/80 group-hover:border-slate-700 transition-colors">
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-400/90 uppercase tracking-wide mb-1 font-serif-vi">
-                      <Feather className="w-3 h-3 text-amber-400" />
+                  <div className={`p-3 rounded-xl border transition-colors ${
+                    isCream
+                      ? 'bg-amber-50/70 border-amber-200/90 group-hover:border-amber-300'
+                      : 'bg-slate-950/50 border-slate-800/80 group-hover:border-slate-700'
+                  }`}>
+                    <div className={`flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide mb-1 font-serif-vi ${
+                      isCream ? 'text-amber-900 font-bold' : 'text-amber-400/90'
+                    }`}>
+                      <Feather className={`w-3 h-3 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
                       <span>Chất Liệu & Gấm Vóc</span>
                     </div>
-                    <p className="text-xs text-slate-300/90 leading-relaxed font-sans-vi line-clamp-2">
+                    <p className={`text-xs leading-relaxed font-sans-vi line-clamp-2 ${
+                      isCream ? 'text-stone-700 font-normal' : 'text-slate-300/90'
+                    }`}>
                       {garment.material}
                     </p>
                   </div>
@@ -559,7 +616,9 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
               </div>
 
               {/* Bottom Action Footer */}
-              <div className="pt-3.5 border-t border-slate-800/80 flex items-center justify-between gap-2 mt-auto">
+              <div className={`pt-3.5 border-t flex items-center justify-between gap-2 mt-auto ${
+                isCream ? 'border-amber-200/80' : 'border-slate-800/80'
+              }`}>
                 <button
                   type="button"
                   onClick={(e) => {
@@ -567,9 +626,13 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
                     soundEngine.playPluck(493.88);
                     setModalGarment(garment);
                   }}
-                  className="text-xs font-semibold text-slate-300 hover:text-amber-200 flex items-center gap-1.5 cursor-pointer py-1.5 px-3 rounded-xl bg-slate-800/70 hover:bg-slate-800 border border-slate-700 transition-colors"
+                  className={`text-xs font-semibold flex items-center gap-1.5 cursor-pointer py-1.5 px-3 rounded-xl border transition-colors ${
+                    isCream
+                      ? 'bg-amber-100 hover:bg-amber-200/90 text-amber-950 border-amber-300'
+                      : 'text-slate-300 hover:text-amber-200 bg-slate-800/70 hover:bg-slate-800 border border-slate-700'
+                  }`}
                 >
-                  <Eye className="w-3.5 h-3.5 text-amber-400" />
+                  <Eye className={`w-3.5 h-3.5 ${isCream ? 'text-amber-800' : 'text-amber-400'}`} />
                   <span>Đọc Khảo Cứu</span>
                 </button>
 
@@ -583,7 +646,7 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
                       soundEngine.playPluck(659.25);
                       onSelectGarmentForFitting(garment.avatarTopId!);
                     }}
-                    className="text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:brightness-110 py-1.5 px-3.5 rounded-xl shadow-[0_4px_14px_rgba(245,158,11,0.25)] flex items-center gap-1.5 cursor-pointer transition-all"
+                    className="text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:brightness-110 py-1.5 px-3.5 rounded-xl shadow-[0_4px_14px_rgba(245,158,11,0.25)] flex items-center gap-1.5 cursor-pointer transition-all border border-amber-300/50"
                   >
                     <Sparkles className="w-3 h-3 text-slate-950" />
                     <span>Mặc Thử Ngay</span>
@@ -600,9 +663,11 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Column: Garment Selector List (5 Cols) */}
           <div className="lg:col-span-5 space-y-3">
-            <div className="text-xs font-semibold text-slate-400 px-1 mb-1 flex items-center justify-between">
+            <div className={`text-xs font-semibold px-1 mb-1 flex items-center justify-between ${
+              isCream ? 'text-stone-700 font-bold' : 'text-slate-400'
+            }`}>
               <span>DANH SÁCH THỨC ÁO TRUYỀN THỐNG</span>
-              <span>{filteredGarments.length} thức áo</span>
+              <span className={isCream ? 'text-amber-900 font-mono' : 'text-amber-400 font-mono'}>{filteredGarments.length} thức áo</span>
             </div>
 
             <div data-lenis-prevent="true" className="space-y-2.5 max-h-[640px] overflow-y-auto pr-1.5 scrollbar-heritage">
@@ -618,7 +683,11 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
                     }}
                     className={`p-4 rounded-2xl border transition-all cursor-pointer relative overflow-hidden backdrop-blur-md ${
                       isSelected
-                        ? 'bg-gradient-to-r from-[#17233E] to-[#121A2D] border-amber-400/80 shadow-[0_8px_24px_rgba(245,158,11,0.22)]'
+                        ? isCream
+                          ? 'bg-amber-100/90 border-amber-400 shadow-sm text-stone-900'
+                          : 'bg-gradient-to-r from-[#17233E] to-[#121A2D] border-amber-400/80 shadow-[0_8px_24px_rgba(245,158,11,0.22)]'
+                        : isCream
+                        ? 'bg-white hover:bg-amber-50/60 border-stone-200 hover:border-amber-300 text-stone-800 shadow-xs'
                         : 'bg-[#0E1526]/75 hover:bg-[#121A2D] border-slate-800 hover:border-slate-700 text-slate-300'
                     }`}
                   >
@@ -631,35 +700,49 @@ export const CulturalGarmentEncyclopedia: React.FC<CulturalGarmentEncyclopediaPr
                     <div className="flex items-start justify-between gap-2 pl-2">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[10px] font-mono tracking-wider text-amber-400/90 font-semibold uppercase">
+                          <span className={`text-[10px] font-mono tracking-wider font-semibold uppercase ${
+                            isCream ? 'text-amber-800' : 'text-amber-400/90'
+                          }`}>
                             {garment.dynasty.split('(')[0].trim()}
                           </span>
                         </div>
                         <h4
                           className={`font-serif-vi text-base sm:text-lg font-bold transition-colors ${
-                            isSelected ? 'text-amber-200' : 'text-slate-100'
+                            isSelected
+                              ? isCream ? 'text-amber-950 font-bold' : 'text-amber-200'
+                              : isCream ? 'text-stone-900' : 'text-slate-100'
                           }`}
                         >
                           {garment.name}
                         </h4>
-                        <p className="text-xs text-slate-400 line-clamp-2 mt-1 font-light leading-relaxed">
+                        <p className={`text-xs line-clamp-2 mt-1 leading-relaxed ${
+                          isCream ? 'text-stone-600 font-normal' : 'text-slate-400 font-light'
+                        }`}>
                           {garment.description}
                         </p>
                       </div>
 
                       <ChevronRight
                         className={`w-5 h-5 flex-shrink-0 transition-transform mt-2 ${
-                          isSelected ? 'text-amber-400 translate-x-1' : 'text-slate-600'
+                          isSelected
+                            ? isCream ? 'text-amber-800 translate-x-1' : 'text-amber-400 translate-x-1'
+                            : isCream ? 'text-stone-400' : 'text-slate-600'
                         }`}
                       />
                     </div>
 
                     {/* Badges strip */}
-                    <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-[11px] pl-2">
-                      <span className="text-amber-300/80 font-medium truncate max-w-[180px]">
+                    <div className={`mt-3 pt-2.5 border-t flex items-center justify-between text-[11px] pl-2 ${
+                      isCream ? 'border-amber-200/80' : 'border-slate-800/80'
+                    }`}>
+                      <span className={`font-medium truncate max-w-[180px] ${
+                        isCream ? 'text-amber-900' : 'text-amber-300/80'
+                      }`}>
                         {garment.fabricMatch}
                       </span>
-                      <span className="text-slate-400 font-mono text-[10px]">
+                      <span className={`font-mono text-[10px] ${
+                        isCream ? 'text-stone-600' : 'text-slate-400'
+                      }`}>
                         {garment.period}
                       </span>
                     </div>

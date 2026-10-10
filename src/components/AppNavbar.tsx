@@ -8,9 +8,9 @@ import {
   Sparkles,
   Shirt,
   BookOpen,
-  Home,
   Sun,
   Moon,
+  Home,
 } from 'lucide-react';
 
 export type ScreenType = 'home' | 'fitting' | 'lookbook';
@@ -32,6 +32,9 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
   const handleNavClick = (screen: ScreenType) => {
     onNavigate(screen);
     setMobileMenuOpen(false);
+    if (screen === 'home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleToggleTheme = () => {
@@ -92,7 +95,10 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
                   : 'text-slate-300 hover:text-amber-300'
               }`}
             >
-              Trang chủ
+              <span className="flex items-center gap-1.5">
+                <Home className={`w-3.5 h-3.5 ${isCream ? 'text-amber-600' : 'text-amber-400'}`} />
+                Trang Chủ
+              </span>
             </button>
 
             <button
@@ -125,7 +131,10 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
                   : 'text-slate-300 hover:text-amber-300'
               }`}
             >
-              Lookbook cá nhân
+              <span className="flex items-center gap-1.5">
+                <BookOpen className={`w-3.5 h-3.5 ${isCream ? 'text-amber-600' : 'text-amber-400'}`} />
+                Lookbook cá nhân
+              </span>
             </button>
           </nav>
 
@@ -177,6 +186,7 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
             ? 'bg-[#FAF7F0]/98 border-amber-900/10 text-stone-800'
             : 'bg-[#090D17]/95 border-amber-500/20 text-slate-100'
         }`}>
+
           <button
             onClick={() => handleNavClick('home')}
             className={`w-full py-2.5 px-3 rounded-xl flex items-center gap-3 text-sm font-medium transition-all cursor-pointer ${
@@ -190,7 +200,7 @@ export const AppNavbar: React.FC<AppNavbarProps> = ({
             }`}
           >
             <Home className="w-4 h-4 text-amber-600" />
-            <span>Trang chủ</span>
+            <span>Trang Chủ</span>
           </button>
 
           <button

@@ -35,6 +35,7 @@ import {
 } from '../data/heritageMapData';
 import { soundEngine } from '../utils/audioSynth';
 import { PRESET_OUTFITS, PresetOutfit } from '../data/vietPhucData';
+import { useAppTheme } from '../context/ThemeContext';
 
 interface HeritageMapSectionProps {
   onStartFitting?: () => void;
@@ -171,6 +172,10 @@ export const HeritageMapSection: React.FC<HeritageMapSectionProps> = ({
   const markersGroupRef = useRef<L.LayerGroup | null>(null);
   const landmarksGroupRef = useRef<L.LayerGroup | null>(null);
   const spinePolylineRef = useRef<L.Polyline | null>(null);
+
+  // Theme
+  const { theme } = useAppTheme();
+  const isCream = theme === 'cream';
 
   // States
   const [showPlaceLabels, setShowPlaceLabels] = useState<boolean>(true);
@@ -706,47 +711,79 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
   };
 
   return (
-    <section className="relative w-full py-16 px-4 md:px-8 bg-gradient-to-b from-[#0A0E17] via-[#0E1526] to-[#0A0E17] text-slate-100 overflow-hidden">
+    <section className={`relative w-full py-16 px-4 md:px-8 overflow-hidden transition-colors duration-500 ${
+      isCream
+        ? 'bg-gradient-to-b from-[#FAF7F0] via-[#F4EFE6] to-[#FAF7F0] text-stone-900'
+        : 'bg-gradient-to-b from-[#0A0E17] via-[#0E1526] to-[#0A0E17] text-slate-100'
+    }`}>
       {/* Decorative Traditional Patterns & Ambient Glow */}
-      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent"></div>
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-amber-500/5 blur-[140px] pointer-events-none rounded-full"></div>
+      <div className={`absolute top-0 inset-x-0 h-px ${
+        isCream ? 'bg-gradient-to-r from-transparent via-amber-600/30 to-transparent' : 'bg-gradient-to-r from-transparent via-amber-500/40 to-transparent'
+      }`}></div>
+      <div className={`absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[600px] blur-[140px] pointer-events-none rounded-full ${
+        isCream ? 'bg-amber-400/10' : 'bg-amber-500/5'
+      }`}></div>
 
       <div className="max-w-7xl mx-auto space-y-8 relative z-10">
         {/* Section Header (Centered) */}
-        <div className="flex flex-col items-center text-center max-w-3xl mx-auto pb-6 border-b border-amber-500/20">
+        <div className={`flex flex-col items-center text-center max-w-3xl mx-auto pb-6 border-b ${
+          isCream ? 'border-amber-900/15' : 'border-amber-500/20'
+        }`}>
           <div className="space-y-2 flex flex-col items-center">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold tracking-wider uppercase">
-              <Globe className="w-3.5 h-3.5 text-amber-400" />
+            <div className={`inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-semibold tracking-wider uppercase ${
+              isCream
+                ? 'bg-amber-100/90 border border-amber-400 text-amber-900'
+                : 'bg-amber-500/10 border border-amber-500/30 text-amber-300'
+            }`}>
+              <Globe className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
               <span>Bản Đồ Vệ Tinh Độ Nét Cao</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif-vi font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100 text-center">
+            <h2 className={`text-2xl sm:text-3xl md:text-4xl font-serif-vi font-bold text-center ${
+              isCream
+                ? 'text-amber-950 font-extrabold'
+                : 'text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100'
+            }`}>
               Dải Non Sông Chữ S & Khởi Nguyên Cổ Phục
             </h2>
-            <p className="text-slate-300 text-xs sm:text-sm max-w-2xl font-light text-center leading-relaxed">
+            <p className={`text-xs sm:text-sm max-w-2xl text-center leading-relaxed ${
+              isCream ? 'text-stone-700 font-normal' : 'text-slate-300 font-light'
+            }`}>
               Khám phá cội nguồn di sản Việt phục trên nền không ảnh vệ tinh chân thực toàn cảnh Việt Nam — từ đỉnh Lũng Cú đến Mũi Cà Mau, cùng chủ quyền thiêng liêng Hoàng Sa — Trường Sa.
             </p>
           </div>
         </div>
 
         {/* Unified Map Navigation & Controls Hub */}
-        <div className="bg-[#0A0F1E]/90 p-3 sm:p-4 rounded-2xl border border-amber-500/25 backdrop-blur-md shadow-xl space-y-3">
+        <div className={`p-3 sm:p-4 rounded-2xl border backdrop-blur-md shadow-xl space-y-3 transition-colors ${
+          isCream
+            ? 'bg-white/95 border-amber-300 shadow-[0_4px_24px_rgba(180,130,60,0.08)] text-stone-900'
+            : 'bg-[#0A0F1E]/90 border-amber-500/25 shadow-xl text-slate-100'
+        }`}>
           {/* Tier 1: Search & Regional S-Curve Navigation */}
           <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
             {/* Search Box */}
             <div className="relative w-full md:w-72">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className={`w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 ${
+                isCream ? 'text-stone-500' : 'text-slate-400'
+              }`} />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Tìm kinh đô, áo cổ trang..."
-                className="w-full pl-8 pr-7 py-2 text-xs rounded-xl bg-slate-950/80 border border-slate-700/80 focus:border-amber-400 text-slate-200 placeholder-slate-500 focus:outline-none transition-all"
+                className={`w-full pl-8 pr-7 py-2 text-xs rounded-xl border focus:outline-none transition-all ${
+                  isCream
+                    ? 'bg-stone-50 border-stone-300 text-stone-900 placeholder:text-stone-400 focus:border-amber-500'
+                    : 'bg-slate-950/80 border-slate-700/80 focus:border-amber-400 text-slate-200 placeholder-slate-500'
+                }`}
               />
               {searchQuery && (
                 <button
                   type="button"
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-xs"
+                  className={`absolute right-2.5 top-1/2 -translate-y-1/2 text-xs ${
+                    isCream ? 'text-stone-400 hover:text-stone-700' : 'text-slate-400 hover:text-slate-200'
+                  }`}
                 >
                   ✕
                 </button>
@@ -754,43 +791,87 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
             </div>
 
             {/* S-Curve Regional Jumps (Single Horizontal Bar) */}
-            <div className="flex items-center gap-1.5 p-1 bg-slate-950/80 rounded-xl border border-slate-800 overflow-x-auto scrollbar-none">
-              <span className="text-[11px] font-semibold text-amber-400/80 px-2 hidden lg:flex items-center gap-1 whitespace-nowrap">
-                <Navigation className="w-3 h-3 text-amber-400" />
+            <div className={`flex items-center gap-1.5 p-1 rounded-xl border overflow-x-auto scrollbar-none ${
+              isCream ? 'bg-stone-100/90 border-stone-200' : 'bg-slate-950/80 border-slate-800'
+            }`}>
+              <span className={`text-[11px] font-semibold px-2 hidden lg:flex items-center gap-1 whitespace-nowrap ${
+                isCream ? 'text-amber-800' : 'text-amber-400/80'
+              }`}>
+                <Navigation className={`w-3 h-3 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
                 <span>Trục chữ S:</span>
               </span>
               <button
                 type="button"
                 onClick={() => handleJumpToSection('full')}
-                className="px-3 py-1.5 text-xs rounded-lg font-medium bg-amber-500/15 text-amber-200 hover:bg-amber-500/25 border border-amber-500/30 transition-all cursor-pointer whitespace-nowrap flex-shrink-0"
+                className={`px-3 py-1.5 text-xs rounded-lg font-medium border transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
+                  selectedRegionFilter === 'all'
+                    ? isCream
+                      ? 'bg-amber-400 text-slate-950 font-bold border-amber-500 shadow-xs'
+                      : 'bg-amber-500/20 text-amber-200 border-amber-400/60 shadow-sm'
+                    : isCream
+                    ? 'text-stone-700 hover:text-stone-900 hover:bg-white border-transparent'
+                    : 'text-slate-300 hover:text-amber-200 hover:bg-slate-800 border-transparent'
+                }`}
               >
                 🇻🇳 Toàn cảnh
               </button>
               <button
                 type="button"
                 onClick={() => handleJumpToSection('north')}
-                className="px-3 py-1.5 text-xs rounded-lg font-medium text-slate-300 hover:text-amber-200 hover:bg-slate-850 transition-all cursor-pointer whitespace-nowrap flex-shrink-0"
+                className={`px-3 py-1.5 text-xs rounded-lg font-medium border transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
+                  selectedRegionFilter === 'bac'
+                    ? isCream
+                      ? 'bg-amber-400 text-slate-950 font-bold border-amber-500 shadow-xs'
+                      : 'bg-amber-500/20 text-amber-200 border-amber-400/60 shadow-sm'
+                    : isCream
+                    ? 'text-stone-700 hover:text-stone-900 hover:bg-white border-transparent'
+                    : 'text-slate-300 hover:text-amber-200 hover:bg-slate-800 border-transparent'
+                }`}
               >
                 🏛️ Bắc Bộ
               </button>
               <button
                 type="button"
                 onClick={() => handleJumpToSection('central')}
-                className="px-3 py-1.5 text-xs rounded-lg font-medium text-slate-300 hover:text-amber-200 hover:bg-slate-850 transition-all cursor-pointer whitespace-nowrap flex-shrink-0"
+                className={`px-3 py-1.5 text-xs rounded-lg font-medium border transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
+                  selectedRegionFilter === 'trung'
+                    ? isCream
+                      ? 'bg-amber-400 text-slate-950 font-bold border-amber-500 shadow-xs'
+                      : 'bg-amber-500/20 text-amber-200 border-amber-400/60 shadow-sm'
+                    : isCream
+                    ? 'text-stone-700 hover:text-stone-900 hover:bg-white border-transparent'
+                    : 'text-slate-300 hover:text-amber-200 hover:bg-slate-800 border-transparent'
+                }`}
               >
                 🏯 Trung Bộ
               </button>
               <button
                 type="button"
                 onClick={() => handleJumpToSection('south')}
-                className="px-3 py-1.5 text-xs rounded-lg font-medium text-slate-300 hover:text-amber-200 hover:bg-slate-850 transition-all cursor-pointer whitespace-nowrap flex-shrink-0"
+                className={`px-3 py-1.5 text-xs rounded-lg font-medium border transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
+                  selectedRegionFilter === 'nam'
+                    ? isCream
+                      ? 'bg-amber-400 text-slate-950 font-bold border-amber-500 shadow-xs'
+                      : 'bg-amber-500/20 text-amber-200 border-amber-400/60 shadow-sm'
+                    : isCream
+                    ? 'text-stone-700 hover:text-stone-900 hover:bg-white border-transparent'
+                    : 'text-slate-300 hover:text-amber-200 hover:bg-slate-800 border-transparent'
+                }`}
               >
                 🚣 Nam Bộ
               </button>
               <button
                 type="button"
                 onClick={() => handleJumpToSection('islands')}
-                className="px-3 py-1.5 text-xs rounded-lg font-semibold text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-all cursor-pointer whitespace-nowrap flex-shrink-0"
+                className={`px-3 py-1.5 text-xs rounded-lg font-semibold border transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
+                  selectedRegionFilter === 'islands'
+                    ? isCream
+                      ? 'bg-amber-400 text-slate-950 font-bold border-amber-500 shadow-xs'
+                      : 'bg-amber-500/20 text-amber-200 border-amber-400/60 shadow-sm'
+                    : isCream
+                    ? 'bg-amber-100 text-amber-950 border-amber-300 hover:bg-amber-200'
+                    : 'text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/30'
+                }`}
               >
                 🌊 Biển Đảo (Hoàng Sa - Trường Sa)
               </button>
@@ -798,12 +879,16 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
           </div>
 
           {/* Tier 2: Layer Toggles & Auto Tour Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800/80">
+          <div className={`flex flex-wrap items-center justify-between gap-3 pt-3 border-t ${
+            isCream ? 'border-stone-200' : 'border-slate-800/80'
+          }`}>
             {/* Layer & Feature Toggles */}
             <div className="flex flex-wrap items-center gap-2">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950/90 border border-emerald-500/40 text-xs shadow-inner">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="font-semibold text-emerald-300">🛰️ Vệ Tinh Trực Tuyến</span>
+              <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs shadow-inner ${
+                isCream ? 'bg-emerald-50 border-emerald-300 text-emerald-950' : 'bg-slate-950/90 border-emerald-500/40 text-emerald-300'
+              }`}>
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="font-semibold">🛰️ Vệ Tinh Trực Tuyến</span>
               </div>
 
               <button
@@ -814,12 +899,16 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
                 }}
                 className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
                   showPlaceLabels
-                    ? 'bg-amber-500/20 border-amber-400 text-amber-200 shadow-sm'
+                    ? isCream
+                      ? 'bg-amber-200/90 border-amber-400 text-amber-950 font-bold shadow-xs'
+                      : 'bg-amber-500/20 border-amber-400 text-amber-200 shadow-sm'
+                    : isCream
+                    ? 'bg-stone-50 border-stone-200 text-stone-700 hover:text-stone-900 hover:bg-stone-100'
                     : 'bg-slate-950/70 border-slate-700 text-slate-400 hover:text-slate-200'
                 }`}
                 title="Bật/Tắt nhãn địa danh tỉnh thành trên ảnh vệ tinh"
               >
-                <Layers className="w-3.5 h-3.5 text-amber-400" />
+                <Layers className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
                 <span>{showPlaceLabels ? 'Nhãn địa danh: Bật' : 'Nhãn: Tắt'}</span>
               </button>
 
@@ -831,12 +920,16 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
                 }}
                 className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
                   showSSpine
-                    ? 'bg-amber-500/20 border-amber-400 text-amber-200 shadow-sm'
+                    ? isCream
+                      ? 'bg-amber-200/90 border-amber-400 text-amber-950 font-bold shadow-xs'
+                      : 'bg-amber-500/20 border-amber-400 text-amber-200 shadow-sm'
+                    : isCream
+                    ? 'bg-stone-50 border-stone-200 text-stone-700 hover:text-stone-900 hover:bg-stone-100'
                     : 'bg-slate-950/70 border-slate-700 text-slate-400 hover:text-slate-200'
                 }`}
                 title="Bật/Tắt đường chỉ lụa vàng hình chữ S"
               >
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <Sparkles className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
                 <span>Trục chữ S</span>
               </button>
 
@@ -848,12 +941,16 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
                 }}
                 className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
                   showSovereignty
-                    ? 'bg-amber-500/20 border-amber-400 text-amber-200 shadow-sm'
+                    ? isCream
+                      ? 'bg-amber-200/90 border-amber-400 text-amber-950 font-bold shadow-xs'
+                      : 'bg-amber-500/20 border-amber-400 text-amber-200 shadow-sm'
+                    : isCream
+                    ? 'bg-stone-50 border-stone-200 text-stone-700 hover:text-stone-900 hover:bg-stone-100'
                     : 'bg-slate-950/70 border-slate-700 text-slate-400 hover:text-slate-200'
                 }`}
                 title="Bật/Tắt mốc chủ quyền biển đảo"
               >
-                <Shield className="w-3.5 h-3.5 text-amber-400" />
+                <Shield className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
                 <span>Mốc chủ quyền</span>
               </button>
             </div>
@@ -861,10 +958,12 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
             {/* Auto-Tour & Cultural Hint */}
             <div className="flex items-center gap-2.5">
               <div
-                className="hidden xl:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-200/90 text-xs font-normal select-none"
+                className={`hidden xl:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-normal select-none ${
+                  isCream ? 'bg-amber-50 border-amber-200 text-stone-700' : 'bg-amber-500/10 border-amber-500/20 text-amber-200/90'
+                }`}
                 title="Rê chuột (hover) vào bất kỳ điểm mốc nào trên bản đồ để xem thẻ chú thích văn hóa tức thì"
               >
-                <Info className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <Info className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-400'} shrink-0`} />
                 <span>Rê chuột vào điểm mốc xem văn hóa</span>
               </div>
 
@@ -877,6 +976,8 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap shadow-sm ${
                   isAutoTouring
                     ? 'bg-amber-400 text-slate-950 border-amber-300 font-bold shadow-amber-500/30 animate-pulse'
+                    : isCream
+                    ? 'bg-amber-100 hover:bg-amber-200 border-amber-300 text-amber-950 font-bold'
                     : 'bg-amber-500/15 border-amber-500/30 text-amber-200 hover:bg-amber-500/25'
                 }`}
               >
@@ -890,30 +991,37 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
         {/* Main Content Layout: Map Viewport + Heritage Detail Inspector */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Map Viewport Area (8 cols) */}
-          <div className="lg:col-span-7 xl:col-span-8 relative bg-slate-950/90 rounded-3xl border border-amber-500/30 overflow-hidden shadow-2xl heritage-map-container h-[640px] md:h-[720px] flex flex-col">
+          <div className={`lg:col-span-7 xl:col-span-8 relative rounded-3xl border overflow-hidden shadow-2xl heritage-map-container h-[640px] md:h-[720px] flex flex-col ${
+            isCream ? 'bg-stone-100 border-amber-300/80 shadow-[0_8px_30px_rgba(180,130,60,0.12)]' : 'bg-slate-950/90 border-amber-500/30'
+          }`}>
             {/* The Actual Leaflet Map Canvas */}
             <div ref={mapContainerRef} className="w-full h-full z-0 relative" />
-
 
             {/* Map Controls: Floating Action Buttons (Bottom Left) */}
             <div className="absolute bottom-5 left-4 z-10 flex flex-col gap-1.5">
               <button
                 onClick={handleZoomIn}
-                className="w-9 h-9 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-500/30 shadow-xl flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95"
+                className={`w-9 h-9 rounded-xl border shadow-xl flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 ${
+                  isCream ? 'bg-white hover:bg-amber-50 text-amber-950 border-amber-300 shadow-md' : 'bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-500/30'
+                }`}
                 title="Phóng to bản đồ"
               >
                 <ZoomIn className="w-4 h-4" />
               </button>
               <button
                 onClick={handleZoomOut}
-                className="w-9 h-9 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-500/30 shadow-xl flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95"
+                className={`w-9 h-9 rounded-xl border shadow-xl flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 ${
+                  isCream ? 'bg-white hover:bg-amber-50 text-amber-950 border-amber-300 shadow-md' : 'bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-500/30'
+                }`}
                 title="Thu nhỏ bản đồ"
               >
                 <ZoomOut className="w-4 h-4" />
               </button>
               <button
                 onClick={handleResetView}
-                className="w-9 h-9 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-500/30 shadow-xl flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95"
+                className={`w-9 h-9 rounded-xl border shadow-xl flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 ${
+                  isCream ? 'bg-white hover:bg-amber-50 text-amber-950 border-amber-300 shadow-md' : 'bg-slate-900/90 hover:bg-slate-800 text-amber-300 border border-amber-500/30'
+                }`}
                 title="Đặt lại góc nhìn trọn vẹn hình chữ S"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -922,8 +1030,12 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
 
             {/* Quick Location Dock: All 11 Heritage Locations Carousel (Bottom Dock) */}
             <div className="absolute bottom-5 left-16 right-4 sm:left-20 sm:right-auto sm:max-w-xl z-10 pointer-events-auto">
-              <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-slate-950/90 backdrop-blur-xl border border-amber-500/30 shadow-2xl overflow-x-auto scrollbar-none">
-                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider px-2 hidden sm:inline whitespace-nowrap">
+              <div className={`flex items-center gap-1.5 p-1.5 rounded-2xl backdrop-blur-xl border shadow-2xl overflow-x-auto scrollbar-none ${
+                isCream ? 'bg-white/95 border-amber-300 text-stone-900 shadow-[0_8px_30px_rgba(180,130,60,0.15)]' : 'bg-slate-950/90 border-amber-500/30 text-slate-100'
+              }`}>
+                <span className={`text-[10px] font-bold uppercase tracking-wider px-2 hidden sm:inline whitespace-nowrap ${
+                  isCream ? 'text-amber-800' : 'text-amber-400'
+                }`}>
                   Di sản:
                 </span>
                 {HERITAGE_LOCATIONS.map((node) => {
@@ -940,6 +1052,8 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
                       className={`px-2.5 py-1 rounded-xl text-xs whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
                         isSelected
                           ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/40 scale-105'
+                          : isCream
+                          ? 'bg-stone-50 hover:bg-amber-50 text-stone-700 hover:text-amber-950 border border-stone-200'
                           : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-amber-200 border border-slate-700/60'
                       }`}
                     >
@@ -961,7 +1075,11 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
                 transition={{ duration: 0.3 }}
-                className="bg-slate-900/90 rounded-3xl border border-amber-500/30 p-6 backdrop-blur-xl shadow-2xl relative overflow-hidden"
+                className={`rounded-3xl border p-6 backdrop-blur-xl shadow-2xl relative overflow-hidden transition-colors ${
+                  isCream
+                    ? 'bg-white/95 border-amber-300 shadow-[0_12px_40px_rgba(180,130,60,0.12)] text-stone-900'
+                    : 'bg-slate-900/90 border-amber-500/30 shadow-2xl text-slate-100'
+                }`}
               >
                 {/* Accent glow corner */}
                 <div
@@ -970,31 +1088,43 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
                 />
 
                 {/* Card Header Top Row: Region Badge & Location Navigation */}
-                <div className="flex items-center justify-between gap-3 pb-3.5 border-b border-slate-800">
+                <div className={`flex items-center justify-between gap-3 pb-3.5 border-b ${
+                  isCream ? 'border-stone-200' : 'border-slate-800'
+                }`}>
                   <div className="flex items-center gap-2">
                     <span className="text-xl">{selectedNode.icon}</span>
-                    <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-300">
+                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-lg border ${
+                      isCream ? 'bg-amber-100 border-amber-300 text-amber-950 font-bold' : 'bg-amber-500/15 border-amber-500/30 text-amber-300'
+                    }`}>
                       {selectedNode.regionTitle}
                     </span>
                   </div>
 
                   {/* Next / Prev Location controls */}
-                  <div className="flex items-center gap-1.5 bg-slate-950 px-2.5 py-1 rounded-xl border border-slate-800 shrink-0">
+                  <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl border shrink-0 ${
+                    isCream ? 'bg-stone-50 border-stone-200' : 'bg-slate-950 border-slate-800'
+                  }`}>
                     <button
                       type="button"
                       onClick={handleNavigatePrev}
-                      className="p-1 rounded-lg text-slate-400 hover:text-amber-300 hover:bg-slate-800 transition-all cursor-pointer"
+                      className={`p-1 rounded-lg transition-all cursor-pointer ${
+                        isCream ? 'text-stone-600 hover:text-amber-900 hover:bg-stone-200' : 'text-slate-400 hover:text-amber-300 hover:bg-slate-800'
+                      }`}
                       title="Địa danh trước"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
-                    <span className="text-[11px] font-mono text-amber-300/90 font-medium px-1">
+                    <span className={`text-[11px] font-mono font-medium px-1 ${
+                      isCream ? 'text-amber-900 font-bold' : 'text-amber-300/90'
+                    }`}>
                       {HERITAGE_LOCATIONS.findIndex((n) => n.id === selectedNode.id) + 1}/{HERITAGE_LOCATIONS.length}
                     </span>
                     <button
                       type="button"
                       onClick={handleNavigateNext}
-                      className="p-1 rounded-lg text-slate-400 hover:text-amber-300 hover:bg-slate-800 transition-all cursor-pointer"
+                      className={`p-1 rounded-lg transition-all cursor-pointer ${
+                        isCream ? 'text-stone-600 hover:text-amber-900 hover:bg-stone-200' : 'text-slate-400 hover:text-amber-300 hover:bg-slate-800'
+                      }`}
                       title="Địa danh kế tiếp"
                     >
                       <ChevronRight className="w-4 h-4" />
@@ -1003,12 +1133,18 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
                 </div>
 
                 {/* Centered Main Location Title & Ancient Name */}
-                <div className="py-3 text-center flex flex-col items-center border-b border-slate-800/60">
-                  <h3 className="text-2xl sm:text-3xl font-serif-vi font-bold text-amber-100 text-center leading-tight">
+                <div className={`py-3 text-center flex flex-col items-center border-b ${
+                  isCream ? 'border-stone-200' : 'border-slate-800/60'
+                }`}>
+                  <h3 className={`text-2xl sm:text-3xl font-serif-vi font-bold text-center leading-tight ${
+                    isCream ? 'text-amber-950 font-bold' : 'text-amber-100'
+                  }`}>
                     {selectedNode.name}
                   </h3>
                   {selectedNode.historicalName && (
-                    <p className="text-xs text-amber-400/90 font-mono italic text-center mt-1.5">
+                    <p className={`text-xs font-mono italic text-center mt-1.5 ${
+                      isCream ? 'text-amber-800 font-semibold' : 'text-amber-400/90'
+                    }`}>
                       Cổ danh: {selectedNode.historicalName}
                     </p>
                   )}
@@ -1016,11 +1152,17 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
 
                 {/* Dynasties / Historic Eras (Centered) */}
                 <div className="py-2.5 flex flex-wrap gap-1.5 items-center justify-center text-center">
-                  <span className="text-[11px] text-slate-400 font-medium">Triều đại tiêu biểu:</span>
+                  <span className={`text-[11px] font-medium ${isCream ? 'text-stone-600' : 'text-slate-400'}`}>
+                    Triều đại tiêu biểu:
+                  </span>
                   {selectedNode.dynasties.map((dynasty) => (
                     <span
                       key={dynasty}
-                      className="text-xs px-2.5 py-0.5 rounded-lg bg-slate-800/80 text-amber-200 border border-amber-500/20 font-medium"
+                      className={`text-xs px-2.5 py-0.5 rounded-lg border font-medium ${
+                        isCream
+                          ? 'bg-amber-100/80 text-amber-950 border-amber-300 font-semibold'
+                          : 'bg-slate-800/80 text-amber-200 border-amber-500/20'
+                      }`}
                     >
                       {dynasty}
                     </span>
@@ -1028,41 +1170,65 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
                 </div>
 
                 {/* Historical vs Modern Comparison Box */}
-                <div className="my-3 p-3.5 rounded-2xl bg-slate-950/80 border border-amber-500/25 space-y-2.5">
-                  <div className="flex items-center justify-between text-[11px] font-semibold text-amber-300 border-b border-slate-800/80 pb-1.5">
+                <div className={`my-3 p-3.5 rounded-2xl border space-y-2.5 ${
+                  isCream ? 'bg-amber-50/50 border-amber-200/90' : 'bg-slate-950/80 border-amber-500/25'
+                }`}>
+                  <div className={`flex items-center justify-between text-[11px] font-semibold border-b pb-1.5 ${
+                    isCream ? 'text-amber-900 border-amber-200' : 'text-amber-300 border-slate-800/80'
+                  }`}>
                     <span className="flex items-center gap-1.5">
-                      <Compass className="w-3.5 h-3.5 text-amber-400" />
+                      <Compass className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
                       <span>Đối chiếu Địa Danh Xưa & Nay</span>
                     </span>
-                    <span className="text-[10px] text-amber-400/90 font-mono flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                    <span className={`text-[10px] font-mono flex items-center gap-1 ${
+                      isCream ? 'text-amber-800 font-semibold' : 'text-amber-400/90'
+                    }`}>
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                       Tọa độ vệ tinh
                     </span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <div className="p-3 rounded-xl bg-[#111A2E] border border-amber-500/20">
-                      <span className="text-[10px] text-amber-400 font-mono font-semibold block mb-1">🏛️ THỜI XƯA (CỔ DANH)</span>
-                      <p className="text-xs text-amber-100 font-medium leading-relaxed">
+                    <div className={`p-3 rounded-xl border ${
+                      isCream ? 'bg-white border-amber-300/80 shadow-xs' : 'bg-[#111A2E] border-amber-500/20'
+                    }`}>
+                      <span className={`text-[10px] font-mono font-semibold block mb-1 ${
+                        isCream ? 'text-amber-900 font-bold' : 'text-amber-400'
+                      }`}>🏛️ THỜI XƯA (CỔ DANH)</span>
+                      <p className={`text-xs font-medium leading-relaxed ${
+                        isCream ? 'text-stone-900 font-bold' : 'text-amber-100'
+                      }`}>
                         {selectedNode.historicalName || selectedNode.name}
                       </p>
                     </div>
-                    <div className="p-3 rounded-xl bg-[#111A2E] border border-slate-700/80">
-                      <span className="text-[10px] text-slate-300 font-mono font-semibold block mb-1">📍 NGÀY NAY (HÀNH CHÍNH)</span>
-                      <p className="text-xs text-slate-200 font-medium leading-relaxed">
+                    <div className={`p-3 rounded-xl border ${
+                      isCream ? 'bg-white border-stone-200 shadow-xs' : 'bg-[#111A2E] border-slate-700/80'
+                    }`}>
+                      <span className={`text-[10px] font-mono font-semibold block mb-1 ${
+                        isCream ? 'text-stone-600 font-bold' : 'text-slate-300'
+                      }`}>📍 NGÀY NAY (HÀNH CHÍNH)</span>
+                      <p className={`text-xs font-medium leading-relaxed ${
+                        isCream ? 'text-stone-800' : 'text-slate-200'
+                      }`}>
                         {selectedNode.modernLocation}
                       </p>
                     </div>
                   </div>
 
-                  <div className="pt-2 border-t border-slate-800/80 space-y-1.5">
-                    <div className="flex items-center justify-between text-[10.5px] font-mono text-slate-400">
+                  <div className={`pt-2 border-t space-y-1.5 ${isCream ? 'border-amber-200/80' : 'border-slate-800/80'}`}>
+                    <div className={`flex items-center justify-between text-[10.5px] font-mono ${
+                      isCream ? 'text-stone-600' : 'text-slate-400'
+                    }`}>
                       <span>Tọa độ vệ tinh:</span>
-                      <span className="text-amber-300 font-semibold">{selectedNode.coordinates[1].toFixed(2)}°B • {selectedNode.coordinates[0].toFixed(2)}°Đ</span>
+                      <span className={`font-semibold ${isCream ? 'text-amber-900 font-bold' : 'text-amber-300'}`}>
+                        {selectedNode.coordinates[1].toFixed(2)}°B • {selectedNode.coordinates[0].toFixed(2)}°Đ
+                      </span>
                     </div>
                     {selectedNode.landmarkNote && (
-                      <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-200 leading-relaxed flex items-start gap-2">
-                        <Info className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                      <div className={`p-2.5 rounded-xl border text-[11px] leading-relaxed flex items-start gap-2 ${
+                        isCream ? 'bg-white border-amber-200 text-stone-700' : 'bg-amber-500/10 border-amber-500/20 text-amber-200'
+                      }`}>
+                        <Info className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-400'} shrink-0 mt-0.5`} />
                         <span>{selectedNode.landmarkNote}</span>
                       </div>
                     )}
@@ -1070,34 +1236,58 @@ const SHORT_SOVEREIGNTY_NAMES: Record<string, string> = {
                 </div>
 
                 {/* Primary Garment Spotlight */}
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 via-[#0E1528] to-[#0A0F1D] border border-amber-500/30 space-y-2 mb-4">
+                <div className={`p-4 rounded-2xl border space-y-2 mb-4 ${
+                  isCream
+                    ? 'bg-gradient-to-br from-amber-100/60 via-white to-amber-50 border-amber-300/80 shadow-xs'
+                    : 'bg-gradient-to-br from-amber-500/10 via-[#0E1528] to-[#0A0F1D] border-amber-500/30'
+                }`}>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs uppercase font-bold tracking-wider text-amber-400 flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                    <span className={`text-xs uppercase font-bold tracking-wider flex items-center gap-1.5 ${
+                      isCream ? 'text-amber-900' : 'text-amber-400'
+                    }`}>
+                      <Sparkles className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-300'}`} />
                       <span>Trang phục danh xưng</span>
                     </span>
-                    <span className="text-[10px] px-2.5 py-0.5 rounded-md bg-amber-400/20 text-amber-200 border border-amber-400/30 font-medium font-mono">
+                    <span className={`text-[10px] px-2.5 py-0.5 rounded-md border font-medium font-mono ${
+                      isCream ? 'bg-amber-200 text-amber-950 border-amber-400 font-bold' : 'bg-amber-400/20 text-amber-200 border-amber-400/30'
+                    }`}>
                       {selectedNode.elevationBadge || 'Di sản văn hóa'}
                     </span>
                   </div>
-                  <h4 className="text-lg font-bold text-amber-100 font-serif-vi">
+                  <h4 className={`text-lg font-bold font-serif-vi ${
+                    isCream ? 'text-amber-950 font-bold' : 'text-amber-100'
+                  }`}>
                     {selectedNode.mainGarmentName}
                   </h4>
-                  <p className="text-xs text-slate-300 leading-relaxed font-light">
+                  <p className={`text-xs leading-relaxed ${
+                    isCream ? 'text-stone-700 font-normal' : 'text-slate-300 font-light'
+                  }`}>
                     {selectedNode.philosophicalMeaning}
                   </p>
                 </div>
 
                 {/* Cultural Fabric & Craftsmanship */}
-                <div className="space-y-3 text-xs text-slate-300 mb-6">
-                  <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
-                    <span className="font-semibold text-amber-300 block">Kỹ nghệ dệt thêu & chất liệu:</span>
-                    <p className="text-slate-400 leading-relaxed">{selectedNode.craftAndFabric}</p>
+                <div className={`space-y-3 text-xs mb-6 ${isCream ? 'text-stone-700' : 'text-slate-300'}`}>
+                  <div className={`p-3 rounded-xl border space-y-1 ${
+                    isCream ? 'bg-stone-50 border-stone-200' : 'bg-slate-950/60 border-slate-800'
+                  }`}>
+                    <span className={`font-semibold block ${isCream ? 'text-amber-900' : 'text-amber-300'}`}>
+                      Kỹ nghệ dệt thêu & chất liệu:
+                    </span>
+                    <p className={isCream ? 'text-stone-700 leading-relaxed' : 'text-slate-400 leading-relaxed'}>
+                      {selectedNode.craftAndFabric}
+                    </p>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
-                    <span className="font-semibold text-amber-300 block">Dấu ấn sử liệu:</span>
-                    <p className="text-slate-400 leading-relaxed italic">"{selectedNode.historicalStory}"</p>
+                  <div className={`p-3 rounded-xl border space-y-1 ${
+                    isCream ? 'bg-stone-50 border-stone-200' : 'bg-slate-950/60 border-slate-800'
+                  }`}>
+                    <span className={`font-semibold block ${isCream ? 'text-amber-900' : 'text-amber-300'}`}>
+                      Dấu ấn sử liệu:
+                    </span>
+                    <p className={`leading-relaxed italic ${isCream ? 'text-stone-700' : 'text-slate-400'}`}>
+                      "{selectedNode.historicalStory}"
+                    </p>
                   </div>
                 </div>
 
