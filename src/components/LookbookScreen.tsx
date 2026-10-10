@@ -866,7 +866,7 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                     <label className="block text-[11px] font-bold text-amber-400 mb-1.5">
                       Chọn bối cảnh danh thắng di sản:
                     </label>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-2 max-h-[300px] overflow-y-auto custom-scrollbar pr-1">
                       {BACKDROPS.map((bd) => (
                         <button
                           key={bd.id}
