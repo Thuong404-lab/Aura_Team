@@ -674,8 +674,41 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
           {/* ==========================================================
               LEFT COLUMN: Live 2D Mannequin Visualizer & Quick Wardrobe Bar
              ========================================================== */}
-          <div className="w-full lg:sticky lg:top-20 flex flex-col gap-3.5 self-start">
-            <div className={`relative w-full aspect-4/5 sm:aspect-3/4 max-h-[580px] rounded-3xl border p-2 sm:p-4 flex items-center justify-center shadow-2xl overflow-hidden group transition-all duration-300 ${
+          <div className="w-full md:sticky md:top-20 flex flex-col gap-3 self-start z-10">
+            {/* Dedicated Cultural Taboo Alert Banner (Nằm phía trên khung ma nơ canh, KHÔNG che nhân vật) */}
+            {hasCriticalViolations && (
+              <div className="w-full px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-rose-950/95 via-[#220B14] to-rose-950/95 border border-rose-500/70 shadow-lg flex items-center justify-between gap-2.5 text-xs animate-in slide-in-from-top duration-200">
+                <div className="flex items-center gap-2 min-w-0">
+                  <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0 animate-pulse" />
+                  <div className="truncate text-left">
+                    <span className="font-bold text-rose-300 block text-[11px] uppercase tracking-wide">
+                      Cảnh Báo Cấm Kỵ Cổ Phục
+                    </span>
+                    <span className="text-[11px] text-rose-100 truncate block">
+                      {culturalRulesData.violations[0].title}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    onClick={handleAutoFixAll}
+                    className="px-2.5 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-[11px] transition-all cursor-pointer shadow-xs"
+                    title="Khắc phục quy chuẩn tự động"
+                  >
+                    Khắc phục ngay
+                  </button>
+                  <button
+                    onClick={scrollToTabooWarning}
+                    className="px-2 py-1 rounded-lg bg-rose-900/60 hover:bg-rose-800 text-rose-200 text-[11px] border border-rose-600/50 cursor-pointer"
+                    title="Xem chi tiết lý giải cấm kỵ"
+                  >
+                    Xem lý giải
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className={`relative w-full aspect-4/5 sm:aspect-3/4 max-h-[560px] rounded-3xl border p-2 sm:p-4 flex items-center justify-center shadow-2xl overflow-hidden group transition-all duration-300 ${
               isCream
                 ? 'bg-radial from-[#FFFDF9] via-[#F8F3E8] to-[#EFE5D0] border-amber-400/50 shadow-[0_16px_45px_rgba(180,130,60,0.12)]'
                 : 'bg-radial from-[#121A2C] via-[#0D1322] to-[#080C16] border-amber-500/30'
@@ -823,7 +856,10 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
           {/* ==========================================================
               RIGHT COLUMN: Controls, AI Real-World Suggester, Rules & Wardrobe
              ========================================================== */}
-          <div className="w-full flex flex-col gap-3.5 text-left">
+          <div
+            data-lenis-prevent="true"
+            className="w-full flex flex-col gap-3.5 text-left md:max-h-[calc(100vh-6.5rem)] md:overflow-y-auto md:pr-2.5 custom-scrollbar overscroll-contain"
+          >
             {/* 1. WORKSPACE VIEW SWITCHER TABS: Tủ Đồ vs Trợ Lý AI */}
             <div className={`flex items-center justify-between p-1.5 rounded-2xl gap-1.5 shadow-md shrink-0 border ${
               isCream ? 'bg-amber-100/70 border-amber-300/80 shadow-xs' : 'bg-[#0D1525] border-amber-500/30'
@@ -844,7 +880,7 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                 }`}
               >
                 <Shirt className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
-                <span>👘 1. Tủ Đồ & Thử Cổ Phục</span>
+                <span>1. Tủ Đồ & Thử Cổ Phục</span>
               </button>
 
               <button
@@ -863,7 +899,7 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                 }`}
               >
                 <Sparkles className={`w-3.5 h-3.5 ${isCream ? 'text-amber-700' : 'text-amber-400'}`} />
-                <span>✨ 2. Trợ Lý AI & Đánh Giá</span>
+                <span>2. Trợ Lý AI & Đánh Giá</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
               </button>
             </div>
@@ -1220,10 +1256,7 @@ export const FittingRoomScreen: React.FC<FittingRoomScreenProps> = ({
                 </div>
 
                 {/* 6. Wardrobe Cards Grid */}
-                <div
-                  data-lenis-prevent="true"
-                  className="min-h-[380px] max-h-[520px] overflow-y-auto overscroll-contain pr-1 space-y-2 custom-scrollbar"
-                >
+                <div className="min-h-[380px] space-y-2 pr-0.5">
                   {/* TAB 1: Áo Cổ Phục (TOPS) */}
                   {activeTab === 'top' && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

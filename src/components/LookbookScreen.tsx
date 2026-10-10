@@ -522,12 +522,12 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                 </div>
               </div>
 
-              {/* POSTER CENTER: Full 2D Mannequin Standing Proudly (Middle ~60%) */}
+              {/* POSTER CENTER: Full 2D Mannequin Standing Proudly Centered (Middle Area) */}
               {previewMode === 'poster' ? (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none pt-12 pb-44 z-10">
+                <div className="absolute inset-x-0 top-[56px] bottom-[165px] sm:bottom-[175px] flex items-center justify-center pointer-events-none z-10 px-4">
                   <div
                     id="lookbook-mannequin-wrapper"
-                    className="w-full h-full max-h-[460px] flex items-center justify-center scale-90 sm:scale-95 drop-shadow-[0_18px_40px_rgba(0,0,0,0.95)]"
+                    className="w-full h-full flex items-center justify-center drop-shadow-[0_18px_40px_rgba(0,0,0,0.95)]"
                   >
                     <AvatarModel
                       top={top}
@@ -858,7 +858,7 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                       ) : (
                         <>
                           <Sparkles className="w-3.5 h-3.5" />
-                          <span>✨ AI Sáng Tác</span>
+                          <span>AI Sáng Tác</span>
                         </>
                       )}
                     </button>
@@ -1371,9 +1371,9 @@ export const LookbookScreen: React.FC<LookbookScreenProps> = ({
                 </span>
               </div>
 
-              {/* Mannequin */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none pt-12 pb-44 z-10">
-                <div className="w-full h-full max-h-[460px] flex items-center justify-center scale-95 drop-shadow-2xl">
+              {/* Mannequin Centered */}
+              <div className="absolute inset-x-0 top-[56px] bottom-[165px] sm:bottom-[175px] flex items-center justify-center pointer-events-none z-10 px-4">
+                <div className="w-full h-full flex items-center justify-center drop-shadow-2xl">
                   <AvatarModel
                     top={top}
                     bottom={bottom}

@@ -267,133 +267,24 @@ class TraditionalSoundEngine {
   // =========================================================================
 
   /**
-   * Play interactive button/card pluck chime (Đàn Tranh pluck)
+   * Play interactive button/card pluck chime (Đàn Tranh pluck) - DISABLED per user request
    */
-  public playPluck(freq?: number) {
-    try {
-      const ctx = this.getAudioContext();
-      const now = ctx.currentTime;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      const notes = THEMES[this.currentTheme].notes;
-      const f = freq || notes[Math.floor(Math.random() * notes.length)];
-
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(f, now);
-      osc.frequency.exponentialRampToValueAtTime(f * 1.015, now + 0.12);
-      osc.frequency.exponentialRampToValueAtTime(f, now + 0.35);
-
-      gain.gain.setValueAtTime(0.001, now);
-      gain.gain.linearRampToValueAtTime(0.12, now + 0.04);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.0);
-
-      osc.connect(gain);
-      if (this.fxGain) {
-        gain.connect(this.fxGain);
-      } else {
-        gain.connect(ctx.destination);
-      }
-
-      osc.start(now);
-      osc.stop(now + 2.1);
-    } catch {
-      // Audio not permitted yet
-    }
+  public playPluck(_freq?: number) {
+    // Sound effects completely muted
   }
 
   /**
-   * Play subtle soft silk rustle / fabric flutter sound on hover
+   * Play subtle soft silk rustle / fabric flutter sound on hover - DISABLED per user request
    */
   public playSilkFlutter() {
-    try {
-      const ctx = this.getAudioContext();
-      const now = ctx.currentTime;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      const filter = ctx.createBiquadFilter();
-
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(520, now);
-      osc.frequency.exponentialRampToValueAtTime(660, now + 0.08);
-      osc.frequency.exponentialRampToValueAtTime(440, now + 0.22);
-
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(900, now);
-
-      gain.gain.setValueAtTime(0.0005, now);
-      gain.gain.linearRampToValueAtTime(0.02, now + 0.04);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
-
-      osc.connect(filter);
-      filter.connect(gain);
-      if (this.fxGain) {
-        gain.connect(this.fxGain);
-      } else {
-        gain.connect(ctx.destination);
-      }
-
-      osc.start(now);
-      osc.stop(now + 0.28);
-    } catch {
-      // Audio not permitted yet
-    }
+    // Sound effects completely muted
   }
 
   /**
-   * Play royal cloud parted chime (pentatonic ascending harp + ceremonial gong)
+   * Play royal cloud parted chime - DISABLED per user request
    */
   public playCloudPartChime() {
-    try {
-      const ctx = this.getAudioContext();
-      const now = ctx.currentTime;
-
-      const chord = [293.66, 392.0, 440.0, 587.33, 659.25, 880.0];
-      chord.forEach((freq, idx) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        const startTime = now + idx * 0.08;
-
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(freq, startTime);
-        osc.frequency.exponentialRampToValueAtTime(freq * 1.008, startTime + 0.15);
-
-        gain.gain.setValueAtTime(0.0001, startTime);
-        gain.gain.linearRampToValueAtTime(0.09 / (idx * 0.25 + 1), startTime + 0.04);
-        gain.gain.exponentialRampToValueAtTime(0.00001, startTime + 2.5);
-
-        osc.connect(gain);
-        if (this.fxGain) {
-          gain.connect(this.fxGain);
-        } else {
-          gain.connect(ctx.destination);
-        }
-
-        osc.start(startTime);
-        osc.stop(startTime + 2.6);
-      });
-
-      // Warm gong sub-tone
-      const gongOsc = ctx.createOscillator();
-      const gongGain = ctx.createGain();
-      gongOsc.type = 'sine';
-      gongOsc.frequency.setValueAtTime(146.83, now); // D3
-      gongGain.gain.setValueAtTime(0.0001, now);
-      gongGain.gain.linearRampToValueAtTime(0.12, now + 0.05);
-      gongGain.gain.exponentialRampToValueAtTime(0.00001, now + 3.2);
-
-      gongOsc.connect(gongGain);
-      if (this.fxGain) {
-        gongGain.connect(this.fxGain);
-      } else {
-        gongGain.connect(ctx.destination);
-      }
-
-      gongOsc.start(now);
-      gongOsc.stop(now + 3.3);
-    } catch {
-      // Audio not permitted yet
-    }
+    // Sound effects completely muted
   }
 
   public getStatus() {

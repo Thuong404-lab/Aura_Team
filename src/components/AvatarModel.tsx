@@ -317,7 +317,7 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
   const isCompletelyBare = !activeGarment && !activeBottom && !activeAccessory;
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center select-none overflow-hidden">
+    <div className={`relative w-full h-full flex flex-col items-center justify-center select-none ${hideOverlays ? 'overflow-visible' : 'overflow-hidden'}`}>
       {/* 1. Bronze Drum (Trống Đồng) Circular Mandala Glow in Background */}
       {!hideOverlays && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -343,29 +343,7 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
         </motion.div>
       )}
 
-      {/* 3. Cultural Violation Floating Warning Badge */}
-      {!hideOverlays && hasCriticalViolation && (
-        <motion.button
-          onClick={onViolationClick}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.98 }}
-          className="absolute top-4 left-3 sm:top-5 sm:left-4 z-40 px-3 py-1.5 rounded-xl bg-rose-950/95 border border-rose-500/80 backdrop-blur-md shadow-2xl flex items-center gap-2 pointer-events-auto cursor-pointer hover:border-rose-400 hover:bg-rose-900/90 transition-all text-left group"
-          title="Bấm để xem chi tiết điều cấm kỵ & sửa tự động"
-        >
-          <AlertCircle className="w-4 h-4 text-rose-400 group-hover:scale-110 animate-pulse shrink-0" />
-          <div className="text-left">
-            <div className="text-[10px] font-bold text-rose-300 uppercase font-sans-vi flex items-center gap-1">
-              <span>⚠️ Cảnh Báo Cấm Kỵ</span>
-              <span className="text-[9px] text-rose-400 underline font-normal">Sửa ngay</span>
-            </div>
-            <div className="text-[11px] text-rose-100 font-sans-vi max-w-[280px] leading-tight font-medium">
-              {culturalEvaluation.violations[0].title}
-            </div>
-          </div>
-        </motion.button>
-      )}
+
 
       {/* 4. Interactive Cultural Callout Hotspots */}
       {showCulturePins && !hideOverlays && (
@@ -512,14 +490,15 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
       {/* ========================================================
           5. BẢN VẼ 2D SIÊU CHI TIẾT: HOA VĂN, NẾP GẤP, 16 PHỤ KIỆN
          ======================================================== */}
-      <div className="relative w-[280px] sm:w-[320px] md:w-[360px] h-[500px] sm:h-[550px] flex items-center justify-center">
+      <div className="relative w-full max-w-[360px] h-full max-h-[580px] flex items-center justify-center">
         {/* Soft Floor Shadow */}
         <div className="absolute bottom-3 w-52 h-6 bg-black/60 blur-md rounded-full pointer-events-none" />
 
         <svg
           ref={svgRef}
           viewBox="0 0 380 640"
-          className="w-full h-full drop-shadow-[0_16px_44px_rgba(0,0,0,0.85)] overflow-visible"
+          className="w-full h-full max-h-full drop-shadow-[0_16px_44px_rgba(0,0,0,0.85)] overflow-visible"
+          preserveAspectRatio="xMidYMid meet"
         >
           <defs>
             {/* Skin Tone Gradient for Illustrated Model */}
@@ -752,6 +731,35 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
             {/* Gentle smile curve */}
             <path d="M186 85 Q190 88 194 85" stroke="rgba(180, 90, 70, 0.4)" strokeWidth="0.8" fill="none" />
 
+            {/* Mannequin Illustrated Arms & Shoulders (Đầy đủ hai cánh tay thon thả, bắp tay, khuỷu tay và cẳng tay nối liền cổ tay) */}
+            <g id="mannequin-arms">
+              {/* Shoulders & Collarbones (Xương quai xanh & bờ vai mềm mại) */}
+              <path d="M182 128 Q168 131 156 138" stroke="rgba(180, 120, 90, 0.3)" strokeWidth="0.8" fill="none" />
+              <path d="M198 128 Q212 131 224 138" stroke="rgba(180, 120, 90, 0.3)" strokeWidth="0.8" fill="none" />
+              <path d="M180 124 Q166 128 154 140" stroke="rgba(180, 120, 90, 0.3)" strokeWidth="0.8" fill="none" />
+              <path d="M200 124 Q214 128 226 140" stroke="rgba(180, 120, 90, 0.3)" strokeWidth="0.8" fill="none" />
+
+              {/* Left Arm (Cánh tay trái: Vai, bắp tay, khuỷu tay, cẳng tay liền mạch xuống cổ tay) */}
+              <path
+                d="M154 140 Q140 178 132 230 Q126 270 123 305 L133 306 Q138 270 143 230 Q150 185 148 165 Z"
+                fill="url(#skinTone2D)"
+                stroke="rgba(180, 120, 90, 0.35)"
+                strokeWidth="0.8"
+              />
+              {/* Left Elbow crease line */}
+              <path d="M136 230 Q140 233 143 231" stroke="rgba(180, 120, 90, 0.25)" strokeWidth="0.7" fill="none" />
+
+              {/* Right Arm (Cánh tay phải: Vai, bắp tay, khuỷu tay, cẳng tay liền mạch xuống cổ tay) */}
+              <path
+                d="M226 140 Q240 178 248 230 Q254 270 257 305 L247 306 Q242 270 237 230 Q230 185 232 165 Z"
+                fill="url(#skinTone2D)"
+                stroke="rgba(180, 120, 90, 0.35)"
+                strokeWidth="0.8"
+              />
+              {/* Right Elbow crease line */}
+              <path d="M244 230 Q240 233 237 231" stroke="rgba(180, 120, 90, 0.25)" strokeWidth="0.7" fill="none" />
+            </g>
+
             {/* Bare Under-Camisole / Torso when Top is unselected */}
             {!activeGarment && (
               <g id="bare-camisole-torso">
@@ -767,7 +775,7 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({
               </g>
             )}
 
-            {/* Mannequin Hands (Y: 305 to 335) */}
+            {/* Mannequin Hands (Y: 305 to 335, khớp nối tự nhiên với cẳng tay) */}
             <g id="mannequin-hands">
               {/* Left Hand */}
               <path

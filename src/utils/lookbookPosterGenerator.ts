@@ -129,6 +129,7 @@ async function drawMannequinSvgToCanvas(
     if (element) {
       svgEl =
         element.querySelector('#lookbook-mannequin-wrapper svg') ||
+        element.querySelector('svg[viewBox="0 0 380 640"]') ||
         element.querySelector('svg[viewBox="0 0 380 620"]') ||
         element.querySelector('svg');
     }
@@ -136,6 +137,7 @@ async function drawMannequinSvgToCanvas(
       svgEl =
         document.querySelector('#lookbook-mannequin-wrapper svg') ||
         document.querySelector('#lookbook-poster-preview-card svg') ||
+        document.querySelector('svg[viewBox="0 0 380 640"]') ||
         document.querySelector('svg[viewBox="0 0 380 620"]');
     }
 
