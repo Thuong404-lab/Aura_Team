@@ -274,7 +274,7 @@ export const CULTURAL_GARMENTS: GarmentShowcaseItem[] = [
     fabricMatch: 'Lụa tơ tằm Hà Đông mỏng nhẹ, Đũi tơ sống',
     colorSpirit: 'Đỏ Yếm Đào / Hồng Cánh Sen / Trắng Ngà Lụa Bạch',
     colorHex: '#B23A48',
-    imageUrl: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=600',
+    imageUrl: 'https://res.cloudinary.com/f4wgawlg/image/upload/v1791628427/c3b121baed46eda097d086ba2fa8d867.jpg',
     avatarTopId: 'ao-yem',
     layerStructure: [
       { layer: 1, name: 'Yếm lụa ôm sát ngực', purpose: 'Nâng niu cơ thể và tạo điểm tựa êm ái' },
@@ -307,7 +307,7 @@ export const CULTURAL_GARMENTS: GarmentShowcaseItem[] = [
     fabricMatch: 'Đũi tơ tằm pha sợi bạc, Lụa cát cao cấp',
     colorSpirit: 'Đỏ Thẫm Hiện Đại / Trắng Ngà Ánh Kim / Xanh Rêu',
     colorHex: '#8B1E1E',
-    imageUrl: 'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&q=80&w=600',
+    imageUrl: 'https://res.cloudinary.com/f4wgawlg/image/upload/v1791628438/chup_ao_dai_cach_tan_2a2ec016549749fb8fb7fbe3bdc1c7d0.webp',
     avatarTopId: 'cach-tan',
     layerStructure: [
       { layer: 1, name: 'Lớp lót tơ lụa kháng khuẩn', purpose: 'Tạo cảm giác thông thoáng cho ngày dài' },

@@ -1,3 +1,4 @@
+import dns from 'node:dns';
 import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -5,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
 import { createServer as createViteServer } from 'vite';
 
+dns.setDefaultResultOrder('ipv4first');
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -22,6 +24,7 @@ if (apiKey && apiKey !== 'MY_GEMINI_API_KEY' && !apiKey.startsWith('MY_')) {
   ai = new GoogleGenAI({
     apiKey,
     httpOptions: {
+      timeout: 5000,
       headers: {
         'User-Agent': 'aistudio-build',
       },
